@@ -1,0 +1,4004 @@
+{
+"cases": [
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"side": "r",
+"targets": {
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/r"
+],
+"text": "raise your left paw"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/l"
+],
+"text": "raise your right paw"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/l"
+],
+"text": "raise your paw"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2,
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/both"
+],
+"text": "raise both paws"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2,
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/both"
+],
+"text": "raise your paws"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2,
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/both"
+],
+"text": "put your hands up"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2,
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/both"
+],
+"text": "hands up"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"side": "r",
+"targets": {
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/r"
+],
+"text": "can you raise your left hand please"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.24,
+"hand_l_y": 1.2,
+"hand_l_z": 0.24
+}
+}
+],
+"expect": [
+"pose/raise_paw/l"
+],
+"text": "lift your right arm up high"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"side": "r",
+"targets": {
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.1,
+"hand_r_y": 0.5,
+"hand_r_z": 0.1
+}
+}
+],
+"expect": [
+"pose/raise_paw/r"
+],
+"text": "Felix raise your left paw a little"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.26,
+"hand_l_y": 1.2,
+"hand_l_z": 0.26,
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.26,
+"hand_r_y": 1.2,
+"hand_r_z": 0.26
+}
+}
+],
+"expect": [
+"pose/raise_paw/both"
+],
+"text": "raise both of your paws all the way"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"side": "r",
+"targets": {
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/r"
+],
+"text": "put your left paw in the air"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/l"
+],
+"text": "keep your paw up"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"hand_l",
+"hand_r"
+]
+}
+],
+"expect": [
+"release/hand_l+hand_r"
+],
+"text": "put your paw down"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"hand_r"
+]
+}
+],
+"expect": [
+"release/hand_r"
+],
+"text": "put your left paw down"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"hand_l"
+]
+}
+],
+"expect": [
+"release/hand_l"
+],
+"text": "lower your right hand"
+},
+{
+"cmds": [
+{
+"action": "object",
+"object": {
+"ref": "it"
+},
+"verb": "put_down"
+}
+],
+"expect": [
+"object/put_down obj.ref=it"
+],
+"text": "put it down"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"hand_l",
+"hand_r"
+]
+}
+],
+"expect": [
+"release/hand_l+hand_r"
+],
+"text": "you can put your paws down"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "okay"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "ok thanks"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "relax"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "you can stop"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "never mind"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "stop that"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "that's enough"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": "all"
+}
+],
+"expect": [
+"release/all"
+],
+"text": "back to normal"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"hand_l",
+"hand_r"
+]
+}
+],
+"expect": [
+"release/hand_l+hand_r"
+],
+"text": "stop waving"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "wave"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "wave at me"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "can you wave hello"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"repeat": 3,
+"side": "r"
+}
+],
+"expect": [
+"gesture/wave/r"
+],
+"text": "wave your left paw"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "wave with your right hand"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"repeat": 3,
+"side": "both"
+}
+],
+"expect": [
+"gesture/wave/both"
+],
+"text": "wave with both paws"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "hey Rosie wave goodbye"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "give me a wave"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"hold": true,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "keep waving"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 2,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "wave twice"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "right",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wink/l"
+],
+"text": "wink"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "right",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wink/l"
+],
+"text": "wink at me"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "left",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "r"
+}
+],
+"expect": [
+"gesture/wink/r"
+],
+"text": "wink your left eye"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "right",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wink/l"
+],
+"text": "give me a wink"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 400,
+"name": "blink",
+"own": "both",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "both"
+}
+],
+"expect": [
+"gesture/blink/both"
+],
+"text": "blink"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 400,
+"name": "blink",
+"own": "both",
+"parts": [
+"eyes"
+],
+"repeat": 2,
+"side": "both"
+}
+],
+"expect": [
+"gesture/blink/both"
+],
+"text": "blink twice"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "nod",
+"parts": [
+"head"
+],
+"repeat": 2
+}
+],
+"expect": [
+"gesture/nod"
+],
+"text": "nod"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "nod",
+"parts": [
+"head"
+],
+"repeat": 2
+}
+],
+"expect": [
+"gesture/nod"
+],
+"text": "nod your head"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "nod",
+"parts": [
+"head"
+],
+"repeat": 2
+}
+],
+"expect": [
+"gesture/nod"
+],
+"text": "nod yes"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1300,
+"name": "shake_head",
+"parts": [
+"head"
+],
+"repeat": 2
+}
+],
+"expect": [
+"gesture/shake_head"
+],
+"text": "shake your head"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1300,
+"name": "shake_head",
+"parts": [
+"head"
+],
+"repeat": 2
+}
+],
+"expect": [
+"gesture/shake_head"
+],
+"text": "shake your head no"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2000,
+"name": "clap",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"repeat": 4,
+"side": "both"
+}
+],
+"expect": [
+"gesture/clap/both"
+],
+"text": "clap"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2000,
+"name": "clap",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"repeat": 4,
+"side": "both"
+}
+],
+"expect": [
+"gesture/clap/both"
+],
+"text": "clap your hands"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2000,
+"name": "clap",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"repeat": 4,
+"side": "both"
+}
+],
+"expect": [
+"gesture/clap/both"
+],
+"text": "give me a round of applause"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2500,
+"name": "thumbs_up",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 1,
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": 0.1,
+"hand_l_y": 0.45,
+"hand_l_z": 0.45,
+"thumb_l": 1.0
+}
+}
+],
+"expect": [
+"gesture/thumbs_up/l"
+],
+"text": "thumbs up"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2500,
+"name": "thumbs_up",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 1,
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": 0.1,
+"hand_l_y": 0.45,
+"hand_l_z": 0.45,
+"thumb_l": 1.0
+}
+}
+],
+"expect": [
+"gesture/thumbs_up/l"
+],
+"text": "give me a thumbs up"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2500,
+"name": "thumbs_up",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"repeat": 1,
+"side": "both",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": 0.1,
+"hand_l_y": 0.45,
+"hand_l_z": 0.45,
+"hand_r_open": 0.0,
+"hand_r_x": 0.1,
+"hand_r_y": 0.45,
+"hand_r_z": 0.45,
+"thumb_l": 1.0,
+"thumb_r": 1.0
+}
+}
+],
+"expect": [
+"gesture/thumbs_up/both"
+],
+"text": "give me two thumbs up"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1600,
+"name": "shrug",
+"own": "both",
+"parts": [
+"shoulders",
+"hand_l",
+"hand_r"
+],
+"repeat": 1,
+"side": "both"
+}
+],
+"expect": [
+"gesture/shrug/both"
+],
+"text": "shrug"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1600,
+"name": "shrug",
+"own": "both",
+"parts": [
+"shoulders",
+"hand_l",
+"hand_r"
+],
+"repeat": 1,
+"side": "both"
+}
+],
+"expect": [
+"gesture/shrug/both"
+],
+"text": "shrug your shoulders"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "ear_wiggle",
+"own": "both",
+"parts": [
+"ear_l",
+"ear_r"
+],
+"repeat": 3,
+"side": "both"
+}
+],
+"expect": [
+"gesture/ear_wiggle/both"
+],
+"text": "wiggle your ears"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "ear_wiggle",
+"own": "left",
+"parts": [
+"ear_r"
+],
+"repeat": 3,
+"side": "r"
+}
+],
+"expect": [
+"gesture/ear_wiggle/r"
+],
+"text": "wiggle your left ear"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "ear_wiggle",
+"own": "right",
+"parts": [
+"ear_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/ear_wiggle/l"
+],
+"text": "twitch your right ear"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 500,
+"name": "ear_flick",
+"own": "both",
+"parts": [
+"ear_l",
+"ear_r"
+],
+"repeat": 1,
+"side": "both"
+}
+],
+"expect": [
+"gesture/ear_flick/both"
+],
+"text": "flick your ear"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "nose_wiggle",
+"parts": [
+"nose"
+],
+"repeat": 3
+}
+],
+"expect": [
+"gesture/nose_wiggle"
+],
+"text": "wiggle your nose"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "nose_wiggle",
+"parts": [
+"nose"
+],
+"repeat": 3
+}
+],
+"expect": [
+"gesture/nose_wiggle"
+],
+"text": "twitch your nose"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2000,
+"name": "tail_wag",
+"parts": [
+"tail"
+],
+"repeat": 4
+}
+],
+"expect": [
+"gesture/tail_wag"
+],
+"text": "wag your tail"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2000,
+"hold": true,
+"name": "tail_wag",
+"parts": [
+"tail"
+],
+"repeat": 4
+}
+],
+"expect": [
+"gesture/tail_wag"
+],
+"text": "keep wagging your tail"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "stick_tongue_out",
+"parts": [
+"tongue",
+"mouth"
+],
+"targets": {
+"mouth_open": 0.35,
+"tongue_out": 1.0
+}
+}
+],
+"expect": [
+"pose/stick_tongue_out"
+],
+"text": "stick out your tongue"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "stick_tongue_out",
+"parts": [
+"tongue",
+"mouth"
+],
+"targets": {
+"mouth_open": 0.35,
+"tongue_out": 1.0
+}
+}
+],
+"expect": [
+"pose/stick_tongue_out"
+],
+"text": "stick your tongue out"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "stick_tongue_out",
+"parts": [
+"tongue",
+"mouth"
+],
+"targets": {
+"mouth_open": 0.35,
+"tongue_out": 1.0
+}
+}
+],
+"expect": [
+"pose/stick_tongue_out"
+],
+"text": "show me your tongue"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"mouth",
+"tongue",
+"expression"
+]
+}
+],
+"expect": [
+"release/expression+mouth+tongue"
+],
+"text": "put your tongue away"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "open_mouth",
+"parts": [
+"mouth"
+],
+"targets": {
+"mouth_open": 0.7
+}
+}
+],
+"expect": [
+"pose/open_mouth"
+],
+"text": "open your mouth"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "open_mouth",
+"parts": [
+"mouth"
+],
+"targets": {
+"mouth_open": 0.7
+}
+}
+],
+"expect": [
+"pose/open_mouth"
+],
+"text": "open your mouth wide"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "open_mouth",
+"parts": [
+"mouth"
+],
+"targets": {
+"mouth_open": 0.7
+}
+}
+],
+"expect": [
+"pose/open_mouth"
+],
+"text": "say ah"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"mouth",
+"tongue",
+"expression"
+]
+}
+],
+"expect": [
+"release/expression+mouth+tongue"
+],
+"text": "close your mouth"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 250,
+"hold": true,
+"name": "close_eyes",
+"own": "both",
+"parts": [
+"eyes"
+],
+"side": "both",
+"targets": {
+"blink_l": 1.0,
+"blink_r": 1.0
+}
+}
+],
+"expect": [
+"pose/close_eyes/both"
+],
+"text": "close your eyes"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 250,
+"hold": true,
+"name": "close_eyes",
+"own": "left",
+"parts": [
+"eyes"
+],
+"side": "r",
+"targets": {
+"blink_r": 1.0
+}
+}
+],
+"expect": [
+"pose/close_eyes/r"
+],
+"text": "close your left eye"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"eyes"
+]
+}
+],
+"expect": [
+"release/eyes"
+],
+"text": "open your eyes"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"target": "up"
+}
+],
+"expect": [
+"look/up"
+],
+"text": "look up"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"target": "down"
+}
+],
+"expect": [
+"look/down"
+],
+"text": "look down"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"screen_side": "r",
+"target": "left"
+}
+],
+"expect": [
+"look/left"
+],
+"text": "look left"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"screen_side": "l",
+"target": "right"
+}
+],
+"expect": [
+"look/right"
+],
+"text": "look to your right"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"screen_side": "r",
+"target": "left"
+}
+],
+"expect": [
+"look/left"
+],
+"text": "look to the left"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"target": "user"
+}
+],
+"expect": [
+"look/user"
+],
+"text": "look at me"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"target": "user"
+}
+],
+"expect": [
+"look/user"
+],
+"text": "look over here"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"target": "user"
+}
+],
+"expect": [
+"look/user"
+],
+"text": "keep looking at me"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2400,
+"name": "look_around",
+"parts": [
+"gaze",
+"head"
+],
+"repeat": 1
+}
+],
+"expect": [
+"gesture/look_around"
+],
+"text": "look around"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"target": "away"
+}
+],
+"expect": [
+"look/away"
+],
+"text": "look away"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "turn_away"
+}
+],
+"expect": [
+"move/turn_away"
+],
+"text": "turn around"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "spin"
+}
+],
+"expect": [
+"move/spin"
+],
+"text": "spin around"
+},
+{
+"cmds": [
+{
+"action": "move",
+"dir": "left",
+"name": "turn"
+}
+],
+"expect": [
+"move/turn dir=left"
+],
+"text": "turn to your left"
+},
+{
+"cmds": [
+{
+"action": "move",
+"dir": "right",
+"name": "turn"
+}
+],
+"expect": [
+"move/turn dir=right"
+],
+"text": "turn right"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"screen_side": "r",
+"target": "left"
+}
+],
+"expect": [
+"look/left"
+],
+"text": "turn your head to the left"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "turn_back"
+}
+],
+"expect": [
+"move/turn_back"
+],
+"text": "face me"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "turn_back"
+}
+],
+"expect": [
+"move/turn_back"
+],
+"text": "turn back around"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_in",
+"parts": [
+"body"
+],
+"targets": {
+"body_pitch": 0.8
+}
+}
+],
+"expect": [
+"pose/lean_in"
+],
+"text": "lean in"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_in",
+"parts": [
+"body"
+],
+"targets": {
+"body_pitch": 0.8
+}
+}
+],
+"expect": [
+"pose/lean_in"
+],
+"text": "lean forward"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_in",
+"parts": [
+"body"
+],
+"targets": {
+"body_pitch": 0.8
+}
+}
+],
+"expect": [
+"pose/lean_in"
+],
+"text": "come closer"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_back",
+"parts": [
+"body"
+],
+"targets": {
+"body_pitch": -0.8
+}
+}
+],
+"expect": [
+"pose/lean_back"
+],
+"text": "lean back"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_side",
+"parts": [
+"body"
+],
+"targets": {
+"body_lean": 0.6
+}
+}
+],
+"expect": [
+"pose/lean_side"
+],
+"text": "lean to your left"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "bow"
+}
+],
+"expect": [
+"move/bow"
+],
+"text": "bow"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "bow"
+}
+],
+"expect": [
+"move/bow"
+],
+"text": "take a bow"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "jump"
+}
+],
+"expect": [
+"move/jump"
+],
+"text": "jump"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "jump"
+}
+],
+"expect": [
+"move/jump"
+],
+"text": "jump up and down"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "dance"
+}
+],
+"expect": [
+"move/dance"
+],
+"text": "do a little dance"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "spin"
+}
+],
+"expect": [
+"move/spin"
+],
+"text": "spin"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "point_user",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": -0.1,
+"hand_l_y": 0.55,
+"hand_l_z": 0.85,
+"point_l": 1.0
+}
+}
+],
+"expect": [
+"pose/point_user/l"
+],
+"text": "point at me"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "point_user",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"side": "r",
+"targets": {
+"hand_r_open": 0.0,
+"hand_r_x": -0.1,
+"hand_r_y": 0.55,
+"hand_r_z": 0.85,
+"point_r": 1.0
+}
+}
+],
+"expect": [
+"pose/point_user/r"
+],
+"text": "point at me with your left paw"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "point_side",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"side": "r",
+"targets": {
+"hand_r_open": 0.0,
+"hand_r_x": 0.6,
+"hand_r_y": 0.6,
+"hand_r_z": 0.3,
+"point_r": 1.0
+}
+}
+],
+"expect": [
+"pose/point_side/r"
+],
+"text": "point to your left"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "point_side",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": 0.6,
+"hand_l_y": 0.6,
+"hand_l_z": 0.3,
+"point_l": 1.0
+}
+}
+],
+"expect": [
+"pose/point_side/l"
+],
+"text": "point to the right"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "point_up",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": 0.15,
+"hand_l_y": 1.1,
+"hand_l_z": 0.2,
+"point_l": 1.0
+}
+}
+],
+"expect": [
+"pose/point_up/l"
+],
+"text": "point up"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "cover_eyes",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_x": -0.35,
+"hand_l_y": 1.0,
+"hand_l_z": 0.45,
+"hand_r_open": 1.0,
+"hand_r_x": -0.35,
+"hand_r_y": 1.0,
+"hand_r_z": 0.45
+}
+}
+],
+"expect": [
+"pose/cover_eyes/both"
+],
+"text": "cover your eyes"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "hand_on_heart",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_x": -0.45,
+"hand_l_y": 0.35,
+"hand_l_z": 0.25
+}
+}
+],
+"expect": [
+"pose/hand_on_heart/l"
+],
+"text": "put your hand on your heart"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "hand_on_heart",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_x": -0.45,
+"hand_l_y": 0.35,
+"hand_l_z": 0.25
+}
+}
+],
+"expect": [
+"pose/hand_on_heart/l"
+],
+"text": "hand on heart"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "thinking",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 0.3,
+"hand_l_x": -0.35,
+"hand_l_y": 0.75,
+"hand_l_z": 0.35
+}
+}
+],
+"expect": [
+"pose/thinking/l"
+],
+"text": "put your paw on your chin"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "cross_arms",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 0.2,
+"hand_l_x": -0.4,
+"hand_l_y": 0.25,
+"hand_l_z": 0.3,
+"hand_r_open": 0.2,
+"hand_r_x": -0.4,
+"hand_r_y": 0.22,
+"hand_r_z": 0.35
+}
+}
+],
+"expect": [
+"pose/cross_arms/both"
+],
+"text": "cross your arms"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "arms_open",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.55,
+"hand_l_y": 0.55,
+"hand_l_z": 0.55,
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.55,
+"hand_r_y": 0.55,
+"hand_r_z": 0.55
+}
+}
+],
+"expect": [
+"pose/arms_open/both"
+],
+"text": "give me a hug"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "smile"
+}
+],
+"expect": [
+"expression/smile"
+],
+"text": "smile"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "smile"
+}
+],
+"expect": [
+"expression/smile"
+],
+"text": "give me a big smile"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.4,
+"name": "smile"
+}
+],
+"expect": [
+"expression/smile"
+],
+"text": "smile a little"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "frown"
+}
+],
+"expect": [
+"expression/frown"
+],
+"text": "frown"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "surprised"
+}
+],
+"expect": [
+"expression/surprised"
+],
+"text": "look surprised"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "sad"
+}
+],
+"expect": [
+"expression/sad"
+],
+"text": "look sad"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "angry"
+}
+],
+"expect": [
+"expression/angry"
+],
+"text": "look angry"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "happy"
+}
+],
+"expect": [
+"expression/happy"
+],
+"text": "look really happy"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "sad"
+}
+],
+"expect": [
+"expression/sad"
+],
+"text": "make a sad face"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "scared"
+}
+],
+"expect": [
+"expression/scared"
+],
+"text": "act scared"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "confused"
+}
+],
+"expect": [
+"expression/confused"
+],
+"text": "look confused"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "silly"
+}
+],
+"expect": [
+"expression/silly"
+],
+"text": "be silly"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "brows_up",
+"own": "both",
+"parts": [
+"brows"
+],
+"side": "both",
+"targets": {
+"brow_l": 1.0,
+"brow_r": 1.0
+}
+}
+],
+"expect": [
+"pose/brows_up/both"
+],
+"text": "raise your eyebrows"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "brows_up",
+"own": "left",
+"parts": [
+"brows"
+],
+"side": "r",
+"targets": {
+"brow_r": 1.0
+}
+}
+],
+"expect": [
+"pose/brows_up/r"
+],
+"text": "raise your left eyebrow"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "brows_down",
+"parts": [
+"brows"
+],
+"targets": {
+"brow_knit": 0.9,
+"brow_l": -0.6,
+"brow_r": -0.6
+}
+}
+],
+"expect": [
+"pose/brows_down"
+],
+"text": "furrow your brows"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "brow_wiggle",
+"parts": [
+"brows"
+],
+"repeat": 3
+}
+],
+"expect": [
+"gesture/brow_wiggle"
+],
+"text": "wiggle your eyebrows"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "puff_cheeks",
+"parts": [
+"cheeks"
+],
+"targets": {
+"cheek": 1.0
+}
+}
+],
+"expect": [
+"pose/puff_cheeks"
+],
+"text": "puff out your cheeks"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "ears_up",
+"own": "both",
+"parts": [
+"ear_l",
+"ear_r"
+],
+"side": "both",
+"targets": {
+"ear_l": 1.0,
+"ear_r": 1.0
+}
+}
+],
+"expect": [
+"pose/ears_up/both"
+],
+"text": "perk up your ears"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "ears_down",
+"own": "both",
+"parts": [
+"ear_l",
+"ear_r"
+],
+"side": "both",
+"targets": {
+"ear_l": -1.0,
+"ear_r": -1.0
+}
+}
+],
+"expect": [
+"pose/ears_down/both"
+],
+"text": "put your ears down"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "ears_up",
+"own": "left",
+"parts": [
+"ear_r"
+],
+"side": "r",
+"targets": {
+"ear_r": 1.0
+}
+}
+],
+"expect": [
+"pose/ears_up/r"
+],
+"text": "raise your left ear"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "ears_down",
+"own": "right",
+"parts": [
+"ear_l"
+],
+"side": "l",
+"targets": {
+"ear_l": -1.0
+}
+}
+],
+"expect": [
+"pose/ears_down/l"
+],
+"text": "droop your right ear"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "tail_up",
+"parts": [
+"tail"
+],
+"targets": {
+"tail_raise": 1.0
+}
+}
+],
+"expect": [
+"pose/tail_up"
+],
+"text": "raise your tail"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "tail_curl",
+"parts": [
+"tail"
+],
+"targets": {
+"tail_curl": 1.0
+}
+}
+],
+"expect": [
+"pose/tail_curl"
+],
+"text": "curl your tail"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "head_tilt",
+"parts": [
+"head"
+],
+"targets": {
+"head_roll": -0.5
+}
+}
+],
+"expect": [
+"pose/head_tilt"
+],
+"text": "tilt your head"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "head_tilt",
+"parts": [
+"head"
+],
+"targets": {
+"head_roll": 0.5
+}
+}
+],
+"expect": [
+"pose/head_tilt"
+],
+"text": "tilt your head to the left"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "head_down",
+"parts": [
+"head"
+],
+"targets": {
+"head_pitch": 0.55
+}
+}
+],
+"expect": [
+"pose/head_down"
+],
+"text": "head down"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "head_up",
+"parts": [
+"head"
+],
+"targets": {
+"head_pitch": -0.5
+}
+}
+],
+"expect": [
+"pose/head_up"
+],
+"text": "chin up"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "open_paw",
+"own": "both",
+"parts": [
+"hand_l_open",
+"hand_r_open"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_r_open": 1.0
+}
+}
+],
+"expect": [
+"pose/open_paw/both"
+],
+"text": "open your paw"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "fist",
+"own": "right",
+"parts": [
+"hand_l_open"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"thumb_l": 0.0
+}
+}
+],
+"expect": [
+"pose/fist/l"
+],
+"text": "make a fist"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "squint",
+"parts": [
+"eyes"
+],
+"targets": {
+"squint": 0.8
+}
+}
+],
+"expect": [
+"pose/squint"
+],
+"text": "squint"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 250,
+"hold": true,
+"name": "wide_eyes",
+"parts": [
+"eyes"
+],
+"targets": {
+"eye_wide": 1.0
+}
+}
+],
+"expect": [
+"pose/wide_eyes"
+],
+"text": "widen your eyes"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "eye_roll",
+"parts": [
+"gaze",
+"eyes"
+],
+"repeat": 1
+}
+],
+"expect": [
+"gesture/eye_roll"
+],
+"text": "roll your eyes"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1800,
+"name": "blow_kiss",
+"own": "right",
+"parts": [
+"hand_l",
+"mouth"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"gesture/blow_kiss/l"
+],
+"text": "blow me a kiss"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1800,
+"name": "scratch_head",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/scratch_head/l"
+],
+"text": "scratch your head"
+},
+{
+"cmds": [
+{
+"action": "hold",
+"parts": "all"
+}
+],
+"expect": [
+"hold/all"
+],
+"text": "hold that"
+},
+{
+"cmds": [
+{
+"action": "hold",
+"parts": "all"
+}
+],
+"expect": [
+"hold/all"
+],
+"text": "hold it"
+},
+{
+"cmds": [
+{
+"action": "hold",
+"parts": "all"
+}
+],
+"expect": [
+"hold/all"
+],
+"text": "freeze"
+},
+{
+"cmds": [
+{
+"action": "hold",
+"parts": "all"
+}
+],
+"expect": [
+"hold/all"
+],
+"text": "don't move"
+},
+{
+"cmds": [
+{
+"action": "hold",
+"parts": "all"
+}
+],
+"expect": [
+"hold/all"
+],
+"text": "stay like that"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/l"
+],
+"text": "raise your paw and hold it"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+},
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "right",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"pose/raise_paw/l",
+"gesture/wink/l"
+],
+"text": "raise your paw and wink"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "ear_wiggle",
+"own": "both",
+"parts": [
+"ear_l",
+"ear_r"
+],
+"repeat": 3,
+"side": "both"
+},
+{
+"action": "gesture",
+"duration_ms": 2000,
+"name": "tail_wag",
+"parts": [
+"tail"
+],
+"repeat": 4
+}
+],
+"expect": [
+"gesture/ear_wiggle/both",
+"gesture/tail_wag"
+],
+"text": "wiggle your ears and wag your tail"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "okay now wave"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/l"
+],
+"text": "alright raise your right paw"
+},
+{
+"cmds": [
+{
+"action": "expression",
+"hold": true,
+"intensity": 0.8,
+"name": "smile"
+}
+],
+"expect": [
+"expression/smile"
+],
+"text": "please smile for me"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "turn_away"
+}
+],
+"expect": [
+"move/turn_away"
+],
+"text": "could you please turn around"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "nod",
+"parts": [
+"head"
+],
+"repeat": 2
+}
+],
+"expect": [
+"gesture/nod"
+],
+"text": "I want you to nod"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2000,
+"name": "clap",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"repeat": 4,
+"side": "both"
+}
+],
+"expect": [
+"gesture/clap/both"
+],
+"text": "go ahead and clap"
+},
+{
+"cmds": [
+{
+"action": "move",
+"name": "jump"
+}
+],
+"expect": [
+"move/jump"
+],
+"text": "let me see you jump"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "right",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wink/l"
+],
+"text": "that's so cool can you wink at me"
+},
+{
+"cmds": [
+{
+"action": "look",
+"hold": true,
+"target": "user"
+}
+],
+"expect": [
+"look/user"
+],
+"text": "hey Felix look at me"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 300,
+"hold": true,
+"name": "stick_tongue_out",
+"parts": [
+"tongue",
+"mouth"
+],
+"targets": {
+"mouth_open": 0.35,
+"tongue_out": 1.0
+}
+}
+],
+"expect": [
+"pose/stick_tongue_out"
+],
+"text": "Bruno, stick out your tongue"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I waved at my neighbor this morning"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "don't turn around"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "do not wave"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "please don't stick your tongue out"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "can you not do that"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "my dog wags his tail when he's happy"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I had to turn around and go home"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "can you look up the weather for me"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "look at that"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "what do you think about the weather"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "tell me a story about a fox"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "she smiled at me"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "he raised his hand in class"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "we clapped at the end of the show"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I think you look happy today"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "you look surprised"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "you look sad"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "nice smile"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "cool dance"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "great job"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "how are you doing today"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "okay so what should we do next"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "okay tell me about your day"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "what if you turned around"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "why did you wave"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "have you ever been to the ocean"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "the kids were jumping on the bed"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I love it when you smile"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "when I say jump you jump"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "if you wave I will wave back"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "my arm hurts when I raise it"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "point taken"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "that's a good point"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "let me think about it"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I need to stop at the store"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "stop by my office later"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "the bus will turn left at the light"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I'm going to lean on you for this one"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "he bowed to the queen"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "she shook her head"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "it was a big hug from grandma"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "the ears on that rabbit are huge"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "do you like your tail"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "tell me about your ears"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "what color are your eyes"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "my eyes are tired"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I can't open the jar"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "open the door for me"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "close the window"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "look up the recipe"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "look for my keys"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "can you hold on a second"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "hold on"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "wait a minute"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "thank you so much"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "sounds good"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "yes please"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "no thanks"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I'm happy"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I feel sad today"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "we should dance at the wedding"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "they told me to raise my hand"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "did you see the game last night"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "he turned around and left"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "raise the volume"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "turn up the music"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "turn off the lights"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I like how your nose wiggles"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "the wave was huge at the beach"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"hand_r"
+]
+}
+],
+"expect": [
+"release/hand_r"
+],
+"text": "put your left pod down"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/l"
+],
+"text": "raise your part and hold it"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "ear_wiggle",
+"own": "right",
+"parts": [
+"ear_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/ear_wiggle/l"
+],
+"text": "twitch you're right ear"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2000,
+"name": "tail_wag",
+"parts": [
+"tail"
+],
+"repeat": 4
+}
+],
+"expect": [
+"gesture/tail_wag"
+],
+"text": "wag her tail"
+},
+{
+"cmds": [
+{
+"action": "move",
+"dir": "left",
+"name": "turn"
+}
+],
+"expect": [
+"move/turn dir=left"
+],
+"text": "turns to your left"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 400,
+"hold": true,
+"name": "head_down",
+"parts": [
+"head"
+],
+"targets": {
+"head_pitch": 0.55
+}
+}
+],
+"expect": [
+"pose/head_down"
+],
+"text": "had down"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"side": "both",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2,
+"hand_r_open": 1.0,
+"hand_r_turn": 1.0,
+"hand_r_x": 0.2,
+"hand_r_y": 1.0,
+"hand_r_z": 0.2
+}
+}
+],
+"expect": [
+"pose/raise_paw/both"
+],
+"text": "race both pause"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "point_user",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": -0.1,
+"hand_l_y": 0.55,
+"hand_l_z": 0.85,
+"point_l": 1.0
+}
+}
+],
+"expect": [
+"pose/point_user/l"
+],
+"text": "point me"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"repeat": 3,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wave/l"
+],
+"text": "gonna wave"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "ear_wiggle",
+"own": "both",
+"parts": [
+"ear_l",
+"ear_r"
+],
+"repeat": 3,
+"side": "both"
+}
+],
+"expect": [
+"gesture/ear_wiggle/both"
+],
+"text": "wiggle your years"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "she wagged her tail"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "the waves were huge"
+},
+{
+"cmds": [
+{
+"action": "release",
+"parts": [
+"hand_l",
+"hand_r"
+]
+}
+],
+"expect": [
+"release/hand_l+hand_r"
+],
+"text": "put your pardon"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1200,
+"name": "nod",
+"parts": [
+"head"
+],
+"repeat": 2
+}
+],
+"expect": [
+"gesture/nod"
+],
+"text": "not"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "not now"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I'm not sure"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2500,
+"name": "thumbs_up",
+"own": "both",
+"parts": [
+"hand_l",
+"hand_r"
+],
+"repeat": 1,
+"side": "both",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": 0.1,
+"hand_l_y": 0.45,
+"hand_l_z": 0.45,
+"hand_r_open": 0.0,
+"hand_r_x": 0.1,
+"hand_r_y": 0.45,
+"hand_r_z": 0.45,
+"thumb_l": 1.0,
+"thumb_r": 1.0
+}
+}
+],
+"expect": [
+"gesture/thumbs_up/both"
+],
+"text": "gimme two thumbs up"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_in",
+"parts": [
+"body"
+],
+"targets": {
+"body_pitch": 0.8
+}
+}
+],
+"expect": [
+"pose/lean_in"
+],
+"text": "leaned forward"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "raise_paw",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 1.0,
+"hand_l_turn": 1.0,
+"hand_l_x": 0.2,
+"hand_l_y": 1.0,
+"hand_l_z": 0.2
+}
+},
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "right",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"pose/raise_paw/l",
+"gesture/wink/l"
+],
+"text": "raise your pie and wink"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I leaned forward to hear"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 2200,
+"name": "wave",
+"own": "left",
+"parts": [
+"hand_r"
+],
+"repeat": 3,
+"side": "r"
+}
+],
+"expect": [
+"gesture/wave/r"
+],
+"text": "wave your left palm"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 1500,
+"name": "ear_wiggle",
+"own": "left",
+"parts": [
+"ear_r"
+],
+"repeat": 3,
+"side": "r"
+}
+],
+"expect": [
+"gesture/ear_wiggle/r"
+],
+"text": "wiggle your left year"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_back",
+"parts": [
+"body"
+],
+"targets": {
+"body_pitch": -0.8
+}
+}
+],
+"expect": [
+"pose/lean_back"
+],
+"text": "mean back"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 450,
+"hold": true,
+"name": "lean_side",
+"parts": [
+"body"
+],
+"targets": {
+"body_lean": 0.6
+}
+}
+],
+"expect": [
+"pose/lean_side"
+],
+"text": "mean to your left"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 600,
+"name": "wink",
+"own": "right",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"side": "l"
+}
+],
+"expect": [
+"gesture/wink/l"
+],
+"text": "that's so cool can you winked at me"
+},
+{
+"cmds": [
+{
+"action": "pose",
+"ease_ms": 350,
+"hold": true,
+"name": "point_user",
+"own": "right",
+"parts": [
+"hand_l"
+],
+"side": "l",
+"targets": {
+"hand_l_open": 0.0,
+"hand_l_x": -0.1,
+"hand_l_y": 0.55,
+"hand_l_z": 0.85,
+"point_l": 1.0
+}
+}
+],
+"expect": [
+"pose/point_user/l"
+],
+"text": "point that me"
+},
+{
+"cmds": [
+{
+"action": "gesture",
+"duration_ms": 500,
+"name": "ear_flick",
+"own": "both",
+"parts": [
+"ear_l",
+"ear_r"
+],
+"repeat": 1,
+"side": "both"
+}
+],
+"expect": [
+"gesture/ear_flick/both"
+],
+"text": "flicker ear"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "I mean to go back home"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "what do you mean by that"
+},
+{
+"cmds": [],
+"expect": [],
+"text": "last year was hard"
+}
+]
+}

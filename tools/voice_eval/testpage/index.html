@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- voice_eval plumbing test page: proves the fake mic WAV / fake camera reach a page with the right
+     timing. Same getUserMedia audio constraints as app/page.html. Exposes window.__avatar.voiceReport() in the
+     page-interface shape; turns are real mic-energy end-of-speech detections, the latency fields are SYNTHETIC
+     (mode 'testpage') so analyze.py can be exercised end to end. -->
+<html><head><meta charset="utf-8"><title>voice_eval test page</title>
+<style>body{font:14px system-ui;background:#111;color:#ddd;margin:12px} #go{font:600 18px system-ui;padding:12px 28px}
+#go.stop{background:#c33;color:#fff} pre{white-space:pre-wrap} video{width:320px;border:1px solid #444}</style></head>
+<body>
+<div><button id="go">Start</button> <span id="st">idle</span></div>
+<video id="v" autoplay muted playsinline></video>
+<pre id="log"></pre>
+<script>
+const Q = new URLSearchParams(location.search);
+const THR_DB = Number(Q.get('thr_db') || -50), HANG_MS = Number(Q.get('hang_ms') || 500), MIN_SPEECH_MS = 150;
+const S = { state: 'idle', turns: [], segs: [], timeline: [], cam: {}, gum_ms: null, frames: 0, t_start: null };
+const $ = (id) => document.getElementById(id);
+const logl = (s) => { $('log').textContent = s + '\n' + $('log').textContent.slice(0, 3000); console.log(s); };
+const worklet = `class R extends AudioWorkletProcessor{constructor(){super();this.acc=0;this.n=0}
+process(i){const x=i[0]&&i[0][0];if(x){for(let k=0;k<x.length;k++){this.acc+=x[k]*x[k]}this.n+=x.length;
+if(this.n>=480){this.port.postMessage({rms:Math.sqrt(this.acc/this.n),frame:currentFrame});this.acc=0;this.n=0}}return true}}
+registerProcessor('rms',R);`;
+let seg = null, lastLoud = null;
+function onRms(db, t) {
+  if (S.timeline.length < 200000) S.timeline.push([Math.round(t), Math.round(db * 10) / 10]);
+  if (db > THR_DB) {
+    if (!seg) seg = { start_ms: t, loud_ms: 0 };
+    seg.loud_ms += 10; lastLoud = t;
+  } else if (seg && t - lastLoud > HANG_MS) {
+    if (seg.loud_ms >= MIN_SPEECH_MS) {
+      const i = S.turns.length;
+      S.segs.push({ start_ms: seg.start_ms, end_ms: lastLoud });
+      // synthetic latencies, deterministic per turn index
+      const tap = 400 + 25 * i, aud = tap + 120;
+      S.turns.push({ user_start_ms: Math.round(seg.start_ms), user_end_ms: Math.round(lastLoud), first_tap_ms: Math.round(lastLoud + tap),
+        first_audible_ms: Math.round(lastLoud + aud), tap_lat_ms: tap, audible_lat_ms: aud, text: `synthetic turn ${i + 1}` });
+      if (i % 3 === 2) S.calls.push({ name: 'gesture', args: { synthetic: true }, start_ms: Math.round(lastLoud + 700), done_ms: Math.round(lastLoud + 900), start_lat_ms: 700, done_lat_ms: 900 });
+      logl(`turn ${i + 1}: speech ${(seg.start_ms - S.gum_ms).toFixed(0)}..${(lastLoud - S.gum_ms).toFixed(0)} ms after gUM`);
+    }
+    seg = null;
+  }
+}
+S.calls = [];
+async function start() {
+  if (S.state !== 'idle') return;
+  S.state = 'starting'; $('go').classList.add('stop'); $('go').textContent = 'Stop';
+  const ctx = new AudioContext({ sampleRate: 48000, latencyHint: 'interactive' }); S.ctx = ctx;
+  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([worklet], { type: 'text/javascript' })));
+  const t_req = performance.now();
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+  S.gum_ms = performance.now(); S.gum_req_ms = t_req;
+  S.audio_track = stream.getAudioTracks()[0].label; S.audio_settings = stream.getAudioTracks()[0].getSettings();
+  const src = ctx.createMediaStreamSource(stream), node = new AudioWorkletNode(ctx, 'rms');
+  node.port.onmessage = (e) => onRms(20 * Math.log10(e.data.rms + 1e-9), performance.now());
+  src.connect(node); S.stream = stream; S.state = 'listening'; $('st').textContent = 'listening';
+  logl(`gUM audio resolved at ${S.gum_ms.toFixed(0)} ms: ${S.audio_track}`);
+  try {
+    const vs = await navigator.mediaDevices.getUserMedia({ video: true }); S.vstream = vs;
+    const v = $('v'); v.srcObject = vs; const vt = vs.getVideoTracks()[0];
+    S.cam = { label: vt.label, settings: vt.getSettings(), lumas: [] };
+    const cv = document.createElement('canvas'), cx = cv.getContext('2d', { willReadFrequently: true });
+    const tick = () => { S.frames++; if (S.frames % 30 === 1 && v.videoWidth) {
+        cv.width = v.videoWidth; cv.height = v.videoHeight; cx.drawImage(v, 0, 0);
+        const d = cx.getImageData(0, 0, cv.width, cv.height).data; let r = 0, g = 0, b = 0;
+        for (let k = 0; k < d.length; k += 16) { r += d[k]; g += d[k + 1]; b += d[k + 2]; }
+        const n = d.length / 16; let diff = null;
+        if (S.prevPix && S.prevPix.length === d.length) { let a = 0; for (let k = 0; k < d.length; k += 16) a += Math.abs(d[k + 1] - S.prevPix[k + 1]); diff = Math.round(a / n * 100) / 100; }
+        S.prevPix = d.slice();
+        S.cam.lumas.push([Math.round(performance.now() - S.gum_ms), Math.round(r / n), Math.round(g / n), Math.round(b / n), diff]);
+        S.cam.w = v.videoWidth; S.cam.h = v.videoHeight; }
+      v.requestVideoFrameCallback(tick); };
+    v.requestVideoFrameCallback(tick); S.cam.t0 = performance.now();
+  } catch (e) { S.cam = { error: String(e) }; }
+}
+function stop() { if (S.stream) S.stream.getTracks().forEach((t) => t.stop()); if (S.vstream) S.vstream.getTracks().forEach((t) => t.stop());
+  S.state = 'idle'; $('go').classList.remove('stop'); $('go').textContent = 'Start'; $('st').textContent = 'stopped'; }
+function voiceReport() {
+  const el = S.cam.t0 ? (performance.now() - S.cam.t0) / 1000 : 0;
+  return { mode: 'testpage', vad: 'energy', state: S.state, turns: S.turns, calls: S.calls, delay_ms: null,
+    video_rtt_ms: { p50: null, p90: null, n: 0 }, usage: {}, usd_est: 0, events: [],
+    test: { gum_req_ms: S.gum_req_ms, gum_ms: S.gum_ms, thr_db: THR_DB, hang_ms: HANG_MS, segs: S.segs, audio_track: S.audio_track,
+      audio_settings: S.audio_settings, cam: S.cam, cam_fps: el ? Math.round(S.frames / el * 10) / 10 : null, timeline: S.timeline } };
+}
+$('go').onclick = () => (S.state === 'idle' ? start() : stop());
+window.__avatar = { S, start, stop, voiceReport };
+if (Q.get('auto') === '1') start().catch((e) => logl('start failed: ' + e));
+</script></body></html>

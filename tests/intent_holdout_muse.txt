@@ -1,0 +1,311 @@
+# FROZEN muse holdout — written 2026-11-07 before tuning
+# Muse (cream plush figure with legs) at the desk scene of tests/props_mock/muse.json:
+# headphones (pink), chair (white), desk (brown), laptop (gray), mug (blue), book (red), ball (yellow), plant (green).
+# Labels per the intent-set conventions (tests/intent_eval.py) incl. the muse object verbs. Lowercase ASR-style, no punctuation.
+# Speakers imagined: an adult, Mia (8), Leo (6), an adult tester trying to trick it.
+
+# ---------- put_on ----------
+put on your headphones | object/put_on obj.name=headphones
+muse can you put your headphones on | object/put_on obj.name=headphones
+um put the uh the headphones on | object/put_on obj.name=headphones
+wear your headphones | object/put_on obj.name=headphones
+try on the pink headphones | object/put_on obj.color=pink obj.name=headphones
+hey moose put your head phones on | object/put_on obj.name=headphones
+would you mind putting your headset on | object/put_on obj.name=headset
+simon says put on the headphones | object/put_on obj.name=headphones
+could you slip on your headphones please | object/put_on obj.name=headphones
+muse muse put you're headphones on | object/put_on obj.name=headphones
+
+# ---------- take_off ----------
+take off your headphones | object/take_off obj.name=headphones
+muse take your headphones off please | object/take_off obj.name=headphones
+could you remove the headphones | object/take_off obj.name=headphones
+pull off the headphones | object/take_off obj.name=headphones
+uh take off the um take off the headphones | object/take_off obj.name=headphones
+headphones off please | object/take_off obj.name=headphones
+can you take the pink headphones off | object/take_off obj.color=pink obj.name=headphones
+
+# ---------- pull ----------
+pull the chair over here | object/pull obj.name=chair target=me
+can you pull your chair closer | object/pull obj.name=chair target=closer
+pull the chair up to the desk | object/pull obj.name=chair target.name=desk
+could you pull the uh pull the chair over hear | object/pull obj.name=chair target=me
+pull the laptop toward me | object/pull obj.name=laptop target=me
+muse pull your chair back a little | object/pull obj.name=chair target=back
+pull out the chair | object/pull obj.name=chair
+
+# ---------- push ----------
+push the chair back | object/push obj.name=chair target=back
+push the laptop away | object/push obj.name=laptop target=away
+i want you to push your chair under the desk | object/push obj.name=chair target.name=desk
+push the mug a little farther away | object/push obj.name=mug target=away
+push the ball over to me | object/push obj.name=ball target=me
+would you push the book further away | object/push obj.name=book target=away
+
+# ---------- bring (target forms; "bring me the X" is offer, see props section) ----------
+bring the chair over here | object/bring obj.name=chair target=me
+bring the desk over here | object/bring obj.name=desk target=me
+can you bring the plant closer | object/bring obj.name=plant target=closer
+bring your chair to the desk | object/bring obj.name=chair target.name=desk
+bring the chair back | object/bring obj.name=chair target=back
+muse bring your chair a little closer | object/bring obj.name=chair target=closer
+
+# ---------- slide (incl. "move <O> closer/away") ----------
+slide the laptop over to me | object/slide obj.name=laptop target=me
+slide the laptop closer | object/slide obj.name=laptop target=closer
+move the laptop closer | object/slide obj.name=laptop target=closer
+slide the book away | object/slide obj.name=book target=away
+slide the mug back | object/slide obj.name=mug target=back
+could you slide the chair up to the desk | object/slide obj.name=chair target.name=desk
+move the mug farther away | object/slide obj.name=mug target=away
+
+# ---------- sit_in ----------
+sit in the chair | object/sit_in obj.name=chair
+muse sit on your chair | object/sit_in obj.name=chair
+have a seat in the chair | object/sit_in obj.name=chair
+could you go sit in the white chair | object/sit_in obj.color=white obj.name=chair
+sit down on the chair | object/sit_in obj.name=chair
+sit in your seat | object/sit_in obj.name=seat
+
+# ---------- sit_at ----------
+sit at the desk | object/sit_at obj.name=desk
+sit down at your desk | object/sit_at obj.name=desk
+mews can you sit at the desk | object/sit_at obj.name=desk
+take a seat at the desk | object/sit_at obj.name=desk
+would you sit at you're desk please | object/sit_at obj.name=desk
+how about you sit at the desk for a while | object/sit_at obj.name=desk
+
+# ---------- stand_up with an object ----------
+get up from the chair | object/stand_up obj.name=chair
+get out of the chair | object/stand_up obj.name=chair
+could you stand up from your chair | object/stand_up obj.name=chair
+get off the chair | object/stand_up obj.name=chair
+muse please get up out of your chair | object/stand_up obj.name=chair
+get up from the desk | object/stand_up obj.name=desk
+
+# ---------- open ----------
+open the laptop | object/open obj.name=laptop
+open your book | object/open obj.name=book
+flip open the laptop | object/open obj.name=laptop
+can you open it up | object/open obj.ref=it
+open up the lap top | object/open obj.name=laptop
+crack open the red book | object/open obj.color=red obj.name=book
+
+# ---------- close / shut ----------
+close the laptop | object/close obj.name=laptop
+shut the book | object/close obj.name=book
+close it | object/close obj.ref=it
+snap your laptop shut | object/close obj.name=laptop
+would you close the book please | object/close obj.name=book
+open the uh no wait close the laptop | object/close obj.name=laptop
+shut the computer | object/close obj.name=computer
+
+# ---------- use ----------
+use the laptop | object/use obj.name=laptop
+play with the ball | object/use obj.name=ball
+could you use your computer for a bit | object/use obj.name=computer
+pleeease play with your yellow ball | object/use obj.color=yellow obj.name=ball
+muse try using the laptop | object/use obj.name=laptop
+
+# ---------- work_on ----------
+get to work | object/work_on
+work on the laptop | object/work_on obj.name=laptop
+do some work on your computer | object/work_on obj.name=computer
+can you get back to work | object/work_on
+start working on the laptop | object/work_on obj.name=laptop
+let's get to work | object/work_on
+time to get some work done | object/work_on
+
+# ---------- type_on ----------
+type on the laptop | object/type_on obj.name=laptop
+type something | object/type_on
+start typing | object/type_on
+can you do some typing on the computer | object/type_on obj.name=computer
+show me how you type | object/type_on
+type a little on your laptop for me | object/type_on obj.name=laptop
+type on the laptop until i say stop | object/type_on obj.name=laptop hold=true
+
+# ---------- stop ----------
+stop working | object/stop
+stop typing | object/stop
+stop using the laptop | object/stop obj.name=laptop
+stop playing with the ball | object/stop obj.name=ball
+muse you can stop working now | object/stop
+okay quit typing | object/stop
+stop working on the laptop | object/stop obj.name=laptop
+
+# ---------- facing him again (turn_back); "look at me" stays legacy ----------
+turn back to me | move/turn_back
+muse talk to me | move/turn_back
+face me | move/turn_back
+come back to me | move/turn_back
+hey could you turn around and face me | move/turn_back
+okay talk to me now | move/turn_back
+turn to face me please | move/turn_back
+face me and stay like that | move/turn_back hold=true
+hey muse look at me | look/user
+
+# ---------- general object verbs on the desk props ----------
+pick up the mug | object/pick_up obj.name=mug
+could you grab the book | object/pick_up obj.name=book
+put the book on the desk | object/place obj.name=book place=desk
+hand the ball to your other hand | object/hand_over obj.name=ball side=other
+pick up the yellow ball | object/pick_up obj.color=yellow obj.name=ball
+grab the blue cup with your right paw | object/pick_up obj.color=blue obj.name=cup side=right
+show me the plant | object/show obj.name=plant
+can you smell the plant | object/smell obj.name=plant
+throw the ball up in the air | object/toss obj.name=ball
+give the ball a big hug | object/hug obj.name=ball
+give me the book | object/offer obj.name=book
+bring me the mug | object/offer obj.name=mug
+can i have the ball | object/offer obj.name=ball
+hand me the cup please | object/offer obj.name=cup
+hold the book up in the air | object/hold_up obj.name=book
+take a look at the plant | object/inspect obj.name=plant
+flip the book over | object/flip obj.name=book
+turn the mug around | object/turn obj.name=mug amount=0.5
+drop the ball | object/drop obj.name=ball
+put the mug down | object/put_down obj.name=mug
+put the ball back where it was | object/put_back obj.name=ball
+put the ball on the floor | object/place obj.name=ball place=floor
+set the mug down on the desk | object/place obj.name=mug place=desk
+put the book next to the laptop | object/place obj.name=book place=near near.name=laptop
+give the ball a shake | object/shake obj.name=ball
+hold the mug with both hands | object/pick_up obj.name=mug side=both
+put the headphones on the desk | object/place obj.name=headphones place=desk
+pick up your headphones | object/pick_up obj.name=headphones
+put the headphones down | object/put_down obj.name=headphones
+switch the mug to your left hand | object/hand_over obj.name=mug side=left
+lift the laptop over your head | object/hold_up obj.name=laptop
+let me see the book | object/show obj.name=book
+um grab the uh the plant | object/pick_up obj.name=plant
+toss the ball up and catch it | object/toss obj.name=ball
+put the mug back on the desk | object/put_back obj.name=mug place=desk
+pass the ball to your other paw | object/hand_over obj.name=ball side=other
+tidy everything up | object/put_back obj.ref=all
+put the laptop on the chair | object/place obj.name=laptop place=chair
+sniff the mug | object/smell obj.name=mug
+pick up the green plant and show it to me | object/pick_up obj.color=green obj.name=plant ; object/show obj.ref=it
+
+# ---------- whole-body moves for Muse ----------
+spin around | move/spin
+muse sit down | move/sit
+stand up | move/stand
+walk to the desk | move/walk
+do a little dance | move/dance
+jump up and down | move/jump
+turn around two times | move/spin count=2
+take a bow | move/bow
+get up | move/get_up
+wiggle your butt | move/wiggle
+take three steps forward | move/walk dir=forward distance=3
+could you turn around | move/turn_away
+dance until i say stop | move/dance hold=true
+lie down on the floor | move/lie_down
+
+# ---------- one-shot compounds (2-3 commands) ----------
+put on your headphones sit at the desk and get to work | object/put_on obj.name=headphones ; object/sit_at obj.name=desk ; object/work_on
+open the laptop and start typing | object/open obj.name=laptop ; object/type_on
+stop typing close the laptop and turn back to me | object/stop ; object/close obj.name=laptop ; move/turn_back
+take off your headphones and talk to me | object/take_off obj.name=headphones ; move/turn_back
+pull the chair up to the desk and sit in it | object/pull obj.name=chair target.name=desk ; object/sit_in obj.ref=it
+get up from the chair and push it back | object/stand_up obj.name=chair ; object/push obj.ref=it target=back
+pick up the mug then put it on the desk | object/pick_up obj.name=mug ; object/place obj.ref=it place=desk
+spin around then sit at your desk | move/spin ; object/sit_at obj.name=desk
+close the book and open the laptop | object/close obj.name=book ; object/open obj.name=laptop
+sit in the chair open the laptop | object/sit_in obj.name=chair ; object/open obj.name=laptop
+slide the laptop closer and type something | object/slide obj.name=laptop target=closer ; object/type_on
+get out of the chair walk to the plant and smell it | object/stand_up obj.name=chair ; move/walk ; object/smell obj.ref=it
+put your headphones on and dance | object/put_on obj.name=headphones ; move/dance
+hey muse stop working and play with the ball | object/stop ; object/use obj.name=ball
+put the mug down open the laptop and get to work | object/put_down obj.name=mug ; object/open obj.name=laptop ; object/work_on
+slide the chair back stand up and take a bow | object/slide obj.name=chair target=back ; move/stand ; move/bow
+stop typing and look at me | object/stop ; look/user
+bring the chair over here and sit down | object/bring obj.name=chair target=me ; move/sit
+could you take your headphones off then close the laptop | object/take_off obj.name=headphones ; object/close obj.name=laptop
+push the laptop away and face me | object/push obj.name=laptop target=away ; move/turn_back
+grab the ball and toss it up | object/pick_up obj.name=ball ; object/toss obj.ref=it
+open your book and put on your headphones | object/open obj.name=book ; object/put_on obj.name=headphones
+sit at the desk use the laptop for a bit | object/sit_at obj.name=desk ; object/use obj.name=laptop
+stand up from the chair and do a spin | object/stand_up obj.name=chair ; move/spin
+muse put the um put the headphones on then type on the laptop | object/put_on obj.name=headphones ; object/type_on obj.name=laptop
+
+# ---------- NEGATIVES: nothing may fire ----------
+# strict desk / laptop / headphone / chair statements and questions
+i'm sitting at my desk |
+my laptop is slow |
+i put on headphones yesterday |
+the chair is broken |
+can you hear me with these headphones on |
+did you open the laptop |
+what are you working on |
+don't push the chair |
+i need to get to work |
+please don't take your headphones off |
+no need to open the book |
+no don't open the laptop |
+don't sit in that chair it's wet |
+you don't have to sit at the desk |
+never take your headphones off |
+are you wearing headphones |
+where did you get those headphones |
+why are you sitting in that chair |
+have you ever typed on a laptop |
+do you know how to open a book |
+can you see my laptop screen |
+how do you turn on this laptop |
+is the mug empty |
+what's on your desk |
+is that your laptop or mine |
+the plant needs water |
+the mug says world's best dad |
+i can't hear you over my headphones |
+my desk chair keeps rolling away |
+the book on my desk is overdue |
+it's hard to work at a desk all day |
+# other subjects / reported speech / the user himself
+nora pulled the chair over to the window |
+daddy works on his laptop all day |
+theo typed his name on my computer |
+she sat at the desk and opened the laptop |
+we pushed the desk against the wall last week |
+my son kicked the ball over the fence |
+can dogs wear headphones |
+if you close the laptop you'll lose all your work |
+i'll bring the chair in from the garage later |
+i'm working from home today |
+i stopped working at five |
+i'm playing with the kids |
+let me close my laptop real quick |
+hold on let me grab my headphones |
+watch me put on my headphones |
+i was talking to my wife not you |
+# idioms and word collisions
+talk to you later |
+who were you talking to |
+let's face it this level is hard |
+what type of books do you like |
+use your imagination |
+the kids went down the slide at the park |
+my pull request finally got merged |
+push notifications are so annoying |
+my flight takes off at six |
+bring it on |
+sit tight i'll be right back |
+stop by the store after work |
+headphones are on sale at costco |
+you work too hard |
+# misleading premises and compliments about the past
+why did you throw the mug at me |
+now that you're wearing headphones can you hear the music |
+you already closed the book silly |
+thanks for putting the headphones on |
+great job sitting at the desk |
+you're so cute in those headphones |
+# avatar-like speech (its own reply echoed back by the mic)
+sure i'll put on my headphones |
+okay i'm sitting at the desk now |
+i'm opening the laptop now |
+let me just get to work on this |
+here let me pull the chair over |
+i'll turn back to you in a sec |

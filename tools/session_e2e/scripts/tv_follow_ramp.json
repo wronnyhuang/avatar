@@ -1,0 +1,33 @@
+{
+ "name": "tv_follow_ramp",
+ "char": "muse",
+ "voice": "ash",
+ "start_wait_s": 5,
+ "quiet_s": 2.2,
+ "turns": [
+  {
+   "id": "ramp",
+   "say": "Can you show me on the TV a block sliding down a ramp, and the forces on it?",
+   "wait": "idle",
+   "max_s": 120,
+   "expect": "Muse uses the wall TV: a block on an inclined ramp with its weight (gravity) and the normal force drawn, the block sliding down; Muse explains by voice.",
+   "judge_frames": 8
+  },
+  {
+   "id": "steeper",
+   "say": "Make the ramp steeper.",
+   "wait": "idle",
+   "max_s": 90,
+   "expect": "The TV DRAWING changes within a few seconds: the ramp's angle becomes visibly larger (steeper incline) and the force picture/speed follows (bigger component down the slope). Not just a caption change. Muse says in a few words what changed.",
+   "judge_frames": 8
+  },
+  {
+   "id": "friction",
+   "say": "Now add some friction.",
+   "wait": "idle",
+   "max_s": 90,
+   "expect": "The TV picture changes again: a friction force arrow pointing UP the slope (opposite the motion) appears and the block slides more slowly; the steeper ramp is kept.",
+   "judge_frames": 8
+  }
+ ]
+}

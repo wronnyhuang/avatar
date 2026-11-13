@@ -1,0 +1,2 @@
+{"pack": "pack.npz", "batch": 16, "seq": 120, "chunks": 4, "steps": 60, "max_minutes": 5, "log_every": 10,
+ "eval_every": 30, "val_batches": 1, "threads": 16, "warmup": 20, "ckpt_seconds": 30}

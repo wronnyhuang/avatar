@@ -1,0 +1,268 @@
+# phrase | expected (comma-separated  action/name|target/side ; empty = no command). Side = rig suffix (own left = r).
+raise your left paw | pose/raise_paw/r
+raise your right paw | pose/raise_paw/l
+raise your paw | pose/raise_paw/l
+raise both paws | pose/raise_paw/both
+raise your paws | pose/raise_paw/both
+put your hands up | pose/raise_paw/both
+hands up | pose/raise_paw/both
+can you raise your left hand please | pose/raise_paw/r
+lift your right arm up high | pose/raise_paw/l
+Felix raise your left paw a little | pose/raise_paw/r
+raise both of your paws all the way | pose/raise_paw/both
+put your left paw in the air | pose/raise_paw/r
+keep your paw up | pose/raise_paw/l
+put your paw down | release/hand_l+hand_r
+put your left paw down | release/hand_r
+lower your right hand | release/hand_l
+put it down | object/put_down obj.ref=it   # was release/all
+you can put your paws down | release/hand_l+hand_r
+okay | release/all
+ok thanks | release/all
+relax | release/all
+you can stop | release/all
+never mind | release/all
+stop that | release/all
+that's enough | release/all
+back to normal | release/all
+stop waving | release/hand_l+hand_r
+wave | gesture/wave/l
+wave at me | gesture/wave/l
+can you wave hello | gesture/wave/l
+wave your left paw | gesture/wave/r
+wave with your right hand | gesture/wave/l
+wave with both paws | gesture/wave/both
+hey Rosie wave goodbye | gesture/wave/l
+give me a wave | gesture/wave/l
+keep waving | gesture/wave/l
+wave twice | gesture/wave/l
+wink | gesture/wink/l
+wink at me | gesture/wink/l
+wink your left eye | gesture/wink/r
+give me a wink | gesture/wink/l
+blink | gesture/blink/both
+blink twice | gesture/blink/both
+nod | gesture/nod
+nod your head | gesture/nod
+nod yes | gesture/nod
+shake your head | gesture/shake_head
+shake your head no | gesture/shake_head
+clap | gesture/clap/both
+clap your hands | gesture/clap/both
+give me a round of applause | gesture/clap/both
+thumbs up | gesture/thumbs_up/l
+give me a thumbs up | gesture/thumbs_up/l
+give me two thumbs up | gesture/thumbs_up/both
+shrug | gesture/shrug/both
+shrug your shoulders | gesture/shrug/both
+wiggle your ears | gesture/ear_wiggle/both
+wiggle your left ear | gesture/ear_wiggle/r
+twitch your right ear | gesture/ear_wiggle/l
+flick your ear | gesture/ear_flick/both
+wiggle your nose | gesture/nose_wiggle
+twitch your nose | gesture/nose_wiggle
+wag your tail | gesture/tail_wag
+keep wagging your tail | gesture/tail_wag
+stick out your tongue | pose/stick_tongue_out
+stick your tongue out | pose/stick_tongue_out
+show me your tongue | pose/stick_tongue_out
+put your tongue away | release/expression+mouth+tongue
+open your mouth | pose/open_mouth
+open your mouth wide | pose/open_mouth
+say ah | pose/open_mouth
+close your mouth | release/expression+mouth+tongue
+close your eyes | pose/close_eyes/both
+close your left eye | pose/close_eyes/r
+open your eyes | release/eyes
+look up | look/up
+look down | look/down
+look left | look/left
+look to your right | look/right
+look to the left | look/left
+look at me | look/user
+look over here | look/user
+keep looking at me | look/user
+look around | gesture/look_around
+look away | look/away
+turn around | move/turn_away   # was pose/turn_around
+spin around | move/spin   # was pose/turn_around
+turn to your left | move/turn dir=left   # was pose/turn
+turn right | move/turn dir=right   # was pose/turn
+turn your head to the left | look/left
+face me | move/turn_back   # was release/body
+turn back around | move/turn_back   # was release/body
+lean in | pose/lean_in
+lean forward | pose/lean_in
+come closer | pose/lean_in
+lean back | pose/lean_back
+lean to your left | pose/lean_side
+bow | move/bow   # was gesture/bow
+take a bow | move/bow   # was gesture/bow
+jump | move/jump   # was gesture/jump
+jump up and down | move/jump   # was gesture/jump
+do a little dance | move/dance   # was gesture/dance
+spin | move/spin   # was gesture/spin
+point at me | pose/point_user/l
+point at me with your left paw | pose/point_user/r
+point to your left | pose/point_side/r
+point to the right | pose/point_side/l
+point up | pose/point_up/l
+cover your eyes | pose/cover_eyes/both
+put your hand on your heart | pose/hand_on_heart/l
+hand on heart | pose/hand_on_heart/l
+put your paw on your chin | pose/thinking/l
+cross your arms | pose/cross_arms/both
+give me a hug | pose/arms_open/both
+smile | expression/smile
+give me a big smile | expression/smile
+smile a little | expression/smile
+frown | expression/frown
+look surprised | expression/surprised
+look sad | expression/sad
+look angry | expression/angry
+look really happy | expression/happy
+make a sad face | expression/sad
+act scared | expression/scared
+look confused | expression/confused
+be silly | expression/silly
+raise your eyebrows | pose/brows_up/both
+raise your left eyebrow | pose/brows_up/r
+furrow your brows | pose/brows_down
+wiggle your eyebrows | gesture/brow_wiggle
+puff out your cheeks | pose/puff_cheeks
+perk up your ears | pose/ears_up/both
+put your ears down | pose/ears_down/both
+raise your left ear | pose/ears_up/r
+droop your right ear | pose/ears_down/l
+raise your tail | pose/tail_up
+curl your tail | pose/tail_curl
+tilt your head | pose/head_tilt
+tilt your head to the left | pose/head_tilt
+head down | pose/head_down
+chin up | pose/head_up
+open your paw | pose/open_paw/both
+make a fist | pose/fist/l
+squint | pose/squint
+widen your eyes | pose/wide_eyes
+roll your eyes | gesture/eye_roll
+blow me a kiss | gesture/blow_kiss/l
+scratch your head | gesture/scratch_head/l
+hold that | hold/all
+hold it | hold/all
+freeze | hold/all
+don't move | hold/all
+stay like that | hold/all
+raise your paw and hold it | pose/raise_paw/l
+raise your paw and wink | pose/raise_paw/l, gesture/wink/l
+wiggle your ears and wag your tail | gesture/ear_wiggle/both, gesture/tail_wag
+okay now wave | gesture/wave/l
+alright raise your right paw | pose/raise_paw/l
+please smile for me | expression/smile
+could you please turn around | move/turn_away   # was pose/turn_around
+I want you to nod | gesture/nod
+go ahead and clap | gesture/clap/both
+let me see you jump | move/jump   # was gesture/jump
+that's so cool can you wink at me | gesture/wink/l
+hey Felix look at me | look/user
+Bruno, stick out your tongue | pose/stick_tongue_out
+# --- negatives
+I waved at my neighbor this morning |
+don't turn around |
+do not wave |
+please don't stick your tongue out |
+can you not do that |
+my dog wags his tail when he's happy |
+I had to turn around and go home |
+can you look up the weather for me |
+look at that |
+what do you think about the weather |
+tell me a story about a fox |
+she smiled at me |
+he raised his hand in class |
+we clapped at the end of the show |
+I think you look happy today |
+you look surprised |
+you look sad |
+nice smile |
+cool dance |
+great job |
+how are you doing today |
+okay so what should we do next |
+okay tell me about your day |
+what if you turned around |
+why did you wave |
+have you ever been to the ocean |
+the kids were jumping on the bed |
+I love it when you smile |
+when I say jump you jump |
+if you wave I will wave back |
+my arm hurts when I raise it |
+point taken |
+that's a good point |
+let me think about it |
+I need to stop at the store |
+stop by my office later |
+the bus will turn left at the light |
+I'm going to lean on you for this one |
+he bowed to the queen |
+she shook her head |
+it was a big hug from grandma |
+the ears on that rabbit are huge |
+do you like your tail |
+tell me about your ears |
+what color are your eyes |
+my eyes are tired |
+I can't open the jar |
+open the door for me |
+close the window |
+look up the recipe |
+look for my keys |
+can you hold on a second |
+hold on |
+wait a minute |
+thank you so much |
+sounds good |
+yes please |
+no thanks |
+I'm happy |
+I feel sad today |
+we should dance at the wedding |
+they told me to raise my hand |
+did you see the game last night |
+he turned around and left |
+raise the volume |
+turn up the music |
+turn off the lights |
+I like how your nose wiggles |
+the wave was huge at the beach |
+# --- ASR-misrecognition forms seen in the bench (vosk small)
+put your left pod down | release/hand_r
+raise your part and hold it | pose/raise_paw/l
+twitch you're right ear | gesture/ear_wiggle/l
+wag her tail | gesture/tail_wag
+turns to your left | move/turn dir=left   # was pose/turn
+had down | pose/head_down
+race both pause | pose/raise_paw/both
+point me | pose/point_user/l
+gonna wave | gesture/wave/l
+wiggle your years | gesture/ear_wiggle/both
+she wagged her tail |
+the waves were huge |
+put your pardon | release/hand_l+hand_r
+not | gesture/nod
+not now |
+I'm not sure |
+gimme two thumbs up | gesture/thumbs_up/both
+leaned forward | pose/lean_in
+raise your pie and wink | pose/raise_paw/l, gesture/wink/l
+I leaned forward to hear |
+wave your left palm | gesture/wave/r
+wiggle your left year | gesture/ear_wiggle/r
+mean back | pose/lean_back
+mean to your left | pose/lean_side
+that's so cool can you winked at me | gesture/wink/l
+point that me | pose/point_user/l
+flicker ear | gesture/ear_flick/both
+I mean to go back home |
+what do you mean by that |
+last year was hard |

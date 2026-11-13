@@ -1,0 +1,120 @@
+{
+ "character": "star",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "wand",
+   "name": "magic wand",
+   "color": "gold",
+   "colors": [
+    "gold"
+   ],
+   "aliases": [
+    "wand",
+    "magic wand",
+    "stick"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 1,
+   "id": "present",
+   "name": "purple present",
+   "color": "purple",
+   "colors": [
+    "purple"
+   ],
+   "aliases": [
+    "present",
+    "gift",
+    "box"
+   ],
+   "category": "box",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 2,
+   "id": "balloon",
+   "name": "pink balloon",
+   "color": "pink",
+   "colors": [
+    "pink"
+   ],
+   "aliases": [
+    "balloon"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 3,
+   "id": "apple",
+   "name": "red apple",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "apple",
+    "fruit"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 4,
+   "id": "moon",
+   "name": "yellow moon",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "moon"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  }
+ ]
+}

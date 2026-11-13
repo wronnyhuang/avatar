@@ -1,0 +1,121 @@
+{
+ "character": "hippo",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "melon",
+   "name": "watermelon",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "watermelon",
+    "melon",
+    "fruit"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 1,
+   "id": "bucket",
+   "name": "blue bucket",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "bucket",
+    "pail"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 2,
+   "id": "duck",
+   "name": "rubber duck",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "duck",
+    "rubber duck",
+    "ducky"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 3,
+   "id": "ball",
+   "name": "red ball",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "ball"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 4,
+   "id": "cupcake",
+   "name": "pink cupcake",
+   "color": "pink",
+   "colors": [
+    "pink"
+   ],
+   "aliases": [
+    "cupcake",
+    "cake"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  }
+ ]
+}

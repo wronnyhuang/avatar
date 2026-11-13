@@ -1,0 +1,114 @@
+{
+ "set": "pine",
+ "camera": {
+  "pos": [
+   0.0,
+   -0.227,
+   7.055
+  ],
+  "target": [
+   0.0,
+   -0.451,
+   0.0
+  ],
+  "fov": 22.0,
+  "focus": 6.554,
+  "dofk": 70.0
+ },
+ "sun": {
+  "dir": [
+   -0.62,
+   0.34,
+   0.5
+  ],
+  "color": [
+   1.0,
+   0.8,
+   0.58
+  ],
+  "power": 2.0
+ },
+ "rim": {
+  "dir": [
+   0.5,
+   0.35,
+   -0.8
+  ],
+  "color": [
+   0.74,
+   0.88,
+   0.94
+  ]
+ },
+ "dapple_floor": 0.72,
+ "char_key": 0.86,
+ "vol_gain": 0.65,
+ "bg_spp": 8,
+ "bg_sun": [
+  0.62,
+  0.5
+ ],
+ "set_params": {
+  "ground_y": -2.72,
+  "fog_near": [
+   9.0,
+   16.5
+  ],
+  "vol_hole": [
+   0.13,
+   0.45,
+   0.105,
+   0.05
+  ]
+ },
+ "grade": {
+  "exposure": 1.0,
+  "saturation": 1.0,
+  "vignette": 0.26,
+  "grain": 2.5,
+  "gain": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "lift": [
+   0.004,
+   0.01,
+   0.014
+  ]
+ },
+ "motes": {
+  "min": [
+   -5.0,
+   -2.6,
+   -7.0
+  ],
+  "size": [
+   10.0,
+   5.6,
+   9.0
+  ],
+  "count": 80,
+  "gain": 0.55,
+  "leaves": 0,
+  "leaf_a": [
+   0.42,
+   0.24,
+   0.1
+  ],
+  "leaf_b": [
+   0.55,
+   0.36,
+   0.16
+  ]
+ },
+ "quality": {
+  "CHAR_T_NEAR": 3.954,
+  "CHAR_T_FAR": 9.154,
+  "CHAR_ESCAPE_STEPS": 20,
+  "CHAR_FINE_STEPS": 30,
+  "CHAR_FUR_RELIEF": 0.22,
+  "CHAR_SHADOW_STEPS": 16,
+  "CHAR_AO_STEPS": 3
+ }
+}

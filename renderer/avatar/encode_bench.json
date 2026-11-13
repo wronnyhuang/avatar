@@ -1,0 +1,130 @@
+{
+ "fox 1280x720 h264 2000": {
+  "ms_mean": 11.3,
+  "ms_p95": 12.73,
+  "kbps": 2063.8,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "fox 1280x720 h264 1000": {
+  "ms_mean": 9.92,
+  "ms_p95": 11.86,
+  "kbps": 1023.9,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "fox 1280x720 jpeg q80": {
+  "ms_mean": 20.02,
+  "ms_p95": 20.25,
+  "kbps": 17883.5,
+  "key_kb": null,
+  "codec_string": "jpeg"
+ },
+ "fox 960x540 h264 2000": {
+  "ms_mean": 7.42,
+  "ms_p95": 10.45,
+  "kbps": 2068.0,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "fox 960x540 h264 1000": {
+  "ms_mean": 6.99,
+  "ms_p95": 10.17,
+  "kbps": 1032.3,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "fox 960x540 jpeg q80": {
+  "ms_mean": 11.47,
+  "ms_p95": 12.27,
+  "kbps": 11981.4,
+  "key_kb": null,
+  "codec_string": "jpeg"
+ },
+ "fox 640x360 h264 2000": {
+  "ms_mean": 4.55,
+  "ms_p95": 8.06,
+  "kbps": 2055.4,
+  "key_kb": null,
+  "codec_string": "avc1.42C01E"
+ },
+ "fox 640x360 h264 1000": {
+  "ms_mean": 3.39,
+  "ms_p95": 4.95,
+  "kbps": 1031.9,
+  "key_kb": null,
+  "codec_string": "avc1.42C01E"
+ },
+ "fox 640x360 jpeg q80": {
+  "ms_mean": 5.17,
+  "ms_p95": 7.7,
+  "kbps": 6495.8,
+  "key_kb": null,
+  "codec_string": "jpeg"
+ },
+ "orb 1280x720 h264 2000": {
+  "ms_mean": 11.15,
+  "ms_p95": 15.04,
+  "kbps": 1947.4,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "orb 1280x720 h264 1000": {
+  "ms_mean": 11.94,
+  "ms_p95": 18.21,
+  "kbps": 977.5,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "orb 1280x720 jpeg q80": {
+  "ms_mean": 20.48,
+  "ms_p95": 24.46,
+  "kbps": 15783.9,
+  "key_kb": null,
+  "codec_string": "jpeg"
+ },
+ "orb 960x540 h264 2000": {
+  "ms_mean": 7.34,
+  "ms_p95": 9.68,
+  "kbps": 1960.1,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "orb 960x540 h264 1000": {
+  "ms_mean": 6.72,
+  "ms_p95": 9.79,
+  "kbps": 979.8,
+  "key_kb": null,
+  "codec_string": "avc1.42C01F"
+ },
+ "orb 960x540 jpeg q80": {
+  "ms_mean": 10.87,
+  "ms_p95": 11.1,
+  "kbps": 10524.2,
+  "key_kb": null,
+  "codec_string": "jpeg"
+ },
+ "orb 640x360 h264 2000": {
+  "ms_mean": 4.29,
+  "ms_p95": 7.56,
+  "kbps": 2010.5,
+  "key_kb": null,
+  "codec_string": "avc1.42C01E"
+ },
+ "orb 640x360 h264 1000": {
+  "ms_mean": 4.12,
+  "ms_p95": 7.15,
+  "kbps": 993.9,
+  "key_kb": null,
+  "codec_string": "avc1.42C01E"
+ },
+ "orb 640x360 jpeg q80": {
+  "ms_mean": 5.35,
+  "ms_p95": 7.74,
+  "kbps": 5658.7,
+  "key_kb": null,
+  "codec_string": "jpeg"
+ },
+ "_machine": "17:18:05 up 13 days,  6:52,  2 users,  load average: 249.46, 257.93, 260.69",
+ "_note": "libx264 ultrafast/zerolatency/baseline, 4 sliced threads; frames = first 150 of the shipped v2 1080p renders resized; CPU only, machine shared (load in _machine)"
+}

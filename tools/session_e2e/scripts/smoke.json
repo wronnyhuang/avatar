@@ -1,0 +1,16 @@
+{
+  "name": "smoke",
+  "char": "muse",
+  "voice": "ash",
+  "start_wait_s": 5,
+  "turns": [
+    {"id": "greet", "say": "Hi Muse! It's good to see you. How are you doing today?", "wait": "idle", "quiet_s": 1.5,
+     "expect": "Muse greets the user warmly in speech; the avatar's face is visible and lively (lips moving, expression), looking toward the camera; nothing is broken on screen.", "judge_frames": 4},
+    {"id": "flip", "say": "Can you do a backflip for me?", "wait": "idle",
+     "expect": "The avatar performs a backflip: the whole body visibly rotates backwards in the air through the frames and lands back upright near where it started.", "judge_frames": 8},
+    {"id": "phones", "say": "Nice! Now put on your headphones.", "wait": "idle",
+     "expect": "The avatar puts the headphones on its head: in the final frames the headphones are visibly worn over its ears or on its head.", "judge_frames": 6},
+    {"id": "hold", "say": "Cool. What are you holding right now?", "wait": "idle",
+     "expect": "The avatar answers truthfully by voice about what it is holding or wearing (headphones are on its head, so it should say it is wearing them and/or hold nothing in its hands), consistent with what the frames show.", "judge_frames": 3}
+  ]
+}

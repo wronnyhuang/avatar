@@ -1,0 +1,15 @@
+{
+  "set": "dusk",
+  "camera": {"pos": [0.0, -0.2, 6.7], "target": [0.0, 0.12, 0.0], "fov": 22.0, "focus": 6.2, "dofk": 38.0},
+  "sun": {"dir": [-0.60, 0.62, 0.50], "color": [1.0, 0.84, 0.56], "power": 1.42},
+  "rim": {"dir": [0.74, 0.10, -0.66], "color": [1.0, 0.82, 0.60]},
+  "dapple_floor": 0.9,
+  "char_key": 0.60,
+  "vol_gain": 0.0,
+  "bg_spp": 8,
+  "bg_sun": [0.62, 0.72],
+  "set_params": {"star_at": [0.0, 0.0, 0.0]},
+  "grade": {"exposure": 1.0, "bloom": 1.3, "saturation": 1.10, "vignette": 0.30, "grain": 2.5},
+  "motes": {"min": [-3.3, -0.72, -2.4], "size": [6.6, 1.10, 6.8], "count": 110, "gain": 2.2, "leaves": 0},
+  "quality": {"CHAR_T_NEAR": 4.6, "CHAR_T_FAR": 9.2, "CHAR_FINE_STEPS": 48, "CHAR_FUR_RELIEF": 0.22}
+}

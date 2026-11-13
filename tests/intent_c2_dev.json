@@ -1,0 +1,2648 @@
+{
+ "_doc": "intent c2 fresh muse phrasing set (gpt-4.1-mini, blind to the grammar; tools/intent_bench/gen_fresh_c2.py). Split 60/40 per intent by md5(text) BEFORE any tuning. Labels: see gen_fresh_c2.py docstring.",
+ "model": "gpt-4.1-mini",
+ "gen_usd": 0.0201,
+ "split": "dev",
+ "items": [
+  {
+   "cat": "spin",
+   "intent": "spin around once",
+   "text": "Okay so muse if you're free spin round one time",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around once",
+   "text": "Muse, do a quick spin around once, will ya?",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around once",
+   "text": "Can you make a single spin for me, Muse?",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around once",
+   "text": "i bet you can't just spin one time muse",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around once",
+   "text": "spin around one time muse",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around three times",
+   "text": "Muse, spin around three times please!",
+   "label": "move/spin|move/twirl count=3"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around three times",
+   "text": "hey muse do three circles spin around",
+   "label": "move/spin|move/twirl count=3"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around three times",
+   "text": "muse spin around three times",
+   "label": "move/spin|move/twirl count=3"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around three times",
+   "text": "please go round spinning three times muse",
+   "label": "move/spin|move/twirl count=3"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin around three times",
+   "text": "How about you spin three times around, muse?",
+   "label": "move/spin|move/twirl count=3"
+  },
+  {
+   "cat": "spin",
+   "intent": "do two spins",
+   "text": "Muse, do two spins for me.",
+   "label": "move/spin|move/twirl count=2"
+  },
+  {
+   "cat": "spin",
+   "intent": "do two spins",
+   "text": "Muse give me two complete rotations.",
+   "label": "move/spin|move/twirl count=2"
+  },
+  {
+   "cat": "spin",
+   "intent": "do two spins",
+   "text": "Hey muse, whirl around two times please.",
+   "label": "move/spin|move/twirl count=2"
+  },
+  {
+   "cat": "spin",
+   "intent": "do two spins",
+   "text": "muse can you twirl two spins",
+   "label": "move/spin|move/twirl count=2"
+  },
+  {
+   "cat": "spin",
+   "intent": "do two spins",
+   "text": "spin twice muse",
+   "label": "move/spin|move/twirl count=2"
+  },
+  {
+   "cat": "spin",
+   "intent": "twirl (like a ballerina)",
+   "text": "Could you spin gracefully like a ballerina muse?",
+   "label": "move/twirl|move/spin"
+  },
+  {
+   "cat": "spin",
+   "intent": "twirl (like a ballerina)",
+   "text": "twirl like ballerina muse",
+   "label": "move/twirl|move/spin"
+  },
+  {
+   "cat": "spin",
+   "intent": "twirl (like a ballerina)",
+   "text": "Show me a ballerina twirl muse!",
+   "label": "move/twirl|move/spin"
+  },
+  {
+   "cat": "spin",
+   "intent": "twirl (like a ballerina)",
+   "text": "Muse please twirl elegantly.",
+   "label": "move/twirl|move/spin"
+  },
+  {
+   "cat": "spin",
+   "intent": "twirl (like a ballerina)",
+   "text": "hey muse do a ballerina style twirl",
+   "label": "move/twirl|move/spin"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin to its left",
+   "text": "Spin left muse.",
+   "label": "move/spin|move/twirl dir=left"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin to its left",
+   "text": "could you maybe spin to your left muse",
+   "label": "move/spin|move/twirl dir=left"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin to its left",
+   "text": "spin left muse go",
+   "label": "move/spin|move/twirl dir=left"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin to its left",
+   "text": "Muse do a spin to the left side.",
+   "label": "move/spin|move/twirl dir=left"
+  },
+  {
+   "cat": "spin",
+   "intent": "spin to its left",
+   "text": "Can you turn left and spin muse?",
+   "label": "move/spin|move/twirl dir=left"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a backflip",
+   "text": "Let's see you do a backflip!",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a backflip",
+   "text": "do a backflip now muse",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a backflip",
+   "text": "Okay so um could you maybe do a backflip?",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a backflip",
+   "text": "I bet you can't do a backflip!",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a backflip",
+   "text": "muse do a backflip just one",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do two backflips in a row",
+   "text": "do backflip backflip two times muse",
+   "label": "move/backflip count=2"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do two backflips in a row",
+   "text": "How about showing me two backflips in a row?",
+   "label": "move/backflip count=2"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do two backflips in a row",
+   "text": "I want to see two backflips in a row from you Muse.",
+   "label": "move/backflip count=2"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do two backflips in a row",
+   "text": "Can you do two backflips one after the other?",
+   "label": "move/backflip count=2"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do two backflips in a row",
+   "text": "Muse, do two backflips in a row.",
+   "label": "move/backflip count=2"
+  },
+  {
+   "cat": "backflip",
+   "intent": "flip over backwards (a back flip) - say 'back' or 'backwards' explicitly",
+   "text": "Show me a flip over backwards, Muse.",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "flip over backwards (a back flip) - say 'back' or 'backwards' explicitly",
+   "text": "Could you maybe flip over backwards for me?",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "flip over backwards (a back flip) - say 'back' or 'backwards' explicitly",
+   "text": "Muse, flip over backwards once.",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "flip over backwards (a back flip) - say 'back' or 'backwards' explicitly",
+   "text": "like do a flip backwards muse",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "flip over backwards (a back flip) - say 'back' or 'backwards' explicitly",
+   "text": "Can you do a backflip backwards, Muse?",
+   "label": "move/backflip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a flip (just 'a flip', no direction word)",
+   "text": "um muse do a flip now",
+   "label": "move/backflip|move/flip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a flip (just 'a flip', no direction word)",
+   "text": "How about one flip, Muse?",
+   "label": "move/backflip|move/flip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a flip (just 'a flip', no direction word)",
+   "text": "Show me a flip, Muse.",
+   "label": "move/backflip|move/flip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a flip (just 'a flip', no direction word)",
+   "text": "Could you do a flip just a single one?",
+   "label": "move/backflip|move/flip"
+  },
+  {
+   "cat": "backflip",
+   "intent": "do a flip (just 'a flip', no direction word)",
+   "text": "Can you flip once?",
+   "label": "move/backflip|move/flip"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump",
+   "text": "Let's see you do a single hop",
+   "label": "move/jump|move/hop"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump",
+   "text": "jump up now",
+   "label": "move/jump|move/hop"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump",
+   "text": "Muse, show me one jump",
+   "label": "move/jump|move/hop"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump",
+   "text": "jump once muse",
+   "label": "move/jump|move/hop"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump",
+   "text": "Muse please take a single jump",
+   "label": "move/jump|move/hop"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump three times",
+   "text": "Would you mind jumping three times little buddy?",
+   "label": "move/jump|move/hop count=3"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump three times",
+   "text": "Can you hop up thrice Muse?",
+   "label": "move/jump|move/hop count=3"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump three times",
+   "text": "jump 3 times muse",
+   "label": "move/jump|move/hop count=3"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump three times",
+   "text": "Muse can you hop three times for me",
+   "label": "move/jump|move/hop count=3"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump three times",
+   "text": "Let's see you jump three times now Muse",
+   "label": "move/jump|move/hop count=3"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump really high",
+   "text": "Do a high jump muse um like really high",
+   "label": "move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump really high",
+   "text": "jump up really high muse",
+   "label": "move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump really high",
+   "text": "Jump way up there Muse",
+   "label": "move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump really high",
+   "text": "Muse, I want to see a really tall jump",
+   "label": "move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "jump really high",
+   "text": "Jump really high Muse, please!",
+   "label": "move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "hop up and down",
+   "text": "Let's see you hop up and down now",
+   "label": "move/hop|move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "hop up and down",
+   "text": "Muse can you hop up and down",
+   "label": "move/hop|move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "hop up and down",
+   "text": "Please do a jump up and then down muse",
+   "label": "move/hop|move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "hop up and down",
+   "text": "hop up and then hop down muse",
+   "label": "move/hop|move/jump"
+  },
+  {
+   "cat": "jump",
+   "intent": "hop up and down",
+   "text": "do an up and down hop muse",
+   "label": "move/hop|move/jump"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance",
+   "text": "Muse please dance right now",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance",
+   "text": "I bet you can't do a dance Muse, try it!",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance",
+   "text": "Can you dance a little, Muse?",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance",
+   "text": "how about dancing for a bit, Muse?",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance",
+   "text": "Hey Muse, dance now!",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "do a silly dance",
+   "text": "Hey muse wiggle and do a silly dance",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "do a silly dance",
+   "text": "Muse please perform a silly dance now",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "do a silly dance",
+   "text": "Muse, can you do a silly dance?",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "do a silly dance",
+   "text": "Please do a silly dance for me, Muse",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "do a silly dance",
+   "text": "do a goofy dance muse",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance for a bit / show some dance moves",
+   "text": "um muse dance a bit and show me some moves",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance for a bit / show some dance moves",
+   "text": "Could you dance for a bit, Muse?",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance for a bit / show some dance moves",
+   "text": "Muse, dance for a bit and show some moves.",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance for a bit / show some dance moves",
+   "text": "muse can you dance a little and show your moves",
+   "label": "move/dance"
+  },
+  {
+   "cat": "dance",
+   "intent": "dance for a bit / show some dance moves",
+   "text": "show some dance moves muse for a little while",
+   "label": "move/dance"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk forward a few steps",
+   "text": "walk forward a few steps muse",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk forward a few steps",
+   "text": "Hey Muse, walk straight ahead like two or three steps",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk forward a few steps",
+   "text": "I bet you can't just walk forward a few steps",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk forward a few steps",
+   "text": "um um okay muse move ahead like a couple steps",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk forward a few steps",
+   "text": "Muse, take three steps forward please",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk over to the desk",
+   "text": "Hey Muse, take a walk to the desk by the wall",
+   "label": "move/walk"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk over to the desk",
+   "text": "walk over to the desk muse",
+   "label": "move/walk"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk over to the desk",
+   "text": "Show me you walking all the way over to the desk",
+   "label": "move/walk"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk over to the desk",
+   "text": "Muse move yourself right over to the desk now",
+   "label": "move/walk"
+  },
+  {
+   "cat": "walk",
+   "intent": "walk over to the desk",
+   "text": "Muse, please walk over to the desk",
+   "label": "move/walk"
+  },
+  {
+   "cat": "walk",
+   "intent": "take two steps back",
+   "text": "okay muse take 2 steps back please",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "take two steps back",
+   "text": "take two steps back muse",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "take two steps back",
+   "text": "Muse move back two steps now",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "take two steps back",
+   "text": "Can you walk back two steps, Muse?",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "walk",
+   "intent": "take two steps back",
+   "text": "Muse could you maybe take a couple steps backwards",
+   "label": "move/walk|move/step"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn away (so its back faces the user)",
+   "text": "show me your back muse",
+   "label": "move/turn_away"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn away (so its back faces the user)",
+   "text": "um like could you maybe just uh turn around away from me",
+   "label": "move/turn_away"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn away (so its back faces the user)",
+   "text": "please muse face away from me",
+   "label": "move/turn_away"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn away (so its back faces the user)",
+   "text": "I bet you can't turn away now!",
+   "label": "move/turn_away"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn away (so its back faces the user)",
+   "text": "Muse, please turn away from me.",
+   "label": "move/turn_away"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn back around to face the user again",
+   "text": "can you uh turn back and face the user muse",
+   "label": "move/turn_back"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn back around to face the user again",
+   "text": "Could you please look back at me?",
+   "label": "move/turn_back"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn back around to face the user again",
+   "text": "okay muse just face me again",
+   "label": "move/turn_back"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn back around to face the user again",
+   "text": "Muse, spin yourself around so you face front once more.",
+   "label": "move/turn_back"
+  },
+  {
+   "cat": "turn",
+   "intent": "turn back around to face the user again",
+   "text": "Muse, turn back to face me again.",
+   "label": "move/turn_back"
+  },
+  {
+   "cat": "turn",
+   "intent": "stop what it is doing at the laptop and turn back to talk to the user",
+   "text": "Hey Muse, pause using your laptop and come talk to me.",
+   "label": "move/turn_back|object/stop"
+  },
+  {
+   "cat": "turn",
+   "intent": "stop what it is doing at the laptop and turn back to talk to the user",
+   "text": "I want you to stop typing on the laptop and look at me muse",
+   "label": "move/turn_back|object/stop"
+  },
+  {
+   "cat": "turn",
+   "intent": "stop what it is doing at the laptop and turn back to talk to the user",
+   "text": "uh muse can you stop that laptop thing and look at me please",
+   "label": "move/turn_back|object/stop"
+  },
+  {
+   "cat": "turn",
+   "intent": "stop what it is doing at the laptop and turn back to talk to the user",
+   "text": "Muse, quit the laptop and face me now!",
+   "label": "move/turn_back|object/stop"
+  },
+  {
+   "cat": "turn",
+   "intent": "stop what it is doing at the laptop and turn back to talk to the user",
+   "text": "muse stop at lappy turn now",
+   "label": "move/turn_back|object/stop"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the yellow ball",
+   "text": "Muse, could you please pick up the yellow ball?",
+   "label": "object/pick_up obj=ball"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the yellow ball",
+   "text": "Come on Muse, pick up the yellow ball now.",
+   "label": "object/pick_up obj=ball"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the yellow ball",
+   "text": "ummm muse can you like get the yellow ball please",
+   "label": "object/pick_up obj=ball"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the yellow ball",
+   "text": "I bet you can't pick up the yellow ball, Muse!",
+   "label": "object/pick_up obj=ball"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the yellow ball",
+   "text": "Hey Muse, grab that yellow ball for me!",
+   "label": "object/pick_up obj=ball"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the headphones",
+   "text": "hey muse could you maybe pick up those pink headphones",
+   "label": "object/pick_up obj=headphones"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the headphones",
+   "text": "umm muse go pick up the headphones on the little table okay",
+   "label": "object/pick_up obj=headphones"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the headphones",
+   "text": "grab the headphones please Muse",
+   "label": "object/pick_up obj=headphones"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the headphones",
+   "text": "Muse, show me picking up the headphones",
+   "label": "object/pick_up obj=headphones"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the headphones",
+   "text": "Muse, pick up the pink headphones on the side table.",
+   "label": "object/pick_up obj=headphones"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the book",
+   "text": "muse would you mind picking up the blue book",
+   "label": "object/pick_up obj=book"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the book",
+   "text": "grab that book the blue one muse",
+   "label": "object/pick_up obj=book"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the book",
+   "text": "Muse, pick up the blue book please.",
+   "label": "object/pick_up obj=book"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the book",
+   "text": "show me you grabbing the blue book muse",
+   "label": "object/pick_up obj=book"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the book",
+   "text": "hey muse go get the blue book now",
+   "label": "object/pick_up obj=book"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the mug",
+   "text": "lets see you pick up the mug muse",
+   "label": "object/pick_up obj=mug"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the mug",
+   "text": "grab the red mug muse",
+   "label": "object/pick_up obj=mug"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the mug",
+   "text": "could you maybe grab the mug muse",
+   "label": "object/pick_up obj=mug"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the mug",
+   "text": "can you get the mug muse",
+   "label": "object/pick_up obj=mug"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the mug",
+   "text": "muse get the red mug please",
+   "label": "object/pick_up obj=mug"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the laptop",
+   "text": "Muse, pick up the silver laptop on the oak desk.",
+   "label": "object/pick_up obj=laptop"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the laptop",
+   "text": "can you get the closed laptop muse",
+   "label": "object/pick_up obj=laptop"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the laptop",
+   "text": "laptop pick up muse",
+   "label": "object/pick_up obj=laptop"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the laptop",
+   "text": "umm muse pick up the silver laptop please",
+   "label": "object/pick_up obj=laptop"
+  },
+  {
+   "cat": "pickup",
+   "intent": "pick up the laptop",
+   "text": "show me you grabbing the laptop muse",
+   "label": "object/pick_up obj=laptop"
+  },
+  {
+   "cat": "pickup",
+   "intent": "grab the plant with its left hand",
+   "text": "use your left hand to pick up the green plant muse",
+   "label": "object/pick_up obj=plant side=left"
+  },
+  {
+   "cat": "pickup",
+   "intent": "grab the plant with its left hand",
+   "text": "can you get the plant with your left paw muse",
+   "label": "object/pick_up obj=plant side=left"
+  },
+  {
+   "cat": "pickup",
+   "intent": "grab the plant with its left hand",
+   "text": "umm muse get the green plant with the left hand",
+   "label": "object/pick_up obj=plant side=left"
+  },
+  {
+   "cat": "pickup",
+   "intent": "grab the plant with its left hand",
+   "text": "muse, pick up the plant using your left hand please",
+   "label": "object/pick_up obj=plant side=left"
+  },
+  {
+   "cat": "pickup",
+   "intent": "grab the plant with its left hand",
+   "text": "Muse, grab the little green plant with your left hand.",
+   "label": "object/pick_up obj=plant side=left"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hold the ball up and show it to the user",
+   "text": "Hold the ball up and show it to me, please.",
+   "label": "object/show|object/hold_up obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hold the ball up and show it to the user",
+   "text": "show me the ball held up high",
+   "label": "object/show|object/hold_up obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hold the ball up and show it to the user",
+   "text": "Muse, would you lift the ball just a little so I get a good look?",
+   "label": "object/show|object/hold_up obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hold the ball up and show it to the user",
+   "text": "Hey Muse, can you hold the yellow ball up so I can see it?",
+   "label": "object/show|object/hold_up obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hold the ball up and show it to the user",
+   "text": "can you hold up the yellow ball so i can see it",
+   "label": "object/show|object/hold_up obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "turn the book around (rotate it in its paws)",
+   "text": "could you maybe flip the book around in your paws",
+   "label": "object/turn|object/flip obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "turn the book around (rotate it in its paws)",
+   "text": "let's see you rotating that book all the way around",
+   "label": "object/turn|object/flip obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "turn the book around (rotate it in its paws)",
+   "text": "Would you mind spinning the book so I can see the other side?",
+   "label": "object/turn|object/flip obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "turn the book around (rotate it in its paws)",
+   "text": "show me you turning the book completely around in your hands",
+   "label": "object/turn|object/flip obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "turn the book around (rotate it in its paws)",
+   "text": "Muse, can you turn the blue book around in your paws?",
+   "label": "object/turn|object/flip obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "look closely at / examine the mug",
+   "text": "Can you look at the mug closely and see if it\u2019s okay?",
+   "label": "object/inspect obj=mug|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "look closely at / examine the mug",
+   "text": "how about looking at the mug real close muse",
+   "label": "object/inspect obj=mug|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "look closely at / examine the mug",
+   "text": "Muse, please take a closer look at the red mug.",
+   "label": "object/inspect obj=mug|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "look closely at / examine the mug",
+   "text": "could you check out that mug with some detail",
+   "label": "object/inspect obj=mug|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "look closely at / examine the mug",
+   "text": "muse look closely at the mug",
+   "label": "object/inspect obj=mug|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "pass the ball to its other hand",
+   "text": "Muse, can you hand the ball to your other hand please?",
+   "label": "object/hand_over obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "pass the ball to its other hand",
+   "text": "Pass the yellow ball over to your other hand, Muse.",
+   "label": "object/hand_over obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "pass the ball to its other hand",
+   "text": "Could you swap the ball to your other paw for me?",
+   "label": "object/hand_over obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "pass the ball to its other hand",
+   "text": "like want to see you pass the ball from one paw to the other",
+   "label": "object/hand_over obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "pass the ball to its other hand",
+   "text": "could you maybe transfer the ball to your other paw muse",
+   "label": "object/hand_over obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "toss the ball up in the air and catch it",
+   "text": "Toss the ball up in the air and catch it, Muse!",
+   "label": "object/toss obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "toss the ball up in the air and catch it",
+   "text": "like toss the yellow ball up and catch it",
+   "label": "object/toss obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "toss the ball up in the air and catch it",
+   "text": "Um muse throw the ball up and catch it please",
+   "label": "object/toss obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "toss the ball up in the air and catch it",
+   "text": "Muse, please toss that ball up then catch it.",
+   "label": "object/toss obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "toss the ball up in the air and catch it",
+   "text": "muse toss the ball up in air and catch it",
+   "label": "object/toss obj=ball|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hand the book over to the user",
+   "text": "Muse, please pass the book to my side.",
+   "label": "object/offer obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hand the book over to the user",
+   "text": "give me the book over here",
+   "label": "object/offer obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hand the book over to the user",
+   "text": "could you maybe pass the book to me",
+   "label": "object/offer obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hand the book over to the user",
+   "text": "Uh hey muse could you hand me the book please",
+   "label": "object/offer obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "hand the book over to the user",
+   "text": "like go ahead and hand me that book now",
+   "label": "object/offer obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "flip the book upside down",
+   "text": "flip the book upside down muse",
+   "label": "object/flip|object/turn obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "flip the book upside down",
+   "text": "Flip the book upside down in your paws, Muse.",
+   "label": "object/flip|object/turn obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "flip the book upside down",
+   "text": "like hold the book then flip it upside down",
+   "label": "object/flip|object/turn obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "flip the book upside down",
+   "text": "um muse flip the book upside down please",
+   "label": "object/flip|object/turn obj=book|it"
+  },
+  {
+   "cat": "manipulate",
+   "intent": "flip the book upside down",
+   "text": "how about flipping the book upside down for me",
+   "label": "object/flip|object/turn obj=book|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put it down (whatever it is holding; use a pronoun)",
+   "text": "Muse, please put it down now.",
+   "label": "object/put_down|object/drop|object/place obj=it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put it down (whatever it is holding; use a pronoun)",
+   "text": "put it down muse",
+   "label": "object/put_down|object/drop|object/place obj=it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put it down (whatever it is holding; use a pronoun)",
+   "text": "Muse, could you maybe let go and put it down?",
+   "label": "object/put_down|object/drop|object/place obj=it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put it down (whatever it is holding; use a pronoun)",
+   "text": "drop whatever you're holding muse",
+   "label": "object/put_down|object/drop|object/place obj=it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put it down (whatever it is holding; use a pronoun)",
+   "text": "Hey Muse, drop it please.",
+   "label": "object/put_down|object/drop|object/place obj=it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the ball back where it was",
+   "text": "Okay so muse can you put the ball back on the floor where it started",
+   "label": "object/put_back obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the ball back where it was",
+   "text": "put the ball back muse",
+   "label": "object/put_back obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the ball back where it was",
+   "text": "Muse, would you be so kind as to place the ball back in its original spot?",
+   "label": "object/put_back obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the ball back where it was",
+   "text": "Could you return the ball to its spot?",
+   "label": "object/put_back obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the ball back where it was",
+   "text": "I bet you can't put the ball back exactly where it goes",
+   "label": "object/put_back obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the mug on the desk",
+   "text": "Muse drop the mug on the desk now.",
+   "label": "object/place obj=mug|it place=desk"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the mug on the desk",
+   "text": "Muse, please put the red mug on the oak desk.",
+   "label": "object/place obj=mug|it place=desk"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the mug on the desk",
+   "text": "Can you set the mug down on the desk?",
+   "label": "object/place obj=mug|it place=desk"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the mug on the desk",
+   "text": "um muse could you like put the red mug on the desk please",
+   "label": "object/place obj=mug|it place=desk"
+  },
+  {
+   "cat": "putdown",
+   "intent": "put the mug on the desk",
+   "text": "put mug on desk muse",
+   "label": "object/place obj=mug|it place=desk"
+  },
+  {
+   "cat": "putdown",
+   "intent": "set the book down on the floor",
+   "text": "I bet you can't set that book down nicely on the floor",
+   "label": "object/place|object/put_down obj=book|it place=floor"
+  },
+  {
+   "cat": "putdown",
+   "intent": "set the book down on the floor",
+   "text": "Muse, set the blue book down on the floor.",
+   "label": "object/place|object/put_down obj=book|it place=floor"
+  },
+  {
+   "cat": "putdown",
+   "intent": "set the book down on the floor",
+   "text": "Muse, please put the book on the floor now.",
+   "label": "object/place|object/put_down obj=book|it place=floor"
+  },
+  {
+   "cat": "putdown",
+   "intent": "set the book down on the floor",
+   "text": "put the book down on the floor muse",
+   "label": "object/place|object/put_down obj=book|it place=floor"
+  },
+  {
+   "cat": "putdown",
+   "intent": "set the book down on the floor",
+   "text": "Could you place the book on the floor?",
+   "label": "object/place|object/put_down obj=book|it place=floor"
+  },
+  {
+   "cat": "putdown",
+   "intent": "drop the ball",
+   "text": "drop the yellow ball muse",
+   "label": "object/drop|object/put_down obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "drop the ball",
+   "text": "um muse drop the ball please",
+   "label": "object/drop|object/put_down obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "drop the ball",
+   "text": "Muse put the ball down please",
+   "label": "object/drop|object/put_down obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "drop the ball",
+   "text": "Let\u2019s see you drop the ball, Muse.",
+   "label": "object/drop|object/put_down obj=ball|it"
+  },
+  {
+   "cat": "putdown",
+   "intent": "drop the ball",
+   "text": "Could you please drop the ball?",
+   "label": "object/drop|object/put_down obj=ball|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "put the headphones on its head",
+   "text": "show me you putting the headphone on your head muse",
+   "label": "object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "put the headphones on its head",
+   "text": "alright muse headphones on your head now",
+   "label": "object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "put the headphones on its head",
+   "text": "please put pink headphones on your head",
+   "label": "object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "put the headphones on its head",
+   "text": "Muse, would you mind wearing the pink headphones?",
+   "label": "object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "put the headphones on its head",
+   "text": "Hey Muse, pop on your headphones for me!",
+   "label": "object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "take the headphones off",
+   "text": "can you take off the headphones from your head muse",
+   "label": "object/take_off obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "take the headphones off",
+   "text": "I bet you can't take the headphones off your head, prove me wrong!",
+   "label": "object/take_off obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "take the headphones off",
+   "text": "muse please take the pink headphones off",
+   "label": "object/take_off obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "take the headphones off",
+   "text": "Muse, how about you lift those headphones off your head?",
+   "label": "object/take_off obj=headphones|it"
+  },
+  {
+   "cat": "headphones",
+   "intent": "take the headphones off",
+   "text": "Okay so, like, could you maybe take your headphones off?",
+   "label": "object/take_off obj=headphones|it"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair over (toward itself / the user)",
+   "text": "Okay Muse, bring the chair over by you, please.",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair over (toward itself / the user)",
+   "text": "um could you like pull the chair over this way",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair over (toward itself / the user)",
+   "text": "Hey there, please pull the chair toward yourself.",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair over (toward itself / the user)",
+   "text": "pull that chair towards you muse",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair over (toward itself / the user)",
+   "text": "Would you mind sliding the chair a little closer to us?",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair up to the desk",
+   "text": "okay so muse get the teal chair right to desk",
+   "label": "object/pull|object/push|object/bring|object/slide obj=chair target=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair up to the desk",
+   "text": "Muse, pull the teal chair right up to the oak desk.",
+   "label": "object/pull|object/push|object/bring|object/slide obj=chair target=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair up to the desk",
+   "text": "push the chair up real close to the oak desk muse",
+   "label": "object/pull|object/push|object/bring|object/slide obj=chair target=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair up to the desk",
+   "text": "Please bring the chair up to the desk, thanks!",
+   "label": "object/pull|object/push|object/bring|object/slide obj=chair target=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the chair up to the desk",
+   "text": "Hey Muse, could you slide that chair so it's touching the desk?",
+   "label": "object/pull|object/push|object/bring|object/slide obj=chair target=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the desk closer",
+   "text": "Get the oak desk closer to your spot, please Muse!",
+   "label": "object/pull|object/bring|object/slide obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the desk closer",
+   "text": "Muse, could you pull the oak desk closer to you please?",
+   "label": "object/pull|object/bring|object/slide obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the desk closer",
+   "text": "Hey, bring the desk a bit nearer over this way.",
+   "label": "object/pull|object/bring|object/slide obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the desk closer",
+   "text": "drag the desk closer muse",
+   "label": "object/pull|object/bring|object/slide obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "pull the desk closer",
+   "text": "Muse, how about you pull the desk to sit closer to you?",
+   "label": "object/pull|object/bring|object/slide obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the chair back (away)",
+   "text": "Please move that chair away from the desk, Muse.",
+   "label": "object/push obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the chair back (away)",
+   "text": "ok muse push chair back away from yourself",
+   "label": "object/push obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the chair back (away)",
+   "text": "how about pulling the chair back not towards you muse",
+   "label": "object/push obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the chair back (away)",
+   "text": "Muse, I want you to push the chair back over there.",
+   "label": "object/push obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the chair back (away)",
+   "text": "Muse, push the teal chair back away from you.",
+   "label": "object/push obj=chair"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the desk away",
+   "text": "Muse, I want you to move the desk farther away.",
+   "label": "object/push obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the desk away",
+   "text": "Could you slide the desk farther back?",
+   "label": "object/push obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the desk away",
+   "text": "push the desk back muse",
+   "label": "object/push obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the desk away",
+   "text": "Hey Muse, push the oak desk away from your spot.",
+   "label": "object/push obj=desk"
+  },
+  {
+   "cat": "furniture",
+   "intent": "push the desk away",
+   "text": "Muse, please push the desk away from you.",
+   "label": "object/push obj=desk"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down in the chair",
+   "text": "Hey Muse, please take a seat in the teal chair.",
+   "label": "object/sit_in obj=chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down in the chair",
+   "text": "Muse, do a little jump and settle down in the chair, please.",
+   "label": "object/sit_in obj=chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down in the chair",
+   "text": "muse sit down chair teal",
+   "label": "object/sit_in obj=chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down in the chair",
+   "text": "Can you plop yourself down on that comfy chair, Muse?",
+   "label": "object/sit_in obj=chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down in the chair",
+   "text": "um muse could you maybe sit down in the chair ok",
+   "label": "object/sit_in obj=chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down at the desk",
+   "text": "Muse, go sit down at the oak desk for me.",
+   "label": "object/sit_at|object/sit_in obj=desk|chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down at the desk",
+   "text": "Muse, can you have a seat by the desk now?",
+   "label": "object/sit_at|object/sit_in obj=desk|chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down at the desk",
+   "text": "Muse, grab a spot sitting at the desk please.",
+   "label": "object/sit_at|object/sit_in obj=desk|chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down at the desk",
+   "text": "oh please Muse just sit yourself nice and neat at the desk",
+   "label": "object/sit_at|object/sit_in obj=desk|chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down at the desk",
+   "text": "I want you to plunk down right at the desk, Muse!",
+   "label": "object/sit_at|object/sit_in obj=desk|chair"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down (no object named)",
+   "text": "um so muse how about just sitting down cool",
+   "label": "move/sit|move/sit_down"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down (no object named)",
+   "text": "Muse, sit yourself down anywhere you like.",
+   "label": "move/sit|move/sit_down"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down (no object named)",
+   "text": "Hey Muse, could you sit now?",
+   "label": "move/sit|move/sit_down"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down (no object named)",
+   "text": "sit down muse",
+   "label": "move/sit|move/sit_down"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "sit down (no object named)",
+   "text": "Could you just sit down for me, Muse?",
+   "label": "move/sit|move/sit_down"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "stand up (no object named)",
+   "text": "Get on your feet, Muse!",
+   "label": "move/stand|move/stand_up|move/get_up|object/stand_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "stand up (no object named)",
+   "text": "okay muse, please stand now",
+   "label": "move/stand|move/stand_up|move/get_up|object/stand_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "stand up (no object named)",
+   "text": "Muse, stand up please.",
+   "label": "move/stand|move/stand_up|move/get_up|object/stand_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "stand up (no object named)",
+   "text": "I want you to stand up, dear Muse.",
+   "label": "move/stand|move/stand_up|move/get_up|object/stand_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "stand up (no object named)",
+   "text": "Muse, be a good one and rise up.",
+   "label": "move/stand|move/stand_up|move/get_up|object/stand_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "get up out of the chair",
+   "text": "Muse, get up out of the chair now.",
+   "label": "object/stand_up|move/stand|move/stand_up|move/get_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "get up out of the chair",
+   "text": "I want you to get up out of that chair, Muse.",
+   "label": "object/stand_up|move/stand|move/stand_up|move/get_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "get up out of the chair",
+   "text": "Muse, stand up and leave the chair, please.",
+   "label": "object/stand_up|move/stand|move/stand_up|move/get_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "get up out of the chair",
+   "text": "Um Muse would you maybe get up from the chair?",
+   "label": "object/stand_up|move/stand|move/stand_up|move/get_up"
+  },
+  {
+   "cat": "sitstand",
+   "intent": "get up out of the chair",
+   "text": "Muse, could you hop up out of the chair for me?",
+   "label": "object/stand_up|move/stand|move/stand_up|move/get_up"
+  },
+  {
+   "cat": "laptop",
+   "intent": "open the laptop",
+   "text": "Hey little buddy, open up the silver laptop, will you?",
+   "label": "object/open obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "open the laptop",
+   "text": "Um, so, could you maybe open the laptop now?",
+   "label": "object/open obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "open the laptop",
+   "text": "Let's see you open that laptop, Muse!",
+   "label": "object/open obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "open the laptop",
+   "text": "open laptop now please muse",
+   "label": "object/open obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "open the laptop",
+   "text": "can you open the laptop",
+   "label": "object/open obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "close the laptop",
+   "text": "Muse, close that silver laptop on the oak desk.",
+   "label": "object/close obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "close the laptop",
+   "text": "How about you close the laptop now?",
+   "label": "object/close obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "close the laptop",
+   "text": "Hey Muse, like, can you close the laptop?",
+   "label": "object/close obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "close the laptop",
+   "text": "Please close the laptop, Muse.",
+   "label": "object/close obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "close the laptop",
+   "text": "Shut that laptop now, okay Muse?",
+   "label": "object/close obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "slide the laptop closer to itself on the desk",
+   "text": "Okay so, moving the laptop closer to you on the desk please Muse.",
+   "label": "object/slide|object/pull|object/bring obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "slide the laptop closer to itself on the desk",
+   "text": "Slide the laptop closer to you on the desk, okay Muse?",
+   "label": "object/slide|object/pull|object/bring obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "slide the laptop closer to itself on the desk",
+   "text": "Muse, move that silver laptop over here closer to you.",
+   "label": "object/slide|object/pull|object/bring obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "slide the laptop closer to itself on the desk",
+   "text": "Muse, please push the laptop toward yourself on the desk.",
+   "label": "object/slide|object/pull|object/bring obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "slide the laptop closer to itself on the desk",
+   "text": "Let's see you slide the laptop nearer to you on the desk.",
+   "label": "object/slide|object/pull|object/bring obj=laptop"
+  },
+  {
+   "cat": "laptop",
+   "intent": "type on the laptop / start typing",
+   "text": "Start typing on the laptop now, Muse.",
+   "label": "object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "type on the laptop / start typing",
+   "text": "type on the laptop",
+   "label": "object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "type on the laptop / start typing",
+   "text": "Muse, type something on the laptop.",
+   "label": "object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "type on the laptop / start typing",
+   "text": "Okay Muse, begin typing now on the laptop.",
+   "label": "object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "type on the laptop / start typing",
+   "text": "Hey Muse, get typing on the laptop, please.",
+   "label": "object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "get to work on the laptop",
+   "text": "Hey Muse, begin working on that laptop now.",
+   "label": "object/work_on|object/type_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "get to work on the laptop",
+   "text": "muse start working on laptop",
+   "label": "object/work_on|object/type_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "get to work on the laptop",
+   "text": "Let's see you get started working on the laptop, Muse!",
+   "label": "object/work_on|object/type_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "get to work on the laptop",
+   "text": "Um, can you get to work on your laptop?",
+   "label": "object/work_on|object/type_on|object/use"
+  },
+  {
+   "cat": "laptop",
+   "intent": "get to work on the laptop",
+   "text": "Muse work on laptop now please.",
+   "label": "object/work_on|object/type_on|object/use"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the headphones and then put them on",
+   "text": "Hey Muse, pick up the headphones from the side table and put them on, please.",
+   "label": "object/pick_up obj=headphones ; object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the headphones and then put them on",
+   "text": "Muse can you grab those pink headphones and then pop them onto your head?",
+   "label": "object/pick_up obj=headphones ; object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the headphones and then put them on",
+   "text": "I bet you can't lift those pink headphones and put them on your ears.",
+   "label": "object/pick_up obj=headphones ; object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the headphones and then put them on",
+   "text": "um muse get the headphones and put em on",
+   "label": "object/pick_up obj=headphones ; object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the headphones and then put them on",
+   "text": "muse pick up the headphones then put it on your head",
+   "label": "object/pick_up obj=headphones ; object/put_on obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the chair over and then sit in it",
+   "text": "how about muse you pull the chair over and drop onto it",
+   "label": "object/pull|object/bring obj=chair ; object/sit_in|move/sit obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the chair over and then sit in it",
+   "text": "Muse can you drag the chair closer and then have a seat?",
+   "label": "object/pull|object/bring obj=chair ; object/sit_in|move/sit obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the chair over and then sit in it",
+   "text": "pull the chair over muse then sit down",
+   "label": "object/pull|object/bring obj=chair ; object/sit_in|move/sit obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the chair over and then sit in it",
+   "text": "Pull that teal chair over here and sit down, Muse.",
+   "label": "object/pull|object/bring obj=chair ; object/sit_in|move/sit obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the chair over and then sit in it",
+   "text": "muse can you pull the teal chair then sit",
+   "label": "object/pull|object/bring obj=chair ; object/sit_in|move/sit obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "put the headphones on, sit at the desk, open the laptop and start typing",
+   "text": "put on the headphones muse sit at desk open laptop start typing",
+   "label": "object/put_on obj=headphones ; object/sit_at|object/sit_in|move/sit ; object/open obj=laptop|it ; object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "multistep",
+   "intent": "put the headphones on, sit at the desk, open the laptop and start typing",
+   "text": "Please put your headphones on, take a seat at the desk, open the silver laptop, and begin typing.",
+   "label": "object/put_on obj=headphones ; object/sit_at|object/sit_in|move/sit ; object/open obj=laptop|it ; object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "multistep",
+   "intent": "put the headphones on, sit at the desk, open the laptop and start typing",
+   "text": "muse put on headphones sit desk open laptop type",
+   "label": "object/put_on obj=headphones ; object/sit_at|object/sit_in|move/sit ; object/open obj=laptop|it ; object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "multistep",
+   "intent": "put the headphones on, sit at the desk, open the laptop and start typing",
+   "text": "Muse could you wear the pink headphones, sit down at the desk, open the laptop and start typing?",
+   "label": "object/put_on obj=headphones ; object/sit_at|object/sit_in|move/sit ; object/open obj=laptop|it ; object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "multistep",
+   "intent": "put the headphones on, sit at the desk, open the laptop and start typing",
+   "text": "Let's see you put on your headphones, get at that desk, open laptop and type!",
+   "label": "object/put_on obj=headphones ; object/sit_at|object/sit_in|move/sit ; object/open obj=laptop|it ; object/type_on|object/work_on|object/use"
+  },
+  {
+   "cat": "multistep",
+   "intent": "spin around twice and then do a backflip",
+   "text": "Show me you spinning round twice and flipping backwards!",
+   "label": "move/spin|move/twirl count=2 ; move/backflip"
+  },
+  {
+   "cat": "multistep",
+   "intent": "spin around twice and then do a backflip",
+   "text": "Can you twirl twice and then perform a backflip?",
+   "label": "move/spin|move/twirl count=2 ; move/backflip"
+  },
+  {
+   "cat": "multistep",
+   "intent": "spin around twice and then do a backflip",
+   "text": "Spin around two times, Muse, then leap into a backflip!",
+   "label": "move/spin|move/twirl count=2 ; move/backflip"
+  },
+  {
+   "cat": "multistep",
+   "intent": "spin around twice and then do a backflip",
+   "text": "two spins then a backflip muse",
+   "label": "move/spin|move/twirl count=2 ; move/backflip"
+  },
+  {
+   "cat": "multistep",
+   "intent": "spin around twice and then do a backflip",
+   "text": "do 2 spins then a backflip muse",
+   "label": "move/spin|move/twirl count=2 ; move/backflip"
+  },
+  {
+   "cat": "multistep",
+   "intent": "close the laptop, stand up and push the chair back",
+   "text": "ok muse close laptop stand then push chair back",
+   "label": "object/close obj=laptop ; move/stand|move/stand_up|move/get_up|object/stand_up ; object/push obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "close the laptop, stand up and push the chair back",
+   "text": "Close the laptop, stand up, and push the chair back, Muse.",
+   "label": "object/close obj=laptop ; move/stand|move/stand_up|move/get_up|object/stand_up ; object/push obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "close the laptop, stand up and push the chair back",
+   "text": "shut laptop muse stand and push chair back",
+   "label": "object/close obj=laptop ; move/stand|move/stand_up|move/get_up|object/stand_up ; object/push obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "close the laptop, stand up and push the chair back",
+   "text": "Muse, please close the laptop, stand and push the chair back.",
+   "label": "object/close obj=laptop ; move/stand|move/stand_up|move/get_up|object/stand_up ; object/push obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "close the laptop, stand up and push the chair back",
+   "text": "Muse, shut the laptop, rise and then push back the chair.",
+   "label": "object/close obj=laptop ; move/stand|move/stand_up|move/get_up|object/stand_up ; object/push obj=chair|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "take the headphones off and put them down",
+   "text": "remove headphones muse put down",
+   "label": "object/take_off obj=headphones ; object/put_down|object/place|object/drop|object/put_back obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "take the headphones off and put them down",
+   "text": "Muse, please remove your headphones and place them back on the side table.",
+   "label": "object/take_off obj=headphones ; object/put_down|object/place|object/drop|object/put_back obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "take the headphones off and put them down",
+   "text": "muse off headphones put em down",
+   "label": "object/take_off obj=headphones ; object/put_down|object/place|object/drop|object/put_back obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "take the headphones off and put them down",
+   "text": "muse take off headphones and put down",
+   "label": "object/take_off obj=headphones ; object/put_down|object/place|object/drop|object/put_back obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "take the headphones off and put them down",
+   "text": "Take the headphones off and put them down gently, Muse.",
+   "label": "object/take_off obj=headphones ; object/put_down|object/place|object/drop|object/put_back obj=headphones|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the ball, toss it up, then put it back",
+   "text": "Could you grab the ball, throw it up, then put it back?",
+   "label": "object/pick_up obj=ball ; object/toss obj=ball|it ; object/put_back obj=ball|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the ball, toss it up, then put it back",
+   "text": "um muse grab ball toss then put it back",
+   "label": "object/pick_up obj=ball ; object/toss obj=ball|it ; object/put_back obj=ball|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the ball, toss it up, then put it back",
+   "text": "Grab the ball, throw it up and put it back, please, Muse.",
+   "label": "object/pick_up obj=ball ; object/toss obj=ball|it ; object/put_back obj=ball|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the ball, toss it up, then put it back",
+   "text": "Muse, pick up the yellow ball, toss it up, and then put it back down.",
+   "label": "object/pick_up obj=ball ; object/toss obj=ball|it ; object/put_back obj=ball|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pick up the ball, toss it up, then put it back",
+   "text": "muse toss yellow ball then put back",
+   "label": "object/pick_up obj=ball ; object/toss obj=ball|it ; object/put_back obj=ball|it"
+  },
+  {
+   "cat": "multistep",
+   "intent": "jump, then dance",
+   "text": "muse jump up then dance",
+   "label": "move/jump|move/hop ; move/dance"
+  },
+  {
+   "cat": "multistep",
+   "intent": "jump, then dance",
+   "text": "muse jump and then dance",
+   "label": "move/jump|move/hop ; move/dance"
+  },
+  {
+   "cat": "multistep",
+   "intent": "jump, then dance",
+   "text": "jump then dance muse",
+   "label": "move/jump|move/hop ; move/dance"
+  },
+  {
+   "cat": "multistep",
+   "intent": "jump, then dance",
+   "text": "Muse, hop up then boogie down!",
+   "label": "move/jump|move/hop ; move/dance"
+  },
+  {
+   "cat": "multistep",
+   "intent": "jump, then dance",
+   "text": "Jump up once, Muse, then start dancing.",
+   "label": "move/jump|move/hop ; move/dance"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the desk over, then pull the chair up to it",
+   "text": "move oak desk and then bring chair up muse",
+   "label": "object/pull|object/bring obj=desk ; object/pull|object/push|object/bring|object/slide obj=chair"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the desk over, then pull the chair up to it",
+   "text": "Could you drag the desk closer and then pull your chair up?",
+   "label": "object/pull|object/bring obj=desk ; object/pull|object/push|object/bring|object/slide obj=chair"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the desk over, then pull the chair up to it",
+   "text": "Pull the oak desk over here and then bring the teal chair up to it, Muse.",
+   "label": "object/pull|object/bring obj=desk ; object/pull|object/push|object/bring|object/slide obj=chair"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the desk over, then pull the chair up to it",
+   "text": "Muse, please pull the desk over and then pull chair to the desk.",
+   "label": "object/pull|object/bring obj=desk ; object/pull|object/push|object/bring|object/slide obj=chair"
+  },
+  {
+   "cat": "multistep",
+   "intent": "pull the desk over, then pull the chair up to it",
+   "text": "pull desk over then pull chair up muse",
+   "label": "object/pull|object/bring obj=desk ; object/pull|object/push|object/bring|object/slide obj=chair"
+  },
+  {
+   "cat": "reordered",
+   "intent": "FIRST sit in the chair, THEN open the laptop - but say it with 'after' or 'before' so the spoken order is reversed, e.g. 'open X after you Y'",
+   "text": "I bet you can't open the laptop after you sit in the chair",
+   "label": "object/sit_in|move/sit|object/sit_at obj=chair|desk|it ; object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "FIRST sit in the chair, THEN open the laptop - but say it with 'after' or 'before' so the spoken order is reversed, e.g. 'open X after you Y'",
+   "text": "sit in the chair before u open laptop please",
+   "label": "object/sit_in|move/sit|object/sit_at obj=chair|desk|it ; object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "FIRST sit in the chair, THEN open the laptop - but say it with 'after' or 'before' so the spoken order is reversed, e.g. 'open X after you Y'",
+   "text": "Open your laptop after sitting in that chair first",
+   "label": "object/sit_in|move/sit|object/sit_at obj=chair|desk|it ; object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "FIRST sit in the chair, THEN open the laptop - but say it with 'after' or 'before' so the spoken order is reversed, e.g. 'open X after you Y'",
+   "text": "After you sit on the chair then open the silver laptop Muse",
+   "label": "object/sit_in|move/sit|object/sit_at obj=chair|desk|it ; object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "FIRST sit in the chair, THEN open the laptop - but say it with 'after' or 'before' so the spoken order is reversed, e.g. 'open X after you Y'",
+   "text": "um muse first sit in the teal chair and then open the laptop after that",
+   "label": "object/sit_in|move/sit|object/sit_at obj=chair|desk|it ; object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "first put on the headphones, then turn back to face the user - as one casual sentence with 'first ... then'",
+   "text": "Muse first put on your headphones then turn back to say hi",
+   "label": "object/put_on obj=headphones ; move/turn_back"
+  },
+  {
+   "cat": "reordered",
+   "intent": "first put on the headphones, then turn back to face the user - as one casual sentence with 'first ... then'",
+   "text": "first put on pink headphones then turn back to the user",
+   "label": "object/put_on obj=headphones ; move/turn_back"
+  },
+  {
+   "cat": "reordered",
+   "intent": "first put on the headphones, then turn back to face the user - as one casual sentence with 'first ... then'",
+   "text": "put headphones on first then turn back towards me muse",
+   "label": "object/put_on obj=headphones ; move/turn_back"
+  },
+  {
+   "cat": "reordered",
+   "intent": "first put on the headphones, then turn back to face the user - as one casual sentence with 'first ... then'",
+   "text": "First put on the pink headphones then turn around and face me",
+   "label": "object/put_on obj=headphones ; move/turn_back"
+  },
+  {
+   "cat": "reordered",
+   "intent": "first put on the headphones, then turn back to face the user - as one casual sentence with 'first ... then'",
+   "text": "First wear the headphones then turn towards me please",
+   "label": "object/put_on obj=headphones ; move/turn_back"
+  },
+  {
+   "cat": "reordered",
+   "intent": "partial sequence spoken in pieces: just 'okay now the laptop - open it'",
+   "text": "now the laptop open it muse",
+   "label": "object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "partial sequence spoken in pieces: just 'okay now the laptop - open it'",
+   "text": "Okay muse now the laptop open it",
+   "label": "object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "partial sequence spoken in pieces: just 'okay now the laptop - open it'",
+   "text": "laptop now open",
+   "label": "object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "partial sequence spoken in pieces: just 'okay now the laptop - open it'",
+   "text": "the laptop open it now muse",
+   "label": "object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "partial sequence spoken in pieces: just 'okay now the laptop - open it'",
+   "text": "um now laptop open it please",
+   "label": "object/open obj=laptop|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "pick up the book; then (as the next sentence, using only a pronoun) show it to the user",
+   "text": "like pick up the blue book and then just show it to me",
+   "label": "object/pick_up obj=book ; object/show|object/hold_up|object/offer obj=book|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "pick up the book; then (as the next sentence, using only a pronoun) show it to the user",
+   "text": "Pick up the blue book. Show it to me.",
+   "label": "object/pick_up obj=book ; object/show|object/hold_up|object/offer obj=book|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "pick up the book; then (as the next sentence, using only a pronoun) show it to the user",
+   "text": "Muse pick that book up and show it to the user",
+   "label": "object/pick_up obj=book ; object/show|object/hold_up|object/offer obj=book|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "pick up the book; then (as the next sentence, using only a pronoun) show it to the user",
+   "text": "Um can you please pick that book up and then show it here",
+   "label": "object/pick_up obj=book ; object/show|object/hold_up|object/offer obj=book|it"
+  },
+  {
+   "cat": "reordered",
+   "intent": "pick up the book; then (as the next sentence, using only a pronoun) show it to the user",
+   "text": "pick book then show it",
+   "label": "object/pick_up obj=book ; object/show|object/hold_up|object/offer obj=book|it"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says NOT to sit, but to pull the chair over (e.g. 'don't sit, just pull the chair over')",
+   "text": "okay so muse do not take a seat but please shift the chair over to me",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says NOT to sit, but to pull the chair over (e.g. 'don't sit, just pull the chair over')",
+   "text": "Muse, skip sitting, pull that chair this way.",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says NOT to sit, but to pull the chair over (e.g. 'don't sit, just pull the chair over')",
+   "text": "Muse, don't sit down, just pull the chair over here please.",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says NOT to sit, but to pull the chair over (e.g. 'don't sit, just pull the chair over')",
+   "text": "Hey Muse, no sitting, just drag the teal chair closer to me.",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says NOT to sit, but to pull the chair over (e.g. 'don't sit, just pull the chair over')",
+   "text": "no sit muse just move the chair over here",
+   "label": "object/pull|object/bring obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says not to do a backflip but to do a spin instead",
+   "text": "Skip the backflip and do a twirl.",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says not to do a backflip but to do a spin instead",
+   "text": "Please don't flip backwards, just whirl yourself around.",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says not to do a backflip but to do a spin instead",
+   "text": "No backflip, Muse, how about a little spin instead?",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says not to do a backflip but to do a spin instead",
+   "text": "no backflip muse just make a spin",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says not to do a backflip but to do a spin instead",
+   "text": "Let's see you do a spin and no backflip okay muse",
+   "label": "move/spin|move/twirl"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says to put the ball down but NOT on the desk... just drop it on the floor",
+   "text": "Don't put the ball on the desk, just let it fall on the floor.",
+   "label": "object/place|object/put_down|object/drop obj=ball|it"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says to put the ball down but NOT on the desk... just drop it on the floor",
+   "text": "okay so muse no desk just let the ball go on the floor",
+   "label": "object/place|object/put_down|object/drop obj=ball|it"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says to put the ball down but NOT on the desk... just drop it on the floor",
+   "text": "Please drop the ball to the floor, no touching the desk.",
+   "label": "object/place|object/put_down|object/drop obj=ball|it"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says to put the ball down but NOT on the desk... just drop it on the floor",
+   "text": "drop the ball down on floor dont put on desk muse",
+   "label": "object/place|object/put_down|object/drop obj=ball|it"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says to put the ball down but NOT on the desk... just drop it on the floor",
+   "text": "Put the yellow ball down, but not on the desk, just drop it on the floor.",
+   "label": "object/place|object/put_down|object/drop obj=ball|it"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says don't open the laptop yet, just sit down in the chair",
+   "text": "hey muse wait dont open laptop just sit down on the teal chair please",
+   "label": "object/sit_in|move/sit obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says don't open the laptop yet, just sit down in the chair",
+   "text": "Hold off on opening the silver laptop and have a seat in the chair.",
+   "label": "object/sit_in|move/sit obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says don't open the laptop yet, just sit down in the chair",
+   "text": "Don't open the laptop yet, just sit down in the teal chair.",
+   "label": "object/sit_in|move/sit obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says don't open the laptop yet, just sit down in the chair",
+   "text": "Muse could you maybe not open the laptop yet and sit quietly in the chair",
+   "label": "object/sit_in|move/sit obj=chair"
+  },
+  {
+   "cat": "neg_mixed",
+   "intent": "a sentence that says don't open the laptop yet, just sit down in the chair",
+   "text": "dont open laptop muse just sit in chair first",
+   "label": "object/sit_in|move/sit obj=chair"
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "i am telling you no backflips around here that's dangerous",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "muse dont take your headphones off not now",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "muse please don't pick up the yellow ball right now",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "keep your paws off the red mug muse i mean that",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "no backflips around the room mumuse you hear me",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "can you like not jump on the chair muse that's a no-go spot",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "muse don't even think about messing with that green plant",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "could you maybe keep your paws away from the little green plant",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "um uh like okay so no flipping over the oak desk please seriously",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "how about you dont jump on the teal chair it looks like it might break",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "stop moving the red mug it's just sitting there nicely",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "oh no no backflips keep your paws on the floor for now",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "hey muse no pawing at the blue book not now please",
+   "label": ""
+  },
+  {
+   "cat": "neg_negation",
+   "intent": "tells the character NOT to do something (don't do a backflip",
+   "text": "hey kiddo no playing with the blue book it stays put",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "imagine you wrapping your paws around the red mug like you really needed a drink",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "oh wow if you could just stretch out your legs a bit that would be neat",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "how fun it would be to watch you pretend typing on that silver laptop lid",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "could you maybe stretch like you're reaching for the pink headphones on the side table",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "imagine if you sat down in that teal chair and just relaxed for a minute",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "soz muse if u just lounged on the teal chair it would look so chill",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "hey muse I wish you could pick up that red mug like a pro sometime",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "okay muse what if you nabbed that yellow ball and tried tossing it up in the air",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "okay so like if you could maybe twirl around with those cute little paws",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "man i wish you could do a little dance with the yellow ball bouncing around",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "like seriously imagine you hopping from the desk to the chair without dropping the plant",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "wouldn't it be funny if you spun on one paw while leaning on the oak desk",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "umm i wonder if you tried to reach the little green plant would you fall",
+   "label": ""
+  },
+  {
+   "cat": "neg_hypo",
+   "intent": "hypothetical or wish, not a request now (if you could do a b",
+   "text": "i wish muse could stomp around the room showing off those big paws a bit",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "is that silver laptop closed or is it kinda open a crack",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "you know do you like spinning around before sitting in your teal chair",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "muse do you prefer the teal chair because of its color or the comfy cushion",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "do your headphones make a clicking noise when you put them back down",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "are your paws dusty from touching the red mug just now",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "hey muse have you ever dropped the yellow ball accidentally",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "are your feet cold when you sit by the oak desk muse",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "so like do you nudge the red mug or just glance at it often",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "i'm wondering if you ever nap next to the little green plant muse",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "how many times did you twirl around before settling in the teal chair",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "do you prefer sitting or standing by your oak desk usually muse",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "um so like are you holding the yellow ball or is it just lying on the floor",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "muse are the silver laptop keys ever sticky or they're smooth all the time",
+   "label": ""
+  },
+  {
+   "cat": "neg_question",
+   "intent": "a question about the character's state or history, NOT askin",
+   "text": "muse are your paws clean or do they get dusty from the oak desk",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "I bet Muse doesn\u2019t usually flip upside down near the little green plant, right?",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "the blue book was mentioned as something muse might try to open but it usually can't",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "I've heard the red mug clinking against the oak desk from the other room once or twice",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "she told me to watch Muse rocking back and forth in the teal chair like a tiny human",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "can you believe muse sometimes climbs the teal chair like it\u2019s a little jungle gym",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "like the laptop stayed closed while muse hopped around the desk yesterday afternoon",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "Muse\u2019s little nose probably twitched when it nuzzled the red mug the other day",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "someone said muse might tap its paws on the oak desk all day if it feels playful",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "I heard someone mention moving the teal chair closer to the desk before starting work.",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "um so like did you see muse just stretch out all its legs before sitting down",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "My sister told Muse to try picking up the yellow ball but she hasn't yet.",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "my niece was rambling that muse should wear the pink headphones while reading the blue book",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "oh muse has paws all over the place said my cousin like it\u2019s trying to catch butterflies",
+   "label": ""
+  },
+  {
+   "cat": "neg_reported",
+   "intent": "reported speech or narration about someone else (my sister s",
+   "text": "it's funny the way muse kinda leans on the desk when it's just sitting very still",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "that laptop on the desk muse opened it in my mind right now",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "Oh wow, seeing Muse wiggle its paws is surprisingly adorable!",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "okay so muse hopping around the room with those legs is so darn cute",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "the blue book laying open near muse is full of really neat stories",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "Muse's little paw movements give me the warm fuzzies inside.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "I'm sitting here watching Muse nudge the red mug back and forth.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "It\u2019s wild how the oak desk glistens under the light like polished wood.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "I'm curious how the yellow ball got all the way over by the chair.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "That teal chair has a vintage charm that totally fits the room's mood.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "Muse and that red mug sitting side-by-side look like best pals.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "did you see muse tap the silver laptop like he was typing fast",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "Um, okay so the teal chair looks super comfy for reading blue books.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "Watching Muse gently touch the pink headphones is oddly calming.",
+   "label": ""
+  },
+  {
+   "cat": "neg_statement",
+   "intent": "a statement or comment mentioning the actions/objects but no",
+   "text": "i love how the green plant sways even without any breeze or wind",
+   "label": ""
+  }
+ ]
+}

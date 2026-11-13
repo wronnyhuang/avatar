@@ -1,0 +1,25 @@
+{
+ "poses": {
+  "FF": {"lip_upper": 0.26, "lip_open": 0.08},
+  "TH": {"lip_open": 0.22, "lip_lower": 0.2, "lip_upper": 0.1, "teeth_gap": 0.22, "lip_width": 0.1},
+  "DD": {"lip_open": 0.15, "lip_upper": 0.26, "lip_lower": 0.12, "lip_width": 0.16, "teeth_gap": 0.21},
+  "NN": {"lip_open": 0.08, "lip_upper": 0.05, "lip_lower": 0.03, "lip_width": -0.1, "teeth_gap": 0.1, "tongue_back": 0.55},
+  "LL": {"lip_open": 0.44, "lip_upper": 0.12, "lip_lower": 0.16, "lip_width": 0.08, "teeth_gap": 0.48, "tongue_tip": 0.86},
+  "kk": {"lip_open": 0.34, "lip_width": -0.1, "lip_lower": 0.06, "teeth_gap": 0.36},
+  "CH": {"lip_open": 0.05, "lip_width": -0.44, "lip_protrude": 0.8, "lip_upper": 0.4, "lip_lower": 0.36, "teeth_gap": 0.0},
+  "SS": {"lip_open": 0.04, "lip_width": 0.44, "lip_upper": 0.56, "lip_lower": 0.54, "teeth_gap": 0.0},
+  "RR": {"lip_open": 0.15, "lip_width": -0.5, "lip_protrude": 0.42, "lip_upper": 0.0, "lip_lower": 0.0, "teeth_gap": 0.1, "tongue_back": 0.5},
+  "WW": {"lip_open": 0.07},
+  "AX": {"lip_open": 0.25, "lip_lower": 0.04, "lip_width": 0.02, "teeth_gap": 0.3},
+  "AH": {"lip_open": 0.5, "lip_width": 0.06, "teeth_gap": 0.5},
+  "EH": {"lip_open": 0.34, "lip_width": 0.5, "lip_upper": 0.4, "lip_lower": 0.16, "teeth_gap": 0.34},
+  "IH": {"lip_open": 0.16, "lip_width": 0.62, "lip_upper": 0.42, "lip_lower": 0.3, "teeth_gap": 0.14},
+  "IY": {"lip_open": 0.08, "lip_width": 1.0, "lip_upper": 0.4, "lip_lower": 0.3, "teeth_gap": 0.03},
+  "AO": {"lip_open": 0.74, "lip_width": -0.42, "lip_protrude": 0.4, "teeth_gap": 0.82},
+  "OW": {"lip_open": 0.4, "lip_width": -0.74, "lip_protrude": 0.72, "teeth_gap": 0.44},
+  "UH": {"lip_open": 0.24, "lip_width": -0.56, "lip_protrude": 0.4, "teeth_gap": 0.26}
+ },
+ "gains": {"lip_protrude": 0.85, "lip_width": 1.05},
+ "speed": 1.12,
+ "box": [730, 555, 1175, 910]
+}

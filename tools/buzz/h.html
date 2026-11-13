@@ -1,0 +1,78 @@
+<!doctype html><meta charset="utf-8"><title>buzz harness</title>
+<script src="voice.js"></script>
+<script>
+// The avatar page's voice output graph, in isolation (same code: voice.js createPlayout + aecOutput):
+//   source -> bus -> playout (tap + DelayNode -> out) -> [aec: MediaStreamDestination -> RTCPeerConnection pair -> <audio>]
+// Taps: 'out' = play.out (what the recorder records), 'heard' = the loopback's received stream (what the <audio> plays),
+// 'bus' = the voice as it enters the playout. ?src=buffer|rtc, ?sr=24000, ?aec=1, ?need=jitter (setNeed samples at 24 Hz)
+const Q = new URLSearchParams(location.search);
+const CAP = `class Cap extends AudioWorkletProcessor { constructor() { super(); this.on = true; this.port.onmessage = e => { if (e.data === 'stop') this.on = false; }; }
+  process(i, o) { const x = i[0] && i[0][0]; if (this.on && x) this.port.postMessage(x.slice(0)); else if (this.on) this.port.postMessage(new Float32Array(128)); return true; } }
+registerProcessor('cap', Cap);
+class Hog extends AudioWorkletProcessor { constructor(o) { super(); this.k = 0; this.ms = o.processorOptions.ms; this.every = o.processorOptions.every; }
+  process(i, o) { if (++this.k % this.every === 0) { const t = Date.now(); while (Date.now() - t < this.ms) {} } return true; } }
+registerProcessor('hog', Hog);`;
+async function capNode(ctx) {
+  if (!ctx.__cap) ctx.__cap = ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([CAP], {type: 'application/javascript'})));
+  await ctx.__cap;
+  const n = new AudioWorkletNode(ctx, 'cap', {numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1]});
+  const parts = []; n.port.onmessage = e => parts.push(e.data);
+  const z = ctx.createGain(); z.gain.value = 0; n.connect(z).connect(ctx.destination);
+  return {n, parts, sr: ctx.sampleRate, ctx, dump() { let L = 0; for (const p of parts) L += p.length; const a = new Float32Array(L); let k = 0; for (const p of parts) { a.set(p, k); k += p.length; } return a; }};
+}
+function b64(f32) { const i16 = new Int16Array(f32.length); for (let i = 0; i < f32.length; i++) { const v = Math.max(-1, Math.min(1, f32[i])); i16[i] = Math.round(v * 32767); }
+  const u = new Uint8Array(i16.buffer); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
+// clip-only peak scan (before int16 quantising)
+function over(f32) { let n = 0, pk = 0; for (const v of f32) { const a = Math.abs(v); if (a > pk) pk = a; if (a >= 0.999) n++; } return {n, pk}; }
+window.run = async (wavUrls, opts) => {
+  const sr = +(opts.sr || 24000);
+  const ctx = new AudioContext({sampleRate: sr, latencyHint: 'interactive'});
+  await ctx.resume();
+  const bus = ctx.createGain();
+  const play = await AvatarVoice.createPlayout(ctx, bus, {delayMs: 250, minMs: 60, maxMs: +(opts.maxMs || 650), aecOut: opts.aec !== false});
+  play.start();
+  const taps = {bus: await capNode(ctx), out: await capNode(ctx)};
+  bus.connect(taps.bus.n); play.out.connect(taps.out.n);
+  let ctx2 = null;
+  if (play.aec && play.aec.el) {
+    ctx2 = new AudioContext({sampleRate: +(opts.heardSr || 48000)}); await ctx2.resume();
+    taps.heard = await capNode(ctx2);
+    ctx2.createMediaStreamSource(play.aec.el.srcObject).connect(taps.heard.n);
+  }
+  // source path
+  let entry = bus, loop = null;
+  if (opts.src === 'rtc') {      // like the vendor's WebRTC track: Opus over a peer connection, attachRemote() on the far side
+    const md = ctx.createMediaStreamDestination(); entry = md;
+    const a = new RTCPeerConnection(), b = new RTCPeerConnection(); loop = [a, b];
+    a.onicecandidate = e => { if (e.candidate) b.addIceCandidate(e.candidate).catch(() => {}); };
+    b.onicecandidate = e => { if (e.candidate) a.addIceCandidate(e.candidate).catch(() => {}); };
+    const got = new Promise(r => { b.ontrack = e => r(e); });
+    a.addTrack(md.stream.getAudioTracks()[0], md.stream);
+    const off = await a.createOffer(); await a.setLocalDescription(off); await b.setRemoteDescription(off);
+    const ans = await b.createAnswer(); await b.setLocalDescription(ans); await a.setRemoteDescription(ans);
+    const ev = await got; const ms = ev.streams[0] || new MediaStream([ev.track]);
+    const el = new Audio(); el.muted = true; el.autoplay = true; el.srcObject = ms; el.play().catch(() => {});
+    ctx.createMediaStreamSource(ms).connect(bus);
+  }
+  if (opts.hogMs) { await capNode(ctx); const h = new AudioWorkletNode(ctx, 'hog', {numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [1], processorOptions: {ms: +opts.hogMs, every: +(opts.hogEvery || 40)}}); const z = ctx.createGain(); z.gain.value = 0; h.connect(z).connect(ctx.destination); }
+  let stressT = null;
+  if (opts.stress) { const ms = +opts.stress; stressT = setInterval(() => { const t = performance.now(); let x = 0; while (performance.now() - t < ms) x += Math.sqrt(x + 1); }, +(opts.stressEvery || 33)); }
+  const bufs = [];
+  for (const u of wavUrls) { const r = await fetch(u); bufs.push(await ctx.decodeAudioData(await r.arrayBuffer())); }
+  // delay-need samples at 24 Hz (like the video frames): jitter around a base so the playout's delay logic runs
+  let needT = null;
+  if (opts.need) { const base = +opts.need; needT = setInterval(() => play.setNeed(base + (Math.random() - 0.5) * 2 * (+opts.needJit || 150)), 42); }
+  await new Promise(r => setTimeout(r, 1500));
+  let t = ctx.currentTime + 0.2; const starts = [];
+  for (const b of bufs) { const s = ctx.createBufferSource(); s.buffer = b; s.connect(entry); s.start(t); starts.push(t); t += b.duration + (+opts.gap || 1.2); }
+  await new Promise(r => setTimeout(r, (t - ctx.currentTime + 1.5) * 1000));
+  if (needT) clearInterval(needT);
+  if (stressT) clearInterval(stressT);
+  const rtp = async (recv) => { const o = {}; if (!recv) return null; (await recv.getStats()).forEach(x => { if (x.type === 'inbound-rtp') for (const k of ['concealedSamples', 'silentConcealedSamples', 'concealmentEvents', 'insertedSamplesForDeceleration', 'removedSamplesForAcceleration', 'totalSamplesReceived', 'jitterBufferDelay', 'jitterBufferEmittedCount', 'packetsLost', 'jitter', 'bytesReceived', 'packetsReceived']) o[k] = x[k]; }); return o; };
+  const loopRecv = play.aec && play.aec.recv, vendRecv = loop ? loop[1].getReceivers()[0] : null;
+  const res = {sr, starts, stats: play.stats(), loopRtp: await rtp(loopRecv), vendRtp: await rtp(vendRecv), taps: {}};
+  for (const [k, c] of Object.entries(taps)) { c.n.port.postMessage('stop'); const f = c.dump(); res.taps[k] = {sr: c.sr, n: f.length, over: over(f), b64: b64(f)}; }
+  play.stop(); if (loop) loop.forEach(p => p.close());
+  return res;
+};
+</script>

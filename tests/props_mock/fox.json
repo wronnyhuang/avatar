@@ -1,0 +1,119 @@
+{
+ "character": "fox",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "ball",
+   "name": "red ball",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "ball",
+    "toy"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 1,
+   "id": "cup",
+   "name": "blue cup",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "cup",
+    "mug"
+   ],
+   "category": "cup",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 2,
+   "id": "book",
+   "name": "green book",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "book"
+   ],
+   "category": "book",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 3,
+   "id": "flower",
+   "name": "yellow flower",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "flower",
+    "daisy"
+   ],
+   "category": "flower",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 4,
+   "id": "apple",
+   "name": "red apple",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "apple",
+    "fruit"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  }
+ ]
+}

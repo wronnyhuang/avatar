@@ -1,0 +1,58 @@
+{
+ "character": "star",
+ "_doc": "star: a shape; ear_l/ear_r move its points, no turn.",
+ "covered": [
+  "head_yaw",
+  "head_pitch",
+  "head_roll",
+  "gaze_x",
+  "gaze_y",
+  "brow_l",
+  "brow_r",
+  "brow_knit",
+  "blink_l",
+  "blink_r",
+  "eye_wide",
+  "squint",
+  "smile",
+  "mouth_open",
+  "body_yaw",
+  "body_pitch",
+  "body_lean",
+  "body_bounce",
+  "hand_l_x",
+  "hand_l_y",
+  "hand_l_z",
+  "hand_r_x",
+  "hand_r_y",
+  "hand_r_z",
+  "hand_l_open",
+  "hand_r_open",
+  "hand_l_turn",
+  "hand_r_turn",
+  "thumb_l",
+  "thumb_r",
+  "point_l",
+  "point_r",
+  "shoulder_l",
+  "shoulder_r",
+  "breath",
+  "ear_l",
+  "ear_r",
+  "ear_flick_l",
+  "ear_flick_r"
+ ],
+ "gaze": {
+  "deg_per_unit": [
+   22.0,
+   18.0
+  ]
+ },
+ "body": {
+  "gain": [
+   1.0,
+   1.0,
+   1.0
+  ]
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "character": "orb",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "crystal",
+   "name": "blue crystal",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "crystal",
+    "gem"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 1,
+   "id": "star",
+   "name": "white star",
+   "color": "white",
+   "colors": [
+    "white"
+   ],
+   "aliases": [
+    "star"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 2,
+   "id": "box",
+   "name": "purple box",
+   "color": "purple",
+   "colors": [
+    "purple"
+   ],
+   "aliases": [
+    "box",
+    "present",
+    "gift"
+   ],
+   "category": "box",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 3,
+   "id": "bell",
+   "name": "golden bell",
+   "color": "gold",
+   "colors": [
+    "gold"
+   ],
+   "aliases": [
+    "bell"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 4,
+   "id": "ball",
+   "name": "red ball",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "ball"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  }
+ ]
+}

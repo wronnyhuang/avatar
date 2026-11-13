@@ -1,0 +1,27 @@
+{
+  "note": "TV agent: held-out concepts written BEFORE prompt/helper tuning round 4; never used to tune -- generalisation check only",
+  "concepts": [
+    {"id": "h_doppler", "subject": "physics", "concept": "the Doppler effect: sound waves bunching up in front of a moving siren"},
+    {"id": "h_induction", "subject": "physics", "concept": "a magnet moving through a coil induces a current (Faraday's law)"},
+    {"id": "h_kepler2", "subject": "physics", "concept": "Kepler's second law: a planet sweeps equal areas in equal times"},
+    {"id": "h_gaslaw", "subject": "physics", "concept": "a piston compressing a gas: pressure rises as volume falls (Boyle's law)"},
+    {"id": "h_polarizer", "subject": "optics", "concept": "light passing through two polarizing filters at an angle (Malus's law)"},
+    {"id": "h_plane_mirror_image", "subject": "optics", "concept": "where the image in a plane mirror is and why it looks reversed"},
+    {"id": "h_telescope", "subject": "optics", "concept": "how a two-lens refracting telescope magnifies a distant object"},
+    {"id": "h_halflife", "subject": "chemistry", "concept": "radioactive half-life: the number of undecayed atoms halving every half-life"},
+    {"id": "h_lechatelier", "subject": "chemistry", "concept": "Le Chatelier's principle: adding reactant shifts an equilibrium"},
+    {"id": "h_co2shape", "subject": "chemistry", "concept": "why carbon dioxide is a straight linear molecule"},
+    {"id": "h_matrix", "subject": "math", "concept": "a 2x2 matrix as a linear transformation stretching and shearing the grid"},
+    {"id": "h_bayes", "subject": "math", "concept": "Bayes' theorem with a medical test: true positives versus false positives"},
+    {"id": "h_gradient", "subject": "math", "concept": "gradient descent rolling down a curve to the minimum"},
+    {"id": "h_neuron", "subject": "biology", "concept": "a nerve signal travelling along an axon as an action potential"},
+    {"id": "h_plates", "subject": "earth", "concept": "tectonic plates: an ocean plate sliding under a continent (subduction)"},
+    {"id": "h_queue", "subject": "cs", "concept": "a queue: first in, first out"}
+  ],
+  "sequences": [
+    {"id": "hs_mirror", "subject": "optics", "concept": "a concave mirror forming a real image of an object beyond its centre of curvature",
+     "follow": ["what if the object moves between the focal point and the mirror?", "make the mirror convex instead"]},
+    {"id": "hs_projectile", "subject": "physics", "concept": "a ball thrown at 45 degrees and its parabolic path",
+     "follow": ["throw it at 30 degrees instead", "now double the launch speed"]}
+  ]
+}

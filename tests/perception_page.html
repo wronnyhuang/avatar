@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>perception harness</title><link rel="icon" href="data:,">
+<style>
+  html,body{margin:0;background:#0d1117;color:#c9d1d9;font:12px system-ui,sans-serif}
+  #stage{position:relative;width:100%;max-width:960px;aspect-ratio:16/9;margin:0 auto;background:linear-gradient(#24324a,#11161f);overflow:hidden}
+  #hud{position:absolute;left:8px;top:6px;white-space:pre;font:11px ui-monospace,monospace;color:#9fe3ff;text-shadow:0 1px 2px #000}
+</style></head>
+<body>
+<div id="stage"><div id="hud">starting…</div></div>
+<script src="../app/perception.js"></script>
+<script>
+'use strict';
+// Harness: ?debug=1 adds landmark proxies (face.dbg) used by tests/perception_smoke.cjs for the sign checks.
+const qs = new URLSearchParams(location.search);
+const strip = f => {
+  const g = Object.assign({}, f);
+  if (g.face) { g.face = Object.assign({}, g.face); delete g.face.mesh; }
+  g.hands = (g.hands || []).map(h => { const c = Object.assign({}, h); delete c.lm; return c; });
+  return g;
+};
+window.__log = {frames: [], events: [], started: null, error: null};
+const hud = document.getElementById('hud');
+const P = AvatarPerception.createPerception({
+  assetUrl: n => '../app/vision/' + n,
+  container: document.getElementById('stage'),
+  preview: true, mesh: qs.get('mesh') !== '0', pose: qs.get('pose') || 'auto', debug: qs.get('debug') === '1',
+  onFeatures: f => {
+    window.__log.frames.push(strip(f));
+    if (window.__log.frames.length > 4000) window.__log.frames.splice(0, 1000);
+    const fc = f.face;
+    hud.textContent = `t ${f.t.toFixed(2)}  motion ${f.motion.toFixed(2)}  att ${f.attention.toFixed(2)} ${f.attending ? 'ATTENDING' : ''}\n` +
+      (fc.present ? `face x ${fc.x.toFixed(2)} y ${fc.y.toFixed(2)} z ${fc.z.toFixed(2)}m yaw ${(fc.yaw * 57.3).toFixed(0)}° pitch ${(fc.pitch * 57.3).toFixed(0)}° roll ${(fc.roll * 57.3).toFixed(0)}° gaze ${fc.gazeX.toFixed(2)},${fc.gazeY.toFixed(2)}`
+        : 'no face') + '\n' + f.hands.map(h => `hand ${h.side}/${h.handed} ${h.gesture} open ${h.open.toFixed(2)} x ${h.x.toFixed(2)} y ${h.y.toFixed(2)}`).join('\n');
+  },
+  onEvent: ev => { window.__log.events.push(ev); }
+});
+window.__P = P;
+P.start().then(r => { window.__log.started = r; }).catch(e => { window.__log.error = String(e && e.message || e); hud.textContent = 'ERROR ' + window.__log.error; });
+</script>
+</body></html>

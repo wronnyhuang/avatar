@@ -1,0 +1,6 @@
+{
+ "judge": "opus-zoom",
+ "pass_score": 3,
+ "strict_score": 4,
+ "note": "re-calibrated with Claude judges (via the claude CLI) on 49 hand-labelled clips: opus-zoom (claude-opus-5-5, effort low, v2 zoom strips + rubric) pass>=3 agree 85.4% (clear 92.1%), false-pass 3/23, false-fail 4/25 vs the old sol-zoom 79.6% / 87.2%."
+}

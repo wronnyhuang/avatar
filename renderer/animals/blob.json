@@ -1,0 +1,16 @@
+{
+  "set": "clearing",
+  "camera": {"pos": [0.0, -0.04, 7.0], "target": [0.0, -0.18, 0.0], "fov": 22.0, "focus": 6.35, "dofk": 44.0},
+  "sun": {"dir": [0.45, 0.62, -0.64], "color": [1.0, 0.86, 0.60], "power": 2.2},
+  "rim": {"dir": [0.60, 0.42, -0.68], "color": [1.0, 0.88, 0.58]},
+  "dapple_floor": 0.55,
+  "char_key": 0.60,
+  "vol_gain": 4.5,
+  "bg_spp": 8,
+  "bg_sun": [0.30, 0.75],
+  "set_params": {"ground_y": -1.50, "fog_gain": 0.8, "foot": [0.0, 0.0, 1.04]},
+  "grade": {"exposure": 1.0, "saturation": 1.14, "vignette": 0.26, "grain": 2.5},
+  "motes": {"min": [-5.0, -1.8, -6.0], "size": [10.0, 5.0, 9.0], "count": 80, "gain": 0.9, "leaves": 3,
+            "leaf_a": [0.42, 0.55, 0.10], "leaf_b": [0.72, 0.68, 0.14]},
+  "quality": {"CHAR_T_NEAR": 4.2, "CHAR_T_FAR": 9.0, "CHAR_FINE_STEPS": 40}
+}

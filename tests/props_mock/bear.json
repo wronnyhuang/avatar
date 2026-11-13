@@ -1,0 +1,121 @@
+{
+ "character": "bear",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "honey",
+   "name": "honey pot",
+   "color": "gold",
+   "colors": [
+    "gold"
+   ],
+   "aliases": [
+    "honey",
+    "honey pot",
+    "pot",
+    "jar"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 1,
+   "id": "fish",
+   "name": "blue fish",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "fish"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 2,
+   "id": "ball",
+   "name": "red ball",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "ball",
+    "toy"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 3,
+   "id": "teddy",
+   "name": "teddy bear",
+   "color": "brown",
+   "colors": [
+    "brown"
+   ],
+   "aliases": [
+    "teddy",
+    "teddy bear",
+    "bear"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 4,
+   "id": "leaf",
+   "name": "green leaf",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "leaf"
+   ],
+   "category": "plant",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  }
+ ]
+}

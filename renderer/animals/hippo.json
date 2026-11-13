@@ -1,0 +1,84 @@
+{
+ "set": "river",
+ "camera": {
+  "pos": [
+   0.0,
+   0.174,
+   6.46
+  ],
+  "target": [
+   0.0,
+   -0.48,
+   0.0
+  ],
+  "fov": 23.0,
+  "focus": 5.554,
+  "dofk": 46.0
+ },
+ "sun": {
+  "dir": [
+   0.7,
+   0.34,
+   0.62
+  ],
+  "color": [
+   1.0,
+   0.66,
+   0.4
+  ],
+  "power": 2.0
+ },
+ "rim": {
+  "dir": [
+   0.46,
+   0.2,
+   -0.86
+  ],
+  "color": [
+   1.0,
+   0.7,
+   0.42
+  ]
+ },
+ "dapple_floor": 0.9,
+ "char_key": 0.6,
+ "vol_gain": 0.55,
+ "bg_spp": 8,
+ "bg_sun": [
+  0.55,
+  0.16
+ ],
+ "set_params": {
+  "ground_y": -1.7,
+  "ring_c": [
+   -0.05,
+   -0.84
+  ],
+  "char_water": 1
+ },
+ "grade": {
+  "exposure": 1.0,
+  "saturation": 1.08,
+  "vignette": 0.24,
+  "grain": 2.5
+ },
+ "motes": {
+  "min": [
+   -4.5,
+   -1.6,
+   -5.0
+  ],
+  "size": [
+   9.0,
+   3.6,
+   8.0
+  ],
+  "count": 60,
+  "gain": 0.8,
+  "leaves": 0
+ },
+ "quality": {
+  "CHAR_T_NEAR": 1.354,
+  "CHAR_T_FAR": 10.854
+ }
+}

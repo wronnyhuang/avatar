@@ -1,0 +1,15 @@
+{
+  "set": "dunes",
+  "camera": {"pos": [0.0, -0.17, 6.0], "target": [0.0, -0.09, 0.0], "fov": 22.0, "focus": 5.3, "dofk": 38.0},
+  "sun": {"dir": [-0.82, 0.27, 0.50], "color": [1.0, 0.64, 0.33], "power": 2.5},
+  "rim": {"dir": [-0.45, 0.32, -0.84], "color": [1.0, 0.70, 0.42]},
+  "dapple_floor": 0.84,
+  "char_key": 0.60,
+  "vol_gain": 1.0,
+  "bg_spp": 8,
+  "bg_sun": [0.82, 0.30],
+  "set_params": {"subject": [0.0, 0.0, 0.86, -0.33], "ground_y": -0.86, "bank_a": 0.10},
+  "grade": {"exposure": 0.96, "saturation": 1.12, "vignette": 0.30, "grain": 2.5},
+  "motes": {"min": [-3.4, -0.9, -3.0], "size": [6.8, 2.2, 6.4], "count": 34, "gain": 0.5, "leaves": 0},
+  "quality": {"CHAR_T_NEAR": 3.6, "CHAR_T_FAR": 8.4, "CHAR_FINE_STEPS": 40}
+}

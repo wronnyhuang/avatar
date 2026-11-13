@@ -1,0 +1,170 @@
+{
+ "note": "direct-mode subset: explicit tool calls per turn (setup first) replace the voice stand-in, to isolate engine quality",
+ "cases": [
+  {
+   "id": "o01",
+   "kind": "single",
+   "turns": [
+    "Put on the sun hat."
+   ],
+   "expect": "hat worn on top of the head (sitting on the crown, not floating, not through the face); state: wearing hat",
+   "direct": [
+    [
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "put_on",
+       "object": {
+        "name": "hat"
+       }
+      }
+     }
+    ]
+   ]
+  },
+  {
+   "id": "o04",
+   "kind": "relation",
+   "turns": [
+    "Put the red block in the box."
+   ],
+   "expect": "box opened (glasses moved aside), red block inside the box (the blue block that sat on it handled sensibly); state: block_a in gift_box",
+   "direct": [
+    [
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "place",
+       "object": {
+        "name": "block",
+        "color": "red"
+       },
+       "target": "gift box",
+       "place": "in the gift box"
+      }
+     }
+    ]
+   ]
+  },
+  {
+   "id": "o06",
+   "kind": "relation",
+   "turns": [
+    "Stack the mug on the book."
+   ],
+   "expect": "mug resting on top of the book (on the side table or wherever the book is), not floating, not sunk",
+   "direct": [
+    [
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "place",
+       "object": {
+        "name": "mug"
+       },
+       "target": "book",
+       "place": "on the book"
+      }
+     }
+    ]
+   ]
+  },
+  {
+   "id": "o09",
+   "kind": "physics",
+   "turns": [
+    "Throw the ball up and catch it."
+   ],
+   "expect": "ball leaves the paw, rises, falls, caught in a paw (not teleporting)",
+   "direct": [
+    [
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "pick_up",
+       "object": {
+        "name": "ball"
+       }
+      }
+     },
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "toss",
+       "object": {
+        "ref": "it"
+       },
+       "target": "up"
+      }
+     }
+    ]
+   ]
+  },
+  {
+   "id": "o27",
+   "kind": "physics",
+   "turns": [
+    "Drop the ball on the floor."
+   ],
+   "expect": "picks it up, lets go, it falls and bounces a few times and rests on the floor",
+   "direct": [
+    [
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "pick_up",
+       "object": {
+        "name": "ball"
+       }
+      }
+     },
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "drop",
+       "object": {
+        "ref": "it"
+       },
+       "place": "floor"
+      }
+     }
+    ]
+   ]
+  },
+  {
+   "id": "o34",
+   "kind": "articulation",
+   "setup": [
+    "Open the gift box."
+   ],
+   "turns": [
+    "Close the box again."
+   ],
+   "expect": "lid closes; state: box closed",
+   "direct": [
+    [
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "open",
+       "object": {
+        "name": "gift box"
+       }
+      }
+     }
+    ],
+    [
+     {
+      "name": "object",
+      "arguments": {
+       "verb": "close",
+       "object": {
+        "name": "gift box"
+       }
+      }
+     }
+    ]
+   ]
+  }
+ ]
+}

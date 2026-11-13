@@ -1,0 +1,99 @@
+{
+  "fox": {
+    "seed": 4101, "jaw_gain": 0.95, "round_gain": 1.0, "spread_gain": 1.05,
+    "head_gain": 1.1, "head_speed": 8.5, "nod_gain": 1.0, "nod_hz": 2.5, "nod_chance": 0.7, "gaze_gain": 1.1, "fixation": 1.0,
+    "blink_rate": 17.0, "double_blink": 0.14,
+    "ear_gain": 1.25, "ear_flick_rate": 9.0, "ear_onset_flick": 0.16,
+    "brow_gain": 1.1, "smile_base": 0.16, "cheek_gain": 0.8, "nostril_gain": 0.6,
+    "nostril_twitch_rate": 1.5, "breath_rate": 0.27, "breath_gain": 0.85, "listen_tilt": 0.055
+  },
+  "bear": {
+    "seed": 4102, "jaw_gain": 1.0, "round_gain": 0.9, "spread_gain": 0.85,
+    "head_gain": 0.75, "head_speed": 5.0, "nod_gain": 0.8, "nod_hz": 1.5, "nod_chance": 0.45, "gaze_gain": 0.75, "fixation": 1.5,
+    "blink_rate": 11.0, "double_blink": 0.08,
+    "ear_gain": 0.7, "ear_flick_rate": 3.5, "ear_onset_flick": 0.05,
+    "brow_gain": 0.85, "smile_base": 0.22, "cheek_gain": 1.0, "nostril_gain": 0.7,
+    "nostril_twitch_rate": 0.8, "breath_rate": 0.2, "breath_gain": 1.2, "listen_tilt": -0.045
+  },
+  "rabbit": {
+    "seed": 4103, "jaw_gain": 0.82, "round_gain": 1.05, "spread_gain": 1.1,
+    "head_gain": 0.9, "head_speed": 11.0, "nod_gain": 0.7, "nod_hz": 3.2, "nod_chance": 0.6, "gaze_gain": 0.85, "fixation": 0.8,
+    "blink_rate": 21.0, "double_blink": 0.2,
+    "ear_gain": 1.5, "ear_flick_rate": 13.0, "ear_onset_flick": 0.22,
+    "brow_gain": 0.9, "smile_base": 0.12, "cheek_gain": 0.7, "nostril_gain": 1.2,
+    "nostril_twitch_rate": 9.0, "breath_rate": 0.34, "breath_gain": 0.7, "listen_tilt": 0.07
+  },
+  "hippo": {
+    "seed": 4104, "jaw_gain": 1.08, "round_gain": 0.85, "spread_gain": 0.8,
+    "head_gain": 0.6, "head_speed": 4.2, "nod_gain": 0.65, "nod_hz": 1.25, "nod_chance": 0.35, "gaze_gain": 0.65, "fixation": 1.8,
+    "blink_rate": 9.0, "double_blink": 0.06,
+    "ear_gain": 0.9, "ear_flick_rate": 5.0, "ear_onset_flick": 0.04,
+    "brow_gain": 0.7, "smile_base": 0.2, "cheek_gain": 1.1, "nostril_gain": 0.9,
+    "nostril_twitch_rate": 1.0, "breath_rate": 0.17, "breath_gain": 1.3, "listen_tilt": 0.035
+  },
+  "monkey": {
+    "seed": 4105, "jaw_gain": 1.0, "round_gain": 1.15, "spread_gain": 1.15,
+    "head_gain": 1.3, "head_speed": 9.5, "nod_gain": 1.25, "nod_hz": 2.0, "nod_chance": 0.85, "gaze_gain": 1.25, "fixation": 0.85,
+    "blink_rate": 19.0, "double_blink": 0.17,
+    "ear_gain": 0.6, "ear_flick_rate": 2.5, "ear_onset_flick": 0.05,
+    "brow_gain": 1.45, "smile_base": 0.26, "cheek_gain": 0.95, "nostril_gain": 0.5,
+    "nostril_twitch_rate": 1.2, "breath_rate": 0.26, "breath_gain": 0.9, "listen_tilt": -0.06
+  },
+  "orb": {
+    "seed": 4201, "jaw_gain": 0.96, "round_gain": 1.0, "spread_gain": 1.0,
+    "head_gain": 0.8, "head_speed": 6.5, "nod_gain": 0.85, "nod_hz": 1.9, "nod_chance": 0.55, "gaze_gain": 0.9, "fixation": 1.3,
+    "blink_rate": 13.0, "double_blink": 0.1,
+    "ear_gain": 0.9, "ear_flick_rate": 4.0, "ear_onset_flick": 0.08,
+    "brow_gain": 1.0, "smile_base": 0.2, "cheek_gain": 0.9, "nostril_gain": 0.7,
+    "nostril_twitch_rate": 1.0, "breath_rate": 0.22, "breath_gain": 1.0, "listen_tilt": 0.04
+  },
+  "cube": {
+    "seed": 4202, "jaw_gain": 0.88, "round_gain": 0.9, "spread_gain": 0.85,
+    "head_gain": 0.62, "head_speed": 4.6, "nod_gain": 0.7, "nod_hz": 1.35, "nod_chance": 0.4, "gaze_gain": 0.7, "fixation": 1.7,
+    "blink_rate": 10.0, "double_blink": 0.07,
+    "ear_gain": 0.7, "ear_flick_rate": 3.0, "ear_onset_flick": 0.05,
+    "brow_gain": 0.75, "smile_base": 0.13, "cheek_gain": 0.8, "nostril_gain": 0.55,
+    "nostril_twitch_rate": 0.9, "breath_rate": 0.19, "breath_gain": 1.15, "listen_tilt": -0.035
+  },
+  "drop": {
+    "seed": 4203, "jaw_gain": 1.0, "round_gain": 1.1, "spread_gain": 1.05,
+    "head_gain": 1.0, "head_speed": 8.8, "nod_gain": 1.0, "nod_hz": 2.6, "nod_chance": 0.7, "gaze_gain": 1.05, "fixation": 0.95,
+    "blink_rate": 18.0, "double_blink": 0.16,
+    "ear_gain": 1.2, "ear_flick_rate": 8.0, "ear_onset_flick": 0.15,
+    "brow_gain": 1.15, "smile_base": 0.24, "cheek_gain": 0.95, "nostril_gain": 0.9,
+    "nostril_twitch_rate": 3.0, "breath_rate": 0.29, "breath_gain": 0.8, "listen_tilt": 0.06
+  },
+  "star": {
+    "seed": 4204, "jaw_gain": 1.05, "round_gain": 1.05, "spread_gain": 1.15,
+    "head_gain": 1.25, "head_speed": 10.2, "nod_gain": 1.2, "nod_hz": 3.0, "nod_chance": 0.82, "gaze_gain": 1.2, "fixation": 0.85,
+    "blink_rate": 20.0, "double_blink": 0.19,
+    "ear_gain": 1.4, "ear_flick_rate": 11.0, "ear_onset_flick": 0.2,
+    "brow_gain": 1.4, "smile_base": 0.26, "cheek_gain": 1.0, "nostril_gain": 1.0,
+    "nostril_twitch_rate": 5.0, "breath_rate": 0.32, "breath_gain": 0.75, "listen_tilt": -0.065
+  },
+  "pyramid": {
+    "seed": 4205, "jaw_gain": 0.84, "round_gain": 0.85, "spread_gain": 0.9,
+    "head_gain": 0.68, "head_speed": 5.4, "nod_gain": 0.75, "nod_hz": 1.6, "nod_chance": 0.45, "gaze_gain": 0.75, "fixation": 1.55,
+    "blink_rate": 11.5, "double_blink": 0.09,
+    "ear_gain": 0.8, "ear_flick_rate": 3.5, "ear_onset_flick": 0.06,
+    "brow_gain": 0.8, "smile_base": 0.15, "cheek_gain": 0.85, "nostril_gain": 0.6,
+    "nostril_twitch_rate": 1.1, "breath_rate": 0.2, "breath_gain": 1.1, "listen_tilt": 0.045
+  },
+  "blob": {
+    "seed": 4206, "jaw_gain": 1.08, "round_gain": 1.15, "spread_gain": 0.95,
+    "head_gain": 1.1, "head_speed": 7.6, "nod_gain": 1.1, "nod_hz": 2.2, "nod_chance": 0.65, "gaze_gain": 1.0, "fixation": 1.1,
+    "blink_rate": 15.0, "double_blink": 0.13,
+    "ear_gain": 1.05, "ear_flick_rate": 6.0, "ear_onset_flick": 0.11,
+    "brow_gain": 1.2, "smile_base": 0.23, "cheek_gain": 1.1, "nostril_gain": 1.1,
+    "nostril_twitch_rate": 2.0, "breath_rate": 0.25, "breath_gain": 1.25, "listen_tilt": -0.05
+  },
+  "muse": {
+    "_note": "body: provisional (gentle, soft-spoken, subtle; cheerful resting smile)",
+    "seed": 4301, "jaw_gain": 0.9, "round_gain": 0.95, "spread_gain": 0.95,
+    "head_gain": 0.85, "head_speed": 6.5, "nod_gain": 0.85, "nod_hz": 1.9, "nod_chance": 0.55, "gaze_gain": 0.9, "fixation": 1.25,
+    "blink_rate": 15.0, "double_blink": 0.12,
+    "ear_gain": 0.9, "ear_flick_rate": 4.0, "ear_onset_flick": 0.08,
+    "brow_gain": 0.9, "smile_base": 0.28, "cheek_gain": 1.1, "nostril_gain": 0.5,
+    "nostril_twitch_rate": 1.0, "breath_rate": 0.24, "breath_gain": 1.0, "listen_tilt": 0.05
+  }
+}

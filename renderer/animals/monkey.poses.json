@@ -1,0 +1,92 @@
+{
+ "_doc": "The monkey's own mouth targets over anim/viseme_poses.json.  The most mobile mouth of the animals: a long upper lip that lifts off the teeth, a true funnel, a wide grin.",
+ "poses": {
+  "FF": {
+   "lip_upper": 0.2,
+   "lip_open": 0.06,
+   "teeth_gap": 0.05,
+   "lip_width": 0.0
+  },
+  "TH": {
+   "lip_upper": 0.25,
+   "lip_lower": 0.15,
+   "lip_open": 0.3,
+   "teeth_gap": 0.26
+  },
+  "DD": {
+   "lip_open": 0.16,
+   "teeth_gap": 0.1,
+   "lip_width": 0.2,
+   "lip_upper": 0.24,
+   "lip_lower": 0.06
+  },
+  "NN": {
+   "lip_open": 0.12,
+   "teeth_gap": 0.14,
+   "lip_width": -0.04,
+   "lip_upper": 0.0,
+   "lip_lower": 0.03
+  },
+  "LL": {
+   "lip_open": 0.5,
+   "teeth_gap": 0.46,
+   "lip_width": 0.02,
+   "lip_upper": 0.12,
+   "lip_lower": 0.1
+  },
+  "kk": {
+   "lip_open": 0.42,
+   "teeth_gap": 0.38,
+   "lip_width": 0.06
+  },
+  "CH": {
+   "lip_open": 0.14,
+   "lip_width": -0.38,
+   "lip_protrude": 0.7,
+   "lip_upper": 0.3,
+   "lip_lower": 0.22,
+   "teeth_gap": 0.03
+  },
+  "SS": {
+   "lip_open": 0.1,
+   "lip_width": 0.62,
+   "lip_upper": 0.4,
+   "lip_lower": 0.42,
+   "teeth_gap": 0.0
+  },
+  "AE": {
+   "lip_open": 0.72,
+   "teeth_gap": 0.66,
+   "lip_width": 0.6
+  },
+  "EH": {
+   "lip_width": 0.5,
+   "lip_upper": 0.35
+  },
+  "IH": {
+   "lip_width": 0.66
+  },
+  "IY": {
+   "lip_width": 1.0,
+   "lip_upper": 0.4,
+   "lip_lower": 0.4,
+   "lip_open": 0.1
+  },
+  "RR": {
+   "lip_open": 0.08,
+   "lip_width": -0.46,
+   "lip_protrude": 0.42,
+   "lip_upper": 0.05,
+   "lip_lower": 0.04,
+   "teeth_gap": 0.06
+  }
+ },
+ "gains": {},
+ "speed": 1.1,
+ "box": [
+  712,
+  369,
+  1062,
+  622
+ ]
+}

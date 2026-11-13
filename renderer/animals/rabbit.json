@@ -1,0 +1,91 @@
+{
+ "set": "meadow",
+ "camera": {
+  "pos": [
+   0.0,
+   0.381,
+   4.635
+  ],
+  "target": [
+   0.0,
+   0.129,
+   0.0
+  ],
+  "fov": 27.0,
+  "focus": 3.984,
+  "dofk": 42.0
+ },
+ "sun": {
+  "dir": [
+   0.4,
+   0.74,
+   0.5
+  ],
+  "color": [
+   1.0,
+   0.93,
+   0.8
+  ],
+  "power": 2.4
+ },
+ "rim": {
+  "dir": [
+   -0.55,
+   0.35,
+   -0.76
+  ],
+  "color": [
+   1.0,
+   0.9,
+   0.76
+  ]
+ },
+ "dapple_floor": 0.8,
+ "char_key": 0.5,
+ "vol_gain": 2.0,
+ "bg_spp": 8,
+ "bg_sun": [
+  0.85,
+  0.25
+ ],
+ "grade": {
+  "exposure": 1.0,
+  "saturation": 1.08,
+  "vignette": 0.2,
+  "grain": 2.5
+ },
+ "motes": {
+  "min": [
+   -5.0,
+   -2.2,
+   -6.0
+  ],
+  "size": [
+   10.0,
+   5.0,
+   9.0
+  ],
+  "count": 60,
+  "gain": 0.8,
+  "leaves": 3,
+  "leaf_a": [
+   0.95,
+   0.92,
+   0.8
+  ],
+  "leaf_b": [
+   0.98,
+   0.8,
+   0.3
+  ]
+ },
+ "quality": {
+  "CHAR_T_NEAR": 1.484,
+  "CHAR_T_FAR": 8.484,
+  "CHAR_FUR_RELIEF": 0.2,
+  "CHAR_COARSE_STEPS": 30,
+  "CHAR_FINE_STEPS": 34,
+  "CHAR_SHADOW_STEPS": 18,
+  "CHAR_AO_STEPS": 3
+ }
+}

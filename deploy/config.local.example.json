@@ -1,0 +1,47 @@
+{
+ "backend": "rt",
+ "quality_auto": "270p",
+ "fps": 24,
+ "bitrate": 250000,
+ "bitrate_sizes": {
+  "540p": 700000
+ },
+ "delay_ms": 300,
+ "delay_max_ms": 650,
+ "video_lag_max_ms": 120,
+ "idle_stop_s": 900,
+ "daily_cap_usd": 10,
+ "local": {
+  "render_root": "__REPO__/renderer",
+  "python": "__REPO__/.venv/bin/python",
+  "env": {
+   "AVATAR_NVENC": "0",
+   "TA_OUT": "__HOME__/cache",
+   "OMP_NUM_THREADS": "2",
+   "OPENBLAS_NUM_THREADS": "2"
+  },
+  "force_stub": false
+ },
+ "sizes": {
+  "270p": [
+   480,
+   270
+  ],
+  "360p": [
+   640,
+   360
+  ],
+  "540p": [
+   960,
+   540
+  ],
+  "720p": [
+   1280,
+   720
+  ]
+ },
+ "react": {
+  "mode": "rules",
+  "allow": false
+ }
+}

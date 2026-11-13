@@ -1,0 +1,69 @@
+{
+ "_doc": "Bear: a heavy, unhurried mouth on a broad muzzle. Overrides of anim/viseme_poses.json, docs/V2.md.",
+ "poses": {
+  "PP": {
+   "teeth_gap": 0.03
+  },
+  "DD": {
+   "lip_upper": 0.2,
+   "lip_open": 0.17,
+   "teeth_gap": 0.15
+  },
+  "NN": {
+   "lip_open": 0.09,
+   "lip_upper": 0.08,
+   "teeth_gap": 0.08
+  },
+  "LL": {
+   "lip_open": 0.46,
+   "lip_upper": 0.14,
+   "teeth_gap": 0.46
+  },
+  "kk": {
+   "lip_open": 0.27,
+   "lip_width": 0.06,
+   "teeth_gap": 0.26
+  },
+  "RR": {
+   "lip_open": 0.07,
+   "lip_width": -0.5,
+   "lip_protrude": 0.55,
+   "lip_upper": 0.0,
+   "lip_lower": 0.0,
+   "teeth_gap": 0.05,
+   "tongue_tip": 0.3
+  },
+  "AA": {
+   "lip_open": 0.86,
+   "lip_width": 0.06,
+   "teeth_gap": 0.86
+  },
+  "AE": {
+   "lip_open": 0.7,
+   "teeth_gap": 0.66
+  },
+  "AO": {
+   "lip_open": 0.66,
+   "teeth_gap": 0.72
+  },
+  "WW": {
+   "lip_open": 0.05,
+   "teeth_gap": 0.09
+  },
+  "UW": {
+   "lip_open": 0.17,
+   "teeth_gap": 0.2
+  }
+ },
+ "gains": {
+  "lip_width": 1.2,
+  "lip_protrude": 1.15
+ },
+ "speed": 0.9,
+ "box": [
+  905,
+  368,
+  1200,
+  596
+ ]
+}

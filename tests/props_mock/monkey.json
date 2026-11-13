@@ -1,0 +1,117 @@
+{
+ "character": "monkey",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "banana",
+   "name": "yellow banana",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "banana",
+    "fruit"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 1,
+   "id": "coconut",
+   "name": "coconut",
+   "color": "brown",
+   "colors": [
+    "brown"
+   ],
+   "aliases": [
+    "coconut"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 2,
+   "id": "ball",
+   "name": "red ball",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "ball",
+    "toy"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 3,
+   "id": "drum",
+   "name": "green drum",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "drum"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 4,
+   "id": "cup",
+   "name": "blue cup",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "cup"
+   ],
+   "category": "cup",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  }
+ ]
+}

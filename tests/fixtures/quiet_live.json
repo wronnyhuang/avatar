@@ -1,0 +1,179 @@
+{
+ "model": "gpt-realtime-2.1",
+ "levels": {
+  "brief": {
+   "mean_words": 16.7,
+   "cap_tokens": 520,
+   "rows": [
+    {
+     "q": "What is your favourite season, and why?",
+     "words": 16,
+     "audio_tokens": 109,
+     "text_tokens": 53,
+     "output_tokens": 162,
+     "status": "completed",
+     "reason": null,
+     "said": "Spring, because it feels like everything is waking up, and I love that gentle, hopeful energy."
+    },
+    {
+     "q": "Tell me something about the ocean.",
+     "words": 16,
+     "audio_tokens": 102,
+     "text_tokens": 44,
+     "output_tokens": 146,
+     "status": "completed",
+     "reason": null,
+     "said": "The ocean is so big and deep that we still keep discovering new creatures in it."
+    },
+    {
+     "q": "How do you like to spend a rainy day?",
+     "words": 18,
+     "audio_tokens": 120,
+     "text_tokens": 51,
+     "output_tokens": 171,
+     "status": "completed",
+     "reason": null,
+     "said": "I like curling up cozy and watching the raindrops race down the window like a tiny, quiet game."
+    }
+   ]
+  },
+  "normal": {
+   "mean_words": 34.0,
+   "cap_tokens": null,
+   "rows": [
+    {
+     "q": "What is your favourite season, and why?",
+     "words": 28,
+     "audio_tokens": 215,
+     "text_tokens": 72,
+     "output_tokens": 287,
+     "status": "completed",
+     "reason": null,
+     "said": "Spring is my favorite. Everything feels soft and new, like the world is stretching after a cozy nap. Plus, flowers and gentle sunshine make me feel extra cuddly."
+    },
+    {
+     "q": "Tell me something about the ocean.",
+     "words": 35,
+     "audio_tokens": 292,
+     "text_tokens": 78,
+     "output_tokens": 370,
+     "status": "completed",
+     "reason": null,
+     "said": "The ocean is like Earth\u2019s giant heartbeat, always moving with currents and waves. It\u2019s home to the biggest animals on the planet, tiny glowing creatures, and whole hidden landscapes under the waves. Pretty magical, right?"
+    },
+    {
+     "q": "How do you like to spend a rainy day?",
+     "words": 39,
+     "audio_tokens": 278,
+     "text_tokens": 85,
+     "output_tokens": 363,
+     "status": "completed",
+     "reason": null,
+     "said": "I love rainy days. They\u2019re perfect for cozy corners, listening to the patter like a tiny drumroll, and making up stories while you watch the world go all silvery outside. It feels like a warm blanket for the day."
+    }
+   ]
+  },
+  "talkative": {
+   "mean_words": 76.0,
+   "cap_tokens": null,
+   "rows": [
+    {
+     "q": "What is your favourite season, and why?",
+     "words": 64,
+     "audio_tokens": 471,
+     "text_tokens": 140,
+     "output_tokens": 611,
+     "status": "completed",
+     "reason": null,
+     "said": "Spring is my favorite, like a soft reset button for the world. Everything feels fresh and wiggly, like it\u2019s waking up from a long nap. I love the gentle sunshine, the tiny flowers, and the feeling that new adventures are about to begin. It\u2019s also perfect for little walks and big daydreams. What\u2019s your favorite season\u2014do you like cozy, bright, or a bit dramatic?"
+    },
+    {
+     "q": "Tell me something about the ocean.",
+     "words": 86,
+     "audio_tokens": 559,
+     "text_tokens": 159,
+     "output_tokens": 718,
+     "status": "completed",
+     "reason": null,
+     "said": "The ocean is like a giant blue storybook that never runs out of surprises. It\u2019s home to tiny drifting plankton, glowing jellyfish, and whales that sing deep, rolling songs. Some parts are so deep and dark that sunlight never reaches them, but life still finds a way to glow and thrive. I like to imagine the waves as big, friendly breaths, in and out, keeping the whole planet calm. Have you ever seen the ocean up close, or do you picture it more in your imagination?"
+    },
+    {
+     "q": "How do you like to spend a rainy day?",
+     "words": 78,
+     "audio_tokens": 571,
+     "text_tokens": 162,
+     "output_tokens": 733,
+     "status": "completed",
+     "reason": null,
+     "said": "Rainy days are perfect for cozy missions. I\u2019d curl up somewhere soft, listen to the patter like a tiny drum concert, and make up stories about cloud boats sailing overhead. I\u2019d probably doodle in my mind, invent a new snack like \u201crainy-day crumb muffins,\u201d and then take a pretend nap that\u2019s really just daydreaming. I\u2019d also peek out now and then to watch puddles grow like little mirrors. What\u2019s your favorite rainy-day activity\u2014books, games, or something completely goofy?"
+    }
+   ]
+  },
+  "minimal": {
+   "mean_words": 7.7,
+   "cap_tokens": 320,
+   "rows": [
+    {
+     "q": "What is your favourite season, and why?",
+     "words": 5,
+     "audio_tokens": 62,
+     "text_tokens": 47,
+     "output_tokens": 109,
+     "status": "completed",
+     "reason": null,
+     "said": "Spring\u2014soft breezes and new blossoms."
+    },
+    {
+     "q": "Tell me something about the ocean.",
+     "words": 7,
+     "audio_tokens": 60,
+     "text_tokens": 42,
+     "output_tokens": 102,
+     "status": "completed",
+     "reason": null,
+     "said": "It\u2019s vast and full of hidden wonders."
+    },
+    {
+     "q": "How do you like to spend a rainy day?",
+     "words": 11,
+     "audio_tokens": 84,
+     "text_tokens": 37,
+     "output_tokens": 121,
+     "status": "completed",
+     "reason": null,
+     "said": "Cozy and quiet, with a warm drink and a good story."
+    }
+   ]
+  }
+ },
+ "tools": [
+  {
+   "ask": "Please be quiet for two minutes, I need to finish an email.",
+   "want": "be_quiet",
+   "called": [
+    "be_quiet"
+   ],
+   "args": [
+    "{\"duration_s\":120,\"wake_on_speech\":false}"
+   ],
+   "said": "",
+   "ok": true
+  },
+  {
+   "ask": "You talk too much. Shorter answers from now on, please.",
+   "want": "set_talkativeness",
+   "called": [
+    "set_talkativeness"
+   ],
+   "args": [
+    "{\"level\":\"less\"}"
+   ],
+   "said": "",
+   "ok": true
+  }
+ ],
+ "out_tokens_per_word": {
+  "mean": 11.1,
+  "max": 21.8
+ }
+}

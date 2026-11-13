@@ -1,0 +1,29 @@
+{
+  "poses": {
+    "PP": {"lip_press": 1.0, "teeth_gap": 0.02},
+    "FF": {"lip_tuck": 1.0, "lip_open": 0.06, "lip_upper": 0.14, "teeth_gap": 0.05},
+    "TH": {"lip_open": 0.34, "lip_lower": 0.08, "teeth_gap": 0.2, "tongue_dental": 1.0},
+    "DD": {"lip_open": 0.24, "lip_width": 0.2, "lip_upper": 0.24, "lip_lower": 0.06, "teeth_gap": 0.1, "tongue_tip": 1.0},
+    "NN": {"lip_open": 0.14, "lip_width": 0.04, "lip_upper": 0.03, "teeth_gap": 0.07, "tongue_tip": 0.9},
+    "LL": {"lip_open": 0.6, "lip_width": 0.0, "lip_lower": 0.12, "teeth_gap": 0.4, "tongue_tip": 1.0},
+    "kk": {"lip_open": 0.42, "teeth_gap": 0.32, "tongue_back": 1.0},
+    "CH": {"lip_open": 0.14, "lip_width": -0.6, "lip_protrude": 0.75, "lip_upper": 0.14, "lip_lower": 0.08, "teeth_gap": 0.02},
+    "SS": {"lip_open": 0.03, "lip_width": 0.6, "lip_upper": 0.3, "lip_lower": 0.22, "teeth_gap": 0.0},
+    "RR": {"lip_open": 0.15, "lip_width": -0.42, "lip_protrude": 0.45, "lip_upper": 0.04, "lip_lower": 0.04, "teeth_gap": 0.09},
+    "WW": {"lip_open": 0.09, "lip_width": -1.0, "lip_protrude": 1.0, "teeth_gap": 0.1},
+    "AA": {"lip_open": 0.88, "lip_width": 0.1, "teeth_gap": 0.86},
+    "AE": {"lip_open": 0.75, "lip_width": 0.55, "lip_upper": 0.3, "lip_lower": 0.2, "teeth_gap": 0.7},
+    "AH": {"lip_open": 0.5, "lip_width": 0.12, "teeth_gap": 0.5},
+    "AX": {"lip_open": 0.22, "lip_width": 0.05, "teeth_gap": 0.22},
+    "EH": {"lip_open": 0.38, "lip_width": 0.5, "lip_upper": 0.35, "lip_lower": 0.1, "teeth_gap": 0.36},
+    "IH": {"lip_open": 0.13, "lip_width": 0.65, "lip_upper": 0.3, "lip_lower": 0.16, "teeth_gap": 0.13},
+    "IY": {"lip_open": 0.05, "lip_width": 1.0, "lip_upper": 0.34, "lip_lower": 0.24, "teeth_gap": 0.03},
+    "AO": {"lip_open": 0.44, "lip_width": -0.62, "lip_protrude": 0.45, "teeth_gap": 0.46},
+    "OW": {"lip_open": 0.27, "lip_width": -0.8, "lip_protrude": 0.65, "teeth_gap": 0.25},
+    "UH": {"lip_open": 0.19, "lip_width": -0.7, "lip_protrude": 0.5, "teeth_gap": 0.18},
+    "UW": {"lip_open": 0.12, "lip_width": -1.0, "lip_protrude": 1.0, "teeth_gap": 0.1}
+  },
+  "gains": {"lip_width": 1.1, "tongue_tip": 1.15},
+  "speed": 1.1,
+  "box": [923, 407, 1227, 637]
+}

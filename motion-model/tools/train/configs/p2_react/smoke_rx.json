@@ -1,0 +1,224 @@
+{
+ "noise_profile": "noise_profile.json",
+ "model": {
+  "qknorm": true
+ },
+ "amp": "none",
+ "spike_factor": 8,
+ "blowup": 1.3,
+ "seq": 150,
+ "chunks": 8,
+ "aug": {
+  "self_noise": 0.6,
+  "p_self_drop": 0.25,
+  "p_null": 0.25
+ },
+ "guidance": 2.0,
+ "audio_in": "enc_whisper_tiny",
+ "enc_shift": 3,
+ "events": true,
+ "event_tol": 1,
+ "loss": {
+  "a2f": 0.0,
+  "event": 1.0
+ },
+ "runtime": {
+  "replan_every": 3,
+  "steps": 6,
+  "guidance": 2.0,
+  "temperature": 0.0,
+  "blend": 6,
+  "consistent_noise": true,
+  "smooth": 0.0,
+  "noise_rho": 0.0,
+  "temperature_groups": null,
+  "events": {
+   "mode": "threshold",
+   "gain": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "feed_history": true
+  }
+ },
+ "pack_on_cpu": false,
+ "lean": true,
+ "enc_missing": "silence",
+ "batch": 8,
+ "steps": 8,
+ "eval_every": 4,
+ "log_every": 2,
+ "val_batches": 1,
+ "ckpt_seconds": 5,
+ "style_procs": 4,
+ "patience_evals": 4,
+ "write_final_ckpt": false,
+ "cpu_threads": 4,
+ "isolate_eval_rng": true,
+ "pack": [
+  [
+   "fv4_inc25.npz",
+   "fv4_inc25.enc.npz"
+  ],
+  [
+   "fv4_inc50.npz",
+   "fv4_inc50.enc.npz"
+  ],
+  "candor_inc100.npz"
+ ],
+ "models": {
+  "R0": {
+   "model": {
+    "d": 512,
+    "layers": 9,
+    "heads": 8,
+    "hd": 320,
+    "hlayers": 4,
+    "hheads": 5
+   },
+   "lr": 0.0001,
+   "warmup": 5,
+   "sweep": {
+    "lane": "rx",
+    "size": "s40",
+    "frac": 0.5,
+    "candor": false,
+    "params": 39925946,
+    "arm": "R0"
+   },
+   "arm": {
+    "hist": true,
+    "react": true,
+    "contrast": true
+   },
+   "init": "hrc_init.pt",
+   "steps": 8,
+   "patience_evals": null,
+   "bundle_from": "last"
+  },
+  "R1": {
+   "model": {
+    "d": 512,
+    "layers": 9,
+    "heads": 8,
+    "hd": 320,
+    "hlayers": 4,
+    "hheads": 5
+   },
+   "lr": 0.0001,
+   "warmup": 5,
+   "sweep": {
+    "lane": "rx",
+    "size": "s40",
+    "frac": 0.5,
+    "candor": false,
+    "params": 39925946,
+    "arm": "R1"
+   },
+   "arm": {
+    "hist": true,
+    "react": true,
+    "contrast": true,
+    "trace": true,
+    "rate": true
+   },
+   "init": "hrc_init.pt",
+   "steps": 8,
+   "patience_evals": null,
+   "bundle_from": "last"
+  },
+  "R2": {
+   "model": {
+    "d": 512,
+    "layers": 9,
+    "heads": 8,
+    "hd": 320,
+    "hlayers": 4,
+    "hheads": 5
+   },
+   "lr": 0.0001,
+   "warmup": 5,
+   "sweep": {
+    "lane": "rx",
+    "size": "s40",
+    "frac": 0.5,
+    "candor": false,
+    "params": 39925946,
+    "arm": "R2"
+   },
+   "arm": {
+    "hist": true,
+    "react": {
+     "flow_w": 3.0,
+     "mimic_w": 4.0,
+     "event_w": 7.0,
+     "radius": [
+      12,
+      4,
+      20
+     ],
+     "speech": false
+    },
+    "contrast": true,
+    "trace": true,
+    "rate": true
+   },
+   "init": "hrc_init.pt",
+   "steps": 8,
+   "patience_evals": null,
+   "bundle_from": "last"
+  },
+  "R3": {
+   "model": {
+    "d": 512,
+    "layers": 9,
+    "heads": 8,
+    "hd": 320,
+    "hlayers": 4,
+    "hheads": 5
+   },
+   "lr": 0.0001,
+   "warmup": 5,
+   "sweep": {
+    "lane": "rx",
+    "size": "s40",
+    "frac": 0.5,
+    "candor": false,
+    "params": 39925946,
+    "arm": "R3"
+   },
+   "arm": {
+    "hist": true,
+    "react": {
+     "flow_w": 3.0,
+     "mimic_w": 4.0,
+     "event_w": 7.0,
+     "radius": [
+      12,
+      4,
+      20
+     ],
+     "speech": false
+    },
+    "contrast": true,
+    "trace": true,
+    "rate": true,
+    "inject": {
+     "f_smile": 0.06,
+     "f_nod": 0.1
+    }
+   },
+   "init": "hrc_init.pt",
+   "steps": 8,
+   "patience_evals": null,
+   "bundle_from": "last"
+  }
+ },
+ "max_minutes": 60,
+ "end_margin_s": 720,
+ "dataset_weights": {
+  "candor": 0.0
+ },
+ "threads": 16
+}

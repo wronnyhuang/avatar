@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>mediapipe fixed frames</title><link rel="icon" href="data:,"></head>
+<body>
+<script>
+'use strict';
+// tests/react_feat_dump.cjs --layout harness: the live page's percept_worker.js (face / hand / pose) on a fixed list of
+// PNG frames (?dir=<url prefix>&n=<count>&fps=30), VIDEO mode at t = i*1000/fps ms — the same pixels and timestamps the
+// Python MediaPipe reference (tests/react_feat_ref.py layout) sees. Result: window.__out = {names, frames:[{face,hand,pose}]}.
+const qs = new URLSearchParams(location.search), DIR = qs.get('dir'), N = +qs.get('n'), FPS = +(qs.get('fps') || 30);
+const V = n => new URL('../app/vision/' + n, location.href).href;
+const A = a => a == null ? null : Array.from(a);
+window.__out = {names: null, frames: [], error: null, done: false};
+const models = ['face', 'hand', 'pose'], file = {face: 'face_landmarker.task', hand: 'gesture_recognizer.task', pose: 'pose_landmarker_lite.task'};
+const W = {}, pending = {};
+function boot(m) {
+  return new Promise((res, rej) => {
+    const w = new Worker(V('percept_worker.js')); W[m] = w;
+    w.onmessage = e => {
+      const d = e.data;
+      if (d.type === 'ready') return res();
+      if (d.type === 'error' && d.fatal) return rej(Error(m + ': ' + d.message));
+      if (d.type === 'error') console.error(m + ' frame ' + d.id + ': ' + d.message);
+      const p = pending[m + ':' + d.id]; if (p) { delete pending[m + ':' + d.id]; p(d); }
+    };
+    w.postMessage({type: 'init', model: m, assets: {bundle: V('vision_bundle.js'), loader: V('vision_wasm_internal.js'), wasm: V('vision_wasm_internal.wasm'), model: V(file[m])}});
+  });
+}
+(async () => {
+  try {
+    await Promise.all(models.map(boot));
+    for (let i = 0; i < N; i++) {
+      const blob = await (await fetch(DIR + String(i + 1).padStart(4, '0') + '.png')).blob();
+      const t = i * 1000 / FPS, rec = {i, t};
+      await Promise.all(models.map(async m => {
+        const bmp = await createImageBitmap(blob, {colorSpaceConversion: 'none', premultiplyAlpha: 'none'});
+        const d = await new Promise(res => { pending[m + ':' + i] = res; W[m].postMessage({type: 'frame', bmp, t, id: i}, [bmp]); });
+        if (d.names && !window.__out.names) window.__out.names = d.names.slice();
+        if (m === 'face') rec.face = d.present ? {bs: A(d.bs), mat: A(d.mat), w: d.w, h: d.h} : null;
+        else if (m === 'pose') rec.pose = d.present ? {lm: A(d.lm), w: d.w, h: d.h} : null;
+        else rec.hand = {hands: (d.hands || []).map(h => ({lm: A(h.lm), label: h.label})), w: d.w, h: d.h};
+      }));
+      window.__out.frames.push(rec);
+    }
+  } catch (e) { window.__out.error = String(e && e.stack || e); }
+  window.__out.done = true;
+})();
+</script>
+</body></html>

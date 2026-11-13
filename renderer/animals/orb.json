@@ -1,0 +1,15 @@
+{
+  "set": "lagoon",
+  "camera": {"pos": [0.0, -0.24, 5.6], "target": [0.0, 0.02, 0.0], "fov": 22.0, "focus": 4.92, "dofk": 34.0},
+  "sun": {"dir": [-0.55, 0.42, 0.72], "color": [1.0, 0.8, 0.62], "power": 1.45},
+  "rim": {"dir": [0.55, 0.3, -0.78], "color": [1.0, 0.66, 0.5]},
+  "dapple_floor": 0.85,
+  "char_key": 0.56,
+  "vol_gain": 1.2,
+  "bg_spp": 8,
+  "bg_sun": [0.6, 0.9],
+  "set_params": {"subject": [0.0, 0.04, 0.0, 0.7], "ground_y": -0.86, "refl_gain": 0.72, "refl_squash": 0.25},
+  "grade": {"exposure": 1.0, "saturation": 1.06, "vignette": 0.26, "grain": 2.5},
+  "motes": {"min": [-5.0, -0.8, -6.0], "size": [10.0, 3.5, 9.0], "count": 26, "gain": 0.45, "leaves": 0},
+  "quality": {"CHAR_T_NEAR": 3.5, "CHAR_T_FAR": 7.5, "CHAR_FINE_STEPS": 40}
+}

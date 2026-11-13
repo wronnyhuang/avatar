@@ -1,0 +1,11 @@
+callout ID at=P "words" [side=l|r|t|b]   a named part: the label goes in free space beside the picture with a thin leader + dot to P (one per part; never hand-place text+line for parts of a cell/organ/machine)
+flow ID at=P nodes=["a","b","c"] [ring=1 | row=1 | col=1] [active=EXPR] [w=W] [color=]   process/cycle: boxed steps sized to their words, arrows between (ring closes the loop); active=floor(t/2)%4 lights step k and runs a dot along its arrow; node(ID,i) = centre of step i
+ripple ID at=P wl=L speed=V [r=MAX] [troughs=1] [start=S]   circular crests spreading from a point source, fading with distance; two ripples overlap so crossing crests light up (interference)
+wave from to amp wl speed mode=standing [nodes=1]   standing wave = two opposite travelling waves: y = 2 amp sin(2πs/wl) cos(2π speed t/wl); nodes=1 marks the nodes
+Light: slit2(y,d,L,wl[,a]) two-slit intensity 0..1 (with slit width a: times the envelope), slit1(y,a,L,wl), grating(y,d,L,wl,N), fringe(m,d,L,wl) = screen position of bright fringe m; y, d, a, L, wl in ONE length unit (e.g. all mm): curve x=X0+k*slit2(s,d,L,wl) y=s s=-4..4 draws it along a screen
+plot ... label="name" puts the name at the curve's right end; texts never shrink below legible size (long ones wrap) and keep off lines and each other
+request: how a plant makes food (photosynthesis)
+scene "Photosynthesis: light, water and CO2 become glucose and oxygen in the leaf" loop=8
+flow F at=(0,0) nodes=["sunlight","water + CO_2","chloroplast","glucose + O_2"] row=1 active=floor(t/2)%4 color=lime
+callout k at=node(F,2)+(0,-0.45) "green cells of the leaf" side=b
+text h at=(0,3.6) "6CO_2 + 6H_2O → C_6H_[12]O_6 + 6O_2" size=0.5

@@ -1,0 +1,120 @@
+{
+ "character": "rabbit",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "carrot",
+   "name": "orange carrot",
+   "color": "orange",
+   "colors": [
+    "orange"
+   ],
+   "aliases": [
+    "carrot",
+    "vegetable"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 1,
+   "id": "flower",
+   "name": "pink flower",
+   "color": "pink",
+   "colors": [
+    "pink"
+   ],
+   "aliases": [
+    "flower",
+    "tulip"
+   ],
+   "category": "flower",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 2,
+   "id": "ball",
+   "name": "yellow ball",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "ball",
+    "toy"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 3,
+   "id": "cup",
+   "name": "purple cup",
+   "color": "purple",
+   "colors": [
+    "purple"
+   ],
+   "aliases": [
+    "cup",
+    "mug"
+   ],
+   "category": "cup",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 4,
+   "id": "lettuce",
+   "name": "green lettuce",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "lettuce",
+    "salad"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  }
+ ]
+}

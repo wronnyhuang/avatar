@@ -1,0 +1,34 @@
+<!doctype html><meta charset="utf-8"><title>voice.setMic test</title>
+<script src="../app/voice.js"></script>
+<script>
+// rec: what the VENDOR hears after a mid-session mic switch (realtime mode, the WebRTC sender), with and without
+// the gate. Two oscillator "microphones" (440 Hz / 1320 Hz); the rtc fetch hangs, so the session sits with its
+// peer connection, gate and meter built; the sender's audio is analysed for its dominant frequency.
+window.run = async (gate) => {
+  const ctx = new AudioContext({sampleRate: 24000}); await ctx.resume();
+  const tone = f => { const o = ctx.createOscillator(); o.frequency.value = f; const g = ctx.createGain(); g.gain.value = 0.3;
+    const d = ctx.createMediaStreamDestination(); o.connect(g).connect(d); o.start(); return d.stream; };
+  const A = tone(440), B = tone(1320);
+  const pcs = [], RPC = window.RTCPeerConnection;
+  window.RTCPeerConnection = function (...a) { const p = new RPC(...a); pcs.push(p); return p; };
+  window.fetch = () => new Promise(() => {});
+  const v = AvatarVoice.createVoice({mode: 'realtime', character: 'fox', ctx, micStream: A, rtcUrl: 'x', gate, audible: () => false});
+  v.start().catch(() => {});
+  for (let i = 0; i < 100 && !(pcs[0] && pcs[0].getSenders().length); i++) await new Promise(r => setTimeout(r, 50));
+  const sender = pcs[0].getSenders().find(s => s.track && s.track.kind === 'audio');
+  const peak = async () => {
+    const src = ctx.createMediaStreamSource(new MediaStream([sender.track])), an = ctx.createAnalyser(); an.fftSize = 2048; src.connect(an);
+    await new Promise(r => setTimeout(r, 600));
+    const b = new Float32Array(an.frequencyBinCount); an.getFloatFrequencyData(b);
+    let k = 0; for (let i = 1; i < b.length; i++) if (b[i] > b[k]) k = i;
+    src.disconnect(); return {hz: Math.round(k * ctx.sampleRate / an.fftSize), db: Math.round(b[k])};
+  };
+  const before = await peak(), trackBefore = sender.track;
+  const lvlBefore = v.userVoice().rms;
+  const ok = v.setMic(B);
+  await new Promise(r => setTimeout(r, 300));
+  const after = await peak();
+  return {gate, ok, before, after, sameTrack: sender.track === trackBefore, isB: sender.track === B.getAudioTracks()[0],
+    gateOn: v.stats().gate_on, events: v.stats().events, lvlBefore, lvlAfter: v.userVoice().rms, state: v.state()};
+};
+</script>

@@ -1,0 +1,505 @@
+{
+ "streams": [
+  {
+   "name": "fires on partial, final does not re-fire",
+   "steps": [
+    [
+     "raise",
+     false,
+     0
+    ],
+    [
+     "raise your",
+     false,
+     100
+    ],
+    [
+     "raise your left",
+     false,
+     200
+    ],
+    [
+     "raise your left paw",
+     false,
+     300
+    ],
+    [
+     "raise your left paw",
+     true,
+     900
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    [],
+    [
+     "pose/raise_paw/r"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "refinement on a later partial re-emits",
+   "steps": [
+    [
+     "raise your paw",
+     false,
+     0
+    ],
+    [
+     "raise your paw a little",
+     false,
+     200
+    ],
+    [
+     "raise your paw a little",
+     true,
+     800
+    ]
+   ],
+   "expect": [
+    [
+     "pose/raise_paw/l"
+    ],
+    [
+     "pose/raise_paw/l"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "wait pattern needs stability or final",
+   "steps": [
+    [
+     "wave",
+     false,
+     0
+    ],
+    [
+     "wave",
+     false,
+     150
+    ],
+    [
+     "wave",
+     false,
+     300
+    ],
+    [
+     "wave",
+     true,
+     700
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    [
+     "gesture/wave/l"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "wait pattern extended before it fires",
+   "steps": [
+    [
+     "wave",
+     false,
+     0
+    ],
+    [
+     "wave your left",
+     false,
+     120
+    ],
+    [
+     "wave your left paw",
+     false,
+     240
+    ],
+    [
+     "wave your left paw",
+     true,
+     800
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    [
+     "gesture/wave/r"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "okay: whole utterance, on a stable partial or the final",
+   "steps": [
+    [
+     "okay",
+     false,
+     0
+    ],
+    [
+     "okay",
+     false,
+     400
+    ],
+    [
+     "okay",
+     true,
+     700
+    ]
+   ],
+   "expect": [
+    [],
+    [
+     "release/all"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "okay followed by more is not a release",
+   "steps": [
+    [
+     "okay",
+     false,
+     0
+    ],
+    [
+     "okay so",
+     false,
+     200
+    ],
+    [
+     "okay so tell me",
+     true,
+     900
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    []
+   ]
+  },
+  {
+   "name": "look up the weather never fires",
+   "steps": [
+    [
+     "look",
+     false,
+     0
+    ],
+    [
+     "look up",
+     false,
+     100
+    ],
+    [
+     "look up the",
+     false,
+     250
+    ],
+    [
+     "look up the weather",
+     true,
+     900
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    [],
+    []
+   ]
+  },
+  {
+   "name": "negation blocks",
+   "steps": [
+    [
+     "dont",
+     false,
+     0
+    ],
+    [
+     "dont turn",
+     false,
+     100
+    ],
+    [
+     "dont turn around",
+     false,
+     200
+    ],
+    [
+     "dont turn around",
+     true,
+     800
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    [],
+    []
+   ]
+  },
+  {
+   "name": "second command in same utterance",
+   "steps": [
+    [
+     "raise your paw",
+     false,
+     0
+    ],
+    [
+     "raise your paw and wink",
+     false,
+     200
+    ],
+    [
+     "raise your paw and wink",
+     false,
+     500
+    ],
+    [
+     "raise your paw and wink",
+     true,
+     900
+    ]
+   ],
+   "expect": [
+    [
+     "pose/raise_paw/l"
+    ],
+    [],
+    [
+     "gesture/wink/l"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "more after a pose",
+   "steps": [
+    [
+     "raise your paw a little",
+     true,
+     0
+    ],
+    [
+     "higher",
+     true,
+     2000
+    ]
+   ],
+   "expect": [
+    [
+     "pose/raise_paw/l"
+    ],
+    [
+     "pose/raise_paw/l"
+    ]
+   ]
+  },
+  {
+   "name": "same command split across two segments fires once",
+   "steps": [
+    [
+     "turn around",
+     true,
+     0
+    ],
+    [
+     "turn around",
+     true,
+     600
+    ]
+   ],
+   "expect": [
+    [
+     "move/turn_away"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "same command later fires again",
+   "steps": [
+    [
+     "wave",
+     true,
+     0
+    ],
+    [
+     "wave",
+     true,
+     5000
+    ]
+   ],
+   "expect": [
+    [
+     "gesture/wave/l"
+    ],
+    [
+     "gesture/wave/l"
+    ]
+   ]
+  },
+  {
+   "name": "side refinement replaces the earlier command",
+   "steps": [
+    [
+     "point at me",
+     false,
+     0
+    ],
+    [
+     "point at me with your left paw",
+     false,
+     300
+    ],
+    [
+     "point at me with your left paw",
+     true,
+     900
+    ]
+   ],
+   "expect": [
+    [
+     "pose/point_user/l"
+    ],
+    [
+     "pose/point_user/r"
+    ],
+    []
+   ],
+   "replaces": [
+    null,
+    "pose/point_user/l",
+    null
+   ]
+  },
+  {
+   "name": "move waits for a stable partial",
+   "steps": [
+    [
+     "spin",
+     false,
+     0
+    ],
+    [
+     "spin around",
+     false,
+     100
+    ],
+    [
+     "spin around three",
+     false,
+     200
+    ],
+    [
+     "spin around three times",
+     false,
+     300
+    ],
+    [
+     "spin around three times",
+     false,
+     550
+    ],
+    [
+     "spin around three times",
+     true,
+     900
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    [],
+    [],
+    [
+     "move/spin count=3"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "a closed clause fires before the utterance ends",
+   "steps": [
+    [
+     "pick up the ball and",
+     false,
+     0
+    ],
+    [
+     "pick up the ball and throw",
+     false,
+     100
+    ],
+    [
+     "pick up the ball and throw it up",
+     false,
+     200
+    ],
+    [
+     "pick up the ball and throw it up",
+     false,
+     450
+    ],
+    [
+     "pick up the ball and throw it up",
+     true,
+     900
+    ]
+   ],
+   "expect": [
+    [],
+    [
+     "object/pick_up obj.name=ball"
+    ],
+    [],
+    [
+     "object/toss obj.ref=it"
+    ],
+    []
+   ]
+  },
+  {
+   "name": "negated move never fires",
+   "steps": [
+    [
+     "dont",
+     false,
+     0
+    ],
+    [
+     "dont spin",
+     false,
+     100
+    ],
+    [
+     "dont spin",
+     false,
+     400
+    ],
+    [
+     "dont spin",
+     true,
+     800
+    ]
+   ],
+   "expect": [
+    [],
+    [],
+    [],
+    []
+   ]
+  }
+ ]
+}

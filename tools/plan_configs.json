@@ -1,0 +1,926 @@
+{
+ "deployed": {
+  "planner": {
+   "format": "raw"
+  },
+  "character": "muse",
+  "note": "today's live planner: the OLD raw pose format pinned (the code default is phases.doc since the planner-final change) on the DEFAULT model: gem35lite (OpenRouter) primary, dsv41flash hedged fallback after 2.0 s"
+ },
+ "gem35lite_gemini": {
+  "planner": {
+   "model": "gem35lite_gemini",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "the deployed prompt on the direct Gemini key (no OpenRouter cost); plumbing / cheap runs"
+ },
+ "gem38flash_gemini": {
+  "planner": {
+   "model": "gemini-3.8-flash",
+   "route": "gemini",
+   "effort": "low",
+   "fallback": null
+  },
+  "character": "muse"
+ },
+ "sol": {
+  "planner": {
+   "model": "sol",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "gpt-6.1-sol effort low (the quality reference)"
+ },
+ "raw_gem35lite": {
+  "planner": {
+   "model": "gem35lite_gemini",
+   "fallback": null,
+   "format": "raw",
+   "library": false
+  },
+  "character": "muse",
+  "note": "prims A/B: the raw prompt, planner only (library off), direct Gemini key"
+ },
+ "prims_gem35lite": {
+  "planner": {
+   "model": "gem35lite_gemini",
+   "fallback": null,
+   "format": "prims",
+   "library": false
+  },
+  "character": "muse",
+  "note": "prims A/B: the primitives format, planner only (library off), direct Gemini key"
+ },
+ "raw_gpt54mini": {
+  "planner": {
+   "model": "gpt54mini",
+   "fallback": null,
+   "format": "raw",
+   "library": false
+  },
+  "character": "muse"
+ },
+ "prims_gpt54mini": {
+  "planner": {
+   "model": "gpt54mini",
+   "fallback": null,
+   "format": "prims",
+   "library": false
+  },
+  "character": "muse"
+ },
+ "prims_gem35lite_lib": {
+  "planner": {
+   "model": "gem35lite_gemini",
+   "fallback": null,
+   "format": "prims"
+  },
+  "character": "muse",
+  "note": "as deployed (library on) with the primitives format"
+ },
+ "A_raw_doc_gem35lite": {
+  "planner": {
+   "format": "raw",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: today's raw prompt (style ignored)"
+ },
+ "A_sj_doc_gem35lite": {
+  "planner": {
+   "format": "prims",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: today's prims prompt (style ignored)"
+ },
+ "A_calls_doc_gem35lite": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, doc prompt"
+ },
+ "A_calls_raw_doc_gem35lite": {
+  "planner": {
+   "format": "calls_raw",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls_raw format, doc prompt"
+ },
+ "A_phases_doc_gem35lite": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "A_program_doc_gem35lite": {
+  "planner": {
+   "format": "program",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: program format, doc prompt"
+ },
+ "A_calls_min_gem35lite": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "min",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, min prompt"
+ },
+ "A_calls_plan_gem35lite": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "plan",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, plan prompt"
+ },
+ "A_calls_neg_gem35lite": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "neg",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, neg prompt"
+ },
+ "A_raw_doc_gpt54mini": {
+  "planner": {
+   "format": "raw",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: today's raw prompt (style ignored)"
+ },
+ "A_sj_doc_gpt54mini": {
+  "planner": {
+   "format": "prims",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: today's prims prompt (style ignored)"
+ },
+ "A_calls_doc_gpt54mini": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, doc prompt"
+ },
+ "A_calls_raw_doc_gpt54mini": {
+  "planner": {
+   "format": "calls_raw",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls_raw format, doc prompt"
+ },
+ "A_phases_doc_gpt54mini": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "A_program_doc_gpt54mini": {
+  "planner": {
+   "format": "program",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: program format, doc prompt"
+ },
+ "A_calls_min_gpt54mini": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "min",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, min prompt"
+ },
+ "A_calls_plan_gpt54mini": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "plan",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, plan prompt"
+ },
+ "A_calls_neg_gpt54mini": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "neg",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, neg prompt"
+ },
+ "B_phases_doc_gem35lite_R3C0": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false,
+   "fewshot": {
+    "k": 3,
+    "pool": "runs/planfew/pools/pool_phases.jsonl"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "B_phases_doc_gem35lite_R0Ckin": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false,
+   "selfcheck": {
+    "mode": "kin",
+    "retry": 1,
+    "policy": "hold"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "B_phases_doc_gpt54mini_R3C0": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false,
+   "fewshot": {
+    "k": 3,
+    "pool": "runs/planfew/pools/pool_phases.jsonl"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "B_phases_doc_gpt54mini_R0Ckin": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false,
+   "selfcheck": {
+    "mode": "kin",
+    "retry": 1,
+    "policy": "hold"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "B_calls_plan_gem35lite_R3C0": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "plan",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false,
+   "fewshot": {
+    "k": 3,
+    "pool": "runs/planfew/pools/pool_calls.jsonl"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, plan prompt"
+ },
+ "B_calls_plan_gem35lite_R0Ckin": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "plan",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false,
+   "selfcheck": {
+    "mode": "kin",
+    "retry": 1,
+    "policy": "hold"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, plan prompt"
+ },
+ "B_calls_plan_gpt54mini_R3C0": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "plan",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false,
+   "fewshot": {
+    "k": 3,
+    "pool": "runs/planfew/pools/pool_calls.jsonl"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, plan prompt"
+ },
+ "B_calls_plan_gpt54mini_R0Ckin": {
+  "planner": {
+   "format": "calls",
+   "prompt_style": "plan",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false,
+   "selfcheck": {
+    "mode": "kin",
+    "retry": 1,
+    "policy": "hold"
+   }
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: calls format, plan prompt"
+ },
+ "C_phases_doc_gem35lite": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_gem38flash": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem38flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_gpt54mini": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_dsv41flash": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "dsv41flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_haiku55cli": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "haiku55cli",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_sonnet55cli": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "sonnet55cli",
+   "fallback": null,
+   "library": false,
+   "effort": "low"
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_opus55cli": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "opus55cli",
+   "fallback": null,
+   "library": false,
+   "effort": "low"
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_fable52cli": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "fable52cli",
+   "fallback": null,
+   "library": false,
+   "effort": "low"
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_haiku55or": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "haiku55or",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_sonnet55or": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "sonnet55or",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_opus55or": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "opus55or",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_fable52or": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "fable52or",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "C_phases_doc_gem35lite_nostream": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false,
+   "stream": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "search Round A: phases format, doc prompt"
+ },
+ "final_phases_gem35lite": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc"
+  },
+  "character": "muse",
+  "note": "search winner: deployed model + hedge (gem35lite OpenRouter, dsv41flash after 2.0 s), server library ON, live page route; plan format phases, prompt style doc"
+ },
+ "final_phases_gpt54mini": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gpt54mini"
+  },
+  "character": "muse",
+  "note": "finalist 2: GPT-5.4 mini (OpenAI direct) + deployed hedge, library ON, live route, phases/doc"
+ },
+ "final_phases_gem38flash": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem38flash"
+  },
+  "character": "muse",
+  "note": "finalist 3 (accuracy reference; first motion p50 ~1.9 s, p90 ~4 s): Gemini 3.8 Flash (OpenRouter), library ON, live route, phases/doc"
+ },
+ "final_phases_dsv41flash": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "dsv41flash",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 2.0
+   }
+  },
+  "character": "muse",
+  "note": "Round C top: DeepSeek V4.1 Flash (OpenRouter ZDR) primary, Gemini 3.5 Flash Lite hedge after 2 s, library ON, live route, phases/doc"
+ },
+ "H_raw_gem35lite": {
+  "planner": {
+   "format": "raw",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid bake-off: today's raw keyframes (planner only, library off)"
+ },
+ "H_phases_gem35lite": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid bake-off: phases.doc (the search winner)"
+ },
+ "H_hyb1_gem35lite": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "doc",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v1: phases of blocks or raw keys (does-first, no block fits -> keys)"
+ },
+ "H_hyb2_gem35lite": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "cover",
+   "model": "gem35lite",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v2: hybrid-v1 + first line cover full|partial|none (none -> blocks refused)"
+ },
+ "H_raw_dsv41flash": {
+  "planner": {
+   "format": "raw",
+   "prompt_style": "doc",
+   "model": "dsv41flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid bake-off: today's raw keyframes (planner only, library off)"
+ },
+ "H_phases_dsv41flash": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "dsv41flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid bake-off: phases.doc (the search winner)"
+ },
+ "H_hyb1_dsv41flash": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "doc",
+   "model": "dsv41flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v1: phases of blocks or raw keys (does-first, no block fits -> keys)"
+ },
+ "H_hyb2_dsv41flash": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "cover",
+   "model": "dsv41flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v2: hybrid-v1 + first line cover full|partial|none (none -> blocks refused)"
+ },
+ "H_raw_gpt54mini": {
+  "planner": {
+   "format": "raw",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid bake-off: today's raw keyframes (planner only, library off)"
+ },
+ "H_phases_gpt54mini": {
+  "planner": {
+   "format": "phases",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid bake-off: phases.doc (the search winner)"
+ },
+ "H_hyb1_gpt54mini": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "doc",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v1: phases of blocks or raw keys (does-first, no block fits -> keys)"
+ },
+ "H_hyb2_gpt54mini": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "cover",
+   "model": "gpt54mini",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v2: hybrid-v1 + first line cover full|partial|none (none -> blocks refused)"
+ },
+ "H_hyb2g_dsv41flash": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "cover",
+   "model": "dsv41flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v2 + keys guidance (the raw GUIDANCE in the keys reference) + stray-word JSON salvage (prompt hybrid.cover after 06:55)"
+ },
+ "H_hyb1g_dsv41flash": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "doc",
+   "model": "dsv41flash",
+   "fallback": null,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "hybrid-v1 + keys guidance + stray-word JSON salvage"
+ },
+ "final_hybrid_cover_dsv41flash": {
+  "planner": {
+   "format": "hybrid",
+   "prompt_style": "cover",
+   "model": "dsv41flash",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 2.0
+   }
+  },
+  "character": "muse",
+  "note": "HYBRID candidate (hybrid-v2: phases of blocks or raw keys, cover line gate): DeepSeek V4.1 Flash primary, gem35lite hedge after 2 s, server library ON, live page route - same shape as final_phases_dsv41flash"
+ },
+ "S_gem35lite": {
+  "planner": {
+   "library": false,
+   "model": "gem35lite",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: model alone (no hedge), server library off, raw format (9de1db3 tree)"
+ },
+ "S_dsv41flash": {
+  "planner": {
+   "library": false,
+   "model": "dsv41flash",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: model alone (no hedge), server library off, raw format (9de1db3 tree)"
+ },
+ "S_gem38flash": {
+  "planner": {
+   "library": false,
+   "model": "gem38flash",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: model alone (no hedge), server library off, raw format (9de1db3 tree)"
+ },
+ "S_dsv4pro": {
+  "planner": {
+   "library": false,
+   "model": "dsv4pro",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: model alone (no hedge), server library off, raw format (9de1db3 tree)"
+ },
+ "S_haiku55door": {
+  "planner": {
+   "library": false,
+   "model": "haiku55door",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: model alone (no hedge), server library off, raw format (9de1db3 tree)"
+ },
+ "S_sonnet55door": {
+  "planner": {
+   "library": false,
+   "model": "sonnet55door",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: model alone (no hedge), server library off, raw format (9de1db3 tree)"
+ },
+ "S_opus55door": {
+  "planner": {
+   "library": false,
+   "model": "opus55door",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: model alone (no hedge), server library off, raw format (9de1db3 tree)"
+ },
+ "today": {
+  "planner": {},
+  "character": "muse",
+  "note": "the live planner = planner.py DEFAULTS on 9de1db3 (gem35lite, dsv41flash hedged after 2.0 s, library on, raw format)"
+ },
+ "S_haiku55door_nt": {
+  "planner": {
+   "library": false,
+   "model": "haiku55door_nt",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: door, effort low + thinking off"
+ },
+ "S_sonnet55door_nt": {
+  "planner": {
+   "library": false,
+   "model": "sonnet55door_nt",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: door, effort low + thinking off"
+ },
+ "S_opus55door_nt": {
+  "planner": {
+   "library": false,
+   "model": "opus55door_nt",
+   "fallback": null
+  },
+  "character": "muse",
+  "note": "screening: door, effort low + thinking off"
+ },
+ "C_sonnet55door_nt": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   }
+  },
+  "character": "muse",
+  "note": "sealed candidate: Sonnet 5.5 via the claude_door (effort low, thinking off), library on, hedged by gem35lite (OpenRouter) after 4.5 s (S1: 5/83 planner plans had no pose by 4.5 s)"
+ },
+ "C_opus55door_nt": {
+  "planner": {
+   "model": "opus55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   }
+  },
+  "character": "muse",
+  "note": "sealed candidate #2: Opus 5.5 via the claude_door (effort low, thinking off), library on, hedged by gem35lite (OpenRouter) after 4.5 s (S1b: 2/83 planner plans had no pose by 4.5 s)"
+ }
+}

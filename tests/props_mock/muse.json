@@ -1,0 +1,183 @@
+{
+ "character": "muse",
+ "mock": true,
+ "places": [
+  {
+   "id": "desk_top",
+   "name": "the desk",
+   "aliases": [
+    "desk",
+    "desk top"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  },
+  {
+   "id": "side_table",
+   "name": "the side table",
+   "aliases": [
+    "side table",
+    "table"
+   ]
+  },
+  {
+   "id": "chair_seat",
+   "name": "the chair",
+   "aliases": [
+    "chair",
+    "seat"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "headphones",
+   "name": "headphones",
+   "color": "pink",
+   "colors": [
+    "pink"
+   ],
+   "aliases": [
+    "headphones",
+    "headset",
+    "earphones"
+   ],
+   "category": "wearable",
+   "home": {
+    "place": "floor"
+   },
+   "wearable": true
+  },
+  {
+   "slot": 1,
+   "id": "chair",
+   "name": "chair",
+   "color": "white",
+   "colors": [
+    "white"
+   ],
+   "aliases": [
+    "chair",
+    "seat",
+    "desk chair"
+   ],
+   "category": "furniture",
+   "home": {
+    "place": "floor"
+   },
+   "furniture": true
+  },
+  {
+   "slot": 2,
+   "id": "desk",
+   "name": "desk",
+   "color": "brown",
+   "colors": [
+    "brown"
+   ],
+   "aliases": [
+    "desk",
+    "table"
+   ],
+   "category": "furniture",
+   "home": {
+    "place": "floor"
+   },
+   "furniture": true
+  },
+  {
+   "slot": 3,
+   "id": "laptop",
+   "name": "laptop",
+   "color": "gray",
+   "colors": [
+    "gray"
+   ],
+   "aliases": [
+    "laptop",
+    "computer",
+    "notebook"
+   ],
+   "category": "device",
+   "home": {
+    "place": "desk_top"
+   },
+   "openable": true
+  },
+  {
+   "slot": 4,
+   "id": "mug",
+   "name": "mug",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "mug",
+    "cup"
+   ],
+   "category": "cup",
+   "home": {
+    "place": "desk_top"
+   }
+  },
+  {
+   "slot": 5,
+   "id": "book",
+   "name": "book",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "book"
+   ],
+   "category": "book",
+   "home": {
+    "place": "desk_top"
+   },
+   "openable": true
+  },
+  {
+   "slot": 6,
+   "id": "ball",
+   "name": "ball",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "ball"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "floor"
+   },
+   "throwable": true
+  },
+  {
+   "slot": 7,
+   "id": "plant",
+   "name": "plant",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "plant",
+    "flower pot"
+   ],
+   "category": "plant",
+   "home": {
+    "place": "floor"
+   }
+  }
+ ]
+}

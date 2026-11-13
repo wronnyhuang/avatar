@@ -1,0 +1,48 @@
+# secrets / local state
+.env
+.env.*
+!.env.example
+*.key
+state/
+.avatar-home/
+**/state/secret
+**/state/render_key
+# python / node
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+.pytest_cache/
+# private data and media — never commit
+recordings/avatar-sessions/
+*.wav
+*.mp3
+*.m4a
+*.mp4
+*.webm
+*.mov
+*.jpg
+*.jpeg
+frames/
+data/
+cache/
+runs/
+# model weights / checkpoints / packs (kept outside git)
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.qpack
+*.npz
+*.zst
+render-bundle*.tgz
+
+# small inference bundles are kept on purpose (all files < 25 MB)
+!models/**
+
+# local outputs
+out/
+recordings/
+.avatar-*/

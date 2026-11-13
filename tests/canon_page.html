@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>canon harness</title><link rel="icon" href="data:,">
+<style>html,body{margin:0;background:#0d1117;color:#c9d1d9;font:12px system-ui,sans-serif}
+#stage{position:relative;width:100%;max-width:960px;aspect-ratio:16/9;margin:0 auto;background:#11161f;overflow:hidden}</style></head>
+<body>
+<div id="stage"></div>
+<script src="../app/react_feat.js"></script>
+<script src="../app/perception.js"></script>
+<script>
+'use strict';
+// tests/react_feat_dump.cjs harness: perception with canon:true (or ?canon=0) on the fake camera.
+// Records (1) every raw worker message in arrival order (for the node replay test), (2) every canon frame with the raw
+// worker inputs it was computed from + its packed 'H' bytes, (3) per emitted feature frame: t, face present, canon seq.
+const qs = new URLSearchParams(location.search);
+const A = a => a == null ? null : Array.from(a);
+function ser(m) {        // worker message -> plain JSON (typed arrays -> arrays)
+  const o = {};
+  for (const k in m) {
+    const v = m[k];
+    if (ArrayBuffer.isView(v)) o[k] = {__t: v.constructor.name, a: Array.from(v)};
+    else if (k === 'hands' && Array.isArray(v)) o[k] = v.map(h => Object.assign({}, h, {lm: {__t: 'Float32Array', a: Array.from(h.lm)}}));
+    else o[k] = v;
+  }
+  return o;
+}
+window.__log = {wmsg: [], canon: [], feats: [], names: null, started: null, error: null};
+const RW = window.Worker;
+window.Worker = function (u, o) { const w = new RW(u, o); w.addEventListener('message', e => window.__log.wmsg.push(ser(e.data))); return w; };
+const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); };
+const P = AvatarPerception.createPerception({
+  assetUrl: n => '../app/vision/' + n, container: document.getElementById('stage'), preview: true, mesh: false,
+  pose: qs.get('pose') === '0' ? false : true, canon: qs.get('canon') !== '0',
+  onCanon: (c, src) => {
+    const L = window.__log;
+    if (src.names && !L.names) L.names = src.names.slice();
+    L.canon.push({t: c.t, seq: c.seq, motion: A(c.motion), mask: A(c.mask), tcm: c.tcm,
+      packed: b64(AvatarReactFeat.packHuman(c.t / 1000, c.motion, c.mask)),
+      src: {face: src.face ? {t: src.face.t, bs: A(src.face.bs), mat: A(src.face.mat), w: src.face.w, h: src.face.h} : null,
+        pose: src.pose ? {t: src.pose.t, lm: A(src.pose.lm), w: src.pose.w, h: src.pose.h} : null,
+        hand: src.hand ? {t: src.hand.t, hands: src.hand.hands.map(h => ({lm: A(h.lm), label: h.label})), w: src.hand.w, h: src.hand.h} : null}});
+  },
+  onFeatures: f => { window.__log.feats.push({t: f.t, face: !!(f.face && f.face.present), hands: f.hands.length, pose: !!(f.pose && f.pose.present),
+    canonSeq: f.canon ? f.canon.seq : null, canonT: f.canon ? f.canon.t : null}); }
+});
+window.__P = P;
+P.start().then(r => { window.__log.started = r; }).catch(e => { window.__log.error = String(e && e.message || e); });
+</script>
+</body></html>

@@ -1,0 +1,166 @@
+{
+ "_default": "q50",
+ "bear": {
+  "270": {
+   "20": "q45",
+   "24": "q45",
+   "holds24": null,
+   "source": "rig c3: closer camera, K620 480x270"
+  },
+  "360": {
+   "20": "q60",
+   "24": "q60",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "blob": {
+  "270": {
+   "20": "q40",
+   "24": "q40",
+   "holds24": null,
+   "source": "rig: K620 480x270 with arms, tools/rig_fps_table.sh"
+  }
+ },
+ "cube": {
+  "270": {
+   "20": "q50",
+   "24": "q50",
+   "holds24": null,
+   "source": "rig: K620 480x270 with arms, tools/rig_fps_table.sh"
+  },
+  "360": {
+   "20": "q50",
+   "24": "q50",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "drop": {
+  "270": {
+   "20": "taa",
+   "24": "taa",
+   "holds24": null,
+   "source": "rig: K620 480x270 with arms, tools/rig_fps_table.sh"
+  },
+  "360": {
+   "20": "taa",
+   "24": "taa",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "fox": {
+  "270": {
+   "20": "q40",
+   "24": "q40",
+   "holds24": null,
+   "source": "rig c3: closer camera, K620 480x270"
+  },
+  "360": {
+   "20": "q50",
+   "24": "q50",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "hippo": {
+  "270": {
+   "20": "q50",
+   "24": "q50",
+   "holds24": null,
+   "source": "rig c3: closer camera, K620 480x270"
+  },
+  "360": {
+   "20": "q50",
+   "24": "q50",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "monkey": {
+  "270": {
+   "20": "q36",
+   "24": "q36",
+   "holds24": null,
+   "source": "rig c3: closer camera, K620 480x270"
+  },
+  "360": {
+   "20": "q33",
+   "24": "q33",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "muse": {
+  "270": {
+   "20": "q75",
+   "24": "q75",
+   "holds24": true,
+   "source": "body: K620 480x270 + encode, gallery stand-in set: q75 rest 18.9/20.1, walk 20.6/22.6, spin 20.7/22.5, wide 14.2/16.6 ms mean/p95 (taa 26.2/27.6 .. 27.6/29.9); props not yet in"
+  },
+  "360": {
+   "20": "q50",
+   "24": "q50",
+   "holds20": null,
+   "holds24": null,
+   "source": "body: provisional"
+  }
+ },
+ "orb": {
+  "270": {
+   "20": "q75",
+   "24": "q75",
+   "holds24": null,
+   "source": "rig: K620 480x270 with arms, tools/rig_fps_table.sh"
+  },
+  "360": {
+   "20": "q75",
+   "24": "q75",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "pyramid": {
+  "270": {
+   "20": "taa",
+   "24": "taa",
+   "holds24": null,
+   "source": "rig: K620 480x270 with arms, tools/rig_fps_table.sh"
+  },
+  "360": {
+   "20": "taa",
+   "24": "taa",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "rabbit": {
+  "270": {
+   "20": "q50",
+   "24": "q50",
+   "holds24": null,
+   "source": "rig c3: closer camera, K620 480x270"
+  },
+  "360": {
+   "20": "q60",
+   "24": "q60",
+   "holds20": true,
+   "holds24": true
+  }
+ },
+ "star": {
+  "270": {
+   "20": "q60",
+   "24": "q60",
+   "holds24": null,
+   "source": "rig: K620 480x270 with arms, tools/rig_fps_table.sh"
+  },
+  "360": {
+   "20": "q60",
+   "24": "q60",
+   "holds20": true,
+   "holds24": true
+  }
+ }
+}

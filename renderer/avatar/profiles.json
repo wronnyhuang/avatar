@@ -1,0 +1,252 @@
+{
+ "about": "Per-character render settings the server uses when the start message says backend auto/profile or omits width/height. 'local' = a Quadro K620 class card (measured by avatar/bench_profiles.py through the whole server pipeline). 'big_gpu' = a big GPU (RTX 4090 / 4070 class): NOT measured -- set from estimates (v2 fox 1280x720 spp1: RTX 4090 mid 11.0 ms, RTX 4070 mid 16.6 ms; fox is the heaviest character), so full-resolution TAA at 720p is the safe start; re-run bench_profiles on such a machine (--json ... --write-profile big_gpu) to measure it.",
+ "profiles": {
+  "local": {
+   "_default": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q40"
+    }
+   },
+   "fox": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q50"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q40"
+      }
+     }
+    }
+   },
+   "bear": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q60"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q45"
+      }
+     }
+    }
+   },
+   "rabbit": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q60"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q50"
+      }
+     }
+    }
+   },
+   "hippo": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q50"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q50"
+      }
+     }
+    }
+   },
+   "monkey": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q33"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q36"
+      }
+     }
+    }
+   },
+   "orb": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q75"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q75"
+      }
+     }
+    }
+   },
+   "cube": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q50"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q50"
+      }
+     }
+    }
+   },
+   "drop": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "taa"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "taa"
+      }
+     }
+    }
+   },
+   "star": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q60"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q60"
+      }
+     }
+    }
+   },
+   "pyramid": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "taa"
+    },
+    "source": "rt-gpu.json k620_24fps (render only, free card) -- replaced by avatar/bench_profiles.py when measured through the server",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "taa"
+      }
+     }
+    }
+   },
+   "blob": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q40"
+    },
+    "source": "rt-gpu.json default_presets / fallback q40 (unmeasured)",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q40"
+      }
+     }
+    }
+   },
+   "muse": {
+    "width": 640,
+    "height": 360,
+    "backend": "rt",
+    "opts": {
+     "preset": "q50"
+    },
+    "source": "body: provisional, re-measure",
+    "alts": {
+     "270": {
+      "width": 480,
+      "height": 270,
+      "opts": {
+       "preset": "q75"
+      }
+     }
+    }
+   }
+  },
+  "big_gpu": {
+   "_default": {
+    "width": 1280,
+    "height": 720,
+    "backend": "rt",
+    "opts": {
+     "preset": "taa"
+    },
+    "alts": {
+     "540": {
+      "width": 960,
+      "height": 540
+     },
+     "360": {
+      "width": 640,
+      "height": 360
+     }
+    },
+    "estimated": "RTX 4090 ~11-13 ms/frame for fox at 720p 1 spp (estimate); unmeasured"
+   }
+  }
+ }
+}

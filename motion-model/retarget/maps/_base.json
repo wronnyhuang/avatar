@@ -1,0 +1,134 @@
+{
+ "_doc": "Defaults for every character; maps/<character>.json overrides any key (deep merge). Units: rig units unless noted.",
+ "covered": [],
+ "body": {
+  "rad_per_unit": [
+   0.35,
+   0.15,
+   0.12
+  ],
+  "gain": [
+   1.2,
+   1.2,
+   1.2
+  ],
+  "pitch0": 0.0,
+  "bounce_gain": 0.6
+ },
+ "head": {
+  "gain": [
+   1.35,
+   1.35,
+   1.3
+  ],
+  "limit": [
+   0.75,
+   0.55,
+   0.5
+  ],
+  "pitch0": 0.0
+ },
+ "gaze": {
+  "deg_per_unit": [
+   24.0,
+   20.0
+  ],
+  "head_comp": 1.0,
+  "yaw0": 0.077,
+  "pitch0": -0.1,
+  "_doc": "yaw0/pitch0 = median world gaze of Seamless train canon (rad): the avatar's median look = at the camera"
+ },
+ "face": {
+  "brow_up_gain": 1.6,
+  "brow_down_gain": 1.3,
+  "knit0": 0.14,
+  "knit_gain": 1.5,
+  "blink_lo": 0.42,
+  "blink_hi": 0.7,
+  "wide0": 0.006,
+  "wide_gain": 25.0,
+  "wide_from_brow": 1.2,
+  "squint0": 0.45,
+  "squint_gain": 2.2,
+  "cheek_squint_gain": 1.5,
+  "smile0": 0.1,
+  "smile_gain": 1.25,
+  "jaw0": 0.1,
+  "jaw_gain": 1.8,
+  "sneer_rng": 0.3,
+  "nose_wiggle_per_nostril": 0.4,
+  "_doc": "calibrated on Seamless train canon percentiles: smile p50 0.19 p95 0.92 -> 0.11 / 1.0; browInnerUp p95 0.58; eyeBlink p50 0.19 (looking down droops the lid: corr -0.78 with gaze pitch); jawOpen p95 0.27"
+ },
+ "hands": {
+  "_doc": "wrist offset from the population rest (arm lengths, chest frame; x outward) -> contract hand space; anchored on REST/CHIN/WAVE_UP/HAND_ON_HEART/POINT_SIDE/POINT_CAMERA",
+  "gx_out": 0.85,
+  "gx_in": 2.0,
+  "cxy": -0.15,
+  "gy_up": 0.95,
+  "gy_dn": 0.15,
+  "gz": 0.75,
+  "czy": 0.45,
+  "live": 1.15,
+  "limit": [
+   [
+    -0.7,
+    1.0
+   ],
+   [
+    -0.25,
+    1.3
+   ],
+   [
+    -0.35,
+    1.0
+   ]
+  ],
+  "turn_gain": 0.5,
+  "shrug0": 0.004,
+  "shrug_m": 0.03,
+  "rest_offset": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "fingers": {
+  "open_xs": [
+   -0.2,
+   0.2,
+   1.35,
+   2.2,
+   2.9
+  ],
+  "open_ys": [
+   1.0,
+   0.85,
+   0.2,
+   0.05,
+   0.0
+  ],
+  "point0": 0.9,
+  "point_rng": 0.8,
+  "thumb_fist0": 2.2,
+  "thumb_straight0": -0.1
+ },
+ "extras": {
+  "breath_amp": 0.6,
+  "ear_base": 0.1,
+  "ear_spring": 0.12,
+  "tail_wag0": 0.0
+ },
+ "baseline": {
+  "_doc": "causal slow baseline removal (per session): v - weight * EMA_tau(v); removes a person's sustained posture / gaze bias, keeps the moves",
+  "tau_s": 6.0,
+  "params": {
+   "body_yaw": 0.7,
+   "body_pitch": 0.85,
+   "body_lean": 0.8,
+   "gaze_x": 0.5,
+   "gaze_y": 0.6,
+   "head_pitch": 0.5,
+   "head_roll": 0.5
+  }
+ }
+}

@@ -1,0 +1,117 @@
+{
+ "character": "drop",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "cup",
+   "name": "blue cup",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "cup",
+    "glass"
+   ],
+   "category": "cup",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 1,
+   "id": "umbrella",
+   "name": "yellow umbrella",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "umbrella"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 2,
+   "id": "flower",
+   "name": "pink flower",
+   "color": "pink",
+   "colors": [
+    "pink"
+   ],
+   "aliases": [
+    "flower"
+   ],
+   "category": "flower",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 3,
+   "id": "leaf",
+   "name": "green leaf",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "leaf"
+   ],
+   "category": "plant",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 4,
+   "id": "shell",
+   "name": "white shell",
+   "color": "white",
+   "colors": [
+    "white"
+   ],
+   "aliases": [
+    "shell",
+    "seashell"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  }
+ ]
+}

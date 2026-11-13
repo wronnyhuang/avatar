@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# default data / output / dataset locations (canon1/paths.py)
+/data/
+/work/
+/datasets/

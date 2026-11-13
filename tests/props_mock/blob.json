@@ -1,0 +1,119 @@
+{
+ "character": "blob",
+ "mock": true,
+ "places": [
+  {
+   "id": "table",
+   "name": "the table",
+   "aliases": [
+    "table",
+    "desk",
+    "counter"
+   ]
+  },
+  {
+   "id": "floor",
+   "name": "the floor",
+   "aliases": [
+    "floor",
+    "ground"
+   ]
+  }
+ ],
+ "props": [
+  {
+   "slot": 0,
+   "id": "bean",
+   "name": "jelly bean",
+   "color": "green",
+   "colors": [
+    "green"
+   ],
+   "aliases": [
+    "jelly bean",
+    "bean",
+    "candy"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 1,
+   "id": "ball",
+   "name": "red ball",
+   "color": "red",
+   "colors": [
+    "red"
+   ],
+   "aliases": [
+    "ball"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 2,
+   "id": "cup",
+   "name": "blue cup",
+   "color": "blue",
+   "colors": [
+    "blue"
+   ],
+   "aliases": [
+    "cup"
+   ],
+   "category": "cup",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  },
+  {
+   "slot": 3,
+   "id": "duck",
+   "name": "rubber duck",
+   "color": "yellow",
+   "colors": [
+    "yellow"
+   ],
+   "aliases": [
+    "duck",
+    "rubber duck"
+   ],
+   "category": "toy",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": true
+  },
+  {
+   "slot": 4,
+   "id": "cupcake",
+   "name": "pink cupcake",
+   "color": "pink",
+   "colors": [
+    "pink"
+   ],
+   "aliases": [
+    "cupcake",
+    "cake"
+   ],
+   "category": "food",
+   "home": {
+    "place": "table"
+   },
+   "grip": "power",
+   "throwable": false
+  }
+ ]
+}

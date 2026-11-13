@@ -1,0 +1,15 @@
+{
+  "set": "gallery",
+  "camera": {"pos": [0.32, 1.02, 4.38], "target": [0.03, 0.235, 0.0], "fov": 33.0, "focus": 3.75, "dofk": 36.0},
+  "sun": {"dir": [-0.80, 0.30, 0.45], "color": [1.0, 0.87, 0.70], "power": 1.55},
+  "rim": {"dir": [0.55, 0.3, -0.78], "color": [1.0, 0.9, 0.78]},
+  "dapple_floor": 0.62,
+  "char_key": 0.72,
+  "vol_gain": 0.5,
+  "bg_spp": 12,
+  "bg_sun": [0.86, 0.26],
+  "set_params": {"ground_y": -0.70, "room_yaw": 0.42, "subject": [0.0, 0.0, 0.70, -0.34]},
+  "grade": {"exposure": 1.0, "saturation": 1.08, "vignette": 0.22, "grain": 2.5},
+  "motes": {"min": [-3.4, -0.6, -4.0], "size": [6.8, 3.2, 6.5], "count": 60, "gain": 0.55, "leaves": 0},
+  "quality": {"CHAR_T_NEAR": 3.0, "CHAR_T_FAR": 8.5, "CHAR_FINE_STEPS": 40}
+}

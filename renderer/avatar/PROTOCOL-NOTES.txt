@@ -1,0 +1,42 @@
+avatar render server -- where it differs from, or adds to, AVATAR.md.  Everything else is as written there.
+
+ADDITIONS (an app server that ignores them still works)
+1. app->render {"type":"keyframe"}: the next encoded frame is an IDR (with SPS+PPS).  Forward the browser's keyframe
+   request here.  An IDR is also forced on every "ready" (session start, character switch, encoder change).
+2. start: width/height may be omitted or 0, and backend may be "auto" (or "profile"): the server then takes the size,
+   backend and opts measured for that character in avatar/profiles.json (server flag --profile local|big_gpu).  For the
+   page's quality "auto", send NO width/height -- forcing 1280x720 with backend auto on the K620 gets the profile's
+   preset at a size it was not measured for.  Optional start fields: late_ms (100), gop_s (2.0), nvenc (bool),
+   jpeg_quality (80).  fps may be 20, 24 or 30.
+3. status stages: "init" -> "compile" (background cached) or "bake" (first time at this size; eta_s ~45 s at 720p on the
+   K620) -> "warmup" -> "encoder" -> then the "ready" message.  A cached warm engine (same character+size) goes straight
+   to "encoder" -> "ready" in well under a second.
+4. ready carries extra fields: encoder ("libx264" | "h264_nvenc" | "jpeg"), opts, preset, engine_init_ms,
+   encoder_open_ms, encoder_errors, encoder_fallback, lookahead_ms.
+5. A SECOND "ready" can arrive mid-session without a character switch: NVENC that runs slower than half a frame period
+   (it does on the shared K620: ~150 ms/frame under the other task's Blender) is replaced by libx264 on the fly.
+   Treat every "ready" as "(re)configure the decoder with this codec_string"; the next 'V' is an IDR.
+6. stats carries extra fields: late = dropped + late_sent; dropped (never rendered: the renderer was behind, newest due
+   frame taken instead); late_sent (rendered, sent more than late_ms after its audio horizon); lag_ms / lag_p95 (send
+   time - the server's clock estimate of the frame's timeline instant: lookahead + render + encode); service_ms
+   (dispatch -> sent); encode_p95; audio_ahead_ms (newest audio received vs the clock estimate: > 0 = render ahead);
+   kbps; keyframes; encoder; inflight; out_queue.
+7. GET /health also lists the warm engines, the profile and the default backend.
+
+PRECISIONS
+8. codec_string comes from the SPS the encoder really writes.  libx264 baseline is CONSTRAINED baseline but writes the
+   constraint byte 0xC0 (set0+set1), so the string is avc1.42C01E (640x360, level 3.0) / avc1.42C01F (960x540 and
+   1280x720, level 3.1), not avc1.42E01F.  Chrome WebCodecs accepts both; always use the one in "ready".
+9. 'V' flags: a JPEG frame sets bit1 AND bit0 (every JPEG is a key frame).
+10. Frame numbers are global on the timeline: F = (timeline sample of the depicted instant) / (24000 / fps), t = F / fps.
+    A character switch keeps the numbering (the new animator starts on a frame boundary, warmed on the last 1.5 s of
+    timeline audio).  No frames are produced while an engine initialises; after "ready" the stream resumes at the newest
+    due instant (older instants are dropped, not rendered late).
+11. The server's real-time reference is its own estimate of the app server's clock, from 'A' arrivals: it assumes audio is never
+    sent LATER than its tick (ahead is fine).  Audio before "start" is ignored; a gap in the sample indices is filled
+    with silence (a gap over 10 s restarts the animator), overlapping samples are dropped.
+12. One session at a time: a new /render connection gets the session; the old one receives
+    {"type":"error","message":"replaced by a new session"} and close code 4000.  The warm engine survives across
+    sessions (released after --idle-release-s, default 600 s, without a session).
+13. Wrong or missing key -> HTTP 403 on the upgrade; any other path -> 404.  RENDER_KEY is read from the environment
+    only (never a flag, never logged); without it the server refuses to start unless --insecure-no-key.

@@ -1,0 +1,582 @@
+# FROZEN holdout — written 2026-11-07 before tuning
+# Format (see tests/intent_eval.py): `phrase | cmd ; cmd`, empty right side = nothing fires.
+# Lines address the 11 characters by name and use their mock props; labels are scene-independent (obj.name = noun said).
+# Homophone / ASR-error lines are labelled with the MEANT word (role over, take a bough, car wheel, summer salt,
+# turn write, the read apple, the blew cup, the pale, teddy bare, the flour).
+
+# ======================= POSITIVE: whole-body moves =======================
+
+# --- spin
+felix spin around | move/spin
+Felix, can you spin around three times? | move/spin count=3
+turn around two times please | move/spin count=2
+um do a 360 | move/spin
+spin really fast ori | move/spin speed=2.5
+ori can you spin clockwise | move/spin dir=cw
+spin counterclockwise slowly | move/spin dir=ccw speed=slow
+do a triple spin | move/spin count=3
+turn in a circle for five seconds | move/spin duration_ms=5000
+spin a bunch of times | move/spin count=5
+spin once | move/spin count=1
+spin around without looking at me | move/spin gaze=free
+pip spin ten times | move/spin count=10
+spin anticlockwise | move/spin dir=ccw
+
+# --- twirl
+twirl for me stella | move/twirl
+do a pirouette | move/twirl
+twirl around twice really slowly | move/twirl count=2 speed=0.4
+i'd love to see you twirl | move/twirl
+rosie twirl quickly | move/twirl speed=fast
+
+# --- turn to a side
+turn left | move/turn dir=left
+hattie turn to your right | move/turn dir=right
+turn to my left please | move/turn dir=screen_left
+face to your left cubby | move/turn dir=left
+now turn write | move/turn dir=right
+turn left i mean right | move/turn dir=right
+turn to my right slowly | move/turn dir=screen_right speed=slow
+
+# --- turn away
+turn around | move/turn_away
+turn your back to me bruno | move/turn_away
+show me your back | move/turn_away
+face away and stay like that | move/turn_away hold=true
+turn around and don't look at me | move/turn_away gaze=free
+turn turn around | move/turn_away
+keep facing away until i say so | move/turn_away hold=true
+
+# --- turn back
+ok now turn back | move/turn_back
+face me | move/turn_back
+turn around and face me milo | move/turn_back
+come back dewdrop | move/turn_back
+face the camera please | move/turn_back
+face forward | move/turn_back
+
+# --- backflip / frontflip / flip
+do a backflip | move/backflip
+back flip! | move/backflip
+can you do two backflips | move/backflip count=2
+do a double backflip | move/backflip count=2
+flip backwards in slow motion | move/backflip speed=slow
+another backflip! | move/backflip
+do a back a backflip | move/backflip
+show me a backflip pip | move/backflip
+let me see you do a front flip | move/frontflip
+do a summer salt | move/frontflip
+somersault three times | move/frontflip count=3
+flip forward | move/frontflip
+do a frontflip really fast | move/frontflip speed=2.5
+do a flip | move/flip
+flip! | move/flip
+pip do a flip please | move/flip
+how about a flip | move/flip
+do a flip quickly | move/flip speed=fast
+
+# --- cartwheel
+do a cartwheel | move/cartwheel
+do a car wheel | move/cartwheel
+rosie can you do a couple of cartwheels | move/cartwheel count=2
+cartwheel to the left | move/cartwheel dir=left
+let's do a cartwheel | move/cartwheel
+can you do a uh a cartwheel | move/cartwheel
+
+# --- jump
+jump! | move/jump
+jump up and down | move/jump
+jump really high | move/jump height=1
+do a big jump | move/jump height=0.8
+jump three times | move/jump count=3
+leap! | move/jump
+jump for joy hattie | move/jump
+do a tiny little jump | move/jump height=0.3
+jump as high as you can | move/jump height=1
+okay now um can you like jump really really high | move/jump height=1
+simon says jump | move/jump
+do five jumps | move/jump count=5
+jump lots of times | move/jump count=5
+felix jump high | move/jump height=0.8
+hattie jump three time | move/jump count=3
+i know you already jumped but jump again | move/jump
+leap forward | move/jump dir=forward
+
+# --- hop
+rosie hop | move/hop
+hop on one foot | move/hop style=one_foot
+do a little hop | move/hop height=0.3
+hop forward four times | move/hop dir=forward count=4
+hop to my right | move/hop dir=screen_right
+simon says hop twice | move/hop count=2
+hop super high | move/hop height=1
+
+# --- bounce
+bloop bounce up and down | move/bounce
+bounce really high | move/bounce height=1
+bounce a few times | move/bounce count=3
+bounce slowly | move/bounce speed=slow
+bounce several times | move/bounce count=4
+ori bounce | move/bounce
+do a huge bounce | move/bounce height=0.8
+
+# --- walk
+go for a walk | move/walk
+walk toward me | move/walk dir=forward
+take three steps | move/walk distance=3
+walk five steps forward | move/walk distance=5 dir=forward
+walk backwards | move/walk dir=back
+march like a soldier | move/walk style=march
+can you tiptoe | move/walk style=tiptoe
+tiptoe toward me | move/walk style=tiptoe dir=forward
+run! | move/walk speed=fast
+run to the left | move/walk speed=fast dir=left
+walk away from me | move/walk dir=back
+walk a couple of steps to the left | move/walk distance=2 dir=left
+walk slowly | move/walk speed=slow
+take two steps back | move/walk distance=2 dir=back
+walk to my right | move/walk dir=screen_right
+walk a few steps | move/walk distance=3
+walk as fast as you can | move/walk speed=2.5
+
+# --- step
+take a step | move/step
+step forward | move/step dir=forward
+step back carefully | move/step dir=back speed=slow
+take a step to the right | move/step dir=right
+step to my left | move/step dir=screen_left
+step closer bruno | move/step dir=forward
+
+# --- dance
+dance! | move/dance
+show me your moves | move/dance
+bust a move milo | move/dance
+do the robot | move/dance style=robot
+dance like a robot | move/dance style=robot
+do a silly dance | move/dance style=silly
+do the chicken dance | move/dance style=chicken
+do the floss | move/dance style=floss
+time to boogie | move/dance
+keep dancing | move/dance hold=true
+dance until i say stop | move/dance hold=true
+dance for ten seconds | move/dance duration_ms=10000
+keep looking at me while you dance | move/dance gaze=user
+let me see you dance hattie | move/dance
+do a happy dance | move/dance style=happy
+can you can you do the robot dance | move/dance style=robot
+do the twist | move/dance style=twist
+how about a little dance | move/dance
+dance really slowly | move/dance speed=0.4
+
+# --- sit / stand / get up
+sit down | move/sit
+take a seat | move/sit
+have a seat bruno | move/sit
+would you please sit down for me | move/sit
+sit down slowly | move/sit speed=slow
+stand up | move/stand
+please stand up straight | move/stand
+now stand | move/stand
+get up | move/get_up
+get back up hattie | move/get_up
+come on get up | move/get_up
+
+# --- lie down / roll over
+lie down | move/lie_down
+lay down | move/lie_down
+play dead | move/lie_down style=play_dead
+lie on your back | move/lie_down style=back
+lie down and stay there | move/lie_down hold=true
+lie down gently | move/lie_down speed=slow
+roll over | move/roll_over
+role over | move/roll_over
+do a roll | move/roll_over
+i want you to roll over twice | move/roll_over count=2
+roll over super slowly | move/roll_over speed=0.4
+
+# --- bow
+take a bow | move/bow
+take a bough | move/bow
+do a curtsy stella | move/bow style=curtsy
+bow slowly | move/bow speed=slow
+bow once | move/bow count=1
+
+# --- wiggle
+wiggle | move/wiggle
+wiggle your butt | move/wiggle
+shake shake shake your booty | move/wiggle
+bloop wobble | move/wiggle
+bloop jiggle for me | move/wiggle
+wiggle for three seconds | move/wiggle duration_ms=3000
+wiggle your whole body really fast | move/wiggle speed=2.5
+
+# --- shake off
+shake it off | move/shake_off
+dewdrop shake yourself off | move/shake_off
+shake like a wet dog | move/shake_off
+
+# ======================= POSITIVE: props =======================
+
+# --- pick up
+pick up the ball | object/pick_up obj.name=ball
+um pick up the uh the blue cup | object/pick_up obj.name=cup obj.color=blue
+bruno grab the honey pot | object/pick_up obj.name=honey_pot
+get the banana | object/pick_up obj.name=banana
+pick it up | object/pick_up obj.ref=it
+pick one up | object/pick_up obj.ref=any
+grab something | object/pick_up obj.ref=any
+just grab one | object/pick_up obj.ref=any
+fetch the ball | object/pick_up obj.name=ball
+lift the coconut two-handed | object/pick_up obj.name=coconut side=both
+carry the bucket | object/pick_up obj.name=bucket
+hold the teddy bear | object/pick_up obj.name=teddy_bear
+pick up the pale | object/pick_up obj.name=pail
+pick blue cup | object/pick_up obj.name=cup obj.color=blue
+pick up the blew cup | object/pick_up obj.name=cup obj.color=blue
+cubby pick up the red block | object/pick_up obj.name=block obj.color=red
+grab the biggest one | object/pick_up obj.size=big
+pick up the small one | object/pick_up obj.size=small
+pick up the first one | object/pick_up obj.ordinal=1
+pick up the second block | object/pick_up obj.name=block obj.ordinal=2
+grab the third block | object/pick_up obj.name=block obj.ordinal=3
+take the last one | object/pick_up obj.ordinal=-1
+pick up the one on your left | object/pick_up obj.pos=left
+grab the one on your right | object/pick_up obj.pos=right
+pick up the one on the left | object/pick_up obj.pos=screen_left
+grab the right one | object/pick_up obj.pos=screen_right
+grab the one in the middle | object/pick_up obj.pos=middle
+pick up the blocks | object/pick_up obj.ref=all obj.name=block
+pick up both blocks with both paws | object/pick_up obj.ref=all obj.name=block side=both
+pick up a toy | object/pick_up obj.category=toy
+grab a snack | object/pick_up obj.category=food
+pick up the fruit | object/pick_up obj.category=fruit
+hattie pick up the duck with your right paw | object/pick_up obj.name=duck side=right
+pick up the watermelon with both hands | object/pick_up obj.name=watermelon side=both
+hold the fish in your left paw | object/pick_up obj.name=fish side=left
+milo get the drum with your left hand | object/pick_up obj.name=drum side=left
+grab the yellow one | object/pick_up obj.color=yellow
+pick up the purple cup | object/pick_up obj.name=cup obj.color=purple
+grab the other block | object/pick_up obj.ref=other obj.name=block
+ori grab the golden bell | object/pick_up obj.name=bell obj.color=gold
+pick up the big red ball | object/pick_up obj.name=ball obj.color=red obj.size=big
+dewdrop pick up the glass | object/pick_up obj.name=glass
+take the umbrella | object/pick_up obj.name=umbrella
+pick that one up | object/pick_up obj.ref=that
+would you mind picking up the book | object/pick_up obj.name=book
+hold the jelly bean and don't let go | object/pick_up obj.name=jelly_bean hold=true
+pick up the teddy and keep holding it | object/pick_up obj.name=teddy hold=true
+pick up the blue one not the red one | object/pick_up obj.color=blue
+forget the ball pick up the cup | object/pick_up obj.name=cup
+
+# --- put down
+put it down | object/put_down obj.ref=it
+put the cupcake down | object/put_down obj.name=cupcake
+lay the map down | object/put_down obj.name=map
+put that down please | object/put_down obj.ref=that
+set the lantern down | object/put_down obj.name=lantern
+
+# --- drop
+drop it | object/drop obj.ref=it
+dewdrop drop the shell | object/drop obj.name=shell
+let go of the balloon | object/drop obj.name=balloon
+let it fall | object/drop obj.ref=it
+drop it on the floor | object/drop obj.ref=it place=floor
+drop this | object/drop obj.ref=that
+
+# --- put back
+put it back | object/put_back obj.ref=it
+can you put the uh put the map back | object/put_back obj.name=map
+put the coin back where it was | object/put_back obj.name=coin
+return the gem | object/put_back obj.name=gem
+put everything away | object/put_back obj.ref=all
+clean up | object/put_back obj.ref=all
+tidy up please | object/put_back obj.ref=all
+put it back on the table | object/put_back obj.ref=it place=table
+put them back | object/put_back obj.ref=all
+put the carrot back where it belongs | object/put_back obj.name=carrot
+
+# --- place
+put the ball on the floor | object/place obj.name=ball place=floor
+put it on the table | object/place obj.ref=it place=table
+put the red block in the box | object/place obj.name=block obj.color=red place=box
+put it on your head | object/place obj.ref=it place=head
+wear the bucket | object/place obj.name=bucket place=head
+put the cup next to the duck | object/place obj.name=cup place=near near.name=duck
+set it down on the ground | object/place obj.ref=it place=floor
+put ball on floor | object/place obj.name=ball place=floor
+place the leaf on the table | object/place obj.name=leaf place=table
+put the apple next to the book | object/place obj.name=apple place=near near.name=book
+put the yellow block on the shelf | object/place obj.name=block obj.color=yellow place=shelf
+put the honey on the table | object/place obj.name=honey place=table
+
+# --- hold up
+hold it up | object/hold_up obj.ref=it
+pip hold up the lantern | object/hold_up obj.name=lantern
+raise the wand | object/hold_up obj.name=wand
+stella hold the moon up nice and high | object/hold_up obj.name=moon
+hold the drum in the air | object/hold_up obj.name=drum
+lift it over your head | object/hold_up obj.ref=it
+hold up the balloon with your right hand | object/hold_up obj.name=balloon side=right
+don't drop it just hold it up | object/hold_up obj.ref=it
+
+# --- show
+show me the crystal | object/show obj.name=crystal
+show it to me | object/show obj.ref=it
+let me see the map | object/show obj.name=map
+can i see the present | object/show obj.name=present
+ori show me the gift | object/show obj.name=gift
+show the white shell to the camera | object/show obj.name=shell obj.color=white
+show me the read apple | object/show obj.name=apple obj.color=red
+bruno show me the blue fish | object/show obj.name=fish obj.color=blue
+could you maybe show me the gem please | object/show obj.name=gem
+
+# --- inspect
+look at the flower | object/inspect obj.name=flower
+check out the gem | object/inspect obj.name=gem
+take a look at that | object/inspect obj.ref=that
+examine the coin | object/inspect obj.name=coin
+milo inspect the coconut | object/inspect obj.name=coconut
+
+# --- turn a prop
+turn it around | object/turn obj.ref=it amount=0.5
+spin the crystal | object/turn obj.name=crystal amount=1
+rotate it | object/turn obj.ref=it
+turn the box a quarter turn | object/turn obj.name=box amount=0.25
+turn the present all the way around | object/turn obj.name=present amount=1
+show me the back of the book | object/turn obj.name=book amount=0.5
+show me the other side of it | object/turn obj.ref=it amount=0.5
+turn it halfway | object/turn obj.ref=it amount=0.5
+rotate the lantern three times | object/turn obj.name=lantern count=3
+
+# --- flip a prop
+flip it over | object/flip obj.ref=it
+turn the bucket upside down | object/flip obj.name=bucket
+turn the cup over | object/flip obj.name=cup
+flip the map over | object/flip obj.name=map
+
+# --- hand over (switch paws)
+switch hands | object/hand_over
+swap paws | object/hand_over
+pass it to your other paw | object/hand_over obj.ref=it side=other
+pass it to your right paw | object/hand_over obj.ref=it side=right
+switch the carrot to your other hand | object/hand_over obj.name=carrot side=other
+
+# --- toss
+toss the ball | object/toss obj.name=ball
+throw it up in the air | object/toss obj.ref=it
+throw the ball up and catch it | object/toss obj.name=ball
+toss it three times | object/toss obj.ref=it count=3
+milo juggle | object/toss
+throw the rubber duck in the air | object/toss obj.name=rubber_duck
+cubby toss the orange ball | object/toss obj.name=ball obj.color=orange
+
+# --- catch
+catch it | object/catch obj.ref=it
+catch! | object/catch
+here catch the ball | object/catch obj.name=ball
+
+# --- shake a prop
+shake the present | object/shake obj.name=present
+give it a shake | object/shake obj.ref=it
+rattle the box | object/shake obj.name=box
+wave the wand | object/shake obj.name=wand
+shake the bell twice | object/shake obj.name=bell count=2
+shake it | object/shake obj.ref=it
+wave the magic wand with your other paw | object/shake obj.name=magic_wand side=other
+
+# --- hug
+hug the teddy | object/hug obj.name=teddy
+give the duck a hug | object/hug obj.name=duck
+cuddle the teddy bare | object/hug obj.name=teddy_bear
+squeeze it | object/hug obj.ref=it
+hug it with both paws | object/hug obj.ref=it side=both
+
+# --- offer (give to the user)
+give it to me | object/offer obj.ref=it
+give me the apple | object/offer obj.name=apple
+hand me the umbrella | object/offer obj.name=umbrella
+pass me the carrot please | object/offer obj.name=carrot
+can i have the cupcake | object/offer obj.name=cupcake
+bring me the coconut | object/offer obj.name=coconut
+give me banana | object/offer obj.name=banana
+felix can you hand me the mug | object/offer obj.name=mug
+hand me the one on my right | object/offer obj.pos=screen_right
+may i have the honey | object/offer obj.name=honey
+bloop can i have the green jelly bean | object/offer obj.name=jelly_bean obj.color=green
+cubby hand me the blue block | object/offer obj.name=block obj.color=blue
+give me the little one | object/offer obj.size=small
+give me another one | object/offer obj.ref=other
+give me the last one | object/offer obj.ordinal=-1
+give me a treat | object/offer obj.category=food
+stella hand me the pink balloon | object/offer obj.name=balloon obj.color=pink
+
+# --- smell
+smell the flower | object/smell obj.name=flower
+sniff the cupcake | object/smell obj.name=cupcake
+smell the flour | object/smell obj.name=flower
+sniff it | object/smell obj.ref=it
+smell the daisy felix | object/smell obj.name=daisy
+rosie sniff the lettuce | object/smell obj.name=lettuce
+
+# ======================= POSITIVE: tricky single commands =======================
+don't just stand there do a backflip | move/backflip
+you don't have to jump just spin | move/spin
+instead of dancing take a bow | move/bow
+
+# ======================= POSITIVE: compounds =======================
+grab the ball and toss it | object/pick_up obj.name=ball ; object/toss obj.ref=it
+spin around a couple times and then have a seat | move/spin count=2 ; move/sit
+felix felix do a backflip and then a cartwheel and then spin around | move/backflip ; move/cartwheel ; move/spin
+pick up the red ball and the blue cup | object/pick_up obj.name=ball obj.color=red ; object/pick_up obj.name=cup obj.color=blue
+grab the carrot and give it to me | object/pick_up obj.name=carrot ; object/offer obj.ref=it
+milo milo can you pick up the banana and give it to me pleeease | object/pick_up obj.name=banana ; object/offer obj.ref=it
+jump three times and then take a bow | move/jump count=3 ; move/bow
+stand up and dance | move/stand ; move/dance
+pick up the flower smell it and then put it back | object/pick_up obj.name=flower ; object/smell obj.ref=it ; object/put_back obj.ref=it
+turn around and wiggle your butt | move/turn_away ; move/wiggle
+lie down and roll over | move/lie_down ; move/roll_over
+take two steps forward and jump | move/walk distance=2 dir=forward ; move/jump
+walk three steps to my left and then turn back | move/walk distance=3 dir=screen_left ; move/turn_back
+pick up the wand and wave it | object/pick_up obj.name=wand ; object/shake obj.ref=it
+hold the gem up and show it to me | object/hold_up obj.name=gem ; object/show obj.ref=it
+get up and shake it off | move/get_up ; move/shake_off
+grab the bucket and put it on your head | object/pick_up obj.name=bucket ; object/place obj.ref=it place=head
+pick up the coin flip it over and put it back on the table | object/pick_up obj.name=coin ; object/flip obj.ref=it ; object/put_back obj.ref=it place=table
+hop to the left then hop to the right | move/hop dir=left ; move/hop dir=right
+and and then can you do a flip and um and a jump | move/flip ; move/jump
+ok so first spin around and then jump and then do a bow | move/spin ; move/jump ; move/bow
+put the drum down and dance | object/put_down obj.name=drum ; move/dance
+put the cup down and pick up the duck | object/put_down obj.name=cup ; object/pick_up obj.name=duck
+sit down and hug the teddy | move/sit ; object/hug obj.name=teddy
+
+# ======================= NEGATIVE: nothing should fire =======================
+
+# --- questions about state / history
+what are you holding right now |
+what did you just do |
+did you just spin around |
+are you holding the blue cup |
+why did you drop the ball |
+how many times did you jump |
+where did you put the honey pot |
+is that a red ball |
+which one did you pick up |
+were you dancing just now |
+what color is the bucket |
+is the watermelon heavy |
+
+# --- ability questions
+do you know how to do a backflip |
+have you ever done a cartwheel |
+are you good at dancing |
+is it hard to do a somersault |
+do you like to jump |
+how do you do a cartwheel |
+
+# --- negations
+don't spin |
+please don't pick that up |
+no need to jump |
+you don't have to bow |
+don't drop the cupcake |
+don't you dare throw that balloon |
+please do not put the map on the floor |
+i don't want you to dance right now |
+no backflips okay |
+never toss the bell |
+you shouldn't sit on the table |
+
+# --- negations carrying a standalone legacy stop / relax / never mind
+stop stop don't throw it | release/all
+never mind you don't have to dance | release/all
+relax you don't need to do a backflip | release/all
+okay stop i don't want you to spin anymore | release/all
+stop that's enough no more jumping | release/all
+
+# --- hypotheticals
+if you spin too much you'll get dizzy |
+if you drop the cup it might break |
+what would happen if you did a backflip |
+i wonder if you could jump over the moon |
+if i were you i wouldn't do a cartwheel |
+maybe someday you'll learn to juggle |
+
+# --- other subjects
+my son can do a backflip |
+the dog keeps rolling over |
+can dogs jump really high |
+my daughter loves to twirl in her dress |
+can monkeys really juggle |
+i saw a fox do a backflip on youtube |
+grandpa fell asleep sitting down |
+the cat knocked the cup off the table |
+he rolled over in his sleep |
+bears can't really dance can they |
+can you believe my son did a cartwheel |
+honey can you grab my keys |
+sophie put your shoes on please |
+
+# --- reported speech
+my teacher said to jump rope every day |
+she told me to pick up my toys |
+the coach told us to do ten jumping jacks |
+my sister says you can't do a backflip |
+he said hand me the hammer |
+mom said we have to clean up before dinner |
+
+# --- the user describing himself
+watch me spin |
+i'll pick up the kids at three |
+i can do a cartwheel |
+look i'm jumping |
+i just did a somersault |
+i'm holding a cup of coffee |
+i'm gonna sit down for a minute |
+let me grab my phone real quick |
+wanna see me do a cartwheel |
+should i pick up the ball |
+
+# --- avatar-like speech (first-person narration / echoed TTS)
+okay here i go spinning around |
+ta da that was my best backflip ever |
+sure i'd love to dance for you |
+here you go i'm handing you the apple |
+hi i'm felix the fox and i love to dance |
+okay okay i'll put it back |
+wheee i'm bouncing |
+
+# --- unrelated sentences containing trigger words
+i picked up my kids from school |
+the ball game was so much fun |
+we went for a long walk after dinner |
+ballet class is at five |
+turn off the lights in the hallway |
+take your time sweetie |
+hold on a sec |
+spin class was brutal today |
+can you turn the volume down |
+we need to pick up milk on the way home |
+my phone keeps flipping to landscape |
+what a catch that was last night |
+dewdrop is my favorite character |
+we should drop by grandma's later |
+the bounce house at the party was huge |
+let's go get pizza after this |
+it's time to put the kids to bed |
+i bowed out of the meeting early |
+could you tell me what you're holding |
+nice jump |
+you're so good at cartwheels |
+that's a pretty flower |
+
+# --- misleading premises
+you already jumped right |
+remember when you did a backflip |
+that was a cool spin you did |
+why did you put the book back |
+wasn't that cartwheel awesome |
+you dropped the ball didn't you |
+i thought you were going to hug the teddy |
+so you can't really juggle huh |
+you've been dancing all day haven't you |
+didn't you just pick up the cup |

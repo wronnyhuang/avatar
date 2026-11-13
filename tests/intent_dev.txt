@@ -1,0 +1,1576 @@
+# DEVELOPMENT intent set -- spoken commands to the talking cartoon avatar.
+# Format (see tests/intent_eval.py):   phrase | cmd ; cmd     (empty right side = NO command may fire)
+# Labels never depend on the scene: a prop that is missing from the addressed character's scene still yields
+# the command (the page reports it is not there). Scenes: tests/props_mock/<character>.json.
+# Characters: Felix fox, Bruno bear, Rosie rabbit, Hattie hippo, Milo monkey, Ori orb, Cubby cube,
+#   Dewdrop water drop, Stella star, Pip pyramid, Bloop jelly blob, Muse plush (desk scene).
+
+# =====================================================================================================
+# MOVES
+# =====================================================================================================
+
+# ---- move: spin ----
+spin | move/spin
+Felix, spin around! | move/spin
+can you spin in a circle? | move/spin
+turn in a circle please | move/spin
+do a 360 | move/spin
+Bloop, do a three sixty! | move/spin
+spin around twice | move/spin count=2
+turn around three times | move/spin count=3
+Ori, spin 4 times | move/spin count=4
+spin clockwise | move/spin dir=cw
+spin counterclockwise slowly | move/spin dir=ccw speed=slow
+spin anticlockwise | move/spin dir=ccw
+spin really fast | move/spin speed=2.5
+do a triple spin | move/spin count=3
+keep spinning until I say stop | move/spin hold=true
+spin around for 5 seconds | move/spin duration_ms=5000
+spin a couple of times without looking at me | move/spin count=2 gaze=free
+could you spin to your left? | move/spin dir=left
+do a spinny spin! | move/spin
+spin around but keep looking at me | move/spin gaze=user
+Stella, spin as fast as you can | move/spin speed=2.5
+turn around in a circle once | move/spin count=1
+
+# ---- move: twirl ----
+twirl | move/twirl
+Rosie, can you twirl for me? | move/twirl
+do a pirouette | move/twirl
+Stella, twirl around three times | move/twirl count=3
+twirl slowly please | move/twirl speed=slow
+would you mind doing a twirl? | move/twirl
+twirl counterclockwise | move/twirl dir=ccw
+do two pirouettes | move/twirl count=2
+give us a twirly twirl | move/twirl
+Dewdrop, twirl super fast | move/twirl speed=2.5
+
+# ---- move: turn (to a side) ----
+turn left | move/turn dir=left
+turn to your right | move/turn dir=right
+face left | move/turn dir=left
+Bruno, turn to my left | move/turn dir=screen_left
+can you turn to my right please | move/turn dir=screen_right
+um, turn to the left | move/turn dir=left
+Pip, face to your right | move/turn dir=right
+turn right slowly | move/turn dir=right speed=slow
+turn to my left and stay there | move/turn dir=screen_left hold=true
+face right | move/turn dir=right
+Cubby, turn left quickly | move/turn dir=left speed=fast
+
+# ---- move: turn_away ----
+turn around | move/turn_away
+Felix, turn away | move/turn_away
+turn your back to me | move/turn_away
+face away from me | move/turn_away
+show me your back | move/turn_away
+let me see your back | move/turn_away
+okay now turn around please | move/turn_away
+turn away and stay like that | move/turn_away hold=true
+keep facing away | move/turn_away hold=true
+could you turn around for 5 seconds | move/turn_away duration_ms=5000
+Hattie, turn around slowly | move/turn_away speed=slow
+turn away and don't look at me | move/turn_away gaze=free
+Milo, turn your back | move/turn_away
+
+# ---- move: turn_back ----
+turn back | move/turn_back
+face me | move/turn_back
+turn to face me | move/turn_back
+turn around and face me | move/turn_back
+come back | move/turn_back
+Milo, face the camera | move/turn_back
+face forward please | move/turn_back
+okay you can turn back around now | move/turn_back
+Cubby, face me again and stay like that | move/turn_back hold=true
+turn back to me slowly | move/turn_back speed=slow
+Dewdrop, turn back | move/turn_back
+
+# ---- move: backflip ----
+do a backflip | move/backflip
+backflip! | move/backflip
+Felix, can you do a back flip? | move/backflip
+flip backwards | move/backflip
+can you do a flippy backflip | move/backflip
+do three backflips | move/backflip count=3
+double backflip! | move/backflip count=2
+Milo, do a backflip twice | move/backflip count=2
+how about a backflip? | move/backflip
+another backflip! | move/backflip
+show me a backflip | move/backflip
+do a really slow backflip | move/backflip speed=0.4
+could you do a backflip in slow motion | move/backflip speed=slow
+Simon says do a backflip | move/backflip
+will you do a backflip for me, Bruno? | move/backflip
+backflip a few times | move/backflip count=3
+Pip, do a quick backflip | move/backflip speed=fast
+
+# ---- move: frontflip ----
+do a front flip | move/frontflip
+somersault! | move/frontflip
+Stella, can you do a somersault? | move/frontflip
+flip forward | move/frontflip
+do two front flips | move/frontflip count=2
+would you do a forward flip for me | move/frontflip
+do a somersault really fast | move/frontflip speed=2.5
+Pip, front flip please | move/frontflip
+triple front flip! | move/frontflip count=3
+
+# ---- move: flip (unspecified) ----
+do a flip | move/flip
+flip! | move/flip
+Ori, can you do a flip | move/flip
+do a flip in the air | move/flip
+do 2 flips | move/flip count=2
+let me see you do a flip | move/flip
+um, do a quick flip | move/flip speed=fast
+Bloop, flip three times | move/flip count=3
+
+# ---- move: cartwheel ----
+do a cartwheel | move/cartwheel
+cartwheel! | move/cartwheel
+Rosie, do a cartwheel please | move/cartwheel
+could you do a cartwheel to the left? | move/cartwheel dir=left
+do two cartwheels | move/cartwheel count=2
+do a cartwheel to my right | move/cartwheel dir=screen_right
+let's see a cartwheel | move/cartwheel
+Hattie, can you do a few cartwheels | move/cartwheel count=3
+do a slow cartwheel | move/cartwheel speed=slow
+pretty please do a cartwheel | move/cartwheel
+cartwheel toward me | move/cartwheel dir=forward
+
+# ---- move: jump ----
+jump | move/jump
+Felix, jump! | move/jump
+can you jump up and down? | move/jump
+jump up | move/jump
+leap! | move/jump
+jump for joy | move/jump
+jump three times | move/jump count=3
+jump twice | move/jump count=2
+jump a couple of times | move/jump count=2
+jump several times | move/jump count=4
+jump a bunch of times | move/jump count=5
+jump as high as you can | move/jump height=1
+do a little jump | move/jump height=0.3
+do a big jump | move/jump height=0.8
+Bruno, jump really high | move/jump height=1
+jump toward me | move/jump dir=forward
+jump to your left | move/jump dir=left
+jump to my right | move/jump dir=screen_right
+would you mind jumping five times | move/jump count=5
+jump up and down for ten seconds | move/jump duration_ms=10000
+Simon says jump | move/jump
+I want you to jump | move/jump
+do a huge leap | move/jump height=0.8
+let's jump! | move/jump
+now jump once | move/jump count=1
+do a tiny jump | move/jump height=0.3
+jumpy jump! | move/jump
+Hattie, jump high | move/jump height=0.8
+jump 3 times really fast | move/jump count=3 speed=2.5
+
+# ---- move: hop ----
+hop | move/hop
+Rosie, hop! | move/hop
+hop on one foot | move/hop style=one_foot
+do a little hop | move/hop height=0.3
+hop forward | move/hop dir=forward
+hop three times | move/hop count=3
+can you hop over to my left | move/hop dir=screen_left
+hop a few times | move/hop count=3
+Bloop, do a tiny hop | move/hop height=0.3
+hop backwards | move/hop dir=back
+hop really high | move/hop height=1
+could you hop on one foot twice | move/hop style=one_foot count=2
+
+# ---- move: bounce ----
+bounce | move/bounce
+Bloop, bounce! | move/bounce
+can you bounce up and down | move/bounce
+bounce three times | move/bounce count=3
+bounce really high | move/bounce height=1
+do a small bounce | move/bounce height=0.3
+keep bouncing | move/bounce hold=true
+bounce for five seconds | move/bounce duration_ms=5000
+Ori, bounce a couple of times | move/bounce count=2
+bounce slowly | move/bounce speed=slow
+do a big bounce | move/bounce height=0.8
+
+# ---- move: walk (incl. take N steps, march, tiptoe, run) ----
+walk | move/walk
+go for a walk | move/walk
+let's go for a walk | move/walk
+Felix, walk toward me | move/walk dir=forward
+walk away from me | move/walk dir=back
+walk backwards | move/walk dir=back
+take three steps | move/walk distance=3
+walk 5 steps forward | move/walk distance=5 dir=forward
+take a few steps to the left | move/walk distance=3 dir=left
+take a couple of steps back | move/walk distance=2 dir=back
+march | move/walk style=march
+Bruno, march! | move/walk style=march
+tiptoe toward me | move/walk style=tiptoe dir=forward
+tiptoe away | move/walk style=tiptoe dir=back
+run | move/walk speed=fast
+Milo, run toward me | move/walk speed=fast dir=forward
+walk slowly to my right | move/walk speed=slow dir=screen_right
+can you walk to your right | move/walk dir=right
+walk really slowly | move/walk speed=0.4
+walk closer to me | move/walk dir=forward
+walk ten steps toward the camera | move/walk distance=10 dir=forward
+will you walk two steps to my left | move/walk distance=2 dir=screen_left
+march away from me quickly | move/walk style=march dir=back speed=fast
+walk toward me while looking at me | move/walk dir=forward gaze=user
+walk away and don't look at me | move/walk dir=back gaze=free
+Cubby, walk forward | move/walk dir=forward
+run away from me | move/walk speed=fast dir=back
+
+# ---- move: step ----
+take a step | move/step
+step forward | move/step dir=forward
+step back | move/step dir=back
+step to the left | move/step dir=left
+take a step to my right | move/step dir=screen_right
+Pip, take a step back please | move/step dir=back
+step closer | move/step dir=forward
+take a step toward me | move/step dir=forward
+step to your right slowly | move/step dir=right speed=slow
+Dewdrop, take a step backward | move/step dir=back
+could you step to my left | move/step dir=screen_left
+
+# ---- move: dance ----
+dance | move/dance
+Felix, dance! | move/dance
+can you dance for me? | move/dance
+boogie! | move/dance
+show me your moves | move/dance
+bust a move | move/dance
+do the robot | move/dance style=robot
+dance like a robot | move/dance style=robot
+do a silly dance | move/dance style=silly
+do the chicken dance | move/dance style=chicken
+do the floss | move/dance style=floss
+Milo, can you moonwalk | move/dance style=moonwalk
+do the twist | move/dance style=twist
+do a happy dance | move/dance style=happy
+do a disco dance | move/dance style=disco
+Stella, do a ballet dance | move/dance style=ballet
+keep dancing | move/dance hold=true
+dance for 10 seconds | move/dance duration_ms=10000
+let me see you dance | move/dance
+time for a dance | move/dance
+dance really fast | move/dance speed=2.5
+dance in slow motion | move/dance speed=slow
+dance without looking at me | move/dance gaze=free
+dance while looking at me | move/dance gaze=user
+do a funky dance | move/dance style=funky
+do a crazy dance | move/dance style=crazy
+let's dance | move/dance
+would you mind dancing until I say stop | move/dance hold=true
+Hattie, do a hula dance | move/dance style=hula
+Bloop, do the dancey dance! | move/dance
+so, um, could you dance a little? | move/dance
+dance like a chicken | move/dance style=chicken
+Ori, dance for twenty seconds | move/dance duration_ms=20000
+
+# ---- move: sit ----
+sit | move/sit
+sit down | move/sit
+Bruno, sit down please | move/sit
+take a seat | move/sit
+have a seat | move/sit
+sit down and stay there | move/sit hold=true
+sit for 5 seconds | move/sit duration_ms=5000
+sit down slowly | move/sit speed=slow
+I want you to sit | move/sit
+um, okay, sit down | move/sit
+Simon says sit down | move/sit
+Rosie, would you sit down gently | move/sit speed=slow
+could you have a seat, Cubby? | move/sit
+
+# ---- move: stand ----
+stand | move/stand
+stand up | move/stand
+Hattie, stand up please | move/stand
+can you stand up now | move/stand
+stand up slowly | move/stand speed=slow
+stand up and stay like that | move/stand hold=true
+stand up really fast | move/stand speed=2.5
+Pip, stand up | move/stand
+
+# ---- move: get_up ----
+get up | move/get_up
+get back up | move/get_up
+okay Bruno, get up | move/get_up
+could you get up please | move/get_up
+come on, get up | move/get_up
+get back up quickly | move/get_up speed=fast
+Stella, get up | move/get_up
+
+# ---- move: lie_down ----
+lie down | move/lie_down
+lay down | move/lie_down
+Rosie, lie down please | move/lie_down
+play dead | move/lie_down style=play_dead
+can you play dead | move/lie_down style=play_dead
+lie on your back | move/lie_down style=back
+lie down and stay there | move/lie_down hold=true
+lay down for ten seconds | move/lie_down duration_ms=10000
+lie down carefully | move/lie_down speed=slow
+Milo, play dead and stay like that | move/lie_down style=play_dead hold=true
+Felix, lie down on your back | move/lie_down style=back
+
+# ---- move: roll_over ----
+roll over | move/roll_over
+do a roll | move/roll_over
+Felix, roll over! | move/roll_over
+roll over twice | move/roll_over count=2
+can you roll over to the left | move/roll_over dir=left
+roll over 3 times | move/roll_over count=3
+do a roll toward me | move/roll_over dir=forward
+roll over slowly | move/roll_over speed=slow
+Bruno, roll over to my right | move/roll_over dir=screen_right
+
+# ---- move: bow ----
+bow | move/bow
+take a bow | move/bow
+Stella, take a bow! | move/bow
+curtsy | move/bow style=curtsy
+can you do a curtsy | move/bow style=curtsy
+bow slowly | move/bow speed=slow
+bow three times | move/bow count=3
+bow while looking at me | move/bow gaze=user
+take a bow without looking at me | move/bow gaze=free
+Rosie, curtsy for the audience | move/bow style=curtsy
+take a deep bow | move/bow
+
+# ---- move: wiggle ----
+wiggle | move/wiggle
+wiggle your body | move/wiggle
+wiggle your butt | move/wiggle
+shake your booty | move/wiggle
+Bloop, wobble! | move/wiggle
+jiggle | move/wiggle
+can you wiggle around | move/wiggle
+keep wiggling | move/wiggle hold=true
+wiggle for 5 seconds | move/wiggle duration_ms=5000
+Hattie, shake your booty really fast | move/wiggle speed=2.5
+do the wiggle wiggle | move/wiggle
+
+# ---- move: shake_off ----
+shake it off | move/shake_off
+shake yourself off | move/shake_off
+shake like a wet dog | move/shake_off
+Dewdrop, shake yourself off please | move/shake_off
+can you shake it off | move/shake_off
+shake it off really fast | move/shake_off speed=2.5
+Bruno, shake off like a dog | move/shake_off
+shake yourself off twice | move/shake_off count=2
+
+# =====================================================================================================
+# OBJECTS (the eleven prop scenes)
+# =====================================================================================================
+
+# ---- object: pick_up ----
+pick up the ball | object/pick_up obj.name=ball
+Felix, grab the red ball | object/pick_up obj.color=red obj.name=ball
+pick it up | object/pick_up obj.ref=it
+pick that up | object/pick_up obj.ref=that
+can you pick up the book? | object/pick_up obj.name=book
+take the apple | object/pick_up obj.name=apple
+Bruno, get the honey pot | object/pick_up obj.name=honey_pot
+fetch the fish | object/pick_up obj.name=fish
+lift the watermelon | object/pick_up obj.name=watermelon
+carry the bucket in your right arm | object/pick_up obj.name=bucket side=right
+hold the teddy bear | object/pick_up obj.name=teddy_bear
+Cubby, pick up the blue block | object/pick_up obj.color=blue obj.name=block
+pick up the second block | object/pick_up obj.ordinal=2 obj.name=block
+grab the last block | object/pick_up obj.ordinal=-1 obj.name=block
+pick up the first ball | object/pick_up obj.ordinal=1 obj.name=ball
+pick up the block on the left | object/pick_up obj.name=block obj.pos=screen_left
+pick up the one in the middle | object/pick_up obj.pos=middle
+grab the one on your right | object/pick_up obj.pos=right
+Cubby, grab the block on my right | object/pick_up obj.name=block obj.pos=screen_right
+pick up the big ball | object/pick_up obj.size=big obj.name=ball
+grab the little cup | object/pick_up obj.size=small obj.name=cup
+pick one up | object/pick_up obj.ref=any
+grab something | object/pick_up obj.ref=any
+grab one | object/pick_up obj.ref=any
+pick up the other one | object/pick_up obj.ref=other
+grab the other block | object/pick_up obj.ref=other obj.name=block
+pick up both | object/pick_up obj.ref=all
+pick up all the blocks | object/pick_up obj.ref=all obj.name=block
+pick them up | object/pick_up obj.ref=all
+grab your toy | object/pick_up obj.category=toy
+Milo, grab a snack | object/pick_up obj.category=food
+could you pick up the fruit | object/pick_up obj.category=fruit
+pick up the banana with your left hand | object/pick_up obj.name=banana side=left
+grab the coconut with both paws | object/pick_up obj.name=coconut side=both
+Rosie, pick up the carrot in your right paw | object/pick_up obj.name=carrot side=right
+pick up the gem with your other paw | object/pick_up obj.name=gem side=other
+lift the watermelon two-handed | object/pick_up obj.name=watermelon side=both
+Pip, get the gold coin | object/pick_up obj.color=gold obj.name=coin
+grab the golden bell | object/pick_up obj.color=gold obj.name=bell
+pick up the yellow one | object/pick_up obj.color=yellow
+Dewdrop, pick up the umbrella and don't let go | object/pick_up obj.name=umbrella hold=true
+would you mind grabbing the jelly bean | object/pick_up obj.name=jelly_bean
+take this one | object/pick_up obj.ref=that
+pick up the rubber duck | object/pick_up obj.name=rubber_duck
+Bloop, grab the cupcake and keep holding it | object/pick_up obj.name=cupcake hold=true
+Dewdrop, take the seashell | object/pick_up obj.name=seashell
+okay so, grab the mug | object/pick_up obj.name=mug
+Ori, fetch the white star | object/pick_up obj.color=white obj.name=star
+Stella, pick up the pink balloon | object/pick_up obj.color=pink obj.name=balloon
+get the bigger one | object/pick_up obj.size=big
+grab the smallest one | object/pick_up obj.size=small
+Pip, lift the lantern | object/pick_up obj.name=lantern
+pick up the large melon | object/pick_up obj.size=big obj.name=melon
+Rosie, can you grab the purple cup with your left arm | object/pick_up obj.color=purple obj.name=cup side=left
+
+# ---- object: put_down ----
+put the ball down | object/put_down obj.name=ball
+set it down | object/put_down obj.ref=it
+put that down | object/put_down obj.ref=that
+Felix, put the cup down please | object/put_down obj.name=cup
+lay the book down | object/put_down obj.name=book
+Bruno, can you set the honey pot down | object/put_down obj.name=honey_pot
+put down the watermelon | object/put_down obj.name=watermelon
+Pip, set the lantern down | object/put_down obj.name=lantern
+put them down | object/put_down obj.ref=all
+put both down | object/put_down obj.ref=all
+put down the one in your left paw | object/put_down side=left
+Pip, lay the map down | object/put_down obj.name=map
+now set the drum down | object/put_down obj.name=drum
+
+# ---- object: drop ----
+drop it | object/drop obj.ref=it
+drop the ball | object/drop obj.name=ball
+Stella, let go of the balloon | object/drop obj.name=balloon
+let it fall | object/drop obj.ref=it
+Hattie, drop the duck | object/drop obj.name=duck
+drop the ball on the floor | object/drop obj.name=ball place=floor
+drop the coin in the box | object/drop obj.name=coin place=box
+let go of the umbrella | object/drop obj.name=umbrella
+drop that | object/drop obj.ref=that
+Dewdrop, let the leaf fall to the ground | object/drop obj.name=leaf place=floor
+drop the one in your right paw | object/drop side=right
+could you drop everything | object/drop obj.ref=all
+Bloop, drop the jelly bean into the cup | object/drop obj.name=jelly_bean place=cup
+
+# ---- object: put_back ----
+put it back | object/put_back obj.ref=it
+put the book back | object/put_back obj.name=book
+return the cup | object/put_back obj.name=cup
+Bruno, put the teddy away | object/put_back obj.name=teddy
+put it back where it belongs | object/put_back obj.ref=it
+put the map back where it was | object/put_back obj.name=map
+clean up | object/put_back obj.ref=all
+tidy up please | object/put_back obj.ref=all
+Cubby, put the blocks away | object/put_back obj.ref=all obj.name=block
+put everything back | object/put_back obj.ref=all
+put it back on the table | object/put_back obj.ref=it place=table
+put the toys away | object/put_back obj.ref=all obj.category=toy
+can you clean up your toys | object/put_back obj.ref=all obj.category=toy
+Dewdrop, put the shell back where it belongs | object/put_back obj.name=shell
+put that away | object/put_back obj.ref=that
+Stella, return the moon to the table | object/put_back obj.name=moon place=table
+
+# ---- object: place ----
+put it on the table | object/place obj.ref=it place=table
+put the ball on the floor | object/place obj.name=ball place=floor
+set the cup on the table | object/place obj.name=cup place=table
+put it down on the floor | object/place obj.ref=it place=floor
+place the coin in the box | object/place obj.name=coin place=box
+Cubby, put the red block in the box | object/place obj.color=red obj.name=block place=box
+put it on your head | object/place obj.ref=it place=head
+Hattie, put the bucket on your head | object/place obj.name=bucket place=head
+Hattie, put the duck in the bucket | object/place obj.name=duck place=bucket
+put the ball next to the cup | object/place obj.name=ball place=near near.name=cup
+Felix, put the apple next to the book | object/place obj.name=apple place=near near.name=book
+set the flower on the ground | object/place obj.name=flower place=floor
+move the lantern to the table | object/place obj.name=lantern place=table
+put the moon on the shelf | object/place obj.name=moon place=shelf
+put the cupcake on the chair | object/place obj.name=cupcake place=chair
+Pip, place the gem next to the map | object/place obj.name=gem place=near near.name=map
+put the honey pot down on the table | object/place obj.name=honey_pot place=table
+Bloop, put the jelly bean in the cup | object/place obj.name=jelly_bean place=cup
+Ori, put the bell in the box | object/place obj.name=bell place=box
+put this one on the floor | object/place obj.ref=that place=floor
+put the yellow block next to the box | object/place obj.color=yellow obj.name=block place=near near.name=box
+put them on the table | object/place obj.ref=all place=table
+
+# ---- object: hold_up ----
+hold it up | object/hold_up obj.ref=it
+hold up the coin | object/hold_up obj.name=coin
+Stella, raise the wand | object/hold_up obj.name=wand
+hold the lantern in the air | object/hold_up obj.name=lantern
+lift the watermelon over your head | object/hold_up obj.name=watermelon
+Ori, hold the crystal up | object/hold_up obj.name=crystal
+hold it up with both paws | object/hold_up obj.ref=it side=both
+raise it | object/hold_up obj.ref=it
+hold the ball up in your right hand | object/hold_up obj.name=ball side=right
+hold up the present | object/hold_up obj.name=present
+Bruno, could you hold the honey pot up high | object/hold_up obj.name=honey_pot
+hold the balloon up and keep holding it | object/hold_up obj.name=balloon hold=true
+hold that up with your left arm | object/hold_up obj.ref=that side=left
+Milo, hold the banana in the air | object/hold_up obj.name=banana
+
+# ---- object: show ----
+show me the coin | object/show obj.name=coin
+show it to me | object/show obj.ref=it
+let me see the map | object/show obj.name=map
+can I see the shell? | object/show obj.name=shell
+show me that | object/show obj.ref=that
+Felix, show the book to the camera | object/show obj.name=book
+show me the yellow flower | object/show obj.color=yellow obj.name=flower
+let me see it | object/show obj.ref=it
+Bruno, show me your teddy | object/show obj.name=teddy
+show it to the camera | object/show obj.ref=it
+real quick, show me the drum | object/show obj.name=drum
+can I see the gift | object/show obj.name=gift
+show me the biggest one | object/show obj.size=big
+show me both | object/show obj.ref=all
+Bloop, show me the duck | object/show obj.name=duck
+let me see the other one | object/show obj.ref=other
+
+# ---- object: inspect ----
+look at the flower | object/inspect obj.name=flower
+check out the map | object/inspect obj.name=map
+inspect the gem | object/inspect obj.name=gem
+Ori, examine the crystal | object/inspect obj.name=crystal
+take a look at that | object/inspect obj.ref=that
+Pip, take a look at the old map | object/inspect obj.name=map
+Milo, look at the coconut | object/inspect obj.name=coconut
+can you check out the shell | object/inspect obj.name=shell
+take a look at it | object/inspect obj.ref=it
+look closely at the blue block | object/inspect obj.color=blue obj.name=block
+examine the third block | object/inspect obj.ordinal=3 obj.name=block
+look at the one on the right | object/inspect obj.pos=screen_right
+Rosie, inspect the lettuce | object/inspect obj.name=lettuce
+
+# ---- object: turn (rotate a prop) ----
+turn it around | object/turn obj.ref=it amount=0.5
+turn the book around | object/turn obj.name=book amount=0.5
+rotate the cup | object/turn obj.name=cup
+rotate it | object/turn obj.ref=it
+spin the coin | object/turn obj.name=coin amount=1
+turn the box all the way around | object/turn obj.name=box amount=1
+turn it halfway | object/turn obj.ref=it amount=0.5
+give the cube a quarter turn | object/turn obj.name=cube amount=0.25
+Felix, show me the back of the book | object/turn obj.name=book amount=0.5
+show me the other side of it | object/turn obj.ref=it amount=0.5
+spin it | object/turn obj.ref=it amount=1
+Stella, spin the wand | object/turn obj.name=wand amount=1
+rotate the lantern twice | object/turn obj.name=lantern count=2
+Ori, turn the present around | object/turn obj.name=present amount=0.5
+
+# ---- object: flip ----
+flip it over | object/flip obj.ref=it
+turn it over | object/flip obj.ref=it
+flip the book over | object/flip obj.name=book
+Hattie, turn the bucket upside down | object/flip obj.name=bucket
+turn the cup upside down | object/flip obj.name=cup
+Pip, flip the coin over | object/flip obj.name=coin
+flip the map over | object/flip obj.name=map
+can you turn the box over | object/flip obj.name=box
+turn that upside down | object/flip obj.ref=that
+Dewdrop, flip the shell over | object/flip obj.name=shell
+flip the umbrella upside down | object/flip obj.name=umbrella
+
+# ---- object: hand_over ----
+switch hands | object/hand_over
+switch paws | object/hand_over
+swap paws | object/hand_over
+pass it to your other paw | object/hand_over obj.ref=it side=other
+pass the ball to your left paw | object/hand_over obj.name=ball side=left
+Milo, switch the banana to your other hand | object/hand_over obj.name=banana side=other
+swap the cup to your right hand | object/hand_over obj.name=cup side=right
+can you switch hands with the wand | object/hand_over obj.name=wand
+Pip, pass the coin to your right paw | object/hand_over obj.name=coin side=right
+switch arms | object/hand_over
+pass that to your left hand | object/hand_over obj.ref=that side=left
+
+# ---- object: toss ----
+toss it | object/toss obj.ref=it
+toss the ball | object/toss obj.name=ball
+throw it up | object/toss obj.ref=it
+throw the ball in the air | object/toss obj.name=ball
+toss it up and catch it | object/toss obj.ref=it
+juggle | object/toss
+juggle the balls | object/toss obj.ref=all obj.name=ball
+toss the coin three times | object/toss obj.name=coin count=3
+Hattie, throw the duck up in the air | object/toss obj.name=duck
+Stella, toss the balloon up | object/toss obj.name=balloon
+Cubby, can you juggle the blocks | object/toss obj.ref=all obj.name=block
+toss the gem up twice | object/toss obj.name=gem count=2
+Bruno, throw the teddy up and catch it | object/toss obj.name=teddy
+toss the red ball a few times | object/toss obj.color=red obj.name=ball count=3
+Ori, throw the star in the air | object/toss obj.name=star
+
+# ---- object: catch ----
+catch it | object/catch obj.ref=it
+catch! | object/catch
+catch the ball | object/catch obj.name=ball
+Bloop, catch the duck | object/catch obj.name=duck
+can you catch the balloon | object/catch obj.name=balloon
+catch that | object/catch obj.ref=that
+catch the coin | object/catch obj.name=coin
+quick, catch it! | object/catch obj.ref=it
+Milo, catch the coconut | object/catch obj.name=coconut
+
+# ---- object: shake ----
+shake it | object/shake obj.ref=it
+Ori, shake the bell | object/shake obj.name=bell
+Milo, rattle the coconut | object/shake obj.name=coconut
+give the drum a shake | object/shake obj.name=drum
+wave the wand | object/shake obj.name=wand
+Stella, wave the wand around | object/shake obj.name=wand
+shake the present | object/shake obj.name=present
+shake the box three times | object/shake obj.name=box count=3
+give it a shake | object/shake obj.ref=it
+Hattie, shake the bucket | object/shake obj.name=bucket
+rattle the gift a couple of times | object/shake obj.name=gift count=2
+Bruno, shake the jar | object/shake obj.name=jar
+shake that | object/shake obj.ref=that
+
+# ---- object: hug ----
+hug the teddy bear | object/hug obj.name=teddy_bear
+give the teddy a hug | object/hug obj.name=teddy
+cuddle the duck | object/hug obj.name=duck
+squeeze the ball | object/hug obj.name=ball
+Bruno, hug your teddy | object/hug obj.name=teddy
+hug it | object/hug obj.ref=it
+give it a hug | object/hug obj.ref=it
+Hattie, cuddle the ducky | object/hug obj.name=ducky
+hug the watermelon | object/hug obj.name=watermelon
+Stella, can you squeeze the balloon | object/hug obj.name=balloon
+Stella, hug the moon | object/hug obj.name=moon
+hug it with both paws | object/hug obj.ref=it side=both
+Bloop, give the cupcake a hug | object/hug obj.name=cupcake
+cuddle them | object/hug obj.ref=all
+
+# ---- object: offer ----
+give it to me | object/offer obj.ref=it
+give me the apple | object/offer obj.name=apple
+Pip, hand me the map | object/offer obj.name=map
+pass me the cup | object/offer obj.name=cup
+can I have the cupcake? | object/offer obj.name=cupcake
+bring me the ball | object/offer obj.name=ball
+Rosie, give me the carrot please | object/offer obj.name=carrot
+could you hand me the lantern | object/offer obj.name=lantern
+give me a treat | object/offer obj.category=food
+can I have your drink | object/offer obj.category=drink
+give me the other one | object/offer obj.ref=other
+pass me the yellow one | object/offer obj.color=yellow
+bring me the coin | object/offer obj.name=coin
+give me that | object/offer obj.ref=that
+Milo, can I have a banana | object/offer obj.name=banana
+give me both | object/offer obj.ref=all
+hand me the bell real quick | object/offer obj.name=bell
+Felix, would you mind giving me the book | object/offer obj.name=book
+Dewdrop, give me the flower | object/offer obj.name=flower
+give me some fruit | object/offer obj.category=fruit
+hand me the one on your left | object/offer obj.pos=left
+
+# ---- object: smell ----
+smell the flower | object/smell obj.name=flower
+Bruno, sniff the honey | object/smell obj.name=honey
+Rosie, smell the tulip | object/smell obj.name=tulip
+smell it | object/smell obj.ref=it
+can you sniff the apple | object/smell obj.name=apple
+smell the cupcake | object/smell obj.name=cupcake
+sniff that | object/smell obj.ref=that
+Felix, smell the daisy | object/smell obj.name=daisy
+smell the lettuce | object/smell obj.name=lettuce
+Bruno, sniff the fish | object/smell obj.name=fish
+Dewdrop, smell the pink flower | object/smell obj.color=pink obj.name=flower
+smell the banana | object/smell obj.name=banana
+
+# ---- desk-scene verbs on the other characters' props (matcher is character-agnostic) ----
+Stella, open the present | object/open obj.name=present
+Ori, open the box | object/open obj.name=box
+Felix, open the book | object/open obj.name=book
+Felix, close the book | object/close obj.name=book
+Milo, play with the drum | object/use obj.name=drum
+Hattie, play with the duck | object/use obj.name=duck
+play with your toy | object/use obj.category=toy
+
+# ---- objects naming props that are NOT in the addressed character's scene (command still fires) ----
+Felix, pick up the banana | object/pick_up obj.name=banana
+Bruno, grab the umbrella | object/pick_up obj.name=umbrella
+Hattie, put the hat on | object/put_on obj.name=hat
+Rosie, toss the frisbee | object/toss obj.name=frisbee
+Milo, smell the flower | object/smell obj.name=flower
+Ori, give me the cookie | object/offer obj.name=cookie
+Cubby, show me the pencil | object/show obj.name=pencil
+Dewdrop, throw the ball up | object/toss obj.name=ball
+Stella, hug the teddy bear | object/hug obj.name=teddy_bear
+Pip, put the book on the table | object/place obj.name=book place=table
+Bloop, shake the rattle | object/shake obj.name=rattle
+pick up the grey stone | object/pick_up obj.color=gray obj.name=stone
+hold up the trophy | object/hold_up obj.name=trophy
+Felix, drop the carrot | object/drop obj.name=carrot
+Bruno, inspect the crystal | object/inspect obj.name=crystal
+Rosie, flip the pancake over | object/flip obj.name=pancake
+Milo, catch the frisbee | object/catch obj.name=frisbee
+Hattie, smell the rose | object/smell obj.name=rose
+Cubby, hand me the banana | object/offer obj.name=banana
+Stella, put the crown in the box | object/place obj.name=crown place=box
+Ori, turn the wand around | object/turn obj.name=wand amount=0.5
+Dewdrop, put the kite back | object/put_back obj.name=kite
+Pip, pick up the purple box | object/pick_up obj.color=purple obj.name=box
+Bloop, put down the pizza | object/put_down obj.name=pizza
+Bruno, switch the apple to your other paw | object/hand_over obj.name=apple side=other
+Felix, cuddle the kitten | object/hug obj.name=kitten
+Milo, set the book down | object/put_down obj.name=book
+Rosie, smell the honey | object/smell obj.name=honey
+Pip, hug the duck | object/hug obj.name=duck
+Cubby, toss the apple | object/toss obj.name=apple
+Ori, show me the banana | object/show obj.name=banana
+Hattie, give me the fish | object/offer obj.name=fish
+Dewdrop, put the coin in the cup | object/place obj.name=coin place=cup
+Stella, grab the drum | object/pick_up obj.name=drum
+
+# =====================================================================================================
+# COMPOUNDS (2-3 commands)
+# =====================================================================================================
+pick up the ball and throw it up | object/pick_up obj.name=ball ; object/toss obj.ref=it
+spin around then sit down | move/spin ; move/sit
+pick up the ball and the cup | object/pick_up obj.name=ball ; object/pick_up obj.name=cup
+jump and then spin | move/jump ; move/spin
+do a backflip and take a bow | move/backflip ; move/bow
+Felix, pick up the apple and give it to me | object/pick_up obj.name=apple ; object/offer obj.ref=it
+Rosie, grab the flower and smell it | object/pick_up obj.name=flower ; object/smell obj.ref=it
+jump, spin, and then sit down | move/jump ; move/spin ; move/sit
+turn around and dance | move/turn_away ; move/dance
+stand up and take a bow | move/stand ; move/bow
+pick up the book and show it to me | object/pick_up obj.name=book ; object/show obj.ref=it
+Pip, take the coin and flip it over | object/pick_up obj.name=coin ; object/flip obj.ref=it
+Bruno, pick up the teddy and hug it | object/pick_up obj.name=teddy ; object/hug obj.ref=it
+put down the cup and dance | object/put_down obj.name=cup ; move/dance
+do a cartwheel then a backflip | move/cartwheel ; move/backflip
+hop three times and then lie down | move/hop count=3 ; move/lie_down
+get up and shake it off | move/get_up ; move/shake_off
+walk toward me and sit down | move/walk dir=forward ; move/sit
+Ori, grab the bell and shake it | object/pick_up obj.name=bell ; object/shake obj.ref=it
+pick up the gem, look at it, and put it back | object/pick_up obj.name=gem ; object/inspect obj.ref=it ; object/put_back obj.ref=it
+lie down and roll over | move/lie_down ; move/roll_over
+spin twice and jump | move/spin count=2 ; move/jump
+Cubby, pick up the red block and put it in the box | object/pick_up obj.color=red obj.name=block ; object/place obj.ref=it place=box
+Rosie, pick up the carrot and switch paws | object/pick_up obj.name=carrot ; object/hand_over
+dance and then take a bow | move/dance ; move/bow
+turn away then turn back | move/turn_away ; move/turn_back
+Bruno, pick up the fish and smell it | object/pick_up obj.name=fish ; object/smell obj.ref=it
+take a step forward and bow | move/step dir=forward ; move/bow
+do a front flip and a backflip | move/frontflip ; move/backflip
+sit down and hug the teddy bear | move/sit ; object/hug obj.name=teddy_bear
+Pip, pick up the map and turn it around | object/pick_up obj.name=map ; object/turn obj.ref=it amount=0.5
+Stella, grab the wand and wave it | object/pick_up obj.name=wand ; object/shake obj.ref=it
+bounce twice then wiggle | move/bounce count=2 ; move/wiggle
+put the ball down and pick up the cup | object/put_down obj.name=ball ; object/pick_up obj.name=cup
+jump up and down then roll over | move/jump ; move/roll_over
+Milo, pick up the ball then hand it to me | object/pick_up obj.name=ball ; object/offer obj.ref=it
+spin around, do a flip, and take a bow | move/spin ; move/flip ; move/bow
+Felix, pick up the cup and put it on the table | object/pick_up obj.name=cup ; object/place obj.ref=it place=table
+Hattie, pick up the duck and squeeze it | object/pick_up obj.name=duck ; object/hug obj.ref=it
+first sit down, then lie down | move/sit ; move/lie_down
+Dewdrop, grab the umbrella and hold it up | object/pick_up obj.name=umbrella ; object/hold_up obj.ref=it
+march toward me then turn around | move/walk style=march dir=forward ; move/turn_away
+drop the ball and dance | object/drop obj.name=ball ; move/dance
+Milo, pick up the coconut and shake it | object/pick_up obj.name=coconut ; object/shake obj.ref=it
+Stella, take the present and give it to me | object/pick_up obj.name=present ; object/offer obj.ref=it
+put the apple back and pick up the book | object/put_back obj.name=apple ; object/pick_up obj.name=book
+twirl and curtsy | move/twirl ; move/bow style=curtsy
+Hattie, pick up the ball and the duck and juggle them | object/pick_up obj.name=ball ; object/pick_up obj.name=duck ; object/toss obj.ref=all
+hop forward and then do a somersault | move/hop dir=forward ; move/frontflip
+Bloop, bounce three times and then wiggle | move/bounce count=3 ; move/wiggle
+Ori, pick up the crystal and hold it up | object/pick_up obj.name=crystal ; object/hold_up obj.ref=it
+pick up the honey pot and sniff it | object/pick_up obj.name=honey_pot ; object/smell obj.ref=it
+pick up the cupcake, show it to me, and then give it to me | object/pick_up obj.name=cupcake ; object/show obj.ref=it ; object/offer obj.ref=it
+stand up, turn around, and walk away | move/stand ; move/turn_away ; move/walk dir=back
+put the cup on the table and then sit down | object/place obj.name=cup place=table ; move/sit
+Cubby, grab the blue block and the yellow block | object/pick_up obj.color=blue obj.name=block ; object/pick_up obj.color=yellow obj.name=block
+Felix, jump twice and then do a backflip | move/jump count=2 ; move/backflip
+can you sit down and then stand up | move/sit ; move/stand
+walk three steps forward and take a bow | move/walk distance=3 dir=forward ; move/bow
+roll over then get up | move/roll_over ; move/get_up
+dance for 5 seconds then sit down | move/dance duration_ms=5000 ; move/sit
+spin around and then face me | move/spin ; move/turn_back
+Rosie, hop to the left and then hop to the right | move/hop dir=left ; move/hop dir=right
+Dewdrop, pick up the shell and look at it | object/pick_up obj.name=shell ; object/inspect obj.ref=it
+grab the coin and toss it three times | object/pick_up obj.name=coin ; object/toss obj.ref=it count=3
+Stella, take the balloon and hug it | object/pick_up obj.name=balloon ; object/hug obj.ref=it
+put the book back and then do a cartwheel | object/put_back obj.name=book ; move/cartwheel
+Milo, pick up the drum and shake it then set it down | object/pick_up obj.name=drum ; object/shake obj.ref=it ; object/put_down obj.ref=it
+catch the ball and throw it back up | object/catch obj.name=ball ; object/toss obj.ref=it
+turn around, wiggle your butt, and turn back | move/turn_away ; move/wiggle ; move/turn_back
+do the robot then the chicken dance | move/dance style=robot ; move/dance style=chicken
+jump to the left then jump to the right | move/jump dir=left ; move/jump dir=right
+
+# =====================================================================================================
+# ASR-STYLE TRANSCRIPTS (lowercase, no punctuation, dropped words, homophones, split words, run-ons)
+# =====================================================================================================
+pick up ball | object/pick_up obj.name=ball
+pick up the read ball | object/pick_up obj.color=red obj.name=ball
+grab the read apple | object/pick_up obj.color=red obj.name=apple
+grab the blew cup | object/pick_up obj.color=blue obj.name=cup
+do a back flip | move/backflip
+felix do a back flip please | move/backflip
+do a cart wheel | move/cartwheel
+pick up the ball throw it up | object/pick_up obj.name=ball ; object/toss obj.ref=it
+spin around sit down | move/spin ; move/sit
+um okay so jump | move/jump
+can you do a summersault | move/frontflip
+show me the coin real quick | object/show obj.name=coin
+put cup on table | object/place obj.name=cup place=table
+give me apple | object/offer obj.name=apple
+smell flower | object/smell obj.name=flower
+turn round | move/turn_away
+do the robot dance | move/dance style=robot
+spin three times | move/spin count=3
+bruno sit down | move/sit
+pick up the read block put it in the box | object/pick_up obj.color=red obj.name=block ; object/place obj.ref=it place=box
+uh can you uh dance | move/dance
+walk towards me | move/walk dir=forward
+turn to my right | move/turn dir=screen_right
+grab the yellow won | object/pick_up obj.color=yellow
+throw it in the air | object/toss obj.ref=it
+pick the ball up | object/pick_up obj.name=ball
+show me you're moves | move/dance
+milo do a back flip twice | move/backflip count=2
+give me the cup cake | object/offer obj.name=cupcake
+hug the teddy bare | object/hug obj.name=teddy_bear
+turn around 2 times | move/spin count=2
+hop on 1 foot | move/hop style=one_foot
+take 3 steps back | move/walk distance=3 dir=back
+wiggle you're butt | move/wiggle
+roll over two times | move/roll_over count=2
+put it on you're head | object/place obj.ref=it place=head
+spin clock wise | move/spin dir=cw
+twirl counter clockwise | move/twirl dir=ccw
+stella hold up the wand | object/hold_up obj.name=wand
+pick up the ball give it to me | object/pick_up obj.name=ball ; object/offer obj.ref=it
+jump really high | move/jump height=1
+okay pip drop the coin | object/drop obj.name=coin
+cubby clean up | object/put_back obj.ref=all
+ori look at the gem | object/inspect obj.name=gem
+dewdrop shake it off | move/shake_off
+hattie lay down | move/lie_down
+pick up the ball with you're left paw | object/pick_up obj.name=ball side=left
+can i see the read apple | object/show obj.color=red obj.name=apple
+give me the jelly been | object/offer obj.name=jelly_bean
+do a back flip than a front flip | move/backflip ; move/frontflip
+
+# =====================================================================================================
+# MUSE -- desk scene (headphones, chair, desk, laptop, mug, book, ball, plant)
+# =====================================================================================================
+
+# ---- muse: put_on ----
+put on your headphones | object/put_on obj.name=headphones
+Muse, put your headphones on | object/put_on obj.name=headphones
+wear your headphones | object/put_on obj.name=headphones
+can you put the headphones on? | object/put_on obj.name=headphones
+try on the headphones | object/put_on obj.name=headphones
+slip on your headphones | object/put_on obj.name=headphones
+Muse, put on the pink headphones | object/put_on obj.color=pink obj.name=headphones
+put on your headset | object/put_on obj.name=headset
+put your earphones on please | object/put_on obj.name=earphones
+could you wear the headphones for a bit | object/put_on obj.name=headphones
+put it on | object/put_on obj.ref=it
+would you mind putting your headphones on | object/put_on obj.name=headphones
+Muse, slip the headphones on | object/put_on obj.name=headphones
+headphones on! | object/put_on obj.name=headphones
+um, put on the headphones real quick | object/put_on obj.name=headphones
+Muse, put on your glasses | object/put_on obj.name=glasses
+put on your sunglasses | object/put_on obj.name=sunglasses
+try on the earmuffs | object/put_on obj.name=earmuffs
+put on your earbuds | object/put_on obj.name=earbuds
+
+# ---- muse: take_off ----
+take off your headphones | object/take_off obj.name=headphones
+Muse, take your headphones off | object/take_off obj.name=headphones
+remove the headphones | object/take_off obj.name=headphones
+pull off your headphones | object/take_off obj.name=headphones
+can you take the headset off | object/take_off obj.name=headset
+take it off | object/take_off obj.ref=it
+please take off the headphones | object/take_off obj.name=headphones
+would you remove your earphones | object/take_off obj.name=earphones
+Muse, take off your glasses | object/take_off obj.name=glasses
+Muse, take off the pink headphones | object/take_off obj.color=pink obj.name=headphones
+take the headphones off for a second | object/take_off obj.name=headphones
+headphones off please | object/take_off obj.name=headphones
+remove it | object/take_off obj.ref=it
+take off your sunglasses | object/take_off obj.name=sunglasses
+
+# ---- muse: pull ----
+pull the chair over here | object/pull obj.name=chair target=me
+pull the chair up to the desk | object/pull obj.name=chair target.name=desk
+Muse, pull the chair closer | object/pull obj.name=chair target=closer
+pull it toward me | object/pull obj.ref=it target=me
+pull the laptop closer | object/pull obj.name=laptop target=closer
+pull out the chair | object/pull obj.name=chair
+can you pull the chair back | object/pull obj.name=chair target=back
+pull the desk toward me | object/pull obj.name=desk target=me
+pull the plant over to me | object/pull obj.name=plant target=me
+pull your chair up to the desk please | object/pull obj.name=chair target.name=desk
+pull that closer | object/pull obj.ref=that target=closer
+pull the chair | object/pull obj.name=chair
+pull the white chair over here | object/pull obj.color=white obj.name=chair target=me
+could you pull the seat a little closer | object/pull obj.name=seat target=closer
+
+# ---- muse: push ----
+push the chair back | object/push obj.name=chair target=back
+push the laptop away | object/push obj.name=laptop target=away
+Muse, push the chair under the desk | object/push obj.name=chair target.name=desk
+push the ball | object/push obj.name=ball
+push it away | object/push obj.ref=it target=away
+push the mug further away | object/push obj.name=mug target=away
+push the desk back | object/push obj.name=desk target=back
+push the book farther | object/push obj.name=book target=away
+push the plant over here | object/push obj.name=plant target=me
+push the ball to me | object/push obj.name=ball target=me
+push the chair toward the desk | object/push obj.name=chair target.name=desk
+push that away | object/push obj.ref=that target=away
+give the chair a push | object/push obj.name=chair
+push the laptop closer | object/push obj.name=laptop target=closer
+Muse, push the chair closer | object/push obj.name=chair target=closer
+
+# ---- muse: bring (furniture over / back) vs offer ("bring me X") ----
+bring the desk over here | object/bring obj.name=desk target=me
+bring the chair closer | object/bring obj.name=chair target=closer
+Muse, bring the plant over here | object/bring obj.name=plant target=me
+bring the chair back | object/bring obj.name=chair target=back
+bring it closer | object/bring obj.ref=it target=closer
+bring the chair over to the desk | object/bring obj.name=chair target.name=desk
+can you bring the desk closer | object/bring obj.name=desk target=closer
+bring the seat over here | object/bring obj.name=seat target=me
+bring the plant back | object/bring obj.name=plant target=back
+bring the desk chair over here | object/bring obj.name=desk_chair target=me
+bring the chair toward me | object/bring obj.name=chair target=me
+bring me the mug | object/offer obj.name=mug
+Muse, bring me the book | object/offer obj.name=book
+bring me the headphones | object/offer obj.name=headphones
+
+# ---- muse: slide ----
+move the laptop closer | object/slide obj.name=laptop target=closer
+slide the mug over to me | object/slide obj.name=mug target=me
+slide the laptop toward me | object/slide obj.name=laptop target=me
+Muse, slide the book away | object/slide obj.name=book target=away
+slide it back | object/slide obj.ref=it target=back
+slide the mug closer | object/slide obj.name=mug target=closer
+move the mug away | object/slide obj.name=mug target=away
+move the chair closer | object/slide obj.name=chair target=closer
+slide the laptop over to the book | object/slide obj.name=laptop target.name=book
+can you move the book farther away | object/slide obj.name=book target=away
+slide that over here | object/slide obj.ref=that target=me
+move the laptop back | object/slide obj.name=laptop target=back
+slide the computer over here | object/slide obj.name=computer target=me
+move it toward me | object/slide obj.ref=it target=me
+
+# ---- muse: sit_in ----
+sit in the chair | object/sit_in obj.name=chair
+Muse, sit on the chair | object/sit_in obj.name=chair
+sit in your chair please | object/sit_in obj.name=chair
+take a seat in the chair | object/sit_in obj.name=chair
+have a seat on the chair | object/sit_in obj.name=chair
+can you sit down in the chair | object/sit_in obj.name=chair
+sit in the white chair | object/sit_in obj.color=white obj.name=chair
+sit on the seat | object/sit_in obj.name=seat
+sit in the desk chair | object/sit_in obj.name=desk_chair
+sit in it | object/sit_in obj.ref=it
+
+# ---- muse: sit_at ----
+sit at the desk | object/sit_at obj.name=desk
+Muse, sit down at your desk | object/sit_at obj.name=desk
+could you sit at the desk please | object/sit_at obj.name=desk
+go sit at your desk | object/sit_at obj.name=desk
+sit at the brown desk | object/sit_at obj.color=brown obj.name=desk
+have a seat at the desk | object/sit_at obj.name=desk
+take a seat at your desk | object/sit_at obj.name=desk
+sit back down at the desk | object/sit_at obj.name=desk
+would you sit at the desk for me | object/sit_at obj.name=desk
+
+# ---- muse: stand_up (from an object) vs bare stand / get up / sit down ----
+get up from the chair | object/stand_up obj.name=chair
+get out of the chair | object/stand_up obj.name=chair
+Muse, stand up from the chair | object/stand_up obj.name=chair
+get up from your desk | object/stand_up obj.name=desk
+stand up from the desk please | object/stand_up obj.name=desk
+can you get out of your chair | object/stand_up obj.name=chair
+get up out of the seat | object/stand_up obj.name=seat
+stand up out of the chair | object/stand_up obj.name=chair
+get off the chair | object/stand_up obj.name=chair
+Muse, stand up | move/stand
+Muse, sit down | move/sit
+Muse, get up | move/get_up
+sit down, Muse | move/sit
+okay Muse, stand up please | move/stand
+
+# ---- muse: open ----
+open the laptop | object/open obj.name=laptop
+Muse, open your computer | object/open obj.name=computer
+open the book | object/open obj.name=book
+open it up | object/open obj.ref=it
+can you open the laptop please | object/open obj.name=laptop
+open the red book | object/open obj.color=red obj.name=book
+open it | object/open obj.ref=it
+would you mind opening the notebook | object/open obj.name=notebook
+open up the laptop | object/open obj.name=laptop
+open your book | object/open obj.name=book
+
+# ---- muse: close / shut ----
+close the laptop | object/close obj.name=laptop
+shut the laptop | object/close obj.name=laptop
+Muse, close the book | object/close obj.name=book
+close it | object/close obj.ref=it
+shut it | object/close obj.ref=it
+can you close your computer | object/close obj.name=computer
+close the gray laptop | object/close obj.color=gray obj.name=laptop
+please shut the book | object/close obj.name=book
+close that | object/close obj.ref=that
+shut the notebook | object/close obj.name=notebook
+
+# ---- muse: use ----
+use the laptop | object/use obj.name=laptop
+play with the ball | object/use obj.name=ball
+Muse, use your computer | object/use obj.name=computer
+can you play with the yellow ball | object/use obj.color=yellow obj.name=ball
+play with it | object/use obj.ref=it
+use it | object/use obj.ref=it
+go use the laptop | object/use obj.name=laptop
+would you play with your ball for a while | object/use obj.name=ball
+
+# ---- muse: work_on ----
+work on the laptop | object/work_on obj.name=laptop
+get to work | object/work_on
+do some work | object/work_on
+Muse, get back to work | object/work_on
+work on your computer | object/work_on obj.name=computer
+can you do some work on the laptop | object/work_on obj.name=laptop
+time to get to work | object/work_on
+start working | object/work_on
+go do some work | object/work_on
+let's get to work | object/work_on
+work on it | object/work_on obj.ref=it
+okay Muse, back to work | object/work_on
+
+# ---- muse: type_on ----
+type on the laptop | object/type_on obj.name=laptop
+type something | object/type_on
+start typing | object/type_on
+Muse, type on your computer | object/type_on obj.name=computer
+can you type on the keyboard | object/type_on obj.name=keyboard
+do some typing | object/type_on
+type on it | object/type_on obj.ref=it
+could you type on the laptop for me | object/type_on obj.name=laptop
+start typing on your laptop | object/type_on obj.name=laptop
+
+# ---- muse: stop (an activity) ----
+stop working | object/stop
+stop typing | object/stop
+stop using the laptop | object/stop obj.name=laptop
+Muse, stop working | object/stop
+okay, stop typing now | object/stop
+can you stop using the computer | object/stop obj.name=computer
+stop playing with the ball | object/stop obj.name=ball
+stop working on the laptop | object/stop obj.name=laptop
+please stop typing | object/stop
+you can stop working now | object/stop
+stop playing with it | object/stop obj.ref=it
+
+# ---- muse: facing him again (move/turn_back) ----
+turn back to me | move/turn_back
+talk to me | move/turn_back
+Muse, face me | move/turn_back
+come back to me | move/turn_back
+Muse, talk to me please | move/turn_back
+hey Muse, turn back to me | move/turn_back
+can you turn around and talk to me | move/turn_back
+come on, talk to me | move/turn_back
+Muse, turn back to me and stay like that | move/turn_back hold=true
+
+# ---- muse: the earlier verbs on desk-scene props ----
+pick up the mug | object/pick_up obj.name=mug
+Muse, grab the book | object/pick_up obj.name=book
+pick up the headphones | object/pick_up obj.name=headphones
+grab the yellow ball | object/pick_up obj.color=yellow obj.name=ball
+pick up the laptop with both hands | object/pick_up obj.name=laptop side=both
+take the plant | object/pick_up obj.name=plant
+hold the mug with both paws | object/pick_up obj.name=mug side=both
+pick up the cup | object/pick_up obj.name=cup
+grab the flower pot | object/pick_up obj.name=flower_pot
+put the mug on the desk | object/place obj.name=mug place=desk
+put the book on the side table | object/place obj.name=book place=side_table
+set the laptop on the desk | object/place obj.name=laptop place=desk
+put the headphones on the desk | object/place obj.name=headphones place=desk
+Muse, put the ball on the chair | object/place obj.name=ball place=chair
+put the plant next to the laptop | object/place obj.name=plant place=near near.name=laptop
+put the mug down | object/put_down obj.name=mug
+set the book down | object/put_down obj.name=book
+put the headphones down | object/put_down obj.name=headphones
+Muse, put the book back | object/put_back obj.name=book
+put the mug back where it belongs | object/put_back obj.name=mug
+Muse, tidy up | object/put_back obj.ref=all
+put the headphones away | object/put_back obj.name=headphones
+Muse, drop the ball | object/drop obj.name=ball
+Muse, toss the ball | object/toss obj.name=ball
+Muse, throw the yellow ball up | object/toss obj.color=yellow obj.name=ball
+Muse, catch it | object/catch obj.ref=it
+smell the plant | object/smell obj.name=plant
+sniff the mug | object/smell obj.name=mug
+show me the laptop | object/show obj.name=laptop
+show me your book | object/show obj.name=book
+look at the plant | object/inspect obj.name=plant
+check out the laptop | object/inspect obj.name=laptop
+turn the laptop around | object/turn obj.name=laptop amount=0.5
+Muse, flip the book over | object/flip obj.name=book
+hold up the book | object/hold_up obj.name=book
+hold the mug in the air | object/hold_up obj.name=mug
+give me the mug | object/offer obj.name=mug
+hand me the headphones | object/offer obj.name=headphones
+pass me the book | object/offer obj.name=book
+can I have the ball | object/offer obj.name=ball
+Muse, hug the ball | object/hug obj.name=ball
+shake the mug | object/shake obj.name=mug
+pass the mug to your other paw | object/hand_over obj.name=mug side=other
+rotate the plant | object/turn obj.name=plant
+turn the mug upside down | object/flip obj.name=mug
+
+# ---- muse: whole-body moves ----
+Muse, dance! | move/dance
+Muse, do a backflip | move/backflip
+Muse, jump | move/jump
+Muse, walk toward me | move/walk dir=forward
+Muse, take a bow | move/bow
+Muse, turn around | move/turn_away
+Muse, wiggle | move/wiggle
+Muse, take a step back | move/step dir=back
+Muse, lie down | move/lie_down
+Muse, hop on one foot | move/hop style=one_foot
+Muse, spin around twice | move/spin count=2
+Muse, do a cartwheel | move/cartwheel
+
+# ---- muse: more desk-scene requests ----
+Muse, could you pull the chair up to your desk | object/pull obj.name=chair target.name=desk
+slide the plant away | object/slide obj.name=plant target=away
+push the mug back | object/push obj.name=mug target=back
+Muse, sit in your desk chair | object/sit_in obj.name=desk_chair
+please sit at your desk, Muse | object/sit_at obj.name=desk
+Muse, open the book please | object/open obj.name=book
+shut your laptop, Muse | object/close obj.name=laptop
+Muse, play with your ball | object/use obj.name=ball
+use the computer for a bit | object/use obj.name=computer
+do a little work on the laptop | object/work_on obj.name=laptop
+Muse, type something on the laptop | object/type_on obj.name=laptop
+stop working on your computer | object/stop obj.name=computer
+put the mug on the floor | object/place obj.name=mug place=floor
+put the plant on the side table | object/place obj.name=plant place=side_table
+sniff the plant | object/smell obj.name=plant
+Muse, take off your headset | object/take_off obj.name=headset
+Muse, wear the headphones | object/put_on obj.name=headphones
+get up out of your chair, Muse | object/stand_up obj.name=chair
+Muse, bring the desk closer | object/bring obj.name=desk target=closer
+
+# ---- muse: props NOT in the desk scene (command still fires) ----
+Muse, open the drawer | object/open obj.name=drawer
+Muse, pull the lamp closer | object/pull obj.name=lamp target=closer
+Muse, put on your scarf | object/put_on obj.name=scarf
+Muse, push the box away | object/push obj.name=box target=away
+
+# ---- muse: one-shot compounds ----
+Muse, close the book and open the laptop | object/close obj.name=book ; object/open obj.name=laptop
+sit in the chair, open the laptop and get to work | object/sit_in obj.name=chair ; object/open obj.name=laptop ; object/work_on
+put the mug down and start typing | object/put_down obj.name=mug ; object/type_on
+take your headphones off and come back to me | object/take_off obj.name=headphones ; move/turn_back
+pick up the ball and play with it | object/pick_up obj.name=ball ; object/use obj.ref=it
+put on your headphones, sit at the desk and get to work | object/put_on obj.name=headphones ; object/sit_at obj.name=desk ; object/work_on
+pull the chair over and sit in it | object/pull obj.name=chair ; object/sit_in obj.ref=it
+open the laptop and start typing | object/open obj.name=laptop ; object/type_on
+close the laptop and talk to me | object/close obj.name=laptop ; move/turn_back
+stop typing and turn back to me | object/stop ; move/turn_back
+take off your headphones and face me | object/take_off obj.name=headphones ; move/turn_back
+get up from the chair and dance | object/stand_up obj.name=chair ; move/dance
+sit in the chair and open the book | object/sit_in obj.name=chair ; object/open obj.name=book
+push the chair back and stand up | object/push obj.name=chair target=back ; move/stand
+sit at the desk and work on the laptop | object/sit_at obj.name=desk ; object/work_on obj.name=laptop
+Muse, sit down at the desk and open your laptop | object/sit_at obj.name=desk ; object/open obj.name=laptop
+pull the chair up to the desk and sit down | object/pull obj.name=chair target.name=desk ; move/sit
+put your headphones on and play with the ball | object/put_on obj.name=headphones ; object/use obj.name=ball
+close the book and put it back | object/close obj.name=book ; object/put_back obj.ref=it
+stop working, take off your headphones, and talk to me | object/stop ; object/take_off obj.name=headphones ; move/turn_back
+open the book and show it to me | object/open obj.name=book ; object/show obj.ref=it
+get out of the chair and come back to me | object/stand_up obj.name=chair ; move/turn_back
+slide the laptop closer and start typing | object/slide obj.name=laptop target=closer ; object/type_on
+shut the laptop and get up from the desk | object/close obj.name=laptop ; object/stand_up obj.name=desk
+open the laptop, type something, then close it | object/open obj.name=laptop ; object/type_on ; object/close obj.ref=it
+put on your headphones and work on the laptop | object/put_on obj.name=headphones ; object/work_on obj.name=laptop
+push the laptop away and turn back to me | object/push obj.name=laptop target=away ; move/turn_back
+sit in the chair and put on your headphones | object/sit_in obj.name=chair ; object/put_on obj.name=headphones
+get up from your desk and do a little dance | object/stand_up obj.name=desk ; move/dance
+open your book and get to work | object/open obj.name=book ; object/work_on
+stop using the laptop and pick up the ball | object/stop obj.name=laptop ; object/pick_up obj.name=ball
+pull the chair closer, sit in it, and open the laptop | object/pull obj.name=chair target=closer ; object/sit_in obj.ref=it ; object/open obj.name=laptop
+grab your mug and sit at the desk | object/pick_up obj.name=mug ; object/sit_at obj.name=desk
+stand up from the chair and take a bow | object/stand_up obj.name=chair ; move/bow
+put the book on the desk and open the laptop | object/place obj.name=book place=desk ; object/open obj.name=laptop
+close your laptop and take off your headphones | object/close obj.name=laptop ; object/take_off obj.name=headphones
+bring the chair over here and sit in it | object/bring obj.name=chair target=me ; object/sit_in obj.ref=it
+play with the ball then put it back | object/use obj.name=ball ; object/put_back obj.ref=it
+Muse, stop typing, close the laptop and face me | object/stop ; object/close obj.name=laptop ; move/turn_back
+turn back to me and take your headphones off | move/turn_back ; object/take_off obj.name=headphones
+sit at the desk and put on your headphones | object/sit_at obj.name=desk ; object/put_on obj.name=headphones
+take off the headphones, get up from the chair and dance | object/take_off obj.name=headphones ; object/stand_up obj.name=chair ; move/dance
+
+# ---- muse: ASR-style ----
+put on you're headphones | object/put_on obj.name=headphones
+sit at the desk get to work | object/sit_at obj.name=desk ; object/work_on
+open laptop | object/open obj.name=laptop
+muse take off headphones | object/take_off obj.name=headphones
+pull the chair over hear | object/pull obj.name=chair target=me
+stop typing turn back to me | object/stop ; move/turn_back
+close the lap top | object/close obj.name=laptop
+sit in the chair please muse | object/sit_in obj.name=chair
+push the chair back stand up | object/push obj.name=chair target=back ; move/stand
+use the lap top | object/use obj.name=laptop
+get up from the chair muse | object/stand_up obj.name=chair
+put the head phones on | object/put_on obj.name=headphones
+type on the laptop muse | object/type_on obj.name=laptop
+work on the computer | object/work_on obj.name=computer
+muse talk to me | move/turn_back
+
+# =====================================================================================================
+# NEGATIONS THAT ALSO CARRY A LEGACY STANDALONE COMMAND (only that legacy command fires)
+# =====================================================================================================
+stop, don't pick that up | release/all
+never mind the ball | release/all
+stop, don't jump | release/all
+relax, you don't need to dance | release/all
+never mind, don't spin | release/all
+okay stop, no more backflips | release/all
+that's enough, don't throw it | release/all
+stop it, please don't drop the cupcake | release/all
+
+# =====================================================================================================
+# NEGATIVES (no command may fire)
+# =====================================================================================================
+
+# ---- negative: questions about state / history ----
+what are you holding? |
+what's in your hand? |
+did you just spin? |
+were you dancing? |
+did you drop the ball? |
+why did you drop the cup? |
+where did you put the book? |
+what did you just do? |
+are you sitting down? |
+is that a honey pot? |
+what color is the ball? |
+how many blocks are there? |
+did you pick up the carrot already? |
+who gave you that flower? |
+what's inside the present? |
+is the balloon yours? |
+were you jumping on the bed? |
+have you been dancing all day? |
+did you just do a backflip? |
+why are you lying down? |
+are you holding the wand? |
+did you smell the flower? |
+what does the honey smell like? |
+how did you do that flip? |
+was that a cartwheel? |
+did you put the ball back? |
+why did you turn around? |
+which one did you pick up? |
+did you hug your teddy today? |
+where's the yellow ball? |
+what's that in your paw? |
+how many times did you spin? |
+is the cup empty? |
+why is your bucket upside down? |
+what are you going to do with the coin? |
+are you tired from all that jumping? |
+
+# ---- negative: ability / knowledge questions ----
+do you know how to do a cartwheel? |
+can bears dance? |
+can monkeys do backflips? |
+have you ever done a cartwheel? |
+do you know how to juggle? |
+is it hard to do a backflip? |
+how do you do a somersault? |
+can rabbits hop backwards? |
+how high can kangaroos jump? |
+can hippos even jump? |
+do you know any dances? |
+have you ever smelled a real flower? |
+who taught you how to bow? |
+can stars twirl? |
+do you like spinning? |
+what's your favorite dance? |
+can a cube roll over? |
+is a pirouette harder than a cartwheel? |
+how many backflips can a monkey do in a row? |
+do fish like being picked up? |
+do you know what a moonwalk is? |
+
+# ---- negative: negations ----
+don't jump |
+no need to spin |
+please don't pick that up |
+don't drop the cupcake |
+you don't have to dance |
+don't do a backflip in here |
+no backflips please |
+please don't throw the ball |
+don't sit on the cake |
+never jump on the bed |
+I said don't touch the honey |
+there's no need to turn around |
+don't you dare drop that |
+you don't need to bow |
+no more cartwheels today |
+please don't shake the present |
+don't put the cup on the floor |
+don't run in the house |
+you shouldn't toss the crystal |
+not now, no dancing |
+don't roll over |
+let's not jump right now |
+no, don't give it to me |
+please don't hug the balloon, it'll pop |
+don't flip the map over |
+no spinning at the dinner table |
+don't lie down yet |
+you don't have to pick up the blocks |
+
+# ---- negative: hypotheticals ----
+if you jumped you'd fall |
+if you spin too much you'll get dizzy |
+what would happen if you did a backflip? |
+if you drop the cup it might break |
+maybe one day you'll do a cartwheel |
+if you pick up the watermelon it'll be heavy |
+you'd be so funny if you danced like a chicken |
+if I were you I wouldn't sit there |
+imagine if bears could fly |
+suppose you threw the ball really high |
+if you hug the balloon too hard it'll pop |
+someday we'll teach you to bow |
+what if you rolled over and couldn't get up |
+if the ball falls off the table it'll roll away |
+you'd need wings to do a triple flip |
+
+# ---- negative: other subjects / reported speech ----
+my daughter did a cartwheel |
+the dog rolled over |
+Leo can jump really high |
+grandma loves to dance |
+the cat knocked the cup off the table |
+Mia picked up the ball at recess |
+my son can do a backflip |
+the baby rolled over for the first time |
+the puppy keeps jumping on the couch |
+I saw a dog spin around |
+our neighbor's kid can do the floss |
+the teacher made them all sit down |
+my wife is holding the baby |
+he threw the ball over the fence |
+she took a bow at the recital |
+the kids were bouncing off the walls |
+Zoe tried to hug the cat |
+the bunny at school hops everywhere |
+daddy dropped the cake |
+the monkeys at the zoo were throwing bananas |
+can dogs jump? |
+Zoe can't sit still for five seconds |
+the gymnast did three backflips in a row |
+my brother always turns around when I call him |
+
+# ---- negative: the user talking about himself ----
+watch me jump |
+watch me spin around |
+I'm going to sit down |
+I'll grab a coffee |
+let me grab my phone |
+I'm gonna pick up the kids at three |
+I need to put the dishes away |
+watch me do a cartwheel |
+I'll take a seat over here |
+I can do a backflip, wanna see? |
+I'm going to lie down for a bit |
+let me just put this on the table |
+I'm dancing right now |
+I need to walk the dog |
+I'll catch you later |
+I have to turn in my report by Friday |
+I just dropped my keys |
+let me take a picture of you |
+I'm stepping out for a minute |
+I'll hand it over to my wife |
+I'm going to go for a run |
+I keep tripping when I try to twirl |
+I'll put the kids to bed and come back |
+we need to turn back, we missed the exit |
+I'm going to toss the salad |
+I can't stand broccoli |
+I'll show you the pictures later |
+
+# ---- negative: past-tense narration ----
+yesterday we danced at the wedding |
+she jumped into the pool |
+we went for a walk after dinner |
+last week Leo did a somersault on the trampoline |
+we bowed to the teacher at the end of class |
+the kids rolled down the hill |
+we all sat down for dinner |
+they spun the wheel at the fair |
+he flipped the pancakes this morning |
+she showed me her drawing |
+we picked apples on Sunday |
+I tossed and turned all night |
+the car flipped over on the highway |
+the dog shook off the water after the bath |
+
+# ---- negative: avatar-like speech ----
+I love spinning around! |
+here, let me pick that up for you |
+wheee, I'm jumping! |
+I'm so good at backflips |
+I just love to dance |
+let me show you my favorite toy |
+I'll hold onto this for you |
+yay, I did a cartwheel! |
+oops, I dropped it |
+this flower smells so nice |
+I'm going to give you a big hug |
+I can twirl all day long |
+my honey pot is so heavy |
+
+# ---- negative: unrelated sentences that contain trigger words ----
+I picked up the kids from school |
+the ball game was fun |
+dance class is at 5 |
+turn off the TV |
+should we flip a coin to decide who goes first? |
+the stock market jumped today |
+I dropped my phone |
+roll call is at nine |
+sit tight, I'll be right back |
+stand by |
+hold on |
+hold on a second |
+take a break |
+can you get the door? |
+put it on my tab |
+it's a toss-up between pizza and tacos |
+turn up the volume |
+turn on the lights |
+the price of eggs dropped again |
+we're going bowling on Saturday |
+where's my bow tie? |
+the bounce house was awesome |
+watch your step |
+I need to jump the car battery |
+she's on a roll today |
+spin the wheel at the fair was fun |
+take your time |
+it's my turn to pick the movie |
+pick a number between one and ten |
+drop me a text when you get there |
+shake a leg, we're late |
+I'll catch the next train |
+the leaves are turning red |
+whose turn is it? |
+these are hand-me-down jeans from her cousin |
+this coffee smells amazing |
+can I have five more minutes, mom? |
+get some rest |
+the show starts at seven |
+it's a catch-22 |
+we had a ball at the party |
+the dog needs a walk |
+let's call it a day |
+the kids love the bouncy castle |
+my back hurts from carrying groceries |
+he's sitting on the fence about it |
+she stood up for her friend |
+I'm standing in line at the store |
+the picture is upside down on the wall |
+the market bounced back |
+the bus turned left on main street |
+the check bounced |
+we should step up our game |
+the juggling act at the circus was amazing |
+the movie had a great plot twist |
+throw the trash out before you go to bed |
+I'll take the kids to the park |
+the baby is learning to stand |
+the dance recital got moved to Sunday |
+we're running late |
+the toy store closes at eight |
+can you believe the dog jumped the fence? |
+the cupcake shop is closed today |
+
+# ---- negative: desks, laptops, headphones, chairs (Muse scope; strict) ----
+I'm sitting at my desk |
+my laptop is slow |
+I put on headphones yesterday |
+the chair is broken |
+can you hear me with these headphones on? |
+I need to get to work by nine |
+I worked on my laptop all day |
+I left my headphones in the car |
+the desk is a mess |
+my mug is empty |
+I'm going to close my laptop now |
+did you open the laptop? |
+why is the laptop open? |
+what are you typing? |
+are you working? |
+were you using the computer? |
+the plant needs water |
+I pushed my chair back and stood up |
+I pulled a muscle at the gym |
+my boss pushed the meeting back |
+I'm typing an email |
+the plane took off late |
+I'm taking off for the airport soon |
+the store is open until nine |
+don't open the laptop |
+please don't take off your headphones |
+you don't need to work on the laptop |
+if you sit at the desk all day your back will hurt |
+my daughter put on her headphones |
+the kids are using the tablet |
+I'm going to sit in the car for a bit |
+let me grab my laptop |
+this chair is so comfy |
+he's working from home today |
+bring it on |
+I need a new desk chair |
+whose headphones are these? |
+is the laptop charged? |
+what are you working on? |
+do you know how to type? |
+can plushies use computers? |
+the laptop stopped working |
+my computer stopped working again |
+the book is open on the desk |
+I'll pull the car into the garage |
+push notifications are so annoying |
+he's always pushing his luck |
+he slid into second base |
+I typed up the notes last night |
+don't push the chair, it'll tip over |
+we're closing the store early tonight |
+the window is open |
+grandpa sat at the desk for hours |
+the meeting got pushed to Friday |
+let me pull up the calendar |
+I'll bring the chair in from the garage |
+my son never wants to talk to me about school |
+I forgot his name but it'll come back to me |
+were your headphones on the whole time? |

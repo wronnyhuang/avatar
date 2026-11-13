@@ -1,0 +1,7 @@
+{"pack": "v2s.qpack.npz", "noise_profile": "noise_profile.json", "model": {"qknorm": true}, "amp": "none",
+ "spike_factor": 8, "blowup": 1.3, "batch": 96, "seq": 150, "chunks": 8, "lr": 3e-4, "max_minutes": 90,
+ "steps": 1000000, "eval_every": 1500, "log_every": 200, "val_batches": 8, "ckpt_seconds": 110, "warmup": 800,
+ "end_margin_s": 240, "style_procs": 8,
+ "aug": {"self_noise": 0.6, "p_self_drop": 0.25, "p_null": 0.25}, "guidance": 2.0,
+ "runtime": {"replan_every": 3, "steps": 6, "guidance": 2.0, "temperature": 0.0, "blend": 6, "consistent_noise": true,
+             "smooth": 0.0, "noise_rho": 0.0, "temperature_groups": null}}

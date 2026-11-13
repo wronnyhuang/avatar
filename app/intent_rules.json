@@ -1,0 +1,10143 @@
+{
+ "version": 1,
+ "_doc": "Shared by app/intent.py and app/intent.js (identical engines). Pattern syntax: space-separated elements; 'a/b/c' = one of; leading '?' = optional; '$cls' = a word of class cls (captures side/plural). A pattern only fires when it starts the clause (after a preamble) and every token after it is a tail modifier. SIDE: 'left' = the character's OWN left = rig suffix 'r' (CONTRACT side convention); side values in commands are rig suffixes 'l'|'r'|'both'. Lateral sign convention for targets: positive = toward SCREEN-RIGHT (head_yaw, body_yaw, body_lean, head_roll = top of head toward screen-right); head_pitch positive = chin down; gaze_y positive = up.",
+ "phrases": [
+  [
+   "thumbs up",
+   "thumbsup"
+  ],
+  [
+   "thumb up",
+   "thumbsup"
+  ],
+  [
+   "thumbs-up",
+   "thumbsup"
+  ],
+  [
+   "thumbs ups",
+   "thumbsup"
+  ],
+  [
+   "high five",
+   "highfive"
+  ],
+  [
+   "never mind",
+   "nevermind"
+  ],
+  [
+   "all right",
+   "alright"
+  ],
+  [
+   "o k",
+   "okay"
+  ],
+  [
+   "eye brows",
+   "eyebrows"
+  ],
+  [
+   "eye brow",
+   "eyebrow"
+  ],
+  [
+   "a little bit",
+   "alittle"
+  ],
+  [
+   "a little",
+   "alittle"
+  ],
+  [
+   "little bit",
+   "alittle"
+  ],
+  [
+   "a bit",
+   "alittle"
+  ],
+  [
+   "just a bit",
+   "alittle"
+  ],
+  [
+   "a tad",
+   "alittle"
+  ],
+  [
+   "a lot",
+   "alot"
+  ],
+  [
+   "all the way up",
+   "alltheway"
+  ],
+  [
+   "all the way",
+   "alltheway"
+  ],
+  [
+   "as high as you can",
+   "alltheway"
+  ],
+  [
+   "as far as you can",
+   "alltheway"
+  ],
+  [
+   "as wide as you can",
+   "alltheway"
+  ],
+  [
+   "really high",
+   "alltheway"
+  ],
+  [
+   "really wide",
+   "alltheway"
+  ],
+  [
+   "super high",
+   "alltheway"
+  ],
+  [
+   "even more",
+   "more"
+  ],
+  [
+   "a little more",
+   "alittlemore"
+  ],
+  [
+   "a bit more",
+   "alittlemore"
+  ],
+  [
+   "little more",
+   "alittlemore"
+  ],
+  [
+   "a little higher",
+   "alittlemore"
+  ],
+  [
+   "a bit higher",
+   "alittlemore"
+  ],
+  [
+   "a little less",
+   "alittleless"
+  ],
+  [
+   "a bit less",
+   "alittleless"
+  ],
+  [
+   "a little lower",
+   "alittleless"
+  ],
+  [
+   "right now",
+   "rightnow"
+  ],
+  [
+   "for me",
+   "forme"
+  ],
+  [
+   "at me",
+   "atme"
+  ],
+  [
+   "to me",
+   "atme"
+  ],
+  [
+   "toward me",
+   "atme"
+  ],
+  [
+   "towards me",
+   "atme"
+  ],
+  [
+   "at the camera",
+   "atme"
+  ],
+  [
+   "to the camera",
+   "atme"
+  ],
+  [
+   "into the camera",
+   "atme"
+  ],
+  [
+   "over here",
+   "overhere"
+  ],
+  [
+   "in the air",
+   "intheair"
+  ],
+  [
+   "up high",
+   "high"
+  ],
+  [
+   "up in the air",
+   "intheair"
+  ],
+  [
+   "up and down",
+   "upanddown"
+  ],
+  [
+   "side to side",
+   "sidetoside"
+  ],
+  [
+   "back and forth",
+   "sidetoside"
+  ],
+  [
+   "left and right",
+   "leftandright"
+  ],
+  [
+   "left to right",
+   "leftandright"
+  ],
+  [
+   "two times",
+   "twice"
+  ],
+  [
+   "three times",
+   "threetimes"
+  ],
+  [
+   "3 times",
+   "threetimes"
+  ],
+  [
+   "a few times",
+   "threetimes"
+  ],
+  [
+   "one more time",
+   "again"
+  ],
+  [
+   "once more",
+   "again"
+  ],
+  [
+   "for a second",
+   "forasec"
+  ],
+  [
+   "for a sec",
+   "forasec"
+  ],
+  [
+   "for a moment",
+   "forasec"
+  ],
+  [
+   "for a while",
+   "forasec"
+  ],
+  [
+   "and hold it",
+   "holdit"
+  ],
+  [
+   "and hold that",
+   "holdit"
+  ],
+  [
+   "and keep it there",
+   "holdit"
+  ],
+  [
+   "and hold",
+   "holdit"
+  ],
+  [
+   "at ease",
+   "atease"
+  ],
+  [
+   "back to normal",
+   "backtonormal"
+  ],
+  [
+   "as you were",
+   "backtonormal"
+  ],
+  [
+   "cut it out",
+   "cutitout"
+  ],
+  [
+   "knock it off",
+   "cutitout"
+  ],
+  [
+   "thats enough",
+   "thatsenough"
+  ],
+  [
+   "that is enough",
+   "thatsenough"
+  ],
+  [
+   "forget it",
+   "nevermind"
+  ],
+  [
+   "forget about it",
+   "nevermind"
+  ],
+  [
+   "on your head",
+   "onhead"
+  ],
+  [
+   "on top of your head",
+   "onhead"
+  ],
+  [
+   "on your heart",
+   "onheart"
+  ],
+  [
+   "over your heart",
+   "onheart"
+  ],
+  [
+   "on your chest",
+   "onheart"
+  ],
+  [
+   "on your chin",
+   "onchin"
+  ],
+  [
+   "in front of",
+   "infront"
+  ],
+  [
+   "your other",
+   "yourother"
+  ],
+  [
+   "can you please",
+   "canyou"
+  ],
+  [
+   "could you please",
+   "canyou"
+  ],
+  [
+   "would you please",
+   "canyou"
+  ],
+  [
+   "can you",
+   "canyou"
+  ],
+  [
+   "could you",
+   "canyou"
+  ],
+  [
+   "would you",
+   "canyou"
+  ],
+  [
+   "will you",
+   "canyou"
+  ],
+  [
+   "can u",
+   "canyou"
+  ],
+  [
+   "i want you to",
+   "iwantyou"
+  ],
+  [
+   "i would like you to",
+   "iwantyou"
+  ],
+  [
+   "id like you to",
+   "iwantyou"
+  ],
+  [
+   "i need you to",
+   "iwantyou"
+  ],
+  [
+   "i want to see you",
+   "iwantyou"
+  ],
+  [
+   "i wanna see you",
+   "iwantyou"
+  ],
+  [
+   "go ahead and",
+   "goahead"
+  ],
+  [
+   "try to",
+   "tryto"
+  ],
+  [
+   "try and",
+   "tryto"
+  ],
+  [
+   "why dont you",
+   "whydontyou"
+  ],
+  [
+   "how about you",
+   "whydontyou"
+  ],
+  [
+   "let me see you",
+   "letmesee"
+  ],
+  [
+   "lets see you",
+   "letmesee"
+  ],
+  [
+   "show me you can",
+   "letmesee"
+  ],
+  [
+   "do you want to",
+   "whydontyou"
+  ],
+  [
+   "you can",
+   "youcan"
+  ],
+  [
+   "you may",
+   "youcan"
+  ],
+  [
+   "dont move",
+   "dontmove"
+  ],
+  [
+   "do not move",
+   "dontmove"
+  ],
+  [
+   "stay still",
+   "staystill"
+  ],
+  [
+   "hold still",
+   "staystill"
+  ],
+  [
+   "stay like that",
+   "staystill"
+  ],
+  [
+   "stay there",
+   "staystill"
+  ],
+  [
+   "keep still",
+   "staystill"
+  ],
+  [
+   "keep it like that",
+   "staystill"
+  ],
+  [
+   "keep it there",
+   "staystill"
+  ],
+  [
+   "hold that pose",
+   "holdit"
+  ],
+  [
+   "hold it",
+   "holdit"
+  ],
+  [
+   "hold that",
+   "holdit"
+  ],
+  [
+   "stay right there",
+   "staystill"
+  ],
+  [
+   "turn around",
+   "turnaround"
+  ],
+  [
+   "spin around",
+   "spinaround"
+  ],
+  [
+   "turn back around",
+   "turnback"
+  ],
+  [
+   "turn back",
+   "turnback"
+  ],
+  [
+   "face me",
+   "faceme"
+  ],
+  [
+   "face the camera",
+   "faceme"
+  ],
+  [
+   "face forward",
+   "faceme"
+  ],
+  [
+   "turn to face me",
+   "faceme"
+  ],
+  [
+   "turn and face me",
+   "faceme"
+  ],
+  [
+   "turn toward me",
+   "faceme"
+  ],
+  [
+   "turn towards me",
+   "faceme"
+  ],
+  [
+   "look at me",
+   "lookatme"
+  ],
+  [
+   "look here",
+   "lookatme"
+  ],
+  [
+   "look over here",
+   "lookatme"
+  ],
+  [
+   "look this way",
+   "lookatme"
+  ],
+  [
+   "eyes on me",
+   "lookatme"
+  ],
+  [
+   "look into the camera",
+   "lookatme"
+  ],
+  [
+   "look at the camera",
+   "lookatme"
+  ],
+  [
+   "look straight ahead",
+   "lookatme"
+  ],
+  [
+   "look forward",
+   "lookatme"
+  ],
+  [
+   "look back at me",
+   "lookatme"
+  ],
+  [
+   "look around",
+   "lookaround"
+  ],
+  [
+   "look all around",
+   "lookaround"
+  ],
+  [
+   "take a bow",
+   "bow"
+  ],
+  [
+   "do a bow",
+   "bow"
+  ],
+  [
+   "bow down",
+   "bow"
+  ],
+  [
+   "give me a bow",
+   "bow"
+  ],
+  [
+   "give a bow",
+   "bow"
+  ],
+  [
+   "stick out your tongue",
+   "tongueout"
+  ],
+  [
+   "stick your tongue out",
+   "tongueout"
+  ],
+  [
+   "put your tongue out",
+   "tongueout"
+  ],
+  [
+   "show me your tongue",
+   "tongueout"
+  ],
+  [
+   "tongue out",
+   "tongueout"
+  ],
+  [
+   "stick out the tongue",
+   "tongueout"
+  ],
+  [
+   "stick the tongue out",
+   "tongueout"
+  ],
+  [
+   "put your tongue away",
+   "tonguein"
+  ],
+  [
+   "put your tongue back",
+   "tonguein"
+  ],
+  [
+   "put your tongue back in",
+   "tonguein"
+  ],
+  [
+   "tongue in",
+   "tonguein"
+  ],
+  [
+   "pull your tongue in",
+   "tonguein"
+  ],
+  [
+   "hand on heart",
+   "onheart_cmd"
+  ],
+  [
+   "hand over heart",
+   "onheart_cmd"
+  ],
+  [
+   "cross your heart",
+   "onheart_cmd"
+  ],
+  [
+   "make a fist",
+   "fist"
+  ],
+  [
+   "clench your fist",
+   "fist"
+  ],
+  [
+   "jump up and down",
+   "jump"
+  ],
+  [
+   "do a jump",
+   "jump"
+  ],
+  [
+   "do a little jump",
+   "jump"
+  ],
+  [
+   "do a dance",
+   "dance"
+  ],
+  [
+   "do a little dance",
+   "dance"
+  ],
+  [
+   "do a spin",
+   "spin"
+  ],
+  [
+   "do a little spin",
+   "spin"
+  ],
+  [
+   "puff out your cheeks",
+   "puffcheeks"
+  ],
+  [
+   "puff your cheeks",
+   "puffcheeks"
+  ],
+  [
+   "puff up your cheeks",
+   "puffcheeks"
+  ],
+  [
+   "puff your cheeks out",
+   "puffcheeks"
+  ],
+  [
+   "blow a kiss",
+   "blowkiss"
+  ],
+  [
+   "blow me a kiss",
+   "blowkiss"
+  ],
+  [
+   "blow kisses",
+   "blowkiss"
+  ],
+  [
+   "roll your eyes",
+   "eyeroll"
+  ],
+  [
+   "lick your lips",
+   "licklips"
+  ],
+  [
+   "scratch your head",
+   "scratchhead"
+  ],
+  [
+   "rub your belly",
+   "rubbelly"
+  ],
+  [
+   "rub your tummy",
+   "rubbelly"
+  ],
+  [
+   "cross your arms",
+   "crossarms"
+  ],
+  [
+   "fold your arms",
+   "crossarms"
+  ],
+  [
+   "shake your head",
+   "shakehead"
+  ],
+  [
+   "shake head",
+   "shakehead"
+  ],
+  [
+   "nod your head",
+   "nod"
+  ],
+  [
+   "nod yes",
+   "nod"
+  ],
+  [
+   "tilt your head up",
+   "headup"
+  ],
+  [
+   "tilt your head upward",
+   "headup"
+  ],
+  [
+   "tilt your head upwards",
+   "headup"
+  ],
+  [
+   "tilt your head back",
+   "headup"
+  ],
+  [
+   "tilt your head backward",
+   "headup"
+  ],
+  [
+   "tilt your head backwards",
+   "headup"
+  ],
+  [
+   "tilt your head down",
+   "headdown"
+  ],
+  [
+   "tilt your head downward",
+   "headdown"
+  ],
+  [
+   "tilt your head downwards",
+   "headdown"
+  ],
+  [
+   "tilt your head forward",
+   "headdown"
+  ],
+  [
+   "tilt the head up",
+   "headup"
+  ],
+  [
+   "tilt the head upward",
+   "headup"
+  ],
+  [
+   "tilt the head upwards",
+   "headup"
+  ],
+  [
+   "tilt the head back",
+   "headup"
+  ],
+  [
+   "tilt the head backward",
+   "headup"
+  ],
+  [
+   "tilt the head backwards",
+   "headup"
+  ],
+  [
+   "tilt the head down",
+   "headdown"
+  ],
+  [
+   "tilt the head downward",
+   "headdown"
+  ],
+  [
+   "tilt the head downwards",
+   "headdown"
+  ],
+  [
+   "tilt the head forward",
+   "headdown"
+  ],
+  [
+   "tilt your head",
+   "tilthead"
+  ],
+  [
+   "cock your head",
+   "tilthead"
+  ],
+  [
+   "tilt the head",
+   "tilthead"
+  ],
+  [
+   "chin up",
+   "headup"
+  ],
+  [
+   "head up",
+   "headup"
+  ],
+  [
+   "lift your head",
+   "headup"
+  ],
+  [
+   "raise your head",
+   "headup"
+  ],
+  [
+   "head down",
+   "headdown"
+  ],
+  [
+   "lower your head",
+   "headdown"
+  ],
+  [
+   "put your head down",
+   "headdown"
+  ],
+  [
+   "bow your head",
+   "headdown"
+  ],
+  [
+   "drop your head",
+   "headdown"
+  ],
+  [
+   "turn your head",
+   "turnhead"
+  ],
+  [
+   "move your head",
+   "turnhead"
+  ],
+  [
+   "give me",
+   "giveme"
+  ],
+  [
+   "show me",
+   "showme"
+  ],
+  [
+   "make a",
+   "makea"
+  ],
+  [
+   "make an",
+   "makea"
+  ],
+  [
+   "pull a",
+   "makea"
+  ],
+  [
+   "do a",
+   "makea"
+  ],
+  [
+   "give us",
+   "giveme"
+  ],
+  [
+   "both of your",
+   "both"
+  ],
+  [
+   "both your",
+   "both"
+  ],
+  [
+   "both of the",
+   "both"
+  ],
+  [
+   "thank you",
+   "thanks"
+  ],
+  [
+   "even higher",
+   "higher"
+  ],
+  [
+   "even bigger",
+   "bigger"
+  ],
+  [
+   "higher up",
+   "higher"
+  ],
+  [
+   "put it down",
+   "putitdown"
+  ],
+  [
+   "put them down",
+   "putitdown"
+  ],
+  [
+   "put it back down",
+   "putitdown"
+  ],
+  [
+   "put them back down",
+   "putitdown"
+  ],
+  [
+   "put that down",
+   "putitdown"
+  ],
+  [
+   "had down",
+   "headdown"
+  ],
+  [
+   "do little dance",
+   "dance"
+  ],
+  [
+   "and keep it up",
+   "holdit"
+  ],
+  [
+   "gimme",
+   "giveme"
+  ]
+ ],
+ "alias": {
+  "ok": "okay",
+  "okey": "okay",
+  "okie": "okay",
+  "kay": "okay",
+  "k": "okay",
+  "ears": "ears",
+  "ear": "ear",
+  "i": "i",
+  "eyebrow": "brow",
+  "eyebrows": "brows",
+  "grin": "smile",
+  "beam": "smile",
+  "tummy": "belly",
+  "bunny": "rabbit",
+  "youre": "your",
+  "years": "ears",
+  "year": "ear"
+ },
+ "names": [
+  "felix",
+  "bruno",
+  "rosie",
+  "hattie",
+  "milo",
+  "ori",
+  "cubby",
+  "dewdrop",
+  "stella",
+  "pip",
+  "bloop",
+  "muse",
+  "fox",
+  "bear",
+  "rabbit",
+  "hippo",
+  "monkey",
+  "buddy",
+  "pal",
+  "friend",
+  "mister",
+  "little",
+  "guy",
+  "mr",
+  "rosy",
+  "muse"
+ ],
+ "pre": [
+  "hey",
+  "hi",
+  "so",
+  "now",
+  "and",
+  "then",
+  "please",
+  "um",
+  "uh",
+  "uhh",
+  "umm",
+  "hmm",
+  "well",
+  "just",
+  "alright",
+  "okay",
+  "oh",
+  "also",
+  "next",
+  "first",
+  "quick",
+  "quickly",
+  "slowly",
+  "gently",
+  "again",
+  "canyou",
+  "iwantyou",
+  "goahead",
+  "tryto",
+  "whydontyou",
+  "letmesee",
+  "youcan",
+  "lets",
+  "yeah",
+  "yes",
+  "ah",
+  "now",
+  "gonna"
+ ],
+ "anchors": [
+  "canyou",
+  "iwantyou",
+  "goahead",
+  "whydontyou",
+  "letmesee",
+  "please",
+  "hey"
+ ],
+ "split": [
+  "and",
+  "then",
+  "andthen",
+  "also",
+  "plus"
+ ],
+ "neg": [
+  "dont",
+  "not",
+  "never",
+  "cant",
+  "wont",
+  "shouldnt",
+  "couldnt",
+  "wouldnt",
+  "didnt",
+  "doesnt",
+  "no"
+ ],
+ "keep": [
+  "keep",
+  "continue",
+  "carry",
+  "stay"
+ ],
+ "gerund": {
+  "waving": "wave",
+  "wagging": "wag",
+  "nodding": "nod",
+  "smiling": "smile",
+  "clapping": "clap",
+  "wiggling": "wiggle",
+  "jumping": "jump",
+  "dancing": "dance",
+  "looking": "look",
+  "pointing": "point",
+  "frowning": "frown",
+  "spinning": "spin",
+  "bouncing": "bounce",
+  "blinking": "blink",
+  "winking": "wink",
+  "flapping": "flap",
+  "twitching": "twitch",
+  "shaking": "shake",
+  "hopping": "hop",
+  "turning": "turn",
+  "leaning": "lean",
+  "shrugging": "shrug",
+  "sticking": "stick",
+  "raising": "raise",
+  "holding": "hold",
+  "doing": "do",
+  "on": "on",
+  "going": "go",
+  "moving": "move",
+  "covering": "cover",
+  "pouting": "pout",
+  "grinning": "smile",
+  "laughing": "laugh",
+  "hugging": "hug",
+  "stretching": "stretch",
+  "staring": "stare",
+  "squinting": "squint"
+ },
+ "classes": {
+  "side": {
+   "left": "r",
+   "right": "l",
+   "both": "both",
+   "two": "both",
+   "each": "both"
+  },
+  "poss": {
+   "your": 1,
+   "the": 1,
+   "ur": 1,
+   "yer": 1,
+   "a": 1,
+   "one": 1,
+   "both": 1,
+   "those": 1,
+   "these": 1,
+   "her": 1
+  },
+  "paw": {
+   "paw": 1,
+   "hand": 1,
+   "arm": 1,
+   "foot": 1,
+   "paws": 2,
+   "hands": 2,
+   "arms": 2,
+   "pod": 1,
+   "part": 1,
+   "pool": 1,
+   "pop": 1,
+   "path": 1,
+   "pawn": 1,
+   "paul": 1,
+   "poor": 1,
+   "pour": 1,
+   "pa": 1,
+   "pause": 2,
+   "pods": 2,
+   "parts": 2,
+   "pops": 2,
+   "pie": 1,
+   "palm": 1,
+   "palms": 2
+  },
+  "ear": {
+   "ear": 1,
+   "ears": 2
+  },
+  "eye": {
+   "eye": 1,
+   "eyes": 2
+  },
+  "brow": {
+   "brow": 1,
+   "brows": 2
+  },
+  "tail": {
+   "tail": 1
+  },
+  "dir": {
+   "left": "left",
+   "right": "right",
+   "up": "up",
+   "down": "down",
+   "upward": "up",
+   "upwards": "up",
+   "downward": "down",
+   "sideways": "left"
+  },
+  "lr": {
+   "left": "left",
+   "right": "right"
+  },
+  "toward": {
+   "to": 1,
+   "toward": 1,
+   "towards": 1,
+   "at": 1,
+   "over": 1,
+   "on": 1
+  }
+ },
+ "mods": {
+  "please": [
+   "noop"
+  ],
+  "now": [
+   "noop"
+  ],
+  "rightnow": [
+   "noop"
+  ],
+  "forme": [
+   "noop"
+  ],
+  "atme": [
+   "noop"
+  ],
+  "again": [
+   "noop"
+  ],
+  "too": [
+   "noop"
+  ],
+  "also": [
+   "noop"
+  ],
+  "quickly": [
+   "noop"
+  ],
+  "slowly": [
+   "noop"
+  ],
+  "gently": [
+   "noop"
+  ],
+  "fast": [
+   "noop"
+  ],
+  "okay": [
+   "noop"
+  ],
+  "up": [
+   "noop"
+  ],
+  "intheair": [
+   "noop"
+  ],
+  "goodbye": [
+   "noop"
+  ],
+  "bye": [
+   "noop"
+  ],
+  "hello": [
+   "noop"
+  ],
+  "hi": [
+   "noop"
+  ],
+  "yes": [
+   "noop"
+  ],
+  "no": [
+   "noop"
+  ],
+  "everyone": [
+   "noop"
+  ],
+  "everybody": [
+   "noop"
+  ],
+  "overhere": [
+   "noop"
+  ],
+  "real": [
+   "noop"
+  ],
+  "quick": [
+   "noop"
+  ],
+  "buddy": [
+   "noop"
+  ],
+  "then": [
+   "noop"
+  ],
+  "thanks": [
+   "noop"
+  ],
+  "thank": [
+   "noop"
+  ],
+  "alittle": [
+   "int",
+   0.5
+  ],
+  "slightly": [
+   "int",
+   0.5
+  ],
+  "softly": [
+   "int",
+   0.5
+  ],
+  "small": [
+   "int",
+   0.5
+  ],
+  "tiny": [
+   "int",
+   0.4
+  ],
+  "really": [
+   "int",
+   1.25
+  ],
+  "alot": [
+   "int",
+   1.25
+  ],
+  "very": [
+   "int",
+   1.25
+  ],
+  "big": [
+   "int",
+   1.25
+  ],
+  "high": [
+   "int",
+   1.2
+  ],
+  "higher": [
+   "int",
+   1.2
+  ],
+  "more": [
+   "int",
+   1.2
+  ],
+  "wide": [
+   "int",
+   1.3
+  ],
+  "wider": [
+   "int",
+   1.3
+  ],
+  "alltheway": [
+   "int",
+   1.3
+  ],
+  "hard": [
+   "int",
+   1.25
+  ],
+  "super": [
+   "int",
+   1.25
+  ],
+  "huge": [
+   "int",
+   1.3
+  ],
+  "far": [
+   "int",
+   1.25
+  ],
+  "lot": [
+   "int",
+   1.25
+  ],
+  "twice": [
+   "rep",
+   2
+  ],
+  "once": [
+   "rep",
+   1
+  ],
+  "threetimes": [
+   "rep",
+   3
+  ],
+  "holdit": [
+   "hold",
+   true
+  ],
+  "forasec": [
+   "hold",
+   false
+  ],
+  "staystill": [
+   "hold",
+   true
+  ]
+ },
+ "ranges": {
+  "hand_l_x": [
+   -1,
+   1.2
+  ],
+  "hand_l_y": [
+   -1,
+   1.2
+  ],
+  "hand_l_z": [
+   -1,
+   1.2
+  ],
+  "hand_r_x": [
+   -1,
+   1.2
+  ],
+  "hand_r_y": [
+   -1,
+   1.2
+  ],
+  "hand_r_z": [
+   -1,
+   1.2
+  ]
+ },
+ "unit_params": [
+  "blink_l",
+  "blink_r",
+  "cheek",
+  "nostril",
+  "tongue_out",
+  "mouth_open",
+  "eye_wide",
+  "squint",
+  "tail_curl",
+  "tail_raise",
+  "shoulder_l",
+  "shoulder_r",
+  "brow_knit",
+  "hand_l_open",
+  "hand_r_open",
+  "thumb_l",
+  "thumb_r",
+  "point_l",
+  "point_r",
+  "smile"
+ ],
+ "noscale": [
+  "_open",
+  "_turn",
+  "point_",
+  "thumb_"
+ ],
+ "rules": [
+  {
+   "id": "release_all",
+   "p": [
+    "relax",
+    "rest",
+    "atease",
+    "backtonormal",
+    "thatsenough",
+    "enough",
+    "nevermind",
+    "cutitout",
+    "reset",
+    "chill",
+    "stop",
+    "stop that",
+    "stop it",
+    "stop everything",
+    "stop all that",
+    "stop doing that",
+    "quit it",
+    "quit that",
+    "you can stop",
+    "youcan stop",
+    "youcan relax",
+    "youcan rest",
+    "go back to normal",
+    "be normal",
+    "normal",
+    "loosen up",
+    "at rest",
+    "rest now",
+    "relax now",
+    "all done",
+    "done",
+    "thats it",
+    "thats good",
+    "you can relax",
+    "putitdown",
+    "youcan putitdown"
+   ],
+   "c": {
+    "action": "release",
+    "parts": "all"
+   },
+   "wait": [
+    "stop",
+    "normal",
+    "done",
+    "rest"
+   ]
+  },
+  {
+   "id": "release_okay",
+   "p": [
+    "okay",
+    "alright",
+    "okay thanks",
+    "okay thank you",
+    "okay good",
+    "okay great",
+    "okay cool",
+    "alright thanks",
+    "okay okay",
+    "okay thats good",
+    "okay perfect",
+    "okay nice",
+    "okay enough"
+   ],
+   "c": {
+    "action": "release",
+    "parts": "all"
+   },
+   "whole": true,
+   "_note": "whole utterance; fires on a final or once the partial has been stable (release is harmless)"
+  },
+  {
+   "id": "nod_alone",
+   "p": [
+    "not",
+    "nod",
+    "knot",
+    "nought"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "nod",
+    "parts": [
+     "head"
+    ],
+    "repeat": 2,
+    "duration_ms": 1200
+   },
+   "whole": true,
+   "_note": "the small vosk model hears a lone 'nod' as 'not'; whole utterance only"
+  },
+  {
+   "id": "release_hands",
+   "p": [
+    "put ?$poss ?$side $paw down",
+    "put ?$poss ?$side $paw back down",
+    "lower/drop ?$poss ?$side $paw",
+    "?$poss ?$side $paw down",
+    "youcan lower ?$poss ?$side ?$paw",
+    "bring ?$poss ?$side $paw down",
+    "put ?$poss ?$side $paw away",
+    "stop waving/pointing/clapping",
+    "youcan put ?$poss ?$side $paw down",
+    "put ?$poss pardon",
+    "?$poss pardon"
+   ],
+   "c": {
+    "action": "release",
+    "parts": [
+     "hand_$"
+    ]
+   },
+   "side": "both",
+   "pside": true
+  },
+  {
+   "id": "release_look",
+   "p": [
+    "stop looking",
+    "stop staring"
+   ],
+   "c": {
+    "action": "look",
+    "target": "user",
+    "hold": false
+   }
+  },
+  {
+   "id": "release_mouth",
+   "p": [
+    "close ?$poss mouth",
+    "shut ?$poss mouth",
+    "mouth closed",
+    "stop smiling/frowning/pouting",
+    "tonguein",
+    "stop sticking ?out ?$poss tongue ?out"
+   ],
+   "c": {
+    "action": "release",
+    "parts": [
+     "mouth",
+     "tongue",
+     "expression"
+    ]
+   }
+  },
+  {
+   "id": "release_eyes",
+   "p": [
+    "open ?$poss eyes",
+    "open ?$poss $side eye",
+    "eyes open",
+    "stop winking/blinking",
+    "stop squinting"
+   ],
+   "c": {
+    "action": "release",
+    "parts": [
+     "eyes"
+    ]
+   }
+  },
+  {
+   "id": "release_tail",
+   "p": [
+    "stop wagging",
+    "stop wagging ?$poss tail",
+    "lower/drop ?$poss tail",
+    "tail down",
+    "put ?$poss tail down"
+   ],
+   "c": {
+    "action": "release",
+    "parts": [
+     "tail"
+    ]
+   }
+  },
+  {
+   "id": "release_head",
+   "p": [
+    "stop nodding/shaking",
+    "stop shaking ?$poss head",
+    "head straight",
+    "straighten ?$poss head",
+    "hold ?$poss head straight"
+   ],
+   "c": {
+    "action": "release",
+    "parts": [
+     "head"
+    ]
+   }
+  },
+  {
+   "id": "release_body",
+   "p": [
+    "turnback",
+    "faceme",
+    "sit/stand up straight",
+    "sit/stand straight",
+    "straighten up",
+    "stop leaning/jumping/dancing/spinning/bouncing",
+    "stop turning"
+   ],
+   "c": {
+    "action": "release",
+    "parts": [
+     "body"
+    ]
+   }
+  },
+  {
+   "id": "release_ears",
+   "p": [
+    "stop wiggling ?$poss ears",
+    "ears normal",
+    "relax ?$poss ears"
+   ],
+   "c": {
+    "action": "release",
+    "parts": [
+     "ear_l",
+     "ear_r"
+    ]
+   }
+  },
+  {
+   "id": "hold_all",
+   "p": [
+    "holdit",
+    "staystill",
+    "freeze",
+    "dontmove",
+    "hold the pose",
+    "hold your pose"
+   ],
+   "c": {
+    "action": "hold",
+    "parts": "all"
+   },
+   "wait": [
+    "freeze"
+   ]
+  },
+  {
+   "id": "look_user",
+   "p": [
+    "lookatme",
+    "look me in the eyes",
+    "look in my eyes",
+    "look at my face",
+    "eyes up here",
+    "look up at me",
+    "look atme"
+   ],
+   "c": {
+    "action": "look",
+    "target": "user",
+    "hold": true
+   }
+  },
+  {
+   "id": "look_around",
+   "p": [
+    "lookaround",
+    "look left and right",
+    "look leftandright",
+    "look sidetoside"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "look_around",
+    "parts": [
+     "gaze",
+     "head"
+    ],
+    "repeat": 1,
+    "duration_ms": 2400
+   }
+  },
+  {
+   "id": "look_away",
+   "p": [
+    "look away",
+    "look the other way"
+   ],
+   "c": {
+    "action": "look",
+    "target": "away",
+    "hold": true
+   }
+  },
+  {
+   "id": "look_dir",
+   "p": [
+    "look ?$toward ?the/$poss $dir",
+    "look $dir/upward/downward",
+    "turnhead ?$toward ?the/$poss $lr",
+    "turn ?$poss head ?$toward ?the/$poss $lr",
+    "glance ?$toward ?the/$poss $dir",
+    "eyes $dir",
+    "look straight $dir",
+    "look up at the sky => dir=up",
+    "look at the ceiling => dir=up",
+    "look at the floor => dir=down",
+    "look at the ground => dir=down"
+   ],
+   "c": {
+    "action": "look",
+    "target": "$dir",
+    "hold": true
+   },
+   "wait": [
+    "look up"
+   ]
+  },
+  {
+   "id": "turn_around",
+   "p": [
+    "turnaround",
+    "spinaround",
+    "show me your back",
+    "turn your back",
+    "turn all the way around"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "turn_around",
+    "targets": {
+     "body_yaw": 1.0
+    },
+    "parts": [
+     "body"
+    ],
+    "hold": true,
+    "ease_ms": 700
+   },
+   "noint": true
+  },
+  {
+   "id": "turn_dir",
+   "p": [
+    "turn/turns ?$toward ?the/$poss $lr",
+    "turn ?$poss body ?$toward ?the/$poss $lr",
+    "turn sideways => lr=left",
+    "rotate ?$toward ?the/$poss $lr",
+    "face ?the/$poss $lr"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "turn",
+    "targets": {
+     "body_yaw": "$yaw"
+    },
+    "parts": [
+     "body"
+    ],
+    "hold": true,
+    "ease_ms": 500
+   }
+  },
+  {
+   "id": "spin",
+   "p": [
+    "spin",
+    "twirl",
+    "do a twirl",
+    "makea spin",
+    "makea twirl"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "spin",
+    "parts": [
+     "body"
+    ],
+    "repeat": 1,
+    "duration_ms": 1600
+   },
+   "wait": [
+    "spin"
+   ]
+  },
+  {
+   "id": "lean_in",
+   "p": [
+    "lean/mean in/forward/closer",
+    "lean/mean ?in toward/towards/to me",
+    "lean/mean atme",
+    "come closer",
+    "get closer",
+    "move closer",
+    "come here",
+    "lean/mean in closer",
+    "lean/mean forwards",
+    "leaned forward/in"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "lean_in",
+    "targets": {
+     "body_pitch": 0.8
+    },
+    "parts": [
+     "body"
+    ],
+    "hold": true,
+    "ease_ms": 450
+   }
+  },
+  {
+   "id": "lean_back",
+   "p": [
+    "lean/mean back/backward/backwards/away",
+    "back up",
+    "move back",
+    "sit back",
+    "lean/mean back away"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "lean_back",
+    "targets": {
+     "body_pitch": -0.8
+    },
+    "parts": [
+     "body"
+    ],
+    "hold": true,
+    "ease_ms": 450
+   }
+  },
+  {
+   "id": "lean_side",
+   "p": [
+    "lean/mean ?$toward ?the/$poss $lr",
+    "lean/mean over ?$toward ?the/$poss $lr",
+    "tilt ?$poss body ?$toward ?the/$poss $lr"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "lean_side",
+    "targets": {
+     "body_lean": "$lat"
+    },
+    "parts": [
+     "body"
+    ],
+    "hold": true,
+    "ease_ms": 450
+   }
+  },
+  {
+   "id": "bow",
+   "p": [
+    "bow"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "bow",
+    "parts": [
+     "head",
+     "body"
+    ],
+    "repeat": 1,
+    "duration_ms": 1600
+   }
+  },
+  {
+   "id": "jump",
+   "p": [
+    "jump",
+    "hop",
+    "jump up",
+    "hop up",
+    "jump upanddown",
+    "hop upanddown",
+    "jump for joy",
+    "do a hop",
+    "makea jump",
+    "makea hop",
+    "bounce",
+    "bounce upanddown"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "jump",
+    "parts": [
+     "body"
+    ],
+    "repeat": 1,
+    "duration_ms": 900
+   },
+   "wait": [
+    "jump",
+    "hop",
+    "bounce"
+   ]
+  },
+  {
+   "id": "dance",
+   "p": [
+    "dance",
+    "makea dance",
+    "do a little dance",
+    "boogie",
+    "show me your moves",
+    "show me your dance moves"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "dance",
+    "parts": [
+     "body",
+     "head",
+     "hand_l",
+     "hand_r"
+    ],
+    "repeat": 2,
+    "duration_ms": 3000
+   },
+   "wait": [
+    "dance"
+   ]
+  },
+  {
+   "id": "nod",
+   "p": [
+    "nod",
+    "nod ?$poss head",
+    "nod upanddown",
+    "makea nod",
+    "giveme a nod",
+    "nod yes",
+    "say yes with ?$poss head"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "nod",
+    "parts": [
+     "head"
+    ],
+    "repeat": 2,
+    "duration_ms": 1200
+   }
+  },
+  {
+   "id": "shake_head",
+   "p": [
+    "shakehead",
+    "shakehead no",
+    "shake ?$poss head sidetoside",
+    "shake no",
+    "say no with ?$poss head"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "shake_head",
+    "parts": [
+     "head"
+    ],
+    "repeat": 2,
+    "duration_ms": 1300
+   }
+  },
+  {
+   "id": "tilt_head",
+   "p": [
+    "tilthead ?$toward ?the/$poss ?$lr",
+    "tilthead ?$toward ?the/$poss $lr",
+    "lean ?$poss head ?$toward ?the/$poss $lr"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "head_tilt",
+    "targets": {
+     "head_roll": "$roll"
+    },
+    "parts": [
+     "head"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   },
+   "lrdefault": "right"
+  },
+  {
+   "id": "head_up",
+   "p": [
+    "headup"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "head_up",
+    "targets": {
+     "head_pitch": -0.5
+    },
+    "parts": [
+     "head"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   }
+  },
+  {
+   "id": "head_down",
+   "p": [
+    "headdown"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "head_down",
+    "targets": {
+     "head_pitch": 0.55
+    },
+    "parts": [
+     "head"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   }
+  },
+  {
+   "id": "thumbs_up",
+   "p": [
+    "thumbsup",
+    "giveme ?a ?$side thumbsup",
+    "giveme ?a ?$side thumbsup sign",
+    "giveme $side thumbsup",
+    "put ?$poss ?$side thumbsup",
+    "do ?a thumbsup",
+    "makea thumbsup",
+    "showme ?a ?$side thumbsup",
+    "$side thumbsup",
+    "thumbsup with ?$poss ?$side $paw",
+    "raise ?$poss ?$side thumb",
+    "giveme ?a ?$side thumbsup with ?$poss ?$side $paw"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "thumbs_up",
+    "side": "$",
+    "targets": {
+     "hand_$_x": 0.1,
+     "hand_$_y": 0.45,
+     "hand_$_z": 0.45,
+     "hand_$_open": 0,
+     "thumb_$": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "repeat": 1,
+    "duration_ms": 2500
+   },
+   "side": "l",
+   "noint": true
+  },
+  {
+   "id": "high_five",
+   "p": [
+    "highfive",
+    "giveme ?a highfive",
+    "giveme five",
+    "up top"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "high_five",
+    "side": "$",
+    "targets": {
+     "hand_$_x": 0.15,
+     "hand_$_y": 0.9,
+     "hand_$_z": 0.7,
+     "hand_$_open": 1,
+     "hand_$_turn": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "repeat": 1,
+    "duration_ms": 1800
+   },
+   "side": "l",
+   "noint": true
+  },
+  {
+   "id": "wave",
+   "p": [
+    "wave",
+    "wave ?$poss ?$side $paw",
+    "wave with ?$poss ?$side $paw",
+    "wave ?atme with ?$poss ?$side $paw",
+    "wave $side",
+    "giveme a wave",
+    "makea wave",
+    "wave hi/hello/goodbye/bye ?atme ?with ?$poss ?$side ?$paw",
+    "say hi/hello/bye/goodbye with ?$poss ?$side $paw",
+    "wave ?$poss $paw ?in the air/intheair",
+    "waves"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "wave",
+    "side": "$",
+    "parts": [
+     "hand_$"
+    ],
+    "repeat": 3,
+    "duration_ms": 2200
+   },
+   "side": "l",
+   "pside": true,
+   "wait": [
+    "wave",
+    "waves"
+   ]
+  },
+  {
+   "id": "clap",
+   "p": [
+    "clap",
+    "clap ?$poss $paw",
+    "clap ?$poss $paw together",
+    "applaud",
+    "giveme a clap",
+    "giveme some applause",
+    "give ?us/me ?a round of applause",
+    "put ?$poss $paw together",
+    "giveme ?a round of applause"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "clap",
+    "side": "both",
+    "parts": [
+     "hand_l",
+     "hand_r"
+    ],
+    "repeat": 4,
+    "duration_ms": 2000
+   },
+   "wait": [
+    "clap"
+   ]
+  },
+  {
+   "id": "shrug",
+   "p": [
+    "shrug",
+    "shrug ?$poss shoulders",
+    "makea shrug",
+    "giveme a shrug",
+    "do a shrug"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "shrug",
+    "side": "both",
+    "parts": [
+     "shoulders",
+     "hand_l",
+     "hand_r"
+    ],
+    "repeat": 1,
+    "duration_ms": 1600
+   }
+  },
+  {
+   "id": "shoulders_up",
+   "p": [
+    "raise/lift ?$poss shoulders",
+    "shoulders up"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "shoulders_up",
+    "targets": {
+     "shoulder_l": 1,
+     "shoulder_r": 1
+    },
+    "parts": [
+     "shoulders"
+    ],
+    "hold": true,
+    "ease_ms": 350
+   }
+  },
+  {
+   "id": "point_dir",
+   "p": [
+    "point ?$toward ?the/$poss $lr",
+    "point ?$toward ?the/$poss $lr with ?$poss ?$side $paw",
+    "point ?$poss $paw ?$toward ?the/$poss $lr"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "point_side",
+    "side": "$lrside",
+    "targets": {
+     "hand_$_x": 0.6,
+     "hand_$_y": 0.6,
+     "hand_$_z": 0.3,
+     "hand_$_open": 0,
+     "point_$": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 350
+   },
+   "noint": true
+  },
+  {
+   "id": "point_up",
+   "p": [
+    "point up/upward/upwards",
+    "point ?up $toward the sky/ceiling",
+    "point up with ?$poss ?$side $paw"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "point_up",
+    "side": "$",
+    "targets": {
+     "hand_$_x": 0.15,
+     "hand_$_y": 1.1,
+     "hand_$_z": 0.2,
+     "hand_$_open": 0,
+     "point_$": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 350
+   },
+   "side": "l",
+   "noint": true
+  },
+  {
+   "id": "point_down",
+   "p": [
+    "point down/downward/downwards",
+    "point ?down $toward the floor/ground"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "point_down",
+    "side": "$",
+    "targets": {
+     "hand_$_x": 0.3,
+     "hand_$_y": 0.05,
+     "hand_$_z": 0.45,
+     "hand_$_open": 0,
+     "point_$": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 350
+   },
+   "side": "l",
+   "noint": true
+  },
+  {
+   "id": "point_user",
+   "p": [
+    "point ?$toward atme",
+    "point atme with ?$poss ?$side $paw",
+    "point ?$poss ?$side $paw atme",
+    "point $toward ?the/$poss camera",
+    "point at you",
+    "point $toward the screen",
+    "point ?atme",
+    "point me",
+    "point that/of me"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "point_user",
+    "side": "$",
+    "targets": {
+     "hand_$_x": -0.1,
+     "hand_$_y": 0.55,
+     "hand_$_z": 0.85,
+     "hand_$_open": 0,
+     "point_$": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 350
+   },
+   "side": "l",
+   "noint": true,
+   "wait": [
+    "point ?atme"
+   ]
+  },
+  {
+   "id": "cover_eyes",
+   "p": [
+    "cover ?$poss eyes",
+    "cover ?$poss eyes with ?$poss $paw",
+    "put ?$poss $paw over ?$poss eyes",
+    "hide ?$poss eyes",
+    "close ?$poss eyes with ?$poss $paw",
+    "peekaboo",
+    "play peekaboo",
+    "peek a boo"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "cover_eyes",
+    "side": "both",
+    "targets": {
+     "hand_l_x": -0.35,
+     "hand_l_y": 1.0,
+     "hand_l_z": 0.45,
+     "hand_l_open": 1,
+     "hand_r_x": -0.35,
+     "hand_r_y": 1.0,
+     "hand_r_z": 0.45,
+     "hand_r_open": 1
+    },
+    "parts": [
+     "hand_l",
+     "hand_r"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   },
+   "noint": true
+  },
+  {
+   "id": "cover_mouth",
+   "p": [
+    "cover ?$poss mouth",
+    "put ?$poss $paw over ?$poss mouth"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "cover_mouth",
+    "side": "both",
+    "targets": {
+     "hand_l_x": -0.3,
+     "hand_l_y": 0.78,
+     "hand_l_z": 0.5,
+     "hand_l_open": 1,
+     "hand_r_x": -0.3,
+     "hand_r_y": 0.72,
+     "hand_r_z": 0.55,
+     "hand_r_open": 1
+    },
+    "parts": [
+     "hand_l",
+     "hand_r"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   },
+   "noint": true
+  },
+  {
+   "id": "cover_ears",
+   "p": [
+    "cover ?$poss ears",
+    "put ?$poss $paw over ?$poss ears"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "cover_ears",
+    "side": "both",
+    "targets": {
+     "hand_l_x": 0.2,
+     "hand_l_y": 1.05,
+     "hand_l_z": 0.0,
+     "hand_l_open": 1,
+     "hand_r_x": 0.2,
+     "hand_r_y": 1.05,
+     "hand_r_z": 0.0,
+     "hand_r_open": 1
+    },
+    "parts": [
+     "hand_l",
+     "hand_r"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   },
+   "noint": true
+  },
+  {
+   "id": "hand_heart",
+   "p": [
+    "onheart_cmd",
+    "put ?$poss ?$side $paw onheart",
+    "?$poss ?$side $paw onheart",
+    "place ?$poss ?$side $paw onheart"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "hand_on_heart",
+    "side": "$",
+    "targets": {
+     "hand_$_x": -0.45,
+     "hand_$_y": 0.35,
+     "hand_$_z": 0.25,
+     "hand_$_open": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   },
+   "side": "l",
+   "noint": true
+  },
+  {
+   "id": "hand_chin",
+   "p": [
+    "put ?$poss ?$side $paw onchin",
+    "?$poss $paw onchin",
+    "think",
+    "look thoughtful",
+    "makea thinking face",
+    "do ?$poss thinking pose",
+    "strike a thinking pose",
+    "thinking pose"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "thinking",
+    "side": "$",
+    "targets": {
+     "hand_$_x": -0.35,
+     "hand_$_y": 0.75,
+     "hand_$_z": 0.35,
+     "hand_$_open": 0.3
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   },
+   "side": "l",
+   "noint": true,
+   "wait": [
+    "think"
+   ]
+  },
+  {
+   "id": "hand_head",
+   "p": [
+    "put ?$poss ?$side $paw onhead",
+    "?$poss $paw onhead"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "hand_on_head",
+    "side": "$",
+    "targets": {
+     "hand_$_x": 0.05,
+     "hand_$_y": 1.15,
+     "hand_$_z": 0.1,
+     "hand_$_open": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   },
+   "side": "both",
+   "noint": true,
+   "pside": true
+  },
+  {
+   "id": "cross_arms",
+   "p": [
+    "crossarms"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "cross_arms",
+    "side": "both",
+    "targets": {
+     "hand_l_x": -0.4,
+     "hand_l_y": 0.25,
+     "hand_l_z": 0.3,
+     "hand_l_open": 0.2,
+     "hand_r_x": -0.4,
+     "hand_r_y": 0.22,
+     "hand_r_z": 0.35,
+     "hand_r_open": 0.2
+    },
+    "parts": [
+     "hand_l",
+     "hand_r"
+    ],
+    "hold": true,
+    "ease_ms": 450
+   },
+   "noint": true
+  },
+  {
+   "id": "hug",
+   "p": [
+    "giveme a hug",
+    "hug",
+    "hug me",
+    "open ?$poss arms",
+    "arms out",
+    "spread ?$poss arms",
+    "stretch ?$poss arms out"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "arms_open",
+    "side": "both",
+    "targets": {
+     "hand_l_x": 0.55,
+     "hand_l_y": 0.55,
+     "hand_l_z": 0.55,
+     "hand_l_open": 1,
+     "hand_l_turn": 1,
+     "hand_r_x": 0.55,
+     "hand_r_y": 0.55,
+     "hand_r_z": 0.55,
+     "hand_r_open": 1,
+     "hand_r_turn": 1
+    },
+    "parts": [
+     "hand_l",
+     "hand_r"
+    ],
+    "hold": true,
+    "ease_ms": 450
+   },
+   "wait": [
+    "hug"
+   ]
+  },
+  {
+   "id": "stretch",
+   "p": [
+    "stretch",
+    "do a stretch",
+    "makea stretch",
+    "reach for the sky"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "stretch",
+    "side": "both",
+    "parts": [
+     "hand_l",
+     "hand_r",
+     "body"
+    ],
+    "repeat": 1,
+    "duration_ms": 2200
+   },
+   "wait": [
+    "stretch"
+   ]
+  },
+  {
+   "id": "scratch_head",
+   "p": [
+    "scratchhead"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "scratch_head",
+    "side": "$",
+    "parts": [
+     "hand_$"
+    ],
+    "repeat": 3,
+    "duration_ms": 1800
+   },
+   "side": "l"
+  },
+  {
+   "id": "rub_belly",
+   "p": [
+    "rubbelly"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "rub_belly",
+    "side": "$",
+    "parts": [
+     "hand_$"
+    ],
+    "repeat": 3,
+    "duration_ms": 2000
+   },
+   "side": "l"
+  },
+  {
+   "id": "blow_kiss",
+   "p": [
+    "blowkiss"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "blow_kiss",
+    "side": "$",
+    "parts": [
+     "hand_$",
+     "mouth"
+    ],
+    "repeat": 1,
+    "duration_ms": 1800
+   },
+   "side": "l"
+  },
+  {
+   "id": "flap_arms",
+   "p": [
+    "flap ?$poss arms",
+    "flap ?$poss $paw",
+    "flap ?$poss wings",
+    "flap like a bird"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "flap_arms",
+    "side": "both",
+    "parts": [
+     "hand_l",
+     "hand_r"
+    ],
+    "repeat": 3,
+    "duration_ms": 2000
+   }
+  },
+  {
+   "id": "open_paw",
+   "p": [
+    "open ?$poss ?$side $paw",
+    "spread ?$poss ?$side fingers",
+    "open ?$poss fingers"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "open_paw",
+    "side": "$",
+    "targets": {
+     "hand_$_open": 1
+    },
+    "parts": [
+     "hand_$_open"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   },
+   "side": "both",
+   "pside": true,
+   "noint": true
+  },
+  {
+   "id": "fist",
+   "p": [
+    "fist",
+    "close ?$poss ?$side $paw",
+    "make $poss ?$side $paw ?into a fist",
+    "ball ?$poss ?$side $paw ?into a fist"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "fist",
+    "side": "$",
+    "targets": {
+     "hand_$_open": 0,
+     "thumb_$": 0
+    },
+    "parts": [
+     "hand_$_open"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   },
+   "side": "l",
+   "pside": true,
+   "noint": true
+  },
+  {
+   "id": "raise_paw",
+   "p": [
+    "raise/lift/race ?up ?$poss ?$side $paw",
+    "raise/lift/race ?$poss ?$side $paw up/high/intheair",
+    "put ?$poss ?$side $paw up/intheair",
+    "put up ?$poss ?$side $paw",
+    "stick ?$poss ?$side $paw up/intheair",
+    "hold ?$poss ?$side $paw up/intheair",
+    "hold up ?$poss ?$side $paw",
+    "?$poss ?$side $paw up/intheair",
+    "?$poss $side $paw up/intheair",
+    "reach up",
+    "reach ?up with ?$poss ?$side $paw",
+    "raise/lift/race ?$poss ?$side $paw higher",
+    "$paw up",
+    "up with ?$poss $paw"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "raise_paw",
+    "side": "$",
+    "targets": {
+     "hand_$_x": 0.2,
+     "hand_$_y": 1.0,
+     "hand_$_z": 0.2,
+     "hand_$_open": 1,
+     "hand_$_turn": 1
+    },
+    "parts": [
+     "hand_$"
+    ],
+    "hold": true,
+    "ease_ms": 350
+   },
+   "side": "l",
+   "pside": true
+  },
+  {
+   "id": "wink",
+   "p": [
+    "wink",
+    "wink ?$poss ?$side eye",
+    "wink with ?$poss ?$side eye",
+    "giveme a wink",
+    "makea wink",
+    "wink atme",
+    "wink $side",
+    "winked ?atme"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "wink",
+    "side": "$",
+    "parts": [
+     "eyes"
+    ],
+    "repeat": 1,
+    "duration_ms": 600
+   },
+   "side": "l",
+   "wait": [
+    "wink"
+   ]
+  },
+  {
+   "id": "blink",
+   "p": [
+    "blink",
+    "blink ?$poss eyes",
+    "blink ?$poss $side eye",
+    "makea blink"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "blink",
+    "side": "$",
+    "parts": [
+     "eyes"
+    ],
+    "repeat": 1,
+    "duration_ms": 400
+   },
+   "side": "both",
+   "pside": true,
+   "wait": [
+    "blink"
+   ]
+  },
+  {
+   "id": "close_eyes",
+   "p": [
+    "close ?$poss ?$side eyes",
+    "close ?$poss ?$side eye",
+    "shut ?$poss ?$side eyes",
+    "shut ?$poss ?$side eye",
+    "eyes closed",
+    "keep ?$poss eyes closed",
+    "close $side eye"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "close_eyes",
+    "side": "$",
+    "targets": {
+     "blink_$": 1
+    },
+    "parts": [
+     "eyes"
+    ],
+    "hold": true,
+    "ease_ms": 250
+   },
+   "side": "both",
+   "pside": true,
+   "noint": true
+  },
+  {
+   "id": "wide_eyes",
+   "p": [
+    "widen ?$poss eyes",
+    "open ?$poss eyes wide",
+    "open ?$poss eyes really wide",
+    "eyes wide",
+    "big eyes",
+    "makea big eyes",
+    "make ?$poss eyes big/wide"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "wide_eyes",
+    "targets": {
+     "eye_wide": 1
+    },
+    "parts": [
+     "eyes"
+    ],
+    "hold": true,
+    "ease_ms": 250
+   }
+  },
+  {
+   "id": "squint",
+   "p": [
+    "squint",
+    "squint ?$poss eyes",
+    "narrow ?$poss eyes"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "squint",
+    "targets": {
+     "squint": 0.8
+    },
+    "parts": [
+     "eyes"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   }
+  },
+  {
+   "id": "eye_roll",
+   "p": [
+    "eyeroll"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "eye_roll",
+    "parts": [
+     "gaze",
+     "eyes"
+    ],
+    "repeat": 1,
+    "duration_ms": 1200
+   }
+  },
+  {
+   "id": "brows_up",
+   "p": [
+    "raise/lift ?$poss ?$side brows",
+    "raise/lift ?$poss ?$side brow",
+    "brows up",
+    "$side brow up",
+    "raise ?$poss $side brow"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "brows_up",
+    "side": "$",
+    "targets": {
+     "brow_$": 1
+    },
+    "parts": [
+     "brows"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   },
+   "side": "both",
+   "pside": true
+  },
+  {
+   "id": "brows_down",
+   "p": [
+    "lower ?$poss brows",
+    "furrow ?$poss brows",
+    "furrow ?$poss brow",
+    "knit ?$poss brows",
+    "brows down",
+    "scowl"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "brows_down",
+    "targets": {
+     "brow_l": -0.6,
+     "brow_r": -0.6,
+     "brow_knit": 0.9
+    },
+    "parts": [
+     "brows"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   }
+  },
+  {
+   "id": "brow_wiggle",
+   "p": [
+    "wiggle ?$poss brows",
+    "waggle ?$poss brows",
+    "move ?$poss brows ?upanddown"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "brow_wiggle",
+    "parts": [
+     "brows"
+    ],
+    "repeat": 3,
+    "duration_ms": 1500
+   }
+  },
+  {
+   "id": "ear_wiggle",
+   "p": [
+    "wiggle/twitch/waggle/flap/move/wag ?$poss ?$side ears",
+    "wiggle/twitch/waggle/flap/move/wag ?$poss ?$side ear",
+    "wiggle/twitch $poss $side one",
+    "ear wiggle",
+    "makea ear wiggle"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "ear_wiggle",
+    "side": "$",
+    "parts": [
+     "ear_$"
+    ],
+    "repeat": 3,
+    "duration_ms": 1500
+   },
+   "side": "both",
+   "pside": true
+  },
+  {
+   "id": "ear_flick",
+   "p": [
+    "flick ?$poss ?$side ear",
+    "flick ?$poss ?$side ears",
+    "flicker ?$poss ?$side ear/ears"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "ear_flick",
+    "side": "$",
+    "parts": [
+     "ear_$"
+    ],
+    "repeat": 1,
+    "duration_ms": 500
+   },
+   "side": "both",
+   "pside": true
+  },
+  {
+   "id": "ears_up",
+   "p": [
+    "raise/lift/perk/prick ?up ?$poss ?$side ears",
+    "raise/lift/perk/prick ?up ?$poss ?$side ear",
+    "perk/prick ?$poss ?$side ears up",
+    "put ?$poss ?$side ears up",
+    "?$poss ?$side ears up",
+    "put ?$poss ?$side ear up",
+    "?$poss $side ear up",
+    "ears forward",
+    "point ?$poss ears up"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "ears_up",
+    "side": "$",
+    "targets": {
+     "ear_$": 1
+    },
+    "parts": [
+     "ear_$"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   },
+   "side": "both",
+   "pside": true
+  },
+  {
+   "id": "ears_down",
+   "p": [
+    "lower/drop/droop/flatten/fold ?$poss ?$side ears",
+    "lower/drop/droop/flatten/fold ?$poss ?$side ear",
+    "put ?$poss ?$side ears down/back",
+    "?$poss ?$side ears down/back",
+    "?$poss $side ear down",
+    "pin ?$poss ears back",
+    "ears flat"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "ears_down",
+    "side": "$",
+    "targets": {
+     "ear_$": -1
+    },
+    "parts": [
+     "ear_$"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   },
+   "side": "both",
+   "pside": true
+  },
+  {
+   "id": "ears_turn_in",
+   "p": [
+    "turn ?$poss ears forward/in/inward",
+    "point ?$poss ears forward"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "ears_turn",
+    "targets": {
+     "ear_l_turn": -1,
+     "ear_r_turn": -1
+    },
+    "parts": [
+     "ear_l",
+     "ear_r"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   }
+  },
+  {
+   "id": "ears_turn_out",
+   "p": [
+    "turn ?$poss ears out/outward/sideways/outwards",
+    "spread ?$poss ears"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "ears_turn",
+    "targets": {
+     "ear_l_turn": 1,
+     "ear_r_turn": 1
+    },
+    "parts": [
+     "ear_l",
+     "ear_r"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   }
+  },
+  {
+   "id": "nose_wiggle",
+   "p": [
+    "wiggle/twitch/scrunch/crinkle/wrinkle/move ?$poss nose",
+    "sniff",
+    "sniff the air",
+    "sniff sniff",
+    "nose wiggle",
+    "makea nose wiggle",
+    "do ?$poss nose thing"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "nose_wiggle",
+    "parts": [
+     "nose"
+    ],
+    "repeat": 3,
+    "duration_ms": 1200
+   },
+   "wait": [
+    "sniff"
+   ]
+  },
+  {
+   "id": "nostrils",
+   "p": [
+    "flare ?$poss nostrils",
+    "flare ?$poss nose"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "nostril_flare",
+    "targets": {
+     "nostril": 1
+    },
+    "parts": [
+     "nose"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   }
+  },
+  {
+   "id": "tail_wag",
+   "p": [
+    "wag/wiggle/shake/swish/swing/waggle ?$poss tail",
+    "tail wag",
+    "wag",
+    "makea tail wag",
+    "giveme a tail wag",
+    "wag ?$poss tail sidetoside",
+    "shake ?$poss tail feather"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "tail_wag",
+    "parts": [
+     "tail"
+    ],
+    "repeat": 4,
+    "duration_ms": 2000
+   },
+   "wait": [
+    "wag"
+   ]
+  },
+  {
+   "id": "tail_up",
+   "p": [
+    "raise/lift ?$poss tail",
+    "tail up",
+    "put ?$poss tail up",
+    "?$poss tail up",
+    "stick ?$poss tail up"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "tail_up",
+    "targets": {
+     "tail_raise": 1
+    },
+    "parts": [
+     "tail"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   }
+  },
+  {
+   "id": "tail_curl",
+   "p": [
+    "curl ?$poss tail",
+    "curl ?up ?$poss tail",
+    "curl ?$poss tail up"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "tail_curl",
+    "targets": {
+     "tail_curl": 1
+    },
+    "parts": [
+     "tail"
+    ],
+    "hold": true,
+    "ease_ms": 400
+   }
+  },
+  {
+   "id": "tongue_out",
+   "p": [
+    "tongueout",
+    "blep",
+    "lick",
+    "showme ?$poss tongue"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "stick_tongue_out",
+    "targets": {
+     "tongue_out": 1,
+     "mouth_open": 0.35
+    },
+    "parts": [
+     "tongue",
+     "mouth"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   },
+   "wait": [
+    "lick"
+   ]
+  },
+  {
+   "id": "lick_lips",
+   "p": [
+    "licklips"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "lick_lips",
+    "parts": [
+     "tongue",
+     "mouth"
+    ],
+    "repeat": 1,
+    "duration_ms": 1200
+   }
+  },
+  {
+   "id": "open_mouth",
+   "p": [
+    "open ?$poss mouth",
+    "open ?$poss mouth wide",
+    "open wide",
+    "mouth open",
+    "say ah",
+    "say aah",
+    "say ahh",
+    "drop ?$poss jaw",
+    "let ?$poss jaw drop",
+    "?$poss mouth open"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "open_mouth",
+    "targets": {
+     "mouth_open": 0.7
+    },
+    "parts": [
+     "mouth"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   }
+  },
+  {
+   "id": "puff_cheeks",
+   "p": [
+    "puffcheeks",
+    "puff ?out ?$poss cheeks",
+    "blow up ?$poss cheeks",
+    "fill ?$poss cheeks with air",
+    "chipmunk cheeks"
+   ],
+   "c": {
+    "action": "pose",
+    "name": "puff_cheeks",
+    "targets": {
+     "cheek": 1
+    },
+    "parts": [
+     "cheeks"
+    ],
+    "hold": true,
+    "ease_ms": 300
+   }
+  },
+  {
+   "id": "yawn",
+   "p": [
+    "yawn",
+    "makea yawn",
+    "do a yawn",
+    "pretend to yawn"
+   ],
+   "c": {
+    "action": "gesture",
+    "name": "yawn",
+    "parts": [
+     "mouth",
+     "eyes",
+     "hand_l"
+    ],
+    "repeat": 1,
+    "duration_ms": 2200
+   },
+   "wait": [
+    "yawn"
+   ]
+  },
+  {
+   "id": "expr_smile",
+   "p": [
+    "smile",
+    "smile big",
+    "giveme a ?big/little smile",
+    "showme ?$poss ?big smile",
+    "makea ?big/happy smile",
+    "smile atme",
+    "smile wide",
+    "say cheese",
+    "show ?me ?$poss teeth",
+    "big smile"
+   ],
+   "c": {
+    "action": "expression",
+    "name": "smile",
+    "intensity": 0.8,
+    "hold": true
+   },
+   "wait": [
+    "smile"
+   ]
+  },
+  {
+   "id": "expr_frown",
+   "p": [
+    "frown",
+    "makea frown",
+    "giveme a frown",
+    "makea frowny face",
+    "frown atme"
+   ],
+   "c": {
+    "action": "expression",
+    "name": "frown",
+    "intensity": 0.8,
+    "hold": true
+   },
+   "wait": [
+    "frown"
+   ]
+  },
+  {
+   "id": "expr_pout",
+   "p": [
+    "pout",
+    "makea pout",
+    "pout ?$poss lips",
+    "makea pouty face"
+   ],
+   "c": {
+    "action": "expression",
+    "name": "pout",
+    "intensity": 0.8,
+    "hold": true
+   },
+   "wait": [
+    "pout"
+   ]
+  },
+  {
+   "id": "expression",
+   "p": [
+    "look/be/act/seem/get ?really/very/super/so $emo",
+    "look like ?youre/you are $emo",
+    "makea ?really/very ?$emo face",
+    "giveme a ?$emo face/look",
+    "showme ?a/$poss ?$emo face/look",
+    "showme ?how ?you look $emo",
+    "pretend ?to be ?youre $emo",
+    "makea $emo",
+    "showme $emo",
+    "$emo face",
+    "be $emo",
+    "cheer up",
+    "laugh",
+    "makea face"
+   ],
+   "c": {
+    "action": "expression",
+    "name": "$emo",
+    "intensity": 0.8,
+    "hold": true
+   },
+   "wait": [
+    "laugh",
+    "makea face"
+   ]
+  }
+ ],
+ "emo": {
+  "surprised": "surprised",
+  "shocked": "surprised",
+  "amazed": "surprised",
+  "astonished": "surprised",
+  "surprise": "surprised",
+  "surprising": "surprised",
+  "sad": "sad",
+  "unhappy": "sad",
+  "upset": "sad",
+  "gloomy": "sad",
+  "angry": "angry",
+  "mad": "angry",
+  "grumpy": "angry",
+  "furious": "angry",
+  "cross": "angry",
+  "annoyed": "angry",
+  "happy": "happy",
+  "glad": "happy",
+  "joyful": "happy",
+  "cheerful": "happy",
+  "scared": "scared",
+  "afraid": "scared",
+  "frightened": "scared",
+  "terrified": "scared",
+  "fearful": "scared",
+  "worried": "worried",
+  "nervous": "worried",
+  "anxious": "worried",
+  "confused": "confused",
+  "puzzled": "confused",
+  "disgusted": "disgusted",
+  "grossed": "disgusted",
+  "gross": "disgusted",
+  "bored": "bored",
+  "sleepy": "sleepy",
+  "tired": "sleepy",
+  "excited": "excited",
+  "thrilled": "excited",
+  "shy": "shy",
+  "embarrassed": "shy",
+  "silly": "silly",
+  "goofy": "silly",
+  "funny": "silly",
+  "proud": "proud",
+  "curious": "curious",
+  "suspicious": "suspicious",
+  "calm": "calm",
+  "serious": "serious",
+  "smug": "smug",
+  "sorry": "sad",
+  "cute": "happy",
+  "cheer": "happy",
+  "laugh": "happy",
+  "scary": "scared",
+  "angrily": "angry",
+  "thinking": "thinking",
+  "thoughtful": "thinking",
+  "love": "love",
+  "loving": "love",
+  "evil": "smug"
+ },
+ "emo_alias": {
+  "cheer up": "happy",
+  "laugh": "happy",
+  "makea face": "silly"
+ },
+ "adjust": {
+  "more": 1.25,
+  "higher": 1.25,
+  "bigger": 1.25,
+  "wider": 1.25,
+  "further": 1.25,
+  "alittlemore": 1.12,
+  "less": 0.75,
+  "lower": 0.75,
+  "smaller": 0.75,
+  "alittleless": 0.88
+ },
+ "act": {
+  "_doc": "whole-body moves + props (generated by tools/intent_bench/act_lexicon.py; see its docstring for the pattern syntax). Runs on raw clause tokens before the legacy rules; app/intent.py parse_act == app/intent.js.",
+  "moves": [
+   [
+    "turn/spin around and face me/forward/front",
+    "turn_back"
+   ],
+   [
+    "turn and face me/forward/front",
+    "turn_back"
+   ],
+   [
+    "turn/spin around and face away",
+    "turn_away"
+   ],
+   [
+    "turn back ?around/round ?to/toward/towards ?me/front/forward",
+    "turn_back"
+   ],
+   [
+    "turn back to the front",
+    "turn_back"
+   ],
+   [
+    "turn ?around/round to/and face me/forward/front/us",
+    "turn_back"
+   ],
+   [
+    "turn toward/towards/to me/us",
+    "turn_back"
+   ],
+   [
+    "turn toward/towards the camera/front",
+    "turn_back"
+   ],
+   [
+    "turn to the front",
+    "turn_back"
+   ],
+   [
+    "turn this way",
+    "turn_back"
+   ],
+   [
+    "face me/forward/front/us/frontward",
+    "turn_back"
+   ],
+   [
+    "face this way",
+    "turn_back"
+   ],
+   [
+    "face the camera/front/screen",
+    "turn_back"
+   ],
+   [
+    "come back ?here ?now",
+    "turn_back"
+   ],
+   [
+    "come back ?here to me ?now",
+    "turn_back"
+   ],
+   [
+    "talk/speak to/with me/us ?again",
+    "turn_back"
+   ],
+   [
+    "turn ?around/round/back and talk/speak to me/us",
+    "turn_back"
+   ],
+   [
+    "pay attention to me/us",
+    "turn_back"
+   ],
+   [
+    "look forward/front/ahead again",
+    "turn_back"
+   ],
+   [
+    "turn/spin ?around/round in/like a circle",
+    "spin"
+   ],
+   [
+    "turn/go around/round and around/round",
+    "spin",
+    {
+     "count": 3
+    }
+   ],
+   [
+    "spin/twirl around/round and around/round",
+    "spin",
+    {
+     "count": 3
+    }
+   ],
+   [
+    "turn ?yourself around/round <N> times",
+    "spin",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "turn ?yourself all the way around/round <N> times",
+    "spin",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "turn all the way around/round",
+    "spin"
+   ],
+   [
+    "turn in a circle",
+    "spin"
+   ],
+   [
+    "turn/spin yourself around/round",
+    "spin"
+   ],
+   [
+    "spin ?around/round/about",
+    "spin"
+   ],
+   [
+    "twirl ?around/round/about",
+    "twirl"
+   ],
+   [
+    "whirl ?yourself ?around/round/about",
+    "spin"
+   ],
+   [
+    "go round/around in a circle",
+    "spin"
+   ],
+   [
+    "spin/turn/whirl ?yourself all the way around/round",
+    "spin"
+   ],
+   [
+    "turn back ?around/round to/and face me/us/forward/front",
+    "turn_back"
+   ],
+   [
+    "turn back ?around/round toward/towards/to the user/camera/person/front",
+    "turn_back"
+   ],
+   [
+    "turn back ?around/round to say hi/hello",
+    "turn_back"
+   ],
+   [
+    "turn back ?around/round and say hi/hello",
+    "turn_back"
+   ],
+   [
+    "come ?and talk/speak to/with me/us",
+    "turn_back"
+   ],
+   [
+    "come back and talk/speak to/with me/us",
+    "turn_back"
+   ],
+   [
+    "turn around to/and look at me/us",
+    "turn_back"
+   ],
+   [
+    "jump/leap/launch/go/spring into ?a/an @mn",
+    "$mn"
+   ],
+   [
+    "move/go/head/walk ?straight forward/forwards/ahead",
+    "walk",
+    {
+     "dir": "forward"
+    }
+   ],
+   [
+    "move/go/head/walk ?straight back/backward/backwards",
+    "walk",
+    {
+     "dir": "back"
+    }
+   ],
+   [
+    "move/head/scoot ?yourself",
+    "walk"
+   ],
+   [
+    "get on your feet",
+    "stand"
+   ],
+   [
+    "get ?back ?up on your feet",
+    "stand"
+   ],
+   [
+    "stand ?up straight/tall",
+    "stand"
+   ],
+   [
+    "plop/plonk/plunk/settle/flop/sink/park ?yourself down",
+    "sit"
+   ],
+   [
+    "sit yourself ?down",
+    "sit"
+   ],
+   [
+    "grab/find a seat",
+    "sit"
+   ],
+   [
+    "pirouette",
+    "twirl"
+   ],
+   [
+    "do/make ?a/an ?full 360",
+    "spin"
+   ],
+   [
+    "turn away",
+    "turn_away"
+   ],
+   [
+    "turn away from me",
+    "turn_away"
+   ],
+   [
+    "turn away from us",
+    "turn_away"
+   ],
+   [
+    "turn away from the camera",
+    "turn_away"
+   ],
+   [
+    "turn ?around/round away",
+    "turn_away"
+   ],
+   [
+    "turn ?around/round away from me",
+    "turn_away"
+   ],
+   [
+    "turn ?around/round away from us",
+    "turn_away"
+   ],
+   [
+    "keep facing/looking away",
+    "turn_away",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "keep your back to me/us",
+    "turn_away",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "stay turned away/around",
+    "turn_away",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "turn/face the other way",
+    "turn_away"
+   ],
+   [
+    "face away",
+    "turn_away"
+   ],
+   [
+    "face away from me",
+    "turn_away"
+   ],
+   [
+    "face away from us",
+    "turn_away"
+   ],
+   [
+    "face away from the camera",
+    "turn_away"
+   ],
+   [
+    "turn your back",
+    "turn_away"
+   ],
+   [
+    "turn your back to me",
+    "turn_away"
+   ],
+   [
+    "turn your back on me",
+    "turn_away"
+   ],
+   [
+    "turn your back to us",
+    "turn_away"
+   ],
+   [
+    "turn your back on us",
+    "turn_away"
+   ],
+   [
+    "show me/us your back ?side",
+    "turn_away"
+   ],
+   [
+    "let me/us see your back",
+    "turn_away"
+   ],
+   [
+    "turn ?yourself around/round",
+    "turn_away"
+   ],
+   [
+    "turn/turns/rotate/face/swivel ?your ?body/self/whole ?body",
+    "turn"
+   ],
+   [
+    "do/make a ?little/quick/full turn",
+    "spin"
+   ],
+   [
+    "look/turn sideways",
+    "turn",
+    {
+     "dir": "left"
+    }
+   ],
+   [
+    "do/make ?a/an back flip/flips",
+    "backflip"
+   ],
+   [
+    "back flip/flips",
+    "backflip"
+   ],
+   [
+    "flip/flips back/backward/backwards",
+    "backflip"
+   ],
+   [
+    "flip over backwards/backward",
+    "backflip"
+   ],
+   [
+    "front flip/flips",
+    "frontflip"
+   ],
+   [
+    "flip/flips forward/forwards/frontwards",
+    "frontflip"
+   ],
+   [
+    "do/make ?a/an front flip",
+    "frontflip"
+   ],
+   [
+    "forward roll",
+    "frontflip"
+   ],
+   [
+    "flip ?over ?around",
+    "flip"
+   ],
+   [
+    "cart wheel/wheels",
+    "cartwheel"
+   ],
+   [
+    "jump up and down",
+    "jump"
+   ],
+   [
+    "jump for joy",
+    "jump"
+   ],
+   [
+    "jump ?up/around",
+    "jump"
+   ],
+   [
+    "jump ?up/around in the air",
+    "jump"
+   ],
+   [
+    "jump/jumps/leap/leaps ?up/around/about",
+    "jump"
+   ],
+   [
+    "hop up and down",
+    "hop"
+   ],
+   [
+    "hop ?up/around/about",
+    "hop"
+   ],
+   [
+    "bounce up and down",
+    "bounce"
+   ],
+   [
+    "bounce ?up/around/about",
+    "bounce"
+   ],
+   [
+    "take/make <N> steps",
+    "walk",
+    {
+     "distance": "$N"
+    }
+   ],
+   [
+    "walk/go <N> steps",
+    "walk",
+    {
+     "distance": "$N"
+    }
+   ],
+   [
+    "take/make ?a/one ?little/small/tiny/big ?baby step",
+    "step"
+   ],
+   [
+    "step",
+    "step"
+   ],
+   [
+    "go for/on a ?little/short/quick walk ?around",
+    "walk"
+   ],
+   [
+    "go for a little/short walk",
+    "walk"
+   ],
+   [
+    "take a ?little/short/quick walk",
+    "walk"
+   ],
+   [
+    "walk/stroll ?around/about/over ?here",
+    "walk"
+   ],
+   [
+    "come to me/us",
+    "walk",
+    {
+     "dir": "forward"
+    }
+   ],
+   [
+    "march ?around/about",
+    "walk",
+    {
+     "style": "march"
+    }
+   ],
+   [
+    "tiptoe ?around/about",
+    "walk",
+    {
+     "style": "tiptoe"
+    }
+   ],
+   [
+    "run/jog ?around/about",
+    "walk",
+    {
+     "speed": "fast"
+    }
+   ],
+   [
+    "go for a run",
+    "walk",
+    {
+     "speed": "fast"
+    }
+   ],
+   [
+    "do the @dstyle",
+    "dance",
+    {
+     "style": "$dstyle"
+    }
+   ],
+   [
+    "do the @dstyle dance",
+    "dance",
+    {
+     "style": "$dstyle"
+    }
+   ],
+   [
+    "dance the @dstyle",
+    "dance",
+    {
+     "style": "$dstyle"
+    }
+   ],
+   [
+    "dance ?around/about",
+    "dance"
+   ],
+   [
+    "moonwalk",
+    "dance",
+    {
+     "style": "moonwalk"
+    }
+   ],
+   [
+    "moon walk",
+    "dance",
+    {
+     "style": "moonwalk"
+    }
+   ],
+   [
+    "floss",
+    "dance",
+    {
+     "style": "floss"
+    }
+   ],
+   [
+    "do the moon walk",
+    "dance",
+    {
+     "style": "moonwalk"
+    }
+   ],
+   [
+    "boogie ?down",
+    "dance"
+   ],
+   [
+    "groove",
+    "dance"
+   ],
+   [
+    "bust a move",
+    "dance"
+   ],
+   [
+    "get your groove on",
+    "dance"
+   ],
+   [
+    "show me/us your ?best ?dance moves",
+    "dance"
+   ],
+   [
+    "show me/us some ?dance moves",
+    "dance"
+   ],
+   [
+    "show me/us what you got",
+    "dance"
+   ],
+   [
+    "sit ?down/up",
+    "sit"
+   ],
+   [
+    "sit back down",
+    "sit"
+   ],
+   [
+    "take/have a seat",
+    "sit"
+   ],
+   [
+    "stand ?up",
+    "stand"
+   ],
+   [
+    "stand ?up on your feet",
+    "stand"
+   ],
+   [
+    "stand ?up on your legs",
+    "stand"
+   ],
+   [
+    "stand ?up on your hind legs",
+    "stand"
+   ],
+   [
+    "stand ?up on your back legs",
+    "stand"
+   ],
+   [
+    "stand ?up on your two feet",
+    "stand"
+   ],
+   [
+    "stand ?up on two feet",
+    "stand"
+   ],
+   [
+    "stand up tall",
+    "stand"
+   ],
+   [
+    "get up",
+    "get_up"
+   ],
+   [
+    "get up on your feet",
+    "get_up"
+   ],
+   [
+    "get back up",
+    "get_up"
+   ],
+   [
+    "rise ?up",
+    "get_up"
+   ],
+   [
+    "lie/lay/lye down on your back",
+    "lie_down",
+    {
+     "style": "back"
+    }
+   ],
+   [
+    "lie/lay/lye on your back",
+    "lie_down",
+    {
+     "style": "back"
+    }
+   ],
+   [
+    "lie/lay/lye ?down on your tummy/belly/stomach/front",
+    "lie_down",
+    {
+     "style": "front"
+    }
+   ],
+   [
+    "lie/lay/lye ?down ?flat",
+    "lie_down"
+   ],
+   [
+    "lie/lay/lye ?down ?flat on the floor",
+    "lie_down"
+   ],
+   [
+    "lie/lay/lye ?down ?flat on the ground",
+    "lie_down"
+   ],
+   [
+    "lie/lay/lye flat",
+    "lie_down"
+   ],
+   [
+    "play dead",
+    "lie_down",
+    {
+     "style": "play_dead"
+    }
+   ],
+   [
+    "roll over/around/about",
+    "roll_over"
+   ],
+   [
+    "do/make ?a/an barrel roll",
+    "roll_over"
+   ],
+   [
+    "roll",
+    "roll_over"
+   ],
+   [
+    "bow ?down",
+    "bow"
+   ],
+   [
+    "take/do/make/give ?us/me a ?deep/little/big/quick/nice bow",
+    "bow"
+   ],
+   [
+    "curtsy/curtsey",
+    "bow",
+    {
+     "style": "curtsy"
+    }
+   ],
+   [
+    "take/do/make ?us/me a curtsy/curtsey",
+    "bow",
+    {
+     "style": "curtsy"
+    }
+   ],
+   [
+    "shake ?it/yourself off",
+    "shake_off"
+   ],
+   [
+    "shake like a wet dog",
+    "shake_off"
+   ],
+   [
+    "shake ?your ?whole booty/butt/bottom/bum/hips/tush/body ?around",
+    "wiggle"
+   ],
+   [
+    "wiggle/wobble/jiggle/waggle ?your ?whole booty/butt/bottom/bum/hips/tush/body ?around",
+    "wiggle"
+   ],
+   [
+    "wiggle/wobble/jiggle/waggle ?around/about",
+    "wiggle"
+   ],
+   [
+    "wiggle wiggle",
+    "wiggle"
+   ],
+   [
+    "do/make/perform/try/attempt/doing ?<N>/a/an/another/some/the ?@madj ?@madj ?@madj @mn",
+    "$mn",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "take/have/throw/bust/pull/nail/land/rock ?out/off ?<N>/a/an/another/some/the ?@madj ?@madj ?@madj @mn",
+    "$mn",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "<N>/a/an/another/some/the ?@madj ?@madj ?@madj @mn",
+    "$mn",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "?@madjb ?@madjb @mn",
+    "$mn"
+   ],
+   [
+    "do/make/perform/try/attempt/doing ?<N>/a/an/another/some/the ?@madj ?@madj ?@madj @mnstyle dance",
+    "dance",
+    {
+     "style": "$mnstyle",
+     "count": "$N"
+    }
+   ],
+   [
+    "<N>/a/an/another/some/the ?@madj ?@madj ?@madj @mnstyle dance",
+    "dance",
+    {
+     "style": "$mnstyle",
+     "count": "$N"
+    }
+   ],
+   [
+    "@mnstyle dance",
+    "dance",
+    {
+     "style": "$mnstyle"
+    }
+   ],
+   [
+    "?do/make/perform/try/attempt/doing one more @mn",
+    "$mn"
+   ]
+  ],
+  "objs": [
+   [
+    "put/slip/pop/stick/get <O> on",
+    "put_on",
+    ""
+   ],
+   [
+    "put/slip/pop/stick/get <O> on your ears",
+    "put_on",
+    ""
+   ],
+   [
+    "put/slip/pop/stick/get <O> on my ears",
+    "put_on",
+    ""
+   ],
+   [
+    "put/slip/pop/stick/get <O> on your head ears",
+    "put_on",
+    ""
+   ],
+   [
+    "put/slip/pop/stick/get/place/set/plop <O> on/onto/over your/my head/ears",
+    "put_on",
+    ""
+   ],
+   [
+    "<O> on your head/ears",
+    "put_on",
+    "N"
+   ],
+   [
+    "put/slip/pop on <O>",
+    "put_on",
+    "N"
+   ],
+   [
+    "try <O> on",
+    "put_on",
+    ""
+   ],
+   [
+    "try on <O>",
+    "put_on",
+    "N"
+   ],
+   [
+    "wear <O>",
+    "put_on",
+    ""
+   ],
+   [
+    "take/pull/slip/get <O> off",
+    "take_off",
+    ""
+   ],
+   [
+    "take/pull/slip/get <O> off your head",
+    "take_off",
+    ""
+   ],
+   [
+    "take/pull/slip/get <O> off my head",
+    "take_off",
+    ""
+   ],
+   [
+    "take/pull/slip/get <O> off your ears",
+    "take_off",
+    ""
+   ],
+   [
+    "lift/pull/take/slip/get <O> off ?of your/my head/ears",
+    "take_off",
+    ""
+   ],
+   [
+    "take/pull/slip off <O>",
+    "take_off",
+    "N"
+   ],
+   [
+    "remove <O>",
+    "take_off",
+    ""
+   ],
+   [
+    "pull/drag/tug/yank/haul ?up/out/over <O>",
+    "pull",
+    ""
+   ],
+   [
+    "pull/drag/tug/yank/haul <O> up/out/over",
+    "pull",
+    ""
+   ],
+   [
+    "push/shove/nudge <O> ?over/in",
+    "push",
+    ""
+   ],
+   [
+    "push/shove/move/slide/scoot back <O>",
+    "push",
+    "N",
+    {
+     "target": "back"
+    }
+   ],
+   [
+    "push/shove/move/slide away <O>",
+    "push",
+    "N",
+    {
+     "target": "away"
+    }
+   ],
+   [
+    "get <O>",
+    "bring",
+    "",
+    {
+     "_needtarget": 1
+    }
+   ],
+   [
+    "bring/carry <O> over",
+    "bring",
+    ""
+   ],
+   [
+    "bring over <O>",
+    "bring",
+    "N"
+   ],
+   [
+    "bring <O>",
+    "bring",
+    "",
+    {
+     "_needtarget": 1
+    }
+   ],
+   [
+    "slide/scoot/shift/inch <O> ?over/up",
+    "slide",
+    ""
+   ],
+   [
+    "give <O> a ?little/big/good/hard push/shove/nudge",
+    "push",
+    ""
+   ],
+   [
+    "give <O> a ?little/big/good/hard pull/tug/yank",
+    "pull",
+    ""
+   ],
+   [
+    "sit/sitting/go ?down/back/yourself in/on/into/onto <O>",
+    "sit_in",
+    "n"
+   ],
+   [
+    "sit/plop/plonk/plunk/settle/flop/sink/perch/park/climb/hop/get ?yourself ?down/back ?yourself ?down in/on/into/onto <O>",
+    "sit_in",
+    "N"
+   ],
+   [
+    "grab/find a seat in/on <O>",
+    "sit_in",
+    "N"
+   ],
+   [
+    "grab/find a seat at/by <O>",
+    "sit_at",
+    "N"
+   ],
+   [
+    "sit/plop/settle ?yourself ?down ?right at/by <O>",
+    "sit_at",
+    "N"
+   ],
+   [
+    "sit/sitting ?down/back at/by <O>",
+    "sit_at",
+    "n"
+   ],
+   [
+    "sit back down at/by <O>",
+    "sit_at",
+    "n"
+   ],
+   [
+    "sit back down in/on <O>",
+    "sit_in",
+    "n"
+   ],
+   [
+    "sit ?down ?back up to <O>",
+    "sit_at",
+    "N"
+   ],
+   [
+    "take/have a seat in/on <O>",
+    "sit_in",
+    "N"
+   ],
+   [
+    "take/have a seat at/by <O>",
+    "sit_at",
+    "N"
+   ],
+   [
+    "get/stand/hop/climb/jump up from/off <O>",
+    "stand_up",
+    "N"
+   ],
+   [
+    "get/stand/hop/climb/jump ?up out of <O>",
+    "stand_up",
+    "N"
+   ],
+   [
+    "get/hop/climb/jump off ?of <O>",
+    "stand_up",
+    "N"
+   ],
+   [
+    "leave <O>",
+    "stand_up",
+    "N"
+   ],
+   [
+    "open/opening ?up <O> ?up",
+    "open",
+    ""
+   ],
+   [
+    "flip/pop <O> open",
+    "open",
+    ""
+   ],
+   [
+    "flip/pop open <O>",
+    "open",
+    "N"
+   ],
+   [
+    "open the lid of/on <O>",
+    "open",
+    ""
+   ],
+   [
+    "close/shut/closing ?up <O> ?up",
+    "close",
+    ""
+   ],
+   [
+    "close/shut the lid of/on <O>",
+    "close",
+    ""
+   ],
+   [
+    "fold <O> shut/closed/up",
+    "close",
+    ""
+   ],
+   [
+    "get ?back to work",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get ?back to work on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get ?back to work at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "go ?back to work",
+    "work_on",
+    "b0"
+   ],
+   [
+    "go ?back to work on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "go ?back to work at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "start/begin/keep/continue working",
+    "work_on",
+    "b0"
+   ],
+   [
+    "start/begin/keep/continue working on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "start/begin/keep/continue working at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "do some/your/more work",
+    "work_on",
+    "b0"
+   ],
+   [
+    "do some/your/more work on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "do some/your/more work at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "do a little/bit ?of work",
+    "work_on",
+    "b0"
+   ],
+   [
+    "do a little/bit ?of work on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "do a little/bit ?of work at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "back to work",
+    "work_on",
+    "b0"
+   ],
+   [
+    "back to work on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "back to work at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get some work done",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get some work done on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get some work done at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "work on/at/with <O>",
+    "work_on",
+    ""
+   ],
+   [
+    "get typing",
+    "type_on",
+    "b0"
+   ],
+   [
+    "get typing on <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "get typing at <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "get typing into <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "get ?started working",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get ?started working on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get ?started working at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get started",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get started on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get started at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get started with <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get started typing",
+    "type_on",
+    "b0"
+   ],
+   [
+    "get started typing on <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "get started typing at <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "get busy",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get busy on <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get busy at <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "get busy with <O>",
+    "work_on",
+    "b0"
+   ],
+   [
+    "work",
+    "work_on",
+    "b0"
+   ],
+   [
+    "start/begin/keep/continue typing",
+    "type_on",
+    "b0"
+   ],
+   [
+    "start/begin/keep/continue typing on <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "start/begin/keep/continue typing into <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "start/begin/keep/continue typing at <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "do some typing",
+    "type_on",
+    "b0"
+   ],
+   [
+    "do some typing on <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "do some typing at <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "type ?something/stuff/away/more",
+    "type_on",
+    "b0"
+   ],
+   [
+    "type ?something/stuff/away/more on <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "type ?something/stuff/away/more into <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "type ?something/stuff/away/more at <O>",
+    "type_on",
+    "b0"
+   ],
+   [
+    "type on/into/at <O>",
+    "type_on",
+    ""
+   ],
+   [
+    "use/using <O>",
+    "use",
+    "n"
+   ],
+   [
+    "play with <O>",
+    "use",
+    ""
+   ],
+   [
+    "stop/quit working/typing/work",
+    "stop",
+    "b0"
+   ],
+   [
+    "stop/quit working/typing/work on <O>",
+    "stop",
+    "b0"
+   ],
+   [
+    "stop/quit working/typing/work at <O>",
+    "stop",
+    "b0"
+   ],
+   [
+    "stop/quit using <O>",
+    "stop",
+    ""
+   ],
+   [
+    "stop/quit playing with <O>",
+    "stop",
+    ""
+   ],
+   [
+    "stop what you are doing",
+    "stop",
+    "b0"
+   ],
+   [
+    "pause/quit/finish ?using/with <O>",
+    "stop",
+    "N"
+   ],
+   [
+    "pause/finish working/typing",
+    "stop",
+    "b0"
+   ],
+   [
+    "pause/finish working/typing on <O>",
+    "stop",
+    "b0"
+   ],
+   [
+    "pause/finish working/typing at <O>",
+    "stop",
+    "b0"
+   ],
+   [
+    "switch/swap/change/trade ?it/them ?to ?your ?the hands/paws/arms/sides/hand/paw",
+    "hand_over",
+    "b"
+   ],
+   [
+    "switch/swap/change/trade ?it/them over",
+    "hand_over",
+    "b"
+   ],
+   [
+    "switch/swap/change/trade hands/paws/arms/sides with <O>",
+    "hand_over",
+    ""
+   ],
+   [
+    "switch/swap/change/trade <O> to/into <S>",
+    "hand_over",
+    ""
+   ],
+   [
+    "give/pass/hand/move/put/switch/transfer/toss/throw/shift/swap <O> ?over/across <S>",
+    "hand_over",
+    ""
+   ],
+   [
+    "pass/hand <O> over/across",
+    "hand_over",
+    ""
+   ],
+   [
+    "give/pass/hand/move/put/switch/transfer/toss/throw/shift/swap/flip <O> from one/your @paw to/into ?the/your other ?one/@paw",
+    "hand_over",
+    ""
+   ],
+   [
+    "give/pass/hand <S> <O>",
+    "hand_over",
+    ""
+   ],
+   [
+    "give/pass/hand/offer/toss/throw <O> ?over ?here/out ?to me/us",
+    "offer",
+    "_to"
+   ],
+   [
+    "give/pass/hand/offer/bring/toss/throw me/us <O>",
+    "offer",
+    ""
+   ],
+   [
+    "hold <O> out",
+    "offer",
+    ""
+   ],
+   [
+    "hold <O> out to me",
+    "offer",
+    ""
+   ],
+   [
+    "hold <O> out to us",
+    "offer",
+    ""
+   ],
+   [
+    "hold <O> out toward me",
+    "offer",
+    ""
+   ],
+   [
+    "hold <O> out towards me",
+    "offer",
+    ""
+   ],
+   [
+    "hold out <O>",
+    "offer",
+    ""
+   ],
+   [
+    "can/may/could i ?please have/get/hold <O>",
+    "offer",
+    ""
+   ],
+   [
+    "let me have/hold <O>",
+    "offer",
+    ""
+   ],
+   [
+    "hand <O> over",
+    "offer",
+    ""
+   ],
+   [
+    "give <O> here",
+    "offer",
+    ""
+   ],
+   [
+    "show/showing me/us <O>",
+    "show",
+    ""
+   ],
+   [
+    "show ?off <O> ?off",
+    "show",
+    ""
+   ],
+   [
+    "hold <O> up to/for/toward/towards the camera/screen",
+    "show",
+    ""
+   ],
+   [
+    "hold up <O> to/for/toward/towards the camera/screen",
+    "show",
+    ""
+   ],
+   [
+    "let/lemme me/us see <O>",
+    "show",
+    ""
+   ],
+   [
+    "let/lemme me/us look at <O>",
+    "show",
+    ""
+   ],
+   [
+    "can/could/may i/we ?please see <O>",
+    "show",
+    ""
+   ],
+   [
+    "can/could/may i/we ?please look at <O>",
+    "show",
+    ""
+   ],
+   [
+    "show me/us the back/bottom/underside/top/inside/front of <O>",
+    "turn",
+    "",
+    {
+     "amount": 0.5
+    }
+   ],
+   [
+    "show me/us the other side of <O>",
+    "turn",
+    "",
+    {
+     "amount": 0.5
+    }
+   ],
+   [
+    "show me/us the back/bottom/underside ?side",
+    "turn",
+    "b",
+    {
+     "amount": 0.5
+    }
+   ],
+   [
+    "show me/us the other side",
+    "turn",
+    "b",
+    {
+     "amount": 0.5
+    }
+   ],
+   [
+    "give <O> a quarter turn/spin",
+    "turn",
+    "",
+    {
+     "amount": 0.25
+    }
+   ],
+   [
+    "give <O> a half turn/spin",
+    "turn",
+    "",
+    {
+     "amount": 0.5
+    }
+   ],
+   [
+    "give <O> a full/whole turn/spin",
+    "turn",
+    "",
+    {
+     "amount": 1
+    }
+   ],
+   [
+    "give <O> a ?little turn/spin/twirl",
+    "turn",
+    ""
+   ],
+   [
+    "take/have ?a ?closer/good/close/quick look at <O>",
+    "inspect",
+    ""
+   ],
+   [
+    "look ?closely/closer/carefully at <O>",
+    "inspect",
+    "N"
+   ],
+   [
+    "look at <O> ?really closely/closer/carefully",
+    "inspect",
+    "N"
+   ],
+   [
+    "look at <O>",
+    "inspect",
+    "n"
+   ],
+   [
+    "check/checking out <O>",
+    "inspect",
+    ""
+   ],
+   [
+    "check <O> out",
+    "inspect",
+    ""
+   ],
+   [
+    "inspect/examine/study/investigate/observe <O>",
+    "inspect",
+    ""
+   ],
+   [
+    "turn/rotate/spin/twirl <O> upside down",
+    "flip",
+    ""
+   ],
+   [
+    "hold <O> upside down",
+    "flip",
+    ""
+   ],
+   [
+    "flip <O> over/around",
+    "flip",
+    ""
+   ],
+   [
+    "turn <O> over",
+    "flip",
+    ""
+   ],
+   [
+    "flip/turn over <O>",
+    "flip",
+    ""
+   ],
+   [
+    "flip <O>",
+    "flip",
+    "n"
+   ],
+   [
+    "turn/rotate <O> around/round",
+    "turn",
+    "",
+    {
+     "amount": 0.5
+    }
+   ],
+   [
+    "turn around <O>",
+    "turn",
+    "N",
+    {
+     "amount": 0.5
+    }
+   ],
+   [
+    "spin/twirl <O> ?around/round",
+    "turn",
+    "",
+    {
+     "amount": 1
+    }
+   ],
+   [
+    "rotate <O>",
+    "turn",
+    ""
+   ],
+   [
+    "turn <O>",
+    "turn",
+    "n"
+   ],
+   [
+    "toss/throw/flip/chuck <O> ?up ?high/higher",
+    "toss",
+    ""
+   ],
+   [
+    "toss/throw/flip/chuck <O> ?up ?high/higher in the air",
+    "toss",
+    ""
+   ],
+   [
+    "toss/throw/flip/chuck <O> ?up ?high/higher into the air",
+    "toss",
+    ""
+   ],
+   [
+    "toss/throw/chuck <O> up",
+    "toss",
+    ""
+   ],
+   [
+    "toss/throw/chuck up <O>",
+    "toss",
+    "N"
+   ],
+   [
+    "toss <O>",
+    "toss",
+    ""
+   ],
+   [
+    "toss/throw/chuck ?up",
+    "toss",
+    ""
+   ],
+   [
+    "throw <O>",
+    "toss",
+    ""
+   ],
+   [
+    "juggle <O>",
+    "toss",
+    ""
+   ],
+   [
+    "juggle",
+    "toss",
+    "b"
+   ],
+   [
+    "bounce <O>",
+    "toss",
+    ""
+   ],
+   [
+    "bounce <O> on the floor",
+    "toss",
+    ""
+   ],
+   [
+    "bounce <O> on the ground",
+    "toss",
+    ""
+   ],
+   [
+    "bounce <O> on the table",
+    "toss",
+    ""
+   ],
+   [
+    "play catch ?with <O>",
+    "toss",
+    "b"
+   ],
+   [
+    "catch <O>",
+    "catch",
+    ""
+   ],
+   [
+    "catch",
+    "catch",
+    "b"
+   ],
+   [
+    "give <O> a ?little/good/big shake/shaking/rattle/wiggle",
+    "shake",
+    ""
+   ],
+   [
+    "shake/rattle/wiggle/jiggle/waggle <O> ?around/about/up",
+    "shake",
+    ""
+   ],
+   [
+    "wave <O> around/about",
+    "shake",
+    ""
+   ],
+   [
+    "wave <O>",
+    "shake",
+    ""
+   ],
+   [
+    "give <O> a ?big/little/huge/nice hug/squeeze/cuddle/kiss/snuggle",
+    "hug",
+    ""
+   ],
+   [
+    "hug/cuddle/squeeze/snuggle/kiss <O> ?tight/tightly/close",
+    "hug",
+    ""
+   ],
+   [
+    "cuddle/snuggle with <O>",
+    "hug",
+    ""
+   ],
+   [
+    "hold <O> close/tight/tightly",
+    "hug",
+    ""
+   ],
+   [
+    "give <O> a ?little/big/good sniff/smell/whiff",
+    "smell",
+    ""
+   ],
+   [
+    "take/have a ?little/big/good sniff/smell/whiff of <O>",
+    "smell",
+    ""
+   ],
+   [
+    "smell/sniff <O>",
+    "smell",
+    ""
+   ],
+   [
+    "hold/lift/raise/put/stick <O> up high/higher",
+    "hold_up",
+    ""
+   ],
+   [
+    "hold/lift/raise/put/stick <O> ?up ?high in/into the air/sky",
+    "hold_up",
+    ""
+   ],
+   [
+    "hold/lift/raise <O> ?up over/above your head",
+    "hold_up",
+    ""
+   ],
+   [
+    "hold up <O>",
+    "hold_up",
+    ""
+   ],
+   [
+    "hold <O> up",
+    "hold_up",
+    ""
+   ],
+   [
+    "raise ?up <O>",
+    "hold_up",
+    ""
+   ],
+   [
+    "lift <O> up high",
+    "hold_up",
+    ""
+   ],
+   [
+    "put/set/lay/place <O> back down",
+    "put_down",
+    ""
+   ],
+   [
+    "put/set/lay/place <O> down",
+    "put_down",
+    ""
+   ],
+   [
+    "put/set/lay/place down <O>",
+    "put_down",
+    "N"
+   ],
+   [
+    "put/set/lay/place <O> back",
+    "put_back",
+    ""
+   ],
+   [
+    "put/set/lay/place down",
+    "put_down",
+    ""
+   ],
+   [
+    "put/set/place back",
+    "put_back",
+    ""
+   ],
+   [
+    "put/place back <O>",
+    "put_back",
+    "N"
+   ],
+   [
+    "put/set/place/tuck <O> away",
+    "put_back",
+    ""
+   ],
+   [
+    "put away <O>",
+    "put_back",
+    "N"
+   ],
+   [
+    "return/replace <O>",
+    "put_back",
+    ""
+   ],
+   [
+    "bring <O> back",
+    "put_back",
+    ""
+   ],
+   [
+    "clean/tidy up ?<O>",
+    "put_back",
+    "b",
+    {
+     "_ref": "all"
+    }
+   ],
+   [
+    "clean/tidy <O> up",
+    "put_back",
+    ""
+   ],
+   [
+    "move <O>",
+    "slide",
+    "",
+    {
+     "_needtarget": 1
+    }
+   ],
+   [
+    "put/set/place/move/leave/stick/stand/balance/lay/plop <O>",
+    "place",
+    "",
+    {
+     "_needplace": 1
+    }
+   ],
+   [
+    "<O> on",
+    "put_on",
+    "N"
+   ],
+   [
+    "<O> off",
+    "take_off",
+    "N"
+   ],
+   [
+    "drop <O>",
+    "drop",
+    ""
+   ],
+   [
+    "let go of <O>",
+    "drop",
+    ""
+   ],
+   [
+    "let <O> go/fall/drop",
+    "drop",
+    ""
+   ],
+   [
+    "let go",
+    "drop",
+    "b"
+   ],
+   [
+    "pick/picks/picked/pickup up <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "pick <O> up",
+    "pick_up",
+    ""
+   ],
+   [
+    "pickup <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "pick up",
+    "pick_up",
+    "b"
+   ],
+   [
+    "grab/grabbed ahold/hold of <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "get/take ahold/hold of <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "grab/grap/crab <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "lift ?up <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "lift <O> up",
+    "pick_up",
+    ""
+   ],
+   [
+    "hold onto/on to <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "take/get/fetch/carry/collect <O> ?up",
+    "pick_up",
+    "n"
+   ],
+   [
+    "go get <O>",
+    "pick_up",
+    ""
+   ],
+   [
+    "pick <O>",
+    "pick_up",
+    "N"
+   ],
+   [
+    "hold <O>",
+    "pick_up",
+    "n"
+   ]
+  ],
+  "mods": [
+   [
+    "<N> times",
+    "mo",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "<N> more times",
+    "mo",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "<N> time",
+    "mo",
+    {
+     "count": "$N"
+    }
+   ],
+   [
+    "once",
+    "mo",
+    {
+     "count": 1
+    }
+   ],
+   [
+    "one time",
+    "mo",
+    {
+     "count": 1
+    }
+   ],
+   [
+    "twice",
+    "mo",
+    {
+     "count": 2
+    }
+   ],
+   [
+    "thrice",
+    "mo",
+    {
+     "count": 3
+    }
+   ],
+   [
+    "two times",
+    "mo",
+    {
+     "count": 2
+    }
+   ],
+   [
+    "over and over ?again",
+    "mo",
+    {
+     "count": 5
+    }
+   ],
+   [
+    "again and again",
+    "mo",
+    {
+     "count": 5
+    }
+   ],
+   [
+    "around/round and around/round",
+    "m",
+    {
+     "count": 3
+    },
+    [
+     "spin",
+     "twirl",
+     "walk",
+     "dance"
+    ]
+   ],
+   [
+    "in a row",
+    "mo",
+    {}
+   ],
+   [
+    "one after the other/another",
+    "mo",
+    {}
+   ],
+   [
+    "back to back",
+    "mo",
+    {}
+   ],
+   [
+    "just one",
+    "mo",
+    {
+     "count": 1
+    }
+   ],
+   [
+    "just once",
+    "mo",
+    {
+     "count": 1
+    }
+   ],
+   [
+    "?over backward/backwards",
+    "m",
+    {
+     "_flip": "backflip"
+    },
+    [
+     "flip",
+     "backflip",
+     "frontflip"
+    ]
+   ],
+   [
+    "?over forward/forwards",
+    "m",
+    {
+     "_flip": "frontflip"
+    },
+    [
+     "flip",
+     "backflip",
+     "frontflip"
+    ]
+   ],
+   [
+    "way up ?high/there",
+    "m",
+    {
+     "height": 1
+    },
+    [
+     "jump",
+     "hop",
+     "bounce",
+     "backflip",
+     "frontflip",
+     "flip"
+    ]
+   ],
+   [
+    "up there",
+    "m",
+    {
+     "height": 0.8
+    },
+    [
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "straight ?ahead",
+    "m",
+    {
+     "dir": "forward"
+    },
+    [
+     "walk",
+     "step"
+    ]
+   ],
+   [
+    "gracefully/elegantly/beautifully/nicely/neatly/quietly",
+    "mo",
+    {}
+   ],
+   [
+    "back",
+    "o",
+    {},
+    [
+     "toss",
+     "catch",
+     "offer",
+     "show",
+     "hold_up",
+     "hug"
+    ]
+   ],
+   [
+    "over",
+    "m",
+    {},
+    [
+     "walk",
+     "hop",
+     "jump",
+     "step",
+     "bounce",
+     "roll_over",
+     "cartwheel",
+     "run"
+    ]
+   ],
+   [
+    "?over/up/right to/toward/towards ?the/your <O>",
+    "m",
+    {
+     "target": "$O"
+    },
+    [
+     "walk",
+     "step",
+     "hop",
+     "jump",
+     "bounce",
+     "cartwheel",
+     "roll_over"
+    ]
+   ],
+   [
+    "for a second/sec/moment",
+    "mo",
+    {}
+   ],
+   [
+    "for the audience/camera/crowd/people/kids/family",
+    "mo",
+    {}
+   ],
+   [
+    "<N>",
+    "m",
+    {
+     "count": "$N"
+    },
+    [
+     "spin",
+     "twirl",
+     "backflip",
+     "frontflip",
+     "flip",
+     "cartwheel",
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "?to/toward/towards/on ?the/your @lr ?side",
+    "mo",
+    {
+     "dir": "$lr"
+    }
+   ],
+   [
+    "to/toward/towards/on my @lr ?side",
+    "mo",
+    {
+     "dir": "$slr"
+    }
+   ],
+   [
+    "@lr ward/wards",
+    "mo",
+    {
+     "dir": "$lr"
+    }
+   ],
+   [
+    "leftward/leftwards",
+    "mo",
+    {
+     "dir": "left"
+    }
+   ],
+   [
+    "rightward/rightwards",
+    "mo",
+    {
+     "dir": "right"
+    }
+   ],
+   [
+    "clockwise",
+    "mo",
+    {
+     "dir": "cw"
+    }
+   ],
+   [
+    "clock wise",
+    "mo",
+    {
+     "dir": "cw"
+    }
+   ],
+   [
+    "counterclockwise/anticlockwise",
+    "mo",
+    {
+     "dir": "ccw"
+    }
+   ],
+   [
+    "counter/anti clockwise",
+    "mo",
+    {
+     "dir": "ccw"
+    }
+   ],
+   [
+    "the other way ?around/round",
+    "mo",
+    {
+     "dir": "ccw"
+    },
+    [
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "toward/towards/to me/us",
+    "m",
+    {
+     "dir": "forward"
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "roll_over",
+     "cartwheel"
+    ]
+   ],
+   [
+    "toward/towards the camera/screen",
+    "m",
+    {
+     "dir": "forward"
+    }
+   ],
+   [
+    "forward/forwards/ahead/closer/frontward/frontwards",
+    "m",
+    {
+     "dir": "forward"
+    }
+   ],
+   [
+    "closer to me/us",
+    "m",
+    {
+     "dir": "forward"
+    }
+   ],
+   [
+    "over here",
+    "m",
+    {
+     "dir": "forward"
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "roll_over",
+     "cartwheel"
+    ]
+   ],
+   [
+    "backward/backwards/back",
+    "m",
+    {
+     "dir": "back"
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "roll_over",
+     "cartwheel",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "away",
+    "m",
+    {
+     "dir": "back"
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "roll_over",
+     "cartwheel"
+    ]
+   ],
+   [
+    "away from me",
+    "m",
+    {
+     "dir": "back"
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "roll_over",
+     "cartwheel"
+    ]
+   ],
+   [
+    "away from us",
+    "m",
+    {
+     "dir": "back"
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "roll_over",
+     "cartwheel"
+    ]
+   ],
+   [
+    "away from the camera",
+    "m",
+    {
+     "dir": "back"
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "roll_over",
+     "cartwheel"
+    ]
+   ],
+   [
+    "back and forth",
+    "m",
+    {},
+    [
+     "walk",
+     "dance",
+     "wiggle",
+     "step"
+    ]
+   ],
+   [
+    "side to side",
+    "m",
+    {},
+    [
+     "walk",
+     "dance",
+     "wiggle",
+     "step"
+    ]
+   ],
+   [
+    "sideways/aside",
+    "m",
+    {
+     "dir": "left"
+    },
+    [
+     "step",
+     "walk",
+     "hop",
+     "jump"
+    ]
+   ],
+   [
+    "to the side",
+    "m",
+    {
+     "dir": "left"
+    },
+    [
+     "step",
+     "walk",
+     "hop",
+     "jump",
+     "turn"
+    ]
+   ],
+   [
+    "up",
+    "mo",
+    {}
+   ],
+   [
+    "upward/upwards",
+    "m",
+    {
+     "dir": "up"
+    },
+    [
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "around/round/about",
+    "m",
+    {}
+   ],
+   [
+    "in a circle",
+    "m",
+    {
+     "style": "circle"
+    },
+    [
+     "walk",
+     "dance",
+     "hop",
+     "jump",
+     "bounce",
+     "roll_over"
+    ]
+   ],
+   [
+    "in a circle",
+    "m",
+    {},
+    [
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "around the room/place/table",
+    "m",
+    {
+     "style": "circle"
+    },
+    [
+     "walk",
+     "dance",
+     "hop",
+     "jump",
+     "bounce"
+    ]
+   ],
+   [
+    "in place/position",
+    "m",
+    {
+     "distance": 0
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "dance"
+    ]
+   ],
+   [
+    "on the spot",
+    "m",
+    {
+     "distance": 0
+    },
+    [
+     "walk",
+     "step",
+     "jump",
+     "hop",
+     "bounce",
+     "dance",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "on one/1 foot/leg/paw",
+    "m",
+    {
+     "style": "one_foot"
+    },
+    [
+     "hop",
+     "jump",
+     "stand",
+     "bounce",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "on your tippy/tip toes/toe",
+    "m",
+    {
+     "style": "tiptoe"
+    },
+    [
+     "walk",
+     "dance",
+     "stand",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "on tiptoe/tiptoes",
+    "m",
+    {
+     "style": "tiptoe"
+    },
+    [
+     "walk",
+     "dance",
+     "stand",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "on the floor/ground/rug/bed",
+    "m",
+    {},
+    [
+     "sit",
+     "lie_down",
+     "roll_over",
+     "stand",
+     "dance",
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "in the air",
+    "m",
+    {},
+    [
+     "jump",
+     "hop",
+     "bounce",
+     "backflip",
+     "frontflip",
+     "flip",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "on your tummy/belly/stomach/front",
+    "m",
+    {
+     "style": "front"
+    },
+    [
+     "lie_down",
+     "roll_over"
+    ]
+   ],
+   [
+    "on your back",
+    "m",
+    {
+     "style": "back"
+    },
+    [
+     "lie_down",
+     "roll_over"
+    ]
+   ],
+   [
+    "slowly/slow/gently/carefully/softly/slowmotion",
+    "mo",
+    {
+     "speed": "slow"
+    }
+   ],
+   [
+    "in slow motion/mo",
+    "mo",
+    {
+     "speed": "slow"
+    }
+   ],
+   [
+    "nice and slow/slowly/easy/gentle",
+    "mo",
+    {
+     "speed": "slow"
+    }
+   ],
+   [
+    "really/very/super/extra/real/so slowly/slow",
+    "mo",
+    {
+     "speed": 0.4
+    }
+   ],
+   [
+    "as slow/slowly as you can",
+    "mo",
+    {
+     "speed": 0.4
+    }
+   ],
+   [
+    "quickly/quick/fast/faster/rapidly/speedy",
+    "mo",
+    {
+     "speed": "fast"
+    }
+   ],
+   [
+    "real quick/fast",
+    "mo",
+    {
+     "speed": "fast"
+    }
+   ],
+   [
+    "really/very/super/extra/so fast/quickly/quick/faster",
+    "mo",
+    {
+     "speed": 2.5
+    }
+   ],
+   [
+    "as fast/quick/quickly as you can/possible",
+    "mo",
+    {
+     "speed": 2.5
+    }
+   ],
+   [
+    "lightning fast",
+    "mo",
+    {
+     "speed": 2.5
+    }
+   ],
+   [
+    "like lightning/crazy",
+    "m",
+    {
+     "speed": 2.5
+    },
+    [
+     "spin",
+     "twirl",
+     "walk",
+     "dance",
+     "wiggle"
+    ]
+   ],
+   [
+    "at normal speed",
+    "mo",
+    {
+     "speed": "normal"
+    }
+   ],
+   [
+    "high/higher/big/tall",
+    "m",
+    {
+     "height": 0.8
+    },
+    [
+     "jump",
+     "hop",
+     "bounce",
+     "backflip",
+     "frontflip",
+     "flip"
+    ]
+   ],
+   [
+    "up high",
+    "m",
+    {
+     "height": 0.8
+    },
+    [
+     "jump",
+     "hop",
+     "bounce",
+     "backflip",
+     "frontflip",
+     "flip"
+    ]
+   ],
+   [
+    "really/very/super/extra/so/real high/big/tall",
+    "m",
+    {
+     "height": 1
+    },
+    [
+     "jump",
+     "hop",
+     "bounce",
+     "backflip",
+     "frontflip",
+     "flip"
+    ]
+   ],
+   [
+    "as high as you can/possible",
+    "m",
+    {
+     "height": 1
+    },
+    [
+     "jump",
+     "hop",
+     "bounce",
+     "backflip",
+     "frontflip",
+     "flip"
+    ]
+   ],
+   [
+    "all the way up to the ceiling/sky",
+    "m",
+    {
+     "height": 1
+    },
+    [
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "to the ceiling/sky/moon",
+    "m",
+    {
+     "height": 1
+    },
+    [
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "a little/bit",
+    "m",
+    {
+     "height": 0.3
+    },
+    [
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "a little bit",
+    "m",
+    {
+     "height": 0.3
+    },
+    [
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "low/small/little/lightly",
+    "m",
+    {
+     "height": 0.3
+    },
+    [
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "a little/bit",
+    "m",
+    {},
+    [
+     "walk",
+     "dance",
+     "wiggle",
+     "spin",
+     "twirl",
+     "step"
+    ]
+   ],
+   [
+    "a little bit",
+    "m",
+    {},
+    [
+     "walk",
+     "dance",
+     "wiggle",
+     "spin",
+     "twirl",
+     "step"
+    ]
+   ],
+   [
+    "<N> steps ?forward/forwards",
+    "m",
+    {
+     "distance": "$N"
+    },
+    [
+     "walk",
+     "step"
+    ]
+   ],
+   [
+    "<N> step",
+    "m",
+    {
+     "distance": "$N"
+    },
+    [
+     "walk",
+     "step"
+    ]
+   ],
+   [
+    "a step",
+    "m",
+    {},
+    [
+     "step"
+    ]
+   ],
+   [
+    "far",
+    "m",
+    {},
+    [
+     "walk",
+     "jump",
+     "hop"
+    ]
+   ],
+   [
+    "far away",
+    "m",
+    {},
+    [
+     "walk",
+     "jump",
+     "hop"
+    ]
+   ],
+   [
+    "like a/an @style",
+    "m",
+    {
+     "style": "$style"
+    },
+    [
+     "dance",
+     "walk",
+     "jump",
+     "hop",
+     "wiggle",
+     "spin",
+     "twirl",
+     "bow",
+     "roll_over",
+     "sit",
+     "lie_down"
+    ]
+   ],
+   [
+    "like a/an dog/wet/puppy",
+    "m",
+    {},
+    [
+     "shake_off"
+    ]
+   ],
+   [
+    "like @style",
+    "m",
+    {
+     "style": "$style"
+    },
+    [
+     "dance",
+     "walk",
+     "wiggle",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "like crazy",
+    "m",
+    {
+     "style": "crazy"
+    },
+    [
+     "dance",
+     "wiggle",
+     "jump",
+     "hop",
+     "bounce"
+    ]
+   ],
+   [
+    "@mnstyle style",
+    "m",
+    {
+     "style": "$mnstyle"
+    },
+    [
+     "dance"
+    ]
+   ],
+   [
+    "to the music/beat/song",
+    "m",
+    {},
+    [
+     "dance",
+     "wiggle",
+     "jump",
+     "hop",
+     "bounce",
+     "walk",
+     "spin",
+     "twirl"
+    ]
+   ],
+   [
+    "happily",
+    "m",
+    {
+     "style": "happy"
+    },
+    [
+     "dance",
+     "jump",
+     "hop",
+     "bounce",
+     "spin",
+     "twirl",
+     "wiggle"
+    ]
+   ],
+   [
+    "silly/sillily/goofy",
+    "m",
+    {
+     "style": "silly"
+    },
+    [
+     "dance",
+     "walk",
+     "wiggle"
+    ]
+   ],
+   [
+    "with me/us",
+    "m",
+    {},
+    [
+     "dance",
+     "walk",
+     "jump",
+     "hop",
+     "spin",
+     "twirl",
+     "bounce",
+     "sit",
+     "lie_down",
+     "wiggle"
+    ]
+   ],
+   [
+    "with style",
+    "m",
+    {}
+   ],
+   [
+    "without looking at me/us",
+    "m",
+    {
+     "gaze": "free"
+    }
+   ],
+   [
+    "while/and looking at me/us",
+    "m",
+    {
+     "gaze": "user"
+    }
+   ],
+   [
+    "looking at me/us",
+    "m",
+    {
+     "gaze": "user"
+    }
+   ],
+   [
+    "but/and keep looking at me/us",
+    "m",
+    {
+     "gaze": "user"
+    }
+   ],
+   [
+    "but/and dont look at me/us",
+    "m",
+    {
+     "gaze": "free"
+    }
+   ],
+   [
+    "while facing me/us",
+    "m",
+    {
+     "gaze": "user"
+    }
+   ],
+   [
+    "but keep your eyes on me/us",
+    "m",
+    {
+     "gaze": "user"
+    }
+   ],
+   [
+    "with your eyes closed",
+    "m",
+    {
+     "gaze": "free"
+    }
+   ],
+   [
+    "until i say stop/so/when",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "until i tell you to stop",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "and stay",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "and stay like that",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "and stay there",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "and stay that way",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "and stay put",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "and keep it there/like that",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "for <N> seconds/secs/second/sec",
+    "mo",
+    {
+     "duration_ms": "$Ns"
+    }
+   ],
+   [
+    "for <N> minutes/minute",
+    "mo",
+    {
+     "duration_ms": "$Nm"
+    }
+   ],
+   [
+    "for a minute",
+    "mo",
+    {
+     "duration_ms": 60000
+    }
+   ],
+   [
+    "for a while/bit",
+    "mo",
+    {
+     "duration_ms": 10000
+    }
+   ],
+   [
+    "for a little while/bit",
+    "mo",
+    {
+     "duration_ms": 10000
+    }
+   ],
+   [
+    "forever",
+    "mo",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "?over here",
+    "o",
+    {
+     "target": "me"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?over to/toward/towards me/us",
+    "o",
+    {
+     "target": "me"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?over/right ?to/toward/towards/by/near yourself/you",
+    "o",
+    {
+     "target": "me"
+    },
+    [
+     "pull",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?over/right to/toward/towards/by/near my side",
+    "o",
+    {
+     "target": "me"
+    },
+    [
+     "pull",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?a little/bit/lot ?bit nearer/closer",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?a little/bit/lot ?bit nearer/closer to me",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?a little/bit/lot ?bit nearer/closer to you",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?a little/bit/lot ?bit nearer/closer to us",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?a little/bit/lot ?bit nearer/closer to yourself",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "away from you/yourself/me/us/<O>",
+    "o",
+    {
+     "target": "away"
+    },
+    [
+     "pull",
+     "push",
+     "slide"
+    ]
+   ],
+   [
+    "?all/right ?the ?way ?up/over ?real/really/super close/closer to <O>",
+    "o",
+    {
+     "target": "$O"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "all the way ?up/over to/toward/towards <O>",
+    "o",
+    {
+     "target": "$O"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "my/this way",
+    "o",
+    {
+     "target": "me"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "here",
+    "o",
+    {
+     "target": "me"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "closer",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "closer to me",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "closer to you",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "closer to us",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "a little/bit closer",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "a little bit closer",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "a little/bit further/farther ?away",
+    "o",
+    {
+     "target": "away"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "over hear",
+    "o",
+    {
+     "target": "me"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "nearer",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "nearer in",
+    "o",
+    {
+     "target": "closer"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "back",
+    "o",
+    {
+     "target": "back"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "back where it was",
+    "o",
+    {
+     "target": "back"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "back where it belongs",
+    "o",
+    {
+     "target": "back"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "back where it goes",
+    "o",
+    {
+     "target": "back"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "away",
+    "o",
+    {
+     "target": "away"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "away from me",
+    "o",
+    {
+     "target": "away"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "away from you",
+    "o",
+    {
+     "target": "away"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "away from us",
+    "o",
+    {
+     "target": "away"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "further/farther ?away/back",
+    "o",
+    {
+     "target": "away"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "up/over/across/back/right ?up to/toward/towards/against/under/beside/by/near <O>",
+    "o",
+    {
+     "target": "$O"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?up/over/right next/close/closer/nearer to <O>",
+    "o",
+    {
+     "target": "$O"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "?right in front of <O>",
+    "o",
+    {
+     "target": "$O"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "to/toward/towards/against/under/beside/by <O>",
+    "o",
+    {
+     "target": "$O"
+    },
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "over/up/out/in",
+    "o",
+    {},
+    [
+     "pull",
+     "push",
+     "bring",
+     "slide"
+    ]
+   ],
+   [
+    "on your ears",
+    "o",
+    {},
+    [
+     "put_on"
+    ]
+   ],
+   [
+    "in/with/using/into ?your/the/my/ur @lr @paw",
+    "o",
+    {
+     "side": "$lr"
+    }
+   ],
+   [
+    "in/with/using/into ?your/the/my/ur @lr",
+    "o",
+    {
+     "side": "$lr"
+    }
+   ],
+   [
+    "@lr handed/pawed",
+    "o",
+    {
+     "side": "$lr"
+    }
+   ],
+   [
+    "in/with/using ?your/the/my/ur both ?your/of ?your @paw",
+    "o",
+    {
+     "side": "both"
+    }
+   ],
+   [
+    "in/with/using ?your/the/my/ur two @paw",
+    "o",
+    {
+     "side": "both"
+    }
+   ],
+   [
+    "in/with/using both",
+    "o",
+    {
+     "side": "both"
+    }
+   ],
+   [
+    "two handed/pawed",
+    "o",
+    {
+     "side": "both"
+    }
+   ],
+   [
+    "with both of them",
+    "o",
+    {
+     "side": "both"
+    }
+   ],
+   [
+    "in/with/using ?your/the/my/ur other ?@paw",
+    "o",
+    {
+     "side": "other"
+    }
+   ],
+   [
+    "<P>",
+    "o",
+    {
+     "place": "$P"
+    }
+   ],
+   [
+    "down <P>",
+    "o",
+    {
+     "place": "$P"
+    }
+   ],
+   [
+    "back <P>",
+    "o",
+    {
+     "place": "$P",
+     "_pb": 1
+    }
+   ],
+   [
+    "back down <P>",
+    "o",
+    {
+     "place": "$P",
+     "_pb": 1
+    }
+   ],
+   [
+    "next/close to <O>",
+    "o",
+    {
+     "place": "near",
+     "near": "$O"
+    }
+   ],
+   [
+    "beside/by/near/besides <O>",
+    "o",
+    {
+     "place": "near",
+     "near": "$O"
+    }
+   ],
+   [
+    "back where it/they belongs/belong/goes/go/was/were",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "back where it/they belongs/belong/goes/go/was/were from",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "back where it/they came from",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "back to where it/they belongs/belong/goes/go/was/were/came",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "back to where it/they belongs/belong/goes/go/was/were/came from",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "where it/they belongs/belong/goes/go/was/were/lives/live",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "where it/they came from",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "?back where you found it/them/that",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "?back in/to its/their ?own place/spot/home/places/spots",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "?back on/in its/their shelf/spot",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "back home",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "back where it/they started ?from/out",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "back to where it/they started ?from/out",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "?back in/to/on its/their original/usual spot/place/position/home",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "?back where it/they was/were/came ?from ?before",
+    "o",
+    {
+     "_pb": 1
+    }
+   ],
+   [
+    "exactly/right",
+    "o",
+    {},
+    [
+     "put_back",
+     "place",
+     "put_down"
+    ]
+   ],
+   [
+    "back",
+    "o",
+    {
+     "_pb": 1
+    },
+    [
+     "put_down",
+     "put_back",
+     "place",
+     "drop",
+     "pick_up",
+     "hold_up",
+     "show",
+     "offer"
+    ]
+   ],
+   [
+    "away",
+    "o",
+    {
+     "_pb": 1
+    },
+    [
+     "put_down",
+     "put_back",
+     "place",
+     "drop",
+     "pick_up"
+    ]
+   ],
+   [
+    "down",
+    "o",
+    {
+     "_down": 1
+    }
+   ],
+   [
+    "over there/here",
+    "o",
+    {}
+   ],
+   [
+    "to/at/toward/towards me/us",
+    "o",
+    {
+     "_to": 1
+    }
+   ],
+   [
+    "to/at/toward/towards the camera/screen",
+    "o",
+    {
+     "_cam": 1
+    }
+   ],
+   [
+    "to/for the user/person/viewer/audience/camera",
+    "o",
+    {
+     "_cam": 1
+    }
+   ],
+   [
+    "to my side",
+    "o",
+    {
+     "_to": 1
+    }
+   ],
+   [
+    "for the camera",
+    "o",
+    {
+     "_cam": 1
+    }
+   ],
+   [
+    "so i/we can see ?it/them",
+    "o",
+    {
+     "_cam": 1
+    }
+   ],
+   [
+    "for me/us to see",
+    "o",
+    {
+     "_cam": 1
+    }
+   ],
+   [
+    "to everyone/everybody",
+    "o",
+    {
+     "_cam": 1
+    }
+   ],
+   [
+    "high/higher",
+    "o",
+    {
+     "_hi": 1
+    }
+   ],
+   [
+    "up high/higher",
+    "o",
+    {
+     "_hi": 1
+    }
+   ],
+   [
+    "really/very/super high",
+    "o",
+    {
+     "_hi": 1
+    }
+   ],
+   [
+    "in/into the air/sky",
+    "o",
+    {
+     "_hi": 1
+    }
+   ],
+   [
+    "up in/into the air/sky",
+    "o",
+    {
+     "_hi": 1
+    }
+   ],
+   [
+    "over/above your head",
+    "o",
+    {
+     "_hi": 1
+    }
+   ],
+   [
+    "around/round",
+    "o",
+    {
+     "amount": 0.5
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "all the way around/round",
+    "o",
+    {
+     "amount": 1
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "half way ?around/round",
+    "o",
+    {
+     "amount": 0.5
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "halfway ?around/round",
+    "o",
+    {
+     "amount": 0.5
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "half a turn",
+    "o",
+    {
+     "amount": 0.5
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "a quarter ?turn/way",
+    "o",
+    {
+     "amount": 0.25
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "a quarter of a ?turn/way",
+    "o",
+    {
+     "amount": 0.25
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "a little/bit",
+    "o",
+    {
+     "amount": 0.25
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "a little bit",
+    "o",
+    {
+     "amount": 0.25
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "90/ninety degrees",
+    "o",
+    {
+     "amount": 0.25
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "180 degrees",
+    "o",
+    {
+     "amount": 0.5
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "one hundred eighty degrees",
+    "o",
+    {
+     "amount": 0.5
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "360 degrees",
+    "o",
+    {
+     "amount": 1
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "upside down",
+    "o",
+    {
+     "_flip": 1
+    }
+   ],
+   [
+    "over",
+    "o",
+    {},
+    [
+     "flip",
+     "turn",
+     "hand_over"
+    ]
+   ],
+   [
+    "closely/close/closer/carefully",
+    "o",
+    {},
+    [
+     "inspect",
+     "show",
+     "hold_up",
+     "hug"
+    ]
+   ],
+   [
+    "real/really/super close/closely",
+    "o",
+    {},
+    [
+     "inspect",
+     "show",
+     "hold_up"
+    ]
+   ],
+   [
+    "in/with/between your/my/both paws/hands/paw/hand/arms",
+    "o",
+    {}
+   ],
+   [
+    "completely/fully ?around/round",
+    "o",
+    {
+     "amount": 1
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "so i/we can see the other side/back",
+    "o",
+    {
+     "amount": 0.5
+    },
+    [
+     "turn"
+    ]
+   ],
+   [
+    "in air",
+    "o",
+    {
+     "_hi": 1
+    }
+   ],
+   [
+    "here/over here",
+    "o",
+    {},
+    [
+     "show",
+     "offer",
+     "hold_up"
+    ]
+   ],
+   [
+    "up close",
+    "o",
+    {},
+    [
+     "inspect",
+     "show",
+     "hold_up",
+     "hug"
+    ]
+   ],
+   [
+    "really closely/close",
+    "o",
+    {},
+    [
+     "inspect",
+     "show"
+    ]
+   ],
+   [
+    "tight/tightly",
+    "o",
+    {},
+    [
+     "hug",
+     "pick_up",
+     "hold_up"
+    ]
+   ],
+   [
+    "and catch it/them",
+    "o",
+    {},
+    [
+     "toss"
+    ]
+   ],
+   [
+    "and keep holding it/them",
+    "o",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "and dont let go",
+    "o",
+    {
+     "hold": true
+    }
+   ],
+   [
+    "please/now/again/too/also/okay/ok/yeah/thanks/then/already/sometime/right",
+    "mo",
+    {}
+   ],
+   [
+    "instead/first/go/cool/yay/dear/kay/plz/pls",
+    "mo",
+    {}
+   ],
+   [
+    "after that",
+    "mo",
+    {}
+   ],
+   [
+    "will/would/can ya",
+    "mo",
+    {}
+   ],
+   [
+    "from you",
+    "mo",
+    {}
+   ],
+   [
+    "for us all",
+    "mo",
+    {}
+   ],
+   [
+    "right here",
+    "mo",
+    {}
+   ],
+   [
+    "all by yourself",
+    "mo",
+    {}
+   ],
+   [
+    "thank you",
+    "mo",
+    {}
+   ],
+   [
+    "for me/us/everyone/everybody/mommy/daddy ?please",
+    "mo",
+    {}
+   ],
+   [
+    "right now",
+    "mo",
+    {}
+   ],
+   [
+    "real quick",
+    "mo",
+    {
+     "speed": "fast"
+    }
+   ],
+   [
+    "one more time",
+    "mo",
+    {}
+   ],
+   [
+    "once more",
+    "mo",
+    {}
+   ],
+   [
+    "one last time",
+    "mo",
+    {}
+   ],
+   [
+    "if you can/want/like/could",
+    "mo",
+    {}
+   ],
+   [
+    "will/can/could/would you ?please",
+    "mo",
+    {}
+   ],
+   [
+    "as well",
+    "mo",
+    {}
+   ],
+   [
+    "this time",
+    "mo",
+    {}
+   ],
+   [
+    "just once",
+    "mo",
+    {
+     "count": 1
+    }
+   ],
+   [
+    "like you did before/earlier",
+    "mo",
+    {}
+   ],
+   [
+    "buddy/pal/friend/sweetie/honey/dude/man/kiddo/mister",
+    "mo",
+    {}
+   ],
+   [
+    "little/big buddy/guy/one/man",
+    "mo",
+    {}
+   ],
+   [
+    "my friend",
+    "mo",
+    {}
+   ]
+  ],
+  "frames": [
+   [
+    "can you",
+    "req"
+   ],
+   [
+    "could you",
+    "req"
+   ],
+   [
+    "would you",
+    "req"
+   ],
+   [
+    "will you",
+    "req"
+   ],
+   [
+    "can u",
+    "req"
+   ],
+   [
+    "could u",
+    "req"
+   ],
+   [
+    "can you please",
+    "req"
+   ],
+   [
+    "could you please",
+    "req"
+   ],
+   [
+    "would you please",
+    "req"
+   ],
+   [
+    "would you mind",
+    "ger"
+   ],
+   [
+    "do you mind",
+    "ger"
+   ],
+   [
+    "would ya",
+    "req"
+   ],
+   [
+    "can ya",
+    "req"
+   ],
+   [
+    "i want you to",
+    "req"
+   ],
+   [
+    "i would like you to",
+    "req"
+   ],
+   [
+    "id like you to",
+    "req"
+   ],
+   [
+    "i need you to",
+    "req"
+   ],
+   [
+    "i wanna see you",
+    "req"
+   ],
+   [
+    "i want to see you",
+    "req"
+   ],
+   [
+    "i would love to see you",
+    "req"
+   ],
+   [
+    "id love to see you",
+    "req"
+   ],
+   [
+    "id like to see you",
+    "req"
+   ],
+   [
+    "i would like to see you",
+    "req"
+   ],
+   [
+    "i wanna see",
+    "mnp"
+   ],
+   [
+    "i want to see",
+    "mnp"
+   ],
+   [
+    "id love to see",
+    "mnp"
+   ],
+   [
+    "i would love to see",
+    "mnp"
+   ],
+   [
+    "let me see you",
+    "req"
+   ],
+   [
+    "lets see you",
+    "req"
+   ],
+   [
+    "let us see you",
+    "req"
+   ],
+   [
+    "show me you can",
+    "req"
+   ],
+   [
+    "show me how you",
+    "req"
+   ],
+   [
+    "show us how you",
+    "req"
+   ],
+   [
+    "show me how well you can",
+    "req"
+   ],
+   [
+    "go ahead and",
+    "req"
+   ],
+   [
+    "try to",
+    "req"
+   ],
+   [
+    "try and",
+    "req"
+   ],
+   [
+    "try",
+    "ger"
+   ],
+   [
+    "why dont you",
+    "req"
+   ],
+   [
+    "how about you",
+    "req"
+   ],
+   [
+    "what about you",
+    "req"
+   ],
+   [
+    "how about",
+    "ger"
+   ],
+   [
+    "what about",
+    "ger"
+   ],
+   [
+    "do you want to",
+    "req"
+   ],
+   [
+    "do you wanna",
+    "req"
+   ],
+   [
+    "wanna",
+    "req"
+   ],
+   [
+    "you can",
+    "req"
+   ],
+   [
+    "you may",
+    "req"
+   ],
+   [
+    "you should",
+    "req"
+   ],
+   [
+    "lets",
+    "req"
+   ],
+   [
+    "let us",
+    "req"
+   ],
+   [
+    "let me see",
+    "mnp"
+   ],
+   [
+    "lets see",
+    "mnp"
+   ],
+   [
+    "let us see",
+    "mnp"
+   ],
+   [
+    "real quick",
+    "req"
+   ],
+   [
+    "quick quick",
+    "req"
+   ],
+   [
+    "time to",
+    "req"
+   ],
+   [
+    "its time to",
+    "req"
+   ],
+   [
+    "time for",
+    "mnp"
+   ],
+   [
+    "its time for",
+    "mnp"
+   ],
+   [
+    "simon says",
+    "req"
+   ],
+   [
+    "show me",
+    "mnp"
+   ],
+   [
+    "show us",
+    "mnp"
+   ],
+   [
+    "give me",
+    "mnp"
+   ],
+   [
+    "give us",
+    "mnp"
+   ],
+   [
+    "gimme",
+    "mnp"
+   ],
+   [
+    "go",
+    "req"
+   ],
+   [
+    "go and",
+    "req"
+   ],
+   [
+    "come on",
+    "req"
+   ],
+   [
+    "cmon",
+    "req"
+   ],
+   [
+    "ready set",
+    "req"
+   ],
+   [
+    "now",
+    "req"
+   ],
+   [
+    "and now",
+    "req"
+   ],
+   [
+    "and then",
+    "req"
+   ],
+   [
+    "then",
+    "req"
+   ],
+   [
+    "ok now",
+    "req"
+   ],
+   [
+    "i dare you to",
+    "req"
+   ],
+   [
+    "bet you cant",
+    "ndg"
+   ],
+   [
+    "are you able to",
+    "req"
+   ],
+   [
+    "please",
+    "req"
+   ],
+   [
+    "keep",
+    "keep"
+   ],
+   [
+    "keep on",
+    "keep"
+   ],
+   [
+    "continue",
+    "keep"
+   ],
+   [
+    "start",
+    "keep"
+   ],
+   [
+    "start to",
+    "req"
+   ],
+   [
+    "just",
+    "req"
+   ],
+   [
+    "quickly",
+    "fast"
+   ],
+   [
+    "slowly",
+    "slow"
+   ],
+   [
+    "gently",
+    "slow"
+   ],
+   [
+    "carefully",
+    "slow"
+   ],
+   [
+    "quick",
+    "fast"
+   ],
+   [
+    "first",
+    "req"
+   ],
+   [
+    "next",
+    "req"
+   ],
+   [
+    "also",
+    "req"
+   ],
+   [
+    "again",
+    "req"
+   ],
+   [
+    "i bet you cant",
+    "req"
+   ],
+   [
+    "i bet you can",
+    "req"
+   ],
+   [
+    "bet you can",
+    "req"
+   ],
+   [
+    "betcha cant",
+    "req"
+   ],
+   [
+    "i bet you cannot",
+    "req"
+   ],
+   [
+    "bet you cannot",
+    "req"
+   ],
+   [
+    "i dare you",
+    "req"
+   ],
+   [
+    "show me you",
+    "ger"
+   ],
+   [
+    "show us you",
+    "ger"
+   ],
+   [
+    "show me how to",
+    "req"
+   ],
+   [
+    "show me how you can",
+    "req"
+   ],
+   [
+    "can i see you",
+    "ger"
+   ],
+   [
+    "can we see you",
+    "ger"
+   ],
+   [
+    "may i see you",
+    "ger"
+   ],
+   [
+    "let me watch you",
+    "ger"
+   ],
+   [
+    "lemme see you",
+    "ger"
+   ],
+   [
+    "lets watch you",
+    "ger"
+   ],
+   [
+    "i wanna watch you",
+    "ger"
+   ],
+   [
+    "i want to watch you",
+    "ger"
+   ],
+   [
+    "would you be so kind as to",
+    "req"
+   ],
+   [
+    "be so kind as to",
+    "req"
+   ],
+   [
+    "do me a favor and",
+    "req"
+   ],
+   [
+    "you gotta",
+    "req"
+   ],
+   [
+    "you have to",
+    "req"
+   ],
+   [
+    "you need to",
+    "req"
+   ],
+   [
+    "make sure you",
+    "req"
+   ],
+   [
+    "its your turn to",
+    "req"
+   ],
+   [
+    "your turn to",
+    "req"
+   ],
+   [
+    "now its time to",
+    "req"
+   ],
+   [
+    "get ready to",
+    "req"
+   ],
+   [
+    "i want to see you",
+    "ger"
+   ],
+   [
+    "i wanna see you",
+    "ger"
+   ],
+   [
+    "lets see you",
+    "ger"
+   ],
+   [
+    "let me see you",
+    "ger"
+   ]
+  ],
+  "pre": [
+   "hey",
+   "hi",
+   "hello",
+   "so",
+   "and",
+   "um",
+   "uh",
+   "uhh",
+   "umm",
+   "er",
+   "erm",
+   "hmm",
+   "well",
+   "alright",
+   "okay",
+   "oh",
+   "ooh",
+   "yeah",
+   "yes",
+   "ah",
+   "right",
+   "oops",
+   "ok",
+   "now",
+   "please",
+   "alrighty",
+   "sure",
+   "buddy",
+   "pal",
+   "friend",
+   "kiddo",
+   "dude",
+   "sweetie",
+   "little",
+   "guy",
+   "mister",
+   "mr",
+   "maybe",
+   "dear",
+   "kindly",
+   "pls",
+   "plz",
+   "cmon",
+   "like",
+   "just",
+   "wait"
+  ],
+  "fillers": [
+   "um",
+   "uh",
+   "uhh",
+   "umm",
+   "er",
+   "erm",
+   "hmm",
+   "like",
+   "maybe",
+   "please",
+   "pls",
+   "plz",
+   "kindly"
+  ],
+  "gerund": {
+   "spinning": "spin",
+   "twirling": "twirl",
+   "turning": "turn",
+   "jumping": "jump",
+   "hopping": "hop",
+   "bouncing": "bounce",
+   "dancing": "dance",
+   "walking": "walk",
+   "stepping": "step",
+   "wiggling": "wiggle",
+   "wobbling": "wobble",
+   "rolling": "roll",
+   "flipping": "flip",
+   "facing": "face",
+   "holding": "hold",
+   "juggling": "juggle",
+   "tossing": "toss",
+   "throwing": "throw",
+   "shaking": "shake",
+   "hugging": "hug",
+   "looking": "look",
+   "cartwheeling": "cartwheel",
+   "marching": "march",
+   "running": "run",
+   "jogging": "jog",
+   "sitting": "sit",
+   "lying": "lie",
+   "laying": "lay",
+   "standing": "stand",
+   "bowing": "bow",
+   "picking": "pick",
+   "grabbing": "grab",
+   "putting": "put",
+   "showing": "show",
+   "doing": "do",
+   "getting": "get",
+   "rotating": "rotate",
+   "smelling": "smell",
+   "sniffing": "sniff",
+   "cuddling": "cuddle",
+   "boogieing": "boogie",
+   "backflipping": "backflip",
+   "somersaulting": "somersault",
+   "tiptoeing": "tiptoe",
+   "leaping": "leap",
+   "giving": "give",
+   "passing": "pass",
+   "handing": "hand",
+   "switching": "switch",
+   "lifting": "lift",
+   "raising": "raise",
+   "dropping": "drop",
+   "examining": "examine",
+   "inspecting": "inspect",
+   "checking": "check",
+   "catching": "catch",
+   "playing": "play",
+   "taking": "take",
+   "making": "make",
+   "trying": "try",
+   "pirouetting": "pirouette",
+   "jiggling": "jiggle",
+   "grooving": "groove",
+   "whirling": "whirl",
+   "pulling": "pull",
+   "pushing": "push",
+   "opening": "open",
+   "closing": "close",
+   "typing": "type",
+   "working": "work",
+   "sliding": "slide",
+   "bringing": "bring",
+   "moving": "move",
+   "setting": "set",
+   "placing": "place",
+   "dragging": "drag",
+   "removing": "remove",
+   "wearing": "wear",
+   "plopping": "plop",
+   "settling": "settle",
+   "waving": "wave",
+   "rising": "rise",
+   "using": "use",
+   "stopping": "stop",
+   "quitting": "quit",
+   "pausing": "pause",
+   "scooting": "scoot",
+   "shifting": "shift",
+   "nudging": "nudge",
+   "tugging": "tug",
+   "hauling": "haul",
+   "carrying": "carry",
+   "fetching": "fetch",
+   "offering": "offer",
+   "transferring": "transfer",
+   "swapping": "swap",
+   "studying": "study",
+   "returning": "return",
+   "replacing": "replace",
+   "tidying": "tidy",
+   "cleaning": "clean",
+   "frontflipping": "frontflip",
+   "heading": "head",
+   "flopping": "flop",
+   "slipping": "slip",
+   "popping": "pop"
+  },
+  "neg": [
+   "dont",
+   "not",
+   "never",
+   "no",
+   "cant",
+   "wont",
+   "shouldnt",
+   "couldnt",
+   "wouldnt",
+   "didnt",
+   "doesnt",
+   "stop",
+   "without",
+   "nobody",
+   "neither",
+   "nor",
+   "quit"
+  ],
+  "cls": {
+   "madjb": {
+    "double": 1,
+    "triple": 1,
+    "quadruple": 1,
+    "big": 1,
+    "huge": 1,
+    "giant": 1,
+    "high": 1,
+    "tall": 1,
+    "massive": 1,
+    "enormous": 1,
+    "little": 1,
+    "small": 1,
+    "tiny": 1,
+    "mini": 1,
+    "teeny": 1,
+    "baby": 1,
+    "low": 1,
+    "quick": 1,
+    "fast": 1,
+    "speedy": 1,
+    "slow": 1,
+    "slowmotion": 1,
+    "backward": 1,
+    "backwards": 1,
+    "back": 1,
+    "forward": 1,
+    "front": 1,
+    "single": 1,
+    "silly": 1,
+    "happy": 1,
+    "funny": 1,
+    "crazy": 1,
+    "wild": 1,
+    "goofy": 1,
+    "fancy": 1,
+    "funky": 1,
+    "wiggly": 1,
+    "robot": 1,
+    "disco": 1,
+    "victory": 1,
+    "spooky": 1,
+    "graceful": 1,
+    "ballet": 1,
+    "chicken": 1,
+    "dizzy": 1,
+    "flippy": 1,
+    "twirly": 1,
+    "spinny": 1,
+    "jumpy": 1,
+    "dancey": 1,
+    "deep": 1,
+    "really slow": 1,
+    "super slow": 1,
+    "very slow": 1,
+    "really fast": 1,
+    "super fast": 1,
+    "very fast": 1,
+    "really quick": 1,
+    "really high": 1,
+    "really tall": 1,
+    "super tall": 1,
+    "super high": 1,
+    "really big": 1,
+    "super big": 1
+   },
+   "lr": {
+    "left": "left",
+    "right": "right",
+    "lefft": "left",
+    "write": "right"
+   },
+   "paw": {
+    "paw": 1,
+    "hand": 1,
+    "arm": 1,
+    "paws": 2,
+    "hands": 2,
+    "arms": 2,
+    "pod": 1,
+    "pause": 2,
+    "pa": 1,
+    "palm": 1,
+    "side": 1,
+    "one": 1,
+    "hoof": 1,
+    "hooves": 2,
+    "flipper": 1,
+    "fin": 1,
+    "pore": 1,
+    "pour": 1,
+    "paul": 1
+   },
+   "mn": {
+    "spin": "spin",
+    "spins": "spin",
+    "twirl": "twirl",
+    "twirls": "twirl",
+    "pirouette": "twirl",
+    "pirouettes": "twirl",
+    "360": "spin",
+    "backflip": "backflip",
+    "backflips": "backflip",
+    "frontflip": "frontflip",
+    "frontflips": "frontflip",
+    "flip": "flip",
+    "flips": "flip",
+    "somersault": "frontflip",
+    "somersaults": "frontflip",
+    "summersault": "frontflip",
+    "cartwheel": "cartwheel",
+    "cartwheels": "cartwheel",
+    "jump": "jump",
+    "jumps": "jump",
+    "leap": "jump",
+    "leaps": "jump",
+    "hop": "hop",
+    "hops": "hop",
+    "bounce": "bounce",
+    "bounces": "bounce",
+    "dance": "dance",
+    "dances": "dance",
+    "jig": "dance",
+    "boogie": "dance",
+    "bow": "bow",
+    "bows": "bow",
+    "curtsy": "bow",
+    "wiggle": "wiggle",
+    "wiggles": "wiggle",
+    "wobble": "wiggle",
+    "roll": "roll_over",
+    "rolls": "roll_over",
+    "walk": "walk",
+    "step": "step",
+    "steps": "step",
+    "backflop": "backflip",
+    "handspring": "frontflip",
+    "back flip": "backflip",
+    "front flip": "frontflip",
+    "cart wheel": "cartwheel",
+    "summer salt": "frontflip",
+    "circle": "spin",
+    "circles": "spin",
+    "rotation": "spin",
+    "rotations": "spin",
+    "whirl": "spin",
+    "whirls": "spin",
+    "three sixty": "spin",
+    "some salt": "frontflip",
+    "car wheel": "cartwheel",
+    "moonwalk": "dance",
+    "twirly": "twirl",
+    "flippy": "flip",
+    "spinny": "spin",
+    "dancey": "dance"
+   },
+   "madj": {
+    "double": 1,
+    "triple": 1,
+    "quadruple": 1,
+    "big": 1,
+    "huge": 1,
+    "giant": 1,
+    "high": 1,
+    "tall": 1,
+    "massive": 1,
+    "enormous": 1,
+    "great": 1,
+    "little": 1,
+    "small": 1,
+    "tiny": 1,
+    "mini": 1,
+    "teeny": 1,
+    "baby": 1,
+    "low": 1,
+    "quick": 1,
+    "fast": 1,
+    "speedy": 1,
+    "slow": 1,
+    "slowmotion": 1,
+    "backward": 1,
+    "backwards": 1,
+    "back": 1,
+    "forward": 1,
+    "front": 1,
+    "full": 1,
+    "good": 1,
+    "nice": 1,
+    "real": 1,
+    "proper": 1,
+    "perfect": 1,
+    "cool": 1,
+    "awesome": 1,
+    "super": 1,
+    "fun": 1,
+    "little bit": 1,
+    "more": 1,
+    "single": 1,
+    "one": 1,
+    "silly": 1,
+    "happy": 1,
+    "funny": 1,
+    "crazy": 1,
+    "wild": 1,
+    "goofy": 1,
+    "fancy": 1,
+    "funky": 1,
+    "wiggly": 1,
+    "robot": 1,
+    "disco": 1,
+    "victory": 1,
+    "excited": 1,
+    "sad": 1,
+    "spooky": 1,
+    "graceful": 1,
+    "ballet": 1,
+    "chicken": 1,
+    "dizzy": 1,
+    "flippy": 1,
+    "twirly": 1,
+    "spinny": 1,
+    "jumpy": 1,
+    "dancey": 1,
+    "deep": 1,
+    "really slow": 1,
+    "super slow": 1,
+    "very slow": 1,
+    "really fast": 1,
+    "super fast": 1,
+    "very fast": 1,
+    "really quick": 1,
+    "really high": 1,
+    "really tall": 1,
+    "super tall": 1,
+    "complete": 1,
+    "whole": 1,
+    "ballerina": 1,
+    "elegant": 1,
+    "epic": 1,
+    "amazing": 1,
+    "standing": 1,
+    "up and down": 1,
+    "super high": 1,
+    "really big": 1,
+    "super big": 1
+   },
+   "dstyle": {
+    "robot": "robot",
+    "twist": "twist",
+    "floss": "floss",
+    "macarena": "macarena",
+    "moonwalk": "moonwalk",
+    "chicken": "chicken",
+    "salsa": "salsa",
+    "tango": "tango",
+    "waltz": "waltz",
+    "hula": "hula",
+    "disco": "disco",
+    "ballet": "ballet",
+    "worm": "worm",
+    "sprinkler": "sprinkler",
+    "conga": "conga",
+    "limbo": "limbo",
+    "jig": "jig",
+    "polka": "polka",
+    "cancan": "cancan",
+    "shuffle": "shuffle",
+    "dab": "dab",
+    "charleston": "charleston",
+    "mashed": "mashed",
+    "monkey": "monkey",
+    "penguin": "penguin",
+    "boogie": "boogie",
+    "jive": "jive",
+    "foxtrot": "foxtrot",
+    "rumba": "rumba",
+    "samba": "samba",
+    "breakdance": "breakdance",
+    "cha": "cha",
+    "swim": "swim",
+    "mambo": "mambo",
+    "running": "running",
+    "hokey": "hokey_pokey",
+    "hip": "hip_hop",
+    "chacha": "cha_cha",
+    "cha cha": "cha_cha",
+    "hokey pokey": "hokey_pokey",
+    "hip hop": "hip_hop",
+    "chicken dance": "chicken",
+    "bunny hop": "bunny_hop",
+    "electric slide": "electric_slide",
+    "running man": "running_man",
+    "moon walk": "moonwalk",
+    "happy dance": "happy",
+    "snoopy dance": "snoopy",
+    "potty dance": "potty",
+    "rain dance": "rain",
+    "can can": "cancan",
+    "macarena dance": "macarena"
+   },
+   "mnstyle": {
+    "silly": "silly",
+    "happy": "happy",
+    "funny": "funny",
+    "crazy": "crazy",
+    "wild": "wild",
+    "goofy": "goofy",
+    "fancy": "fancy",
+    "funky": "funky",
+    "wiggly": "wiggly",
+    "robot": "robot",
+    "disco": "disco",
+    "victory": "victory",
+    "excited": "excited",
+    "sad": "sad",
+    "spooky": "spooky",
+    "graceful": "graceful",
+    "ballet": "ballet",
+    "chicken": "chicken",
+    "snoopy": "snoopy",
+    "rain": "rain",
+    "potty": "potty",
+    "celebration": "celebration",
+    "birthday": "birthday",
+    "bedtime": "bedtime",
+    "jungle": "jungle",
+    "monkey": "monkey",
+    "bear": "bear",
+    "bunny": "bunny",
+    "rabbit": "rabbit",
+    "fox": "fox",
+    "hippo": "hippo",
+    "penguin": "penguin",
+    "pirate": "pirate",
+    "cowboy": "cowboy",
+    "fairy": "fairy",
+    "princess": "princess",
+    "superhero": "superhero",
+    "dinosaur": "dinosaur",
+    "zombie": "zombie",
+    "jelly": "jelly",
+    "wobbly": "wobbly",
+    "tap": "tap",
+    "hula": "hula",
+    "salsa": "salsa",
+    "tango": "tango",
+    "irish": "irish",
+    "square": "square",
+    "line": "line",
+    "belly": "belly",
+    "break": "break",
+    "dizzy": "dizzy",
+    "magic": "magic",
+    "wiggle": "wiggle",
+    "shimmy": "shimmy",
+    "jiggle": "jiggle",
+    "bouncy": "bouncy",
+    "boogie": "boogie",
+    "party": "party",
+    "rock": "rock",
+    "pop": "pop",
+    "star": "star",
+    "space": "space",
+    "underwater": "underwater",
+    "snow": "snow",
+    "spring": "spring",
+    "tiny": "tiny"
+   },
+   "style": {},
+   "pos": {
+    "middle": "middle",
+    "center": "middle",
+    "centre": "middle"
+   }
+  },
+  "madj": {
+   "double": {
+    "count": 2
+   },
+   "triple": {
+    "count": 3
+   },
+   "quadruple": {
+    "count": 4
+   },
+   "big": {
+    "height": 0.8
+   },
+   "huge": {
+    "height": 0.8
+   },
+   "giant": {
+    "height": 0.8
+   },
+   "high": {
+    "height": 0.8
+   },
+   "tall": {
+    "height": 0.8
+   },
+   "massive": {
+    "height": 0.8
+   },
+   "enormous": {
+    "height": 0.8
+   },
+   "great": {},
+   "little": {
+    "height": 0.3
+   },
+   "small": {
+    "height": 0.3
+   },
+   "tiny": {
+    "height": 0.3
+   },
+   "mini": {
+    "height": 0.3
+   },
+   "teeny": {
+    "height": 0.3
+   },
+   "baby": {
+    "height": 0.3
+   },
+   "low": {
+    "height": 0.3
+   },
+   "quick": {
+    "speed": "fast"
+   },
+   "fast": {
+    "speed": "fast"
+   },
+   "speedy": {
+    "speed": "fast"
+   },
+   "slow": {
+    "speed": "slow"
+   },
+   "slowmotion": {
+    "speed": "slow"
+   },
+   "backward": {
+    "_flip": "backflip"
+   },
+   "backwards": {
+    "_flip": "backflip"
+   },
+   "back": {
+    "_flip": "backflip"
+   },
+   "forward": {
+    "_flip": "frontflip"
+   },
+   "front": {
+    "_flip": "frontflip"
+   },
+   "full": {},
+   "good": {},
+   "nice": {},
+   "real": {},
+   "proper": {},
+   "perfect": {},
+   "cool": {},
+   "awesome": {},
+   "super": {},
+   "fun": {},
+   "little bit": {},
+   "more": {},
+   "single": {
+    "count": 1
+   },
+   "one": {},
+   "silly": {
+    "style": "silly"
+   },
+   "happy": {
+    "style": "happy"
+   },
+   "funny": {
+    "style": "funny"
+   },
+   "crazy": {
+    "style": "crazy"
+   },
+   "wild": {
+    "style": "wild"
+   },
+   "goofy": {
+    "style": "goofy"
+   },
+   "fancy": {
+    "style": "fancy"
+   },
+   "funky": {
+    "style": "funky"
+   },
+   "wiggly": {
+    "style": "wiggly"
+   },
+   "robot": {
+    "style": "robot"
+   },
+   "disco": {
+    "style": "disco"
+   },
+   "victory": {
+    "style": "victory"
+   },
+   "excited": {
+    "style": "excited"
+   },
+   "sad": {
+    "style": "sad"
+   },
+   "spooky": {
+    "style": "spooky"
+   },
+   "graceful": {
+    "style": "graceful"
+   },
+   "ballet": {
+    "style": "ballet"
+   },
+   "chicken": {
+    "style": "chicken"
+   },
+   "dizzy": {
+    "style": "dizzy"
+   },
+   "flippy": {
+    "_k": 1
+   },
+   "twirly": {
+    "_k": 1
+   },
+   "spinny": {
+    "_k": 1
+   },
+   "jumpy": {
+    "_k": 1
+   },
+   "dancey": {
+    "_k": 1
+   },
+   "deep": {
+    "_k": 1
+   },
+   "really slow": {
+    "speed": 0.4
+   },
+   "super slow": {
+    "speed": 0.4
+   },
+   "very slow": {
+    "speed": 0.4
+   },
+   "really fast": {
+    "speed": 2.5
+   },
+   "super fast": {
+    "speed": 2.5
+   },
+   "very fast": {
+    "speed": 2.5
+   },
+   "really quick": {
+    "speed": 2.5
+   },
+   "really high": {
+    "height": 1
+   },
+   "really tall": {
+    "height": 1
+   },
+   "super tall": {
+    "height": 1
+   },
+   "complete": {},
+   "whole": {},
+   "ballerina": {},
+   "elegant": {},
+   "epic": {},
+   "amazing": {},
+   "standing": {},
+   "up and down": {},
+   "super high": {
+    "height": 1
+   },
+   "really big": {
+    "height": 1
+   },
+   "super big": {
+    "height": 1
+   }
+  },
+  "nums": {
+   "one": 1,
+   "two": 2,
+   "three": 3,
+   "four": 4,
+   "five": 5,
+   "six": 6,
+   "seven": 7,
+   "eight": 8,
+   "nine": 9,
+   "ten": 10,
+   "eleven": 11,
+   "twelve": 12,
+   "fifteen": 15,
+   "twenty": 20,
+   "to": 2,
+   "too": 2,
+   "for": 4,
+   "won": 1,
+   "tree": 3
+  },
+  "qty": {
+   "a couple of": 2,
+   "a couple": 2,
+   "couple of": 2,
+   "a few": 3,
+   "few": 3,
+   "several": 4,
+   "a bunch of": 5,
+   "bunch of": 5,
+   "lots of": 5,
+   "a lot of": 5,
+   "many": 5,
+   "a hundred": 10,
+   "a million": 10,
+   "one hundred": 10,
+   "one or two": 2,
+   "two or three": 3,
+   "three or four": 4,
+   "a couple or three": 3
+  },
+  "colors": {
+   "red": "red",
+   "orange": "orange",
+   "yellow": "yellow",
+   "green": "green",
+   "blue": "blue",
+   "purple": "purple",
+   "violet": "violet",
+   "pink": "pink",
+   "brown": "brown",
+   "black": "black",
+   "white": "white",
+   "gray": "gray",
+   "gold": "gold",
+   "silver": "silver",
+   "teal": "teal",
+   "turquoise": "turquoise",
+   "cyan": "cyan",
+   "aqua": "aqua",
+   "magenta": "magenta",
+   "maroon": "maroon",
+   "navy": "navy",
+   "beige": "beige",
+   "lavender": "lavender",
+   "lilac": "lilac",
+   "crimson": "crimson",
+   "scarlet": "scarlet",
+   "indigo": "indigo",
+   "rainbow": "rainbow",
+   "peach": "peach",
+   "mint": "mint",
+   "lime": "lime",
+   "cream": "cream",
+   "tan": "tan",
+   "copper": "copper",
+   "bronze": "bronze",
+   "grey": "gray",
+   "golden": "gold",
+   "read": "red",
+   "blew": "blue",
+   "yellowish": "yellow",
+   "reddish": "red",
+   "bluish": "blue",
+   "greenish": "green",
+   "pinkish": "pink",
+   "purply": "purple"
+  },
+  "sizes": {
+   "big": "big",
+   "bigger": "big",
+   "biggest": "big",
+   "large": "big",
+   "larger": "big",
+   "largest": "big",
+   "huge": "big",
+   "giant": "big",
+   "tall": "big",
+   "taller": "big",
+   "tallest": "big",
+   "fat": "big",
+   "little": "small",
+   "small": "small",
+   "smaller": "small",
+   "smallest": "small",
+   "tiny": "small",
+   "mini": "small",
+   "short": "small",
+   "shorter": "small",
+   "teeny": "small",
+   "itty": "small",
+   "baby": "small"
+  },
+  "ords": {
+   "first": 1,
+   "second": 2,
+   "third": 3,
+   "fourth": 4,
+   "fifth": 5,
+   "1st": 1,
+   "2nd": 2,
+   "3rd": 3,
+   "4th": 4,
+   "last": -1
+  },
+  "shades": [
+   "light",
+   "dark",
+   "bright",
+   "pale",
+   "shiny",
+   "sparkly",
+   "glittery",
+   "round",
+   "fluffy",
+   "soft",
+   "squishy",
+   "old",
+   "new",
+   "pretty",
+   "nice",
+   "cute",
+   "favorite",
+   "favourite",
+   "special",
+   "whole",
+   "real",
+   "fake",
+   "toy",
+   "striped",
+   "spotted",
+   "spotty",
+   "empty",
+   "full",
+   "heavy",
+   "wooden",
+   "plastic",
+   "metal",
+   "shiny",
+   "juicy",
+   "yummy",
+   "tasty",
+   "delicious",
+   "ripe",
+   "fresh",
+   "stuffed",
+   "furry",
+   "smelly",
+   "stinky",
+   "funny",
+   "cool",
+   "lovely",
+   "beautiful",
+   "magic",
+   "magical",
+   "glowing",
+   "square",
+   "long",
+   "cuddly",
+   "squeaky",
+   "bouncy",
+   "same",
+   "very",
+   "super",
+   "really",
+   "lil",
+   "wee",
+   "colorful",
+   "colourful",
+   "fancy",
+   "sweet",
+   "precious",
+   "silly",
+   "happy",
+   "sad",
+   "mysterious",
+   "ancient",
+   "tasty",
+   "crunchy",
+   "golden"
+  ],
+  "nouns": {
+   "ball": "ball",
+   "balloon": "balloon",
+   "block": "block",
+   "book": "book",
+   "bell": "bell",
+   "box": "box",
+   "present": "present",
+   "gift": "gift",
+   "package": "package",
+   "parcel": "parcel",
+   "cup": "cup",
+   "mug": "mug",
+   "teacup": "teacup",
+   "bowl": "bowl",
+   "plate": "plate",
+   "spoon": "spoon",
+   "fork": "fork",
+   "apple": "apple",
+   "banana": "banana",
+   "carrot": "carrot",
+   "pear": "pear",
+   "lemon": "lemon",
+   "cherry": "cherry",
+   "strawberry": "strawberry",
+   "grape": "grape",
+   "watermelon": "watermelon",
+   "melon": "melon",
+   "coconut": "coconut",
+   "cookie": "cookie",
+   "cupcake": "cupcake",
+   "cake": "cake",
+   "candy": "candy",
+   "lollipop": "lollipop",
+   "donut": "donut",
+   "doughnut": "doughnut",
+   "honey": "honey",
+   "jar": "jar",
+   "acorn": "acorn",
+   "pinecone": "pinecone",
+   "leaf": "leaf",
+   "flower": "flower",
+   "rose": "rose",
+   "daisy": "daisy",
+   "tulip": "tulip",
+   "sunflower": "sunflower",
+   "lily": "lily",
+   "mushroom": "mushroom",
+   "shell": "shell",
+   "seashell": "seashell",
+   "starfish": "starfish",
+   "rock": "rock",
+   "stone": "stone",
+   "pebble": "pebble",
+   "stick": "stick",
+   "feather": "feather",
+   "crystal": "crystal",
+   "gem": "gem",
+   "jewel": "jewel",
+   "coin": "coin",
+   "star": "star",
+   "moon": "moon",
+   "sun": "sun",
+   "wand": "wand",
+   "crown": "crown",
+   "hat": "hat",
+   "umbrella": "umbrella",
+   "lantern": "lantern",
+   "lamp": "lamp",
+   "candle": "candle",
+   "bucket": "bucket",
+   "pail": "pail",
+   "shovel": "shovel",
+   "drum": "drum",
+   "teddy": "teddy",
+   "doll": "doll",
+   "duck": "duck",
+   "duckie": "duckie",
+   "ducky": "ducky",
+   "fish": "fish",
+   "bone": "bone",
+   "egg": "egg",
+   "nut": "nut",
+   "map": "map",
+   "scroll": "scroll",
+   "key": "key",
+   "telescope": "telescope",
+   "globe": "globe",
+   "kite": "kite",
+   "yoyo": "yoyo",
+   "car": "car",
+   "truck": "truck",
+   "train": "train",
+   "boat": "boat",
+   "rocket": "rocket",
+   "dinosaur": "dinosaur",
+   "robot": "robot",
+   "puzzle": "puzzle",
+   "crayon": "crayon",
+   "pencil": "pencil",
+   "paintbrush": "paintbrush",
+   "brush": "brush",
+   "marble": "marble",
+   "dice": "dice",
+   "cube": "cube",
+   "lettuce": "lettuce",
+   "bean": "bean",
+   "frisbee": "frisbee",
+   "trophy": "trophy",
+   "medal": "medal",
+   "flag": "flag",
+   "sock": "sock",
+   "shoe": "shoe",
+   "pillow": "pillow",
+   "blanket": "blanket",
+   "scarf": "scarf",
+   "ribbon": "ribbon",
+   "trumpet": "trumpet",
+   "guitar": "guitar",
+   "xylophone": "xylophone",
+   "whistle": "whistle",
+   "basket": "basket",
+   "backpack": "backpack",
+   "bottle": "bottle",
+   "glass": "glass",
+   "vase": "vase",
+   "pot": "pot",
+   "plant": "plant",
+   "cactus": "cactus",
+   "sandwich": "sandwich",
+   "pizza": "pizza",
+   "cheese": "cheese",
+   "corn": "corn",
+   "peanut": "peanut",
+   "berry": "berry",
+   "orange": "orange",
+   "peach": "peach",
+   "lime": "lime",
+   "orb": "orb",
+   "pumpkin": "pumpkin",
+   "snowball": "snowball",
+   "snowflake": "snowflake",
+   "ring": "ring",
+   "necklace": "necklace",
+   "bracelet": "bracelet",
+   "compass": "compass",
+   "hammer": "hammer",
+   "chair": "chair",
+   "desk": "desk",
+   "table": "table",
+   "stool": "stool",
+   "laptop": "laptop",
+   "computer": "computer",
+   "keyboard": "keyboard",
+   "monitor": "monitor",
+   "tablet": "tablet",
+   "notebook": "notebook",
+   "headset": "headset",
+   "cap": "cap",
+   "helmet": "helmet",
+   "mask": "mask",
+   "glove": "glove",
+   "mitten": "mitten",
+   "balls": "ball+",
+   "balloons": "balloon+",
+   "blocks": "block+",
+   "books": "book+",
+   "bells": "bell+",
+   "boxes": "box+",
+   "presents": "present+",
+   "gifts": "gift+",
+   "packages": "package+",
+   "parcels": "parcel+",
+   "cups": "cup+",
+   "mugs": "mug+",
+   "teacups": "teacup+",
+   "bowls": "bowl+",
+   "plates": "plate+",
+   "spoons": "spoon+",
+   "forks": "fork+",
+   "apples": "apple+",
+   "bananas": "banana+",
+   "carrots": "carrot+",
+   "pears": "pear+",
+   "lemons": "lemon+",
+   "cherries": "cherry+",
+   "strawberries": "strawberry+",
+   "grapes": "grape+",
+   "watermelons": "watermelon+",
+   "melons": "melon+",
+   "coconuts": "coconut+",
+   "cookies": "cookie+",
+   "cupcakes": "cupcake+",
+   "cakes": "cake+",
+   "candies": "candy+",
+   "lollipops": "lollipop+",
+   "donuts": "donut+",
+   "doughnuts": "doughnut+",
+   "honeys": "honey+",
+   "jars": "jar+",
+   "acorns": "acorn+",
+   "pinecones": "pinecone+",
+   "leafs": "leaf+",
+   "flowers": "flower+",
+   "roses": "rose+",
+   "daisies": "daisy+",
+   "tulips": "tulip+",
+   "sunflowers": "sunflower+",
+   "lilies": "lily+",
+   "mushrooms": "mushroom+",
+   "shells": "shell+",
+   "seashells": "seashell+",
+   "starfishes": "starfish+",
+   "rocks": "rock+",
+   "stones": "stone+",
+   "pebbles": "pebble+",
+   "sticks": "stick+",
+   "feathers": "feather+",
+   "crystals": "crystal+",
+   "gems": "gem+",
+   "jewels": "jewel+",
+   "coins": "coin+",
+   "stars": "star+",
+   "moons": "moon+",
+   "suns": "sun+",
+   "wands": "wand+",
+   "crowns": "crown+",
+   "hats": "hat+",
+   "umbrellas": "umbrella+",
+   "lanterns": "lantern+",
+   "lamps": "lamp+",
+   "candles": "candle+",
+   "buckets": "bucket+",
+   "pails": "pail+",
+   "shovels": "shovel+",
+   "drums": "drum+",
+   "teddies": "teddy+",
+   "dolls": "doll+",
+   "ducks": "duck+",
+   "duckies": "duckie+",
+   "fishes": "fish+",
+   "bones": "bone+",
+   "eggs": "egg+",
+   "nuts": "nut+",
+   "maps": "map+",
+   "scrolls": "scroll+",
+   "keys": "key+",
+   "telescopes": "telescope+",
+   "globes": "globe+",
+   "kites": "kite+",
+   "yoyos": "yoyo+",
+   "cars": "car+",
+   "trucks": "truck+",
+   "trains": "train+",
+   "boats": "boat+",
+   "rockets": "rocket+",
+   "dinosaurs": "dinosaur+",
+   "robots": "robot+",
+   "puzzles": "puzzle+",
+   "crayons": "crayon+",
+   "pencils": "pencil+",
+   "paintbrushes": "paintbrush+",
+   "brushes": "brush+",
+   "marbles": "marble+",
+   "dices": "dice+",
+   "cubes": "cube+",
+   "lettuces": "lettuce+",
+   "beans": "bean+",
+   "frisbees": "frisbee+",
+   "trophies": "trophy+",
+   "medals": "medal+",
+   "flags": "flag+",
+   "socks": "sock+",
+   "shoes": "shoe+",
+   "pillows": "pillow+",
+   "blankets": "blanket+",
+   "scarfs": "scarf+",
+   "ribbons": "ribbon+",
+   "trumpets": "trumpet+",
+   "guitars": "guitar+",
+   "xylophones": "xylophone+",
+   "whistles": "whistle+",
+   "baskets": "basket+",
+   "backpacks": "backpack+",
+   "bottles": "bottle+",
+   "glasses": "glasses",
+   "vases": "vase+",
+   "pots": "pot+",
+   "plants": "plant+",
+   "cactuses": "cactus+",
+   "sandwiches": "sandwich+",
+   "pizzas": "pizza+",
+   "cheeses": "cheese+",
+   "corns": "corn+",
+   "peanuts": "peanut+",
+   "berries": "berry+",
+   "oranges": "orange+",
+   "peaches": "peach+",
+   "limes": "lime+",
+   "orbs": "orb+",
+   "pumpkins": "pumpkin+",
+   "snowballs": "snowball+",
+   "snowflakes": "snowflake+",
+   "rings": "ring+",
+   "necklaces": "necklace+",
+   "bracelets": "bracelet+",
+   "compasses": "compass+",
+   "hammers": "hammer+",
+   "chairs": "chair+",
+   "desks": "desk+",
+   "tables": "table+",
+   "stools": "stool+",
+   "laptops": "laptop+",
+   "computers": "computer+",
+   "keyboards": "keyboard+",
+   "monitors": "monitor+",
+   "tablets": "tablet+",
+   "notebooks": "notebook+",
+   "headsets": "headset+",
+   "caps": "cap+",
+   "helmets": "helmet+",
+   "masks": "mask+",
+   "gloves": "glove+",
+   "mittens": "mitten+",
+   "leaves": "leaf+",
+   "lillies": "lily+",
+   "scarves": "scarf+",
+   "basketball": "basketball",
+   "football": "football",
+   "headphones": "headphones",
+   "headphone": "headphones",
+   "earphones": "earphones",
+   "earbuds": "earbuds",
+   "earmuffs": "earmuffs",
+   "sunglasses": "sunglasses",
+   "goggles": "goggles",
+   "spectacles": "glasses",
+   "specs": "glasses"
+  },
+  "nouns_multi": {
+   "teddy bear": "teddy_bear",
+   "teddy bears": "teddy_bear",
+   "honey pot": "honey_pot",
+   "honey pots": "honey_pot+",
+   "honey jar": "honey_jar",
+   "honey jars": "honey_jar+",
+   "magic wand": "magic_wand",
+   "magic wands": "magic_wand+",
+   "rubber duck": "rubber_duck",
+   "rubber ducks": "rubber_duck+",
+   "rubber ducky": "rubber_duck",
+   "rubber duckies": "rubber_duck+",
+   "jelly bean": "jelly_bean",
+   "jelly beans": "jelly_bean",
+   "ice cream": "ice_cream",
+   "ice creams": "ice_cream+",
+   "toy car": "car",
+   "toy cars": "car+",
+   "picture book": "book",
+   "picture books": "book+",
+   "spinning top": "spinning_top",
+   "spinning tops": "spinning_top+",
+   "water bottle": "water_bottle",
+   "water bottles": "water_bottle+",
+   "watering can": "watering_can",
+   "watering cans": "watering_can+",
+   "beach ball": "beach_ball",
+   "beach balls": "beach_ball+",
+   "soccer ball": "soccer_ball",
+   "soccer balls": "soccer_ball+",
+   "tennis ball": "tennis_ball",
+   "tennis balls": "tennis_ball+",
+   "basket ball": "basketball",
+   "basket balls": "basketball+",
+   "pine cone": "pinecone",
+   "pine cones": "pinecone+",
+   "sea shell": "seashell",
+   "sea shells": "seashell+",
+   "star fish": "starfish",
+   "star fishes": "starfish+",
+   "tea cup": "teacup",
+   "tea cups": "teacup+",
+   "cup cake": "cupcake",
+   "cup cakes": "cupcake+",
+   "water melon": "watermelon",
+   "water melons": "watermelon+",
+   "yo yo": "yoyo",
+   "yo yos": "yoyo+",
+   "treasure chest": "treasure_chest",
+   "treasure chests": "treasure_chest+",
+   "music box": "music_box",
+   "music boxes": "music_box+",
+   "toy box": "toy_box",
+   "toy boxes": "toy_box+",
+   "lunch box": "lunch_box",
+   "lunch boxes": "lunch_box+",
+   "flower pot": "flower_pot",
+   "flower pots": "flower_pot+",
+   "magnifying glass": "magnifying_glass",
+   "paint brush": "paintbrush",
+   "paint brushes": "paintbrush+",
+   "jack in the box": "jack_in_the_box",
+   "jack in the boxes": "jack_in_the_box+",
+   "stuffed animal": "stuffed_animal",
+   "stuffed animals": "stuffed_animal+",
+   "cart wheel": "cartwheel_toy",
+   "cart wheels": "cartwheel_toy+",
+   "head phones": "headphones",
+   "ear phones": "earphones",
+   "ear muffs": "earmuffs",
+   "ear buds": "earbuds",
+   "sun glasses": "sunglasses",
+   "lap top": "laptop",
+   "lap tops": "laptop+",
+   "desk chair": "desk_chair",
+   "desk chairs": "desk_chair+",
+   "office chair": "chair",
+   "office chairs": "chair+",
+   "bow tie": "bow_tie",
+   "bow ties": "bow_tie+",
+   "teddy bare": "teddy_bear",
+   "teddy bares": "teddy_bear+",
+   "jelly been": "jelly_bean",
+   "jelly beens": "jelly_bean+",
+   "side table": "side_table",
+   "side tables": "side_table+",
+   "coffee mug": "mug",
+   "coffee mugs": "mug+",
+   "headphone set": "headphones"
+  },
+  "generic": {
+   "toy": "toy",
+   "toys": "toy",
+   "food": "food",
+   "snack": "food",
+   "snacks": "food",
+   "treat": "food",
+   "treats": "food",
+   "fruit": "fruit",
+   "fruits": "fruit",
+   "drink": "drink",
+   "drinks": "drink",
+   "veggie": "food",
+   "vegetable": "food",
+   "veggies": "food",
+   "vegetables": "food"
+  },
+  "anyn": {
+   "won": 0,
+   "thing": 0,
+   "object": 0,
+   "item": 0,
+   "one": 0,
+   "stuff": 1,
+   "things": 1,
+   "objects": 1,
+   "items": 1,
+   "ones": 1
+  },
+  "places": {
+   "table": "table",
+   "desk": "desk",
+   "counter": "counter",
+   "floor": "floor",
+   "ground": "floor",
+   "shelf": "shelf",
+   "box": "box",
+   "chair": "chair",
+   "basket": "basket",
+   "bowl": "bowl",
+   "bucket": "bucket",
+   "lap": "lap",
+   "head": "head",
+   "bed": "bed",
+   "rug": "rug",
+   "blanket": "blanket",
+   "plate": "plate",
+   "bag": "bag",
+   "stool": "stool",
+   "bench": "bench",
+   "seat": "seat",
+   "pillow": "pillow",
+   "mat": "mat",
+   "tray": "tray",
+   "cup": "cup",
+   "nose": "nose",
+   "pot": "pot",
+   "jar": "jar",
+   "chest": "chest",
+   "toybox": "box"
+  },
+  "style_stop": [
+   "please",
+   "now",
+   "again",
+   "for",
+   "too",
+   "okay",
+   "ok",
+   "and",
+   "then",
+   "with",
+   "to",
+   "in",
+   "on",
+   "at"
+  ]
+ }
+}

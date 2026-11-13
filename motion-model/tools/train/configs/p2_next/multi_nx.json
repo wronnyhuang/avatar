@@ -1,0 +1,204 @@
+{
+ "common": {
+  "noise_profile": "noise_profile.json",
+  "model": {
+   "qknorm": true
+  },
+  "amp": "none",
+  "spike_factor": 8,
+  "blowup": 1.3,
+  "seq": 150,
+  "chunks": 8,
+  "aug": {
+   "self_noise": 0.6,
+   "p_self_drop": 0.25,
+   "p_null": 0.25
+  },
+  "guidance": 2.0,
+  "audio_in": "enc_whisper_tiny",
+  "enc_shift": 3,
+  "events": true,
+  "event_tol": 1,
+  "loss": {
+   "a2f": 0.0,
+   "event": 1.0
+  },
+  "runtime": {
+   "replan_every": 3,
+   "steps": 6,
+   "guidance": 2.0,
+   "temperature": 0.0,
+   "blend": 6,
+   "consistent_noise": true,
+   "smooth": 0.0,
+   "noise_rho": 0.0,
+   "temperature_groups": null,
+   "events": {
+    "mode": "threshold",
+    "gain": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "feed_history": true
+   }
+  },
+  "pack_on_cpu": false,
+  "lean": true,
+  "enc_missing": "silence",
+  "batch": 96,
+  "steps": 12000,
+  "eval_every": 750,
+  "log_every": 100,
+  "val_batches": 8,
+  "ckpt_seconds": 600,
+  "style_procs": 8,
+  "patience_evals": 4,
+  "write_final_ckpt": false,
+  "cpu_threads": 4,
+  "isolate_eval_rng": true
+ },
+ "runs": {
+  "nx": {
+   "pack": [
+    [
+     "fv4_inc25.npz",
+     "fv4_inc25.enc.npz"
+    ],
+    [
+     "fv4_inc50.npz",
+     "fv4_inc50.enc.npz"
+    ],
+    "candor_inc100.npz"
+   ],
+   "needs": [
+    "fv4_inc25.npz",
+    "fv4_inc25.enc.npz",
+    "fv4_inc50.npz",
+    "fv4_inc50.enc.npz",
+    "candor_inc100.npz"
+   ],
+   "models": {
+    "base": {
+     "model": {
+      "d": 512,
+      "layers": 9,
+      "heads": 8,
+      "hd": 320,
+      "hlayers": 4,
+      "hheads": 5
+     },
+     "lr": 0.0002,
+     "warmup": 2000,
+     "sweep": {
+      "lane": "nx",
+      "size": "s40",
+      "frac": 0.5,
+      "candor": false,
+      "params": 39925946,
+      "arm": "base"
+     }
+    },
+    "H": {
+     "model": {
+      "d": 512,
+      "layers": 9,
+      "heads": 8,
+      "hd": 320,
+      "hlayers": 4,
+      "hheads": 5
+     },
+     "lr": 0.0002,
+     "warmup": 2000,
+     "sweep": {
+      "lane": "nx",
+      "size": "s40",
+      "frac": 0.5,
+      "candor": false,
+      "params": 39925946,
+      "arm": "H"
+     },
+     "arm": {
+      "hist": true
+     }
+    },
+    "HRC": {
+     "model": {
+      "d": 512,
+      "layers": 9,
+      "heads": 8,
+      "hd": 320,
+      "hlayers": 4,
+      "hheads": 5
+     },
+     "lr": 0.0002,
+     "warmup": 2000,
+     "sweep": {
+      "lane": "nx",
+      "size": "s40",
+      "frac": 0.5,
+      "candor": false,
+      "params": 39925946,
+      "arm": "HRC"
+     },
+     "arm": {
+      "hist": true,
+      "react": true,
+      "contrast": true
+     }
+    },
+    "HRCc": {
+     "model": {
+      "d": 512,
+      "layers": 9,
+      "heads": 8,
+      "hd": 320,
+      "hlayers": 4,
+      "hheads": 5
+     },
+     "lr": 0.0002,
+     "warmup": 2000,
+     "sweep": {
+      "lane": "nx",
+      "size": "s40",
+      "frac": 0.5,
+      "candor": true,
+      "params": 39925946,
+      "arm": "HRCc"
+     },
+     "arm": {
+      "hist": true,
+      "react": true,
+      "contrast": true,
+      "stream": "alt"
+     }
+    }
+   },
+   "max_minutes": 270,
+   "end_margin_s": 720,
+   "env": {
+    "CUDA_VISIBLE_DEVICES": "0"
+   },
+   "dataset_weights": {
+    "candor": 0.0
+   },
+   "arm_streams": {
+    "alt": {
+     "dataset_weights": {
+      "candor": 3.0
+     }
+    }
+   }
+  }
+ },
+ "batches": [
+  [
+   "nx"
+  ]
+ ],
+ "min_batch_minutes": 5,
+ "max_wait_minutes": 300,
+ "batch_wait_minutes": [
+  300
+ ]
+}

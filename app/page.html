@@ -1,0 +1,2332 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex">
+<title>Talking friends</title>
+<style>
+:root{--bg:#0e1116;--card:#171b22;--line:#262c36;--fg:#e8ecf1;--dim:#93a0b0;--acc:#3d7cf0;--ok:#2fb77a;--warn:#e0a526;--bad:#e5534b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,-apple-system,Roboto,sans-serif}
+body{max-width:760px;margin:0 auto;padding:10px 10px calc(16px + env(safe-area-inset-bottom))}
+#stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden}
+#cv{width:100%;height:100%;display:block;object-fit:contain}
+#ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--dim);font-size:14px;text-align:center;padding:12px}
+#ph .big{font-size:64px;line-height:1}
+#hud{position:absolute;left:6px;top:6px;font:11px/1.35 ui-monospace,Menlo,monospace;background:#000a;color:#cfe3ff;padding:4px 6px;border-radius:6px;white-space:pre;pointer-events:none;display:none}
+#caps{min-height:3.2em;margin:8px 2px 0;font-size:15px}
+#caps div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#caps .you{color:var(--dim)} #caps .av{color:var(--fg)}
+#row{display:flex;gap:10px;align-items:center;margin:10px 0}
+#go{flex:1;font:600 20px system-ui,sans-serif;padding:16px;border:0;border-radius:14px;background:var(--acc);color:#fff}
+#go.stop{background:var(--bad)} #go:disabled{opacity:.5}
+#status{font-size:14px;color:var(--dim);margin:2px 2px 8px;min-height:1.4em}
+#wbar{display:none;height:6px;border-radius:3px;background:rgba(255,255,255,.12);margin:-4px 2px 10px;overflow:hidden}
+#wbar>i{display:block;height:100%;width:0;background:#5aa0ff;transition:width .8s linear}
+#status.err{color:var(--bad)} #status.live{color:var(--ok)}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.tile{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px 2px 4px;text-align:center;cursor:pointer;user-select:none}
+.tile.sel{border-color:var(--acc);background:#1b2433}
+.tile .ic{font-size:30px;height:36px;display:flex;align-items:center;justify-content:center}
+.tile svg{width:34px;height:34px}
+.tile .nm{font-size:12px;color:var(--dim);margin-top:2px}
+.opts{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;margin:12px 2px;font-size:14px;color:var(--dim)}
+.opts label{display:flex;gap:6px;align-items:center}
+select{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:4px 6px;font-size:14px}
+select.dev{max-width:11em}
+.note{font-size:12.5px;color:var(--dim);margin:6px 2px}
+#err{display:none;background:#3a1717;border:1px solid #6b2a2a;color:#ffd6d3;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:13.5px}
+/* mute: a thumb-zone dock (bottom of the viewport, right-aligned to the page column) - mic mute (big) + avatar-voice mute (small) */
+body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+#dock{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(760px,100%);padding:0 12px;display:flex;justify-content:flex-end;align-items:center;gap:10px;z-index:30;pointer-events:none}
+#dock button{pointer-events:auto;display:flex;align-items:center;justify-content:center;gap:10px;font:600 17px system-ui,sans-serif;color:var(--fg);background:var(--card);border:2px solid var(--line);border-radius:14px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;box-shadow:0 6px 18px #0007}
+#mute{min-height:58px;padding:0 20px 0 16px}
+#spk{width:52px;height:52px;padding:0}
+#dock svg{width:26px;height:26px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#dock button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#mute[aria-pressed=true]{background:var(--bad);border-color:#ffb4ae;color:#fff;box-shadow:0 0 0 4px rgba(229,83,75,.38),0 6px 18px #000a}
+#spk[aria-pressed=true]{background:var(--warn);border-color:#ffe29a;color:#1b1400}
+#mute .sub{display:none;font-weight:500;font-size:13px;opacity:.95}
+#mute[aria-pressed=true] .sub{display:inline}
+.mutebar{margin:8px 2px 0;padding:8px 12px;border-radius:10px;background:#3a1717;border:1px solid #6b2a2a;color:#ffd6d3;font-size:14px;font-weight:600}
+#stage.muted{outline:3px solid var(--bad);outline-offset:-3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){#mute[aria-pressed=true]{animation:mpulse 1.8s ease-in-out infinite}}
+@keyframes mpulse{50%{box-shadow:0 0 0 9px rgba(229,83,75,.14),0 6px 18px #000a}}
+@media (max-width:380px){#mute .sub{display:none!important}}
+</style></head><body>
+<div class="note" id="mode"></div>
+<div id="stage"><canvas id="cv" width="640" height="360"></canvas>
+  <div id="ph"><div class="big" id="phic">🦊</div><div id="phtx">Pick a friend and press Start.</div></div>
+  <div id="hud"></div></div>
+<div id="mutebar" class="mutebar" hidden>Microphone muted — the avatar can't hear you. Tap the red button to unmute.</div>
+<div id="caps"><div class="you" id="capy"></div><div class="av" id="capa"></div></div>
+<div id="row"><button id="go">Start</button></div>
+<div id="status">Loading…</div><div id="wbar"><i></i></div>
+<div id="err"></div>
+<div id="grid"></div>
+<div class="opts">
+  <label>Voice <select id="vm"><option value="realtime">Realtime 2.1</option><option value="gemini">Gemini 3.8 Live</option><option value="gemini-think">Gemini 3.8 Live + thinking (no body tools)</option><option value="live">GPT Live 1</option><option value="mock">Mock (free)</option><option value="loopback">Mock over WebRTC (free)</option><option value="hub">Hub bridge (old)</option></select></label>
+  <label title="Phone speakerphone: the avatar never hears itself; tap the avatar to interrupt it"><input type="checkbox" id="eg"> Echo guard (strict)</label>
+  <label>Quality <select id="ql"><option value="auto">auto</option><option>720p</option><option>540p</option><option>360p</option></select></label>
+  <label><input type="checkbox" id="hudon"> Stats</label>
+  <label>Mic <select id="micsel" class="dev"><option value="">Default</option></select></label>
+  <label>Camera <select id="camsel" class="dev"><option value="">Front (default)</option></select></label>
+</div>
+<div class="note">Headphones work best. Without them the phone's echo cancelling keeps your friend from hearing itself; its echo gate only lets your voice through while it talks; if it still hears itself, tick Echo guard (strict): your mic pauses while it talks.</div>
+<div class="note" id="spend"></div>
+<div id="dock" role="group" aria-label="Audio controls">
+  <button type="button" id="spk" aria-pressed="false" aria-label="Mute the avatar's voice" title="Mute the avatar's voice (speaker)"></button>
+  <button type="button" id="mute" aria-pressed="false" aria-label="Mute microphone" title="Mute microphone (M)"></button>
+</div>
+<div id="srlive" class="sr" role="status" aria-live="polite"></div>
+<!--MODULES-->
+<script>
+'use strict';
+const SR = 24000;
+const Q = new URLSearchParams(location.search);
+const K = Q.get('k') || '';
+const BASE = location.pathname.endsWith('/') ? location.pathname : location.pathname + '/';
+const HDR = {'x-requested-with': 'avatar-live'};
+const $ = id => document.getElementById(id);
+const cv = $('cv'), g2 = cv.getContext('2d', {alpha: false, desynchronized: true});
+const NPOLL = Math.max(1, Math.min(4, +(Q.get('polls') || 2)));
+const VSYNC = 1000 / 60;
+const CHAR_ICONS = {fox: '🦊', bear: '🐻', rabbit: '🐰', hippo: '🦛', monkey: '🐵'};
+const SVG = {
+  orb: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#70b9f5"/><circle cx="15" cy="14" r="6" fill="#cae7ff"/></svg>',
+  cube: '<svg viewBox="0 0 40 40"><path d="M20 4 35 12 20 20 5 12Z" fill="#ffd36b"/><path d="M5 12 20 20 20 37 5 29Z" fill="#e59b2f"/><path d="M35 12 20 20 20 37 35 29Z" fill="#c4761a"/></svg>',
+  drop: '<svg viewBox="0 0 40 40"><path d="M20 3C26 13 32 20 32 26A12 12 0 0 1 8 26C8 20 14 13 20 3Z" fill="#4fb3ff"/><ellipse cx="15" cy="25" rx="2.5" ry="4" fill="#d8f0ff"/></svg>',
+  star: '<svg viewBox="0 0 40 40"><path d="M20 3 24.9 14.6 37.5 15.6 27.9 23.8 30.8 36.1 20 29.5 9.2 36.1 12.1 23.8 2.5 15.6 15.1 14.6Z" fill="#ffd23f" stroke="#e8a400" stroke-width="1.2"/></svg>',
+  pyramid: '<svg viewBox="0 0 40 40"><path d="M20 4 4 34H20Z" fill="#f08a5d"/><path d="M20 4 36 34H20Z" fill="#b8544a"/></svg>',
+  blob: '<svg viewBox="0 0 40 40"><path d="M8 22C5 13 13 5 21 7 29 4 37 12 34 20 38 28 30 36 21 33 12 37 4 31 8 22Z" fill="#9b6bff"/><circle cx="15" cy="18" r="2.2" fill="#fff"/><circle cx="25" cy="18" r="2.2" fill="#fff"/></svg>',
+  // body: muse = cream plush, black bead eyes, rosy cheeks, small smile
+  muse: '<svg viewBox="0 0 40 40"><ellipse cx="20" cy="33" rx="10" ry="6" fill="#e9dfcb"/><circle cx="20" cy="18" r="14" fill="#f4ecdc" stroke="#d9ccb4" stroke-width="1"/><circle cx="15" cy="17" r="1.8" fill="#222"/><circle cx="25" cy="17" r="1.8" fill="#222"/><ellipse cx="11.5" cy="21.5" rx="2.6" ry="1.6" fill="#f4a6a6"/><ellipse cx="28.5" cy="21.5" rx="2.6" ry="1.6" fill="#f4a6a6"/><path d="M17.5 22.5Q20 25 22.5 22.5" stroke="#333" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg>',
+};
+let CHARS = [{key: 'fox', name: 'Felix'}, {key: 'bear', name: 'Bruno'}, {key: 'rabbit', name: 'Rosie'}, {key: 'hippo', name: 'Hattie'},
+  {key: 'monkey', name: 'Milo'}, {key: 'orb', name: 'Ori'}, {key: 'cube', name: 'Cubby'}, {key: 'drop', name: 'Dewdrop'},
+  {key: 'star', name: 'Stella'}, {key: 'pyramid', name: 'Pip'}, {key: 'blob', name: 'Bloop'},
+  {key: 'muse', name: 'Muse'}];   // body: + muse
+let sel = Q.get('char') || localStorage.getItem('avatar.char') || 'fox';
+let codecPref = Q.get('codec') || null;
+
+// ------------------------------------------------------------------ net helpers (every request has a timeout)
+function url(path, params) {
+  const p = new URLSearchParams(params || {}); p.set('k', K);
+  return BASE + path + '?' + p.toString();
+}
+// the stream lanes (api/exchange, api/up) go to the page's own origin; the cursor rides the URL (?after=).
+function streamReq(path, after) {
+  return {u: url(path, after === undefined ? {sid: S.sid} : {sid: S.sid, after}), h: {}};
+}
+function tsignal(ms) {
+  if (AbortSignal.timeout) return AbortSignal.timeout(ms);
+  const c = new AbortController(); setTimeout(() => c.abort(), ms); return c.signal;
+}
+async function apiJSON(path, body, ms = 8000, params) {
+  const r = await fetch(url(path, params), {method: body === undefined ? 'GET' : 'POST', headers: body === undefined ? HDR : {...HDR, 'content-type': 'application/json'},
+    body: body === undefined ? undefined : JSON.stringify(body), signal: tsignal(ms), cache: 'no-store'});
+  let j = null; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error((j && j.error) || ('HTTP ' + r.status));
+  return j;
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function showErr(msg) { const e = $('err'); if (!msg) { e.style.display = 'none'; return; } e.textContent = msg; e.style.display = 'block'; }
+function setStatus(txt, cls) { const s = $('status'); s.textContent = txt; s.className = cls || ''; }
+
+// ------------------------------------------------------------------ picker
+function iconHTML(k) { return SVG[k] || ('<span>' + (CHAR_ICONS[k] || '❓') + '</span>'); }
+function drawGrid() {
+  const gEl = $('grid'); gEl.innerHTML = '';
+  for (const c of CHARS) {
+    const d = document.createElement('div'); d.className = 'tile' + (c.key === sel ? ' sel' : ''); d.dataset.k = c.key;
+    d.innerHTML = '<div class="ic">' + iconHTML(c.key) + '</div><div class="nm">' + c.name + '</div>';
+    d.onclick = () => pick(c.key); gEl.appendChild(d);
+  }
+  $('phic').innerHTML = iconHTML(sel);
+}
+function charName(k) { const c = CHARS.find(x => x.key === k); return c ? c.name : k; }
+function pick(k) {
+  if (k === sel) return;
+  sel = k; localStorage.setItem('avatar.char', k); drawGrid();
+  if (D.alog) D.alog.reset(); if (D.cos) D.cos.reset();                                // speech: a new body starts with no history
+  if (D.perf) D.perf.stop('character switch');
+  if (D.vt) D.vt.reset();                                                             // voice tools
+  if (S.live) { sendCtl({type: 'character', character: k}); if (S.direct) redial(); if (window.AvatarRec) AvatarRec.note({character: k}); }
+  else warm();
+}
+
+// ------------------------------------------------------------------ the audio worklet: mic capture + timeline playout
+const WORKLET = `
+const TSR = 24000;
+class IO extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.N = TSR * 16; this.ring = new Float32Array(this.N); this.hi = -1; this.first = -1;
+    this.baseFrame = null; this.step = TSR / sampleRate;
+    this.cap = new Float32Array(480); this.capN = 0; this.ph = 0; this.prev = 0;
+    this.under = 0; this.underMs = 0; this.late = 0; this.lastRep = 0; this.on = true; this.lvl = 0;
+    this.port.onmessage = e => {
+      const m = e.data;
+      if (m.t === 'a') this.write(m.s0, m.pcm);
+      else if (m.t === 'base') this.baseFrame = m.base * sampleRate;
+      else if (m.t === 'reset') { this.ring.fill(0); this.hi = -1; this.first = -1; this.baseFrame = null; this.under = this.underMs = this.late = 0; }
+    };
+  }
+  write(s0, pcm) {
+    const n = pcm.length, N = this.N;
+    const playing = this.baseFrame === null ? -1 : (currentFrame - this.baseFrame) * this.step;
+    if (s0 + n <= playing) { this.late++; return; }
+    if (this.first < 0) this.first = s0;
+    if (this.hi >= 0 && s0 > this.hi) for (let i = this.hi; i < s0; i++) this.ring[i % N] = 0;
+    for (let i = 0; i < n; i++) this.ring[(s0 + i) % N] = pcm[i] / 32768;
+    if (s0 + n > this.hi) this.hi = s0 + n;
+  }
+  process(inputs, outputs) {
+    const inp = inputs[0] && inputs[0][0];
+    if (inp) {
+      // mic -> 24 kHz PCM16 in 20 ms chunks (linear resample when the context runs at another rate)
+      if (this.step === 1) { for (let i = 0; i < inp.length; i++) this.push(inp[i]); }
+      else {
+        const r = sampleRate / TSR;
+        for (let i = 0; i < inp.length; i++) {
+          const x = inp[i];
+          while (this.ph <= 1) { this.push(this.prev + (x - this.prev) * this.ph); this.ph += r; }
+          this.ph -= 1; this.prev = x;
+        }
+      }
+    }
+    const out = outputs[0] && outputs[0][0];
+    if (out) {
+      if (this.baseFrame === null || this.hi < 0) out.fill(0);
+      else {
+        const N = this.N; let p = (currentFrame - this.baseFrame) * this.step, miss = 0, lv = 0;
+        for (let i = 0; i < out.length; i++, p += this.step) {
+          if (p < this.first) { out[i] = 0; continue; }
+          if (p + 1 >= this.hi) { out[i] = 0; miss++; continue; }
+          const ip = Math.floor(p), f = p - ip;
+          const v = f === 0 ? this.ring[ip % N] : this.ring[ip % N] * (1 - f) + this.ring[(ip + 1) % N] * f;
+          out[i] = v; lv += v * v;
+        }
+        if (miss) { this.under++; this.underMs += miss / sampleRate * 1000; }
+        this.lvl = Math.sqrt(lv / out.length);
+        for (let c = 1; c < outputs[0].length; c++) outputs[0][c].set(out);
+      }
+    }
+    if (currentTime - this.lastRep > 0.1) {
+      this.lastRep = currentTime;
+      const playing = this.baseFrame === null ? -1 : (currentFrame - this.baseFrame) * this.step;
+      this.port.postMessage({t: 'st', playing, hi: this.hi, under: this.under, underMs: this.underMs, late: this.late, ct: currentTime, lvl: this.lvl});
+    }
+    return true;
+  }
+  push(x) {
+    this.cap[this.capN++] = x;
+    if (this.capN === 480) {
+      const pcm = new Int16Array(480); let e = 0;
+      for (let i = 0; i < 480; i++) { let v = this.cap[i]; v = v > 1 ? 1 : v < -1 ? -1 : v; const s = Math.round(v * 32767); pcm[i] = s; e += s * s; }
+      this.capN = 0;
+      this.port.postMessage({t: 'm', pcm, ct: currentTime, rms: Math.sqrt(e / 480)}, [pcm.buffer]);
+    }
+  }
+}
+registerProcessor('avatar-io', IO);
+`;
+
+// ------------------------------------------------------------------ session state
+const S = {
+  live: false, starting: false, sid: null, ctx: null, node: null, stream: null, src: null,
+  cfg: null, base: null, D: 0.3, want: 1, got: new Map(), lost: new Set(), gapSince: 0,
+  dec: null, decCodec: null, needKey: true, frames: [], drawn: 0, drawnT: null,
+  micSeq: 0, upQ: [], ctlQ: [], upInflight: 0, stage: '', ended: false,
+  wst: null, voicedRanges: [], userEndCt: null, prevTurnCt: -1, turnsNew: [], lastFA: null,
+  st: {late: 0, dropped: 0, decErr: 0, keyReq: 0, pollErr: 0, upErr: 0, framesIn: 0, skippedSeq: 0, dDelta: 0},
+  rtt: [], uprtt: [], sync: [], shownTimes: [], lastUnder: 0, underTimes: [], vlag: 0, vlEx: [], vlUps: 0, vlMax: 0,
+};
+const gen = {n: 0};
+
+// ------------------------------------------------------------------ direct voice : the page's own WebRTC session
+// voice.js does the session (Realtime 2.1 / GPT Live 1 / Mock); this block wires it to the playout graph (tap -> server
+// 'P', DelayNode -> speakers), the video clock, the motion module and the camera-event policy.
+const D = {voice: null, play: null, mode: '', rtt: [], need: [], cmds: [], history: [], recoveries: [], restarts: [], gaps: [], lastCmd: new Map(), motion: null, features: null,
+  rigTimer: 0, events: [], usd: 0, startedPerf: 0};
+const RT_RATES = {text_in: 4, audio_in: 32, image_in: 5, cached: 0.4, text_out: 16, audio_out: 64};   // $/1M (est.)
+function usageUsd(u) {
+  const i = u.input_token_details || {}, o = u.output_token_details || {}, c = i.cached_tokens_details || {};
+  const ct = c.text_tokens || 0, ca = c.audio_tokens || 0, ci = c.image_tokens || 0;
+  return (Math.max(0, (i.text_tokens || 0) - ct) * RT_RATES.text_in + Math.max(0, (i.audio_tokens || 0) - ca) * RT_RATES.audio_in +
+    Math.max(0, (i.image_tokens || 0) - ci) * RT_RATES.image_in + (ct + ca + ci) * RT_RATES.cached +
+    (o.text_tokens || 0) * RT_RATES.text_out + (o.audio_tokens || 0) * RT_RATES.audio_out) / 1e6;
+}
+
+// ---- uplink weight (latency): G.711 mu-law for the voice tap ('P', flags bit1) and the mic ('M', flags bit0),
+// the mic at 16 kHz in direct mode (it only feeds the server's intent ASR there), and the 30 Hz rig vector as binary 'R'
+// (int16 x 1e-4) instead of JSON. ?ulaw=0 / ?rigjson=1 restore the old forms (the server accepts both).
+const UPW = {ulaw: Q.get('ulaw') !== '0', rigbin: Q.get('rigjson') !== '1', mic16: Q.get('mic16') !== '0'};
+function ulawEnc(pcm) {
+  const out = new Uint8Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) {
+    let x = pcm[i], sign = 0; if (x < 0) { sign = 0x80; x = -x; } if (x > 32635) x = 32635; x += 0x84;
+    let exp = 7; for (let mask = 0x4000; (x & mask) === 0 && exp > 0; exp--, mask >>= 1);
+    out[i] = ~(sign | (exp << 4) | ((x >> (exp + 3)) & 0x0F)) & 0xFF;
+  }
+  return out;
+}
+const DS = (() => {     // 24 kHz -> 16 kHz (x2/3): windowed-sinc low-pass at 7.2 kHz, phases 0 and 1/2, streaming
+  const T = 16, H = T / 2, fc = 7200 / 24000;
+  const mk = frac => { const h = new Float32Array(T); let sum = 0;
+    for (let k = 0; k < T; k++) { const x = k - (H - 1) - frac, w = 0.5 + 0.5 * Math.cos(Math.PI * x / (H + 0.5));
+      h[k] = (x === 0 ? 2 * fc : Math.sin(2 * Math.PI * fc * x) / (Math.PI * x)) * w; sum += h[k]; }
+    for (let k = 0; k < T; k++) h[k] /= sum; return h; };
+  return {T, H, h0: mk(0), h1: mk(0.5), tail: new Float32Array(T), next: T};
+})();
+function down16(pcm) {
+  const {T, H} = DS, buf = new Float32Array(DS.tail.length + pcm.length);
+  buf.set(DS.tail); for (let i = 0; i < pcm.length; i++) buf[DS.tail.length + i] = pcm[i];
+  const out = []; let p = DS.next;
+  while (Math.floor(p) + H < buf.length) {
+    const i0 = Math.floor(p), h = (p - i0) ? DS.h1 : DS.h0; let acc = 0;
+    for (let k = 0; k < T; k++) acc += h[k] * buf[i0 - (H - 1) + k];
+    out.push(acc); p += 1.5;
+  }
+  DS.tail = buf.slice(buf.length - T); DS.next = p - (buf.length - T);
+  return Int16Array.from(out, v => Math.max(-32768, Math.min(32767, Math.round(v))));
+}
+function rigMsg(t, a) {
+  const m = new Uint8Array(12 + 2 * a.length), dv = new DataView(m.buffer);
+  m[0] = 0x52; dv.setUint16(2, a.length, true); dv.setFloat64(4, t, true);
+  for (let i = 0; i < a.length; i++) dv.setInt16(12 + 2 * i, Math.max(-32768, Math.min(32767, Math.round(a[i] * 10000))), true);
+  return m;
+}
+
+// learned-reaction mode (?react=learned | config react_mode): the server's planner owns the slow motion layers.
+// 'R' flags bit0 + [uint8 m][m x (uint8 index, int16 alpha*1e4, int16 beta*1e4)][int16 reflex blink*1e4]: per channel
+// final = alpha * learned + beta (motion.js learnedParts: reflexes + commands). 'H' = the user's canonical frame (react_feat.js).
+function reactMode() { return Q.get('react') || (S.cfg && S.cfg.react_mode) || 'rules'; }
+function rigMsgX(t, a, lp) {
+  const ab = lp.ab.slice(0, 255), m = new Uint8Array(12 + 2 * a.length + 1 + 5 * ab.length + 2), dv = new DataView(m.buffer);
+  m[0] = 0x52; m[1] = 1; dv.setUint16(2, a.length, true); dv.setFloat64(4, t, true);
+  const q = v => Math.max(-32767, Math.min(32767, Math.round(v * 10000)));
+  for (let i = 0; i < a.length; i++) dv.setInt16(12 + 2 * i, q(a[i]), true);
+  let o = 12 + 2 * a.length; m[o++] = ab.length;
+  for (const [i, al, be] of ab) { m[o] = i; dv.setInt16(o + 1, q(al), true); dv.setInt16(o + 3, q(be), true); o += 5; }
+  dv.setInt16(o, q(lp.rb || 0), true);
+  return m;
+}
+
+// unified mode (?react=unified | config react_mode 'unified'): the server's worker fits the user's MediaPipe results to CANON
+// v1 itself (canon1.fit), so the page sends each RAW worker result as it arrives — 'U' (app/wire.py): kind 1 face
+// (52 blendshapes spec order + the column-major matrix), 2 pose (33 image + 33 world landmarks), 3 hands (label, score,
+// 21 image + 21 world landmarks each), stamped on the playback timeline at the camera capture. The rig path is learned
+// mode's ('R' + affine map: commands/reflexes own their channels).
+function mpMsg(kind, t, w, h, present, n, fill, nbytes) {
+  const m = new Uint8Array(17 + nbytes), dv = new DataView(m.buffer);
+  m[0] = 0x55; m[1] = kind; dv.setUint16(2, n, true); dv.setFloat64(4, t, true); dv.setUint16(12, w | 0, true); dv.setUint16(14, h | 0, true); m[16] = present ? 1 : 0;
+  if (nbytes) fill(dv, 17);
+  return m;
+}
+function pushMp(mdl, msg) {
+  if (!D.unified || !S.live || !D.play || D.play.startCt === null || !msg) return;
+  const t = (S.ctx.currentTime - D.play.startCt) - (performance.now() - msg.t) / 1000;
+  const q = v => Math.max(-32767, Math.min(32767, Math.round((+v || 0) * 10000)));
+  let m = null;
+  if (mdl === 'face') {
+    if (msg.names) D.mpNames = msg.names;
+    const ok = !!(msg.present && msg.bs);
+    const bs = ok ? (window.AvatarReactFeat ? AvatarReactFeat.bsToSpec(msg.bs, D.mpNames || null) : msg.bs) : null;
+    m = mpMsg(1, t, msg.w, msg.h, ok, 52, (dv, o) => {
+      for (let i = 0; i < 52; i++) dv.setInt16(o + 2 * i, q(bs ? bs[i] : 0), true);
+      for (let i = 0; i < 16; i++) dv.setFloat32(o + 104 + 4 * i, msg.mat && ok ? msg.mat[i] : (i % 5 === 0 ? 1 : 0), true);
+    }, 168);
+  } else if (mdl === 'pose') {
+    const ok = !!(msg.present && msg.lm && msg.wlm);
+    m = mpMsg(2, t, msg.w, msg.h, ok, 33, (dv, o) => {
+      for (let i = 0; i < 132; i++) { dv.setInt16(o + 2 * i, q(msg.lm[i]), true); dv.setInt16(o + 264 + 2 * i, q(msg.wlm[i]), true); }
+    }, ok ? 528 : 0);
+  } else {
+    const hs = (msg.hands || []).filter(h => h && h.lm && h.wlm).slice(0, 4);
+    m = mpMsg(3, t, msg.w, msg.h, true, hs.length, (dv, o) => {
+      for (const h of hs) {
+        dv.setUint8(o, h.label === 'Left' ? 0 : h.label === 'Right' ? 1 : 2); dv.setInt16(o + 1, q(h.lscore), true);
+        for (let i = 0; i < 63; i++) { dv.setInt16(o + 3 + 2 * i, q(h.lm[i]), true); dv.setInt16(o + 129 + 2 * i, q(h.wlm[i]), true); }
+        o += 255;
+      }
+    }, 255 * hs.length);
+  }
+  S.upQ.push(m); D.rx.u = (D.rx.u || 0) + 1; D.rx.uBytes = (D.rx.uBytes || 0) + m.length;
+}
+
+function pushPlayback(s0, pcm, silent) {
+  if (!S.live) return;
+  const q = S.upQ, last = q[q.length - 1];
+  if (silent && last && last[0] === 0x50 && (last[1] & 1)) {             // extend the previous silent run
+    const dv = new DataView(last.buffer, last.byteOffset, 16);
+    const ls0 = Number(dv.getBigUint64(4, true)), ln = dv.getUint32(12, true);
+    if (ls0 + ln === s0) { dv.setUint32(12, ln + 480, true); return; }
+  }
+  const u = !silent && UPW.ulaw ? ulawEnc(pcm) : null;
+  const nb = silent ? 0 : u ? u.length : pcm.byteLength, m = new Uint8Array(16 + nb), dv = new DataView(m.buffer);
+  m[0] = 0x50; m[1] = silent ? 1 : u ? 2 : 0; dv.setBigUint64(4, BigInt(s0), true); dv.setUint32(12, 480, true);
+  if (u) m.set(u, 16); else if (!silent) m.set(new Uint8Array(pcm.buffer, pcm.byteOffset, nb), 16);
+  q.push(m);
+  if (q.length > 400) q.splice(0, q.length - 400);
+}
+
+function grabStill() {
+  const v = (window.AvatarPerception && AvatarPerception.video) || document.getElementById('selfcam');
+  if (!v || v.readyState < 2 || !v.videoWidth) return null;
+  const c = grabStill.c || (grabStill.c = Object.assign(document.createElement('canvas'), {width: 320, height: 180}));
+  const g = c.getContext('2d'); const vw = v.videoWidth, vh = v.videoHeight, a = 320 / 180;
+  let sw = vw, sh = vw / a; if (sh > vh) { sh = vh; sw = vh * a; }
+  g.drawImage(v, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, 320, 180);
+  return c.toDataURL('image/jpeg', 0.6);
+}
+
+async function startDirect(vmode) {
+  D.mode = vmode; D.rtt = []; D.need = []; D.cmds = []; D.events = []; D.usd = 0; D.startedPerf = performance.now();
+  const outLat = () => ((S.ctx.outputLatency || S.ctx.baseLatency || 0) * 1000);
+  const bus = S.ctx.createGain();                 // stable entry point: survives re-dials (character switch)
+  D.bus = bus;
+  const startMs = +(Q.get('delay') || localStorage.getItem('avatar.delay') || 250);
+  D.play = await AvatarVoice.createPlayout(S.ctx, bus, {delayMs: startMs, minMs: +(Q.get('dmin') || 60), maxMs: +(Q.get('dmax') || (S.cfg && S.cfg.delay_max_ms) || 400), aecOut: Q.get('aecout') !== '0',
+    onStart: ct => { S.base = ct + D.play.delayMs() / 1000; S.D = D.play.delayMs() / 1000; },
+    onDelay: d => { if (D.play.startCt !== null) { S.base = D.play.startCt + d; S.D = d; } localStorage.setItem('avatar.delay', Math.round(d * 1000)); },
+    onChunk: (s0, pcm, silent, ct, first, rms) => {
+      pushPlayback(s0, pcm, silent);
+      if (D.cos) D.cos.audio(s0 / SR, (rms || 0) / 32768, silent, 0.02, silent ? undefined : pcm);   // speech: the reply's audio at the tap
+      if (!silent && pcm) { const f0 = pitchOf(pcm); if (f0) D.vpitch = {t: performance.now(), f0}; }
+      if (!silent) avatarVoiced();                                                     // cue audio -> kfRelease
+      if (D.voice) D.voice.onAvatarChunk(s0, silent, ct, first, D.play.startCt, D.play.delayMs(), outLat());
+      if (FLASH) flashAt(s0, silent, first);
+    }});
+  D.play.start(); applySpkMute();
+  await dialVoice();
+  startMotion();
+  if (window.createPrior && D.motion && D.motion.setPrior && Q.get('prior') !== '0')
+    fetch(url('prior_weights.json'), {cache: 'force-cache', signal: tsignal(60000)})
+      .then(r => r.ok ? r.json() : null)
+      .then(w => { if (w && D.motion) { D.motion.setPrior(window.createPrior(w)); D.priorOn = true; } })
+      .catch(() => {});
+  startPerception();
+}
+
+// coarse f0 of a 20 ms int16 chunk (24 kHz): autocorrelation on a 2x-decimated copy, 70-400 Hz; null if unvoiced
+function pitchOf(pcm) {
+  const a = pcm instanceof Int16Array ? pcm : new Int16Array(pcm.buffer || pcm, pcm.byteOffset || 0, (pcm.byteLength || 0) >> 1);
+  const n = a.length >> 1; if (n < 160) return null;
+  const x = pitchOf.buf && pitchOf.buf.length === n ? pitchOf.buf : (pitchOf.buf = new Float32Array(n));
+  let e = 0; for (let i = 0; i < n; i++) { const v = (a[2 * i] + a[2 * i + 1]) * 0.5; x[i] = v; e += v * v; }
+  if (e < n * 300 * 300) return null;
+  let best = 0, bl = 0; const lo = Math.floor(12000 / 400), hi = Math.min(n - 40, Math.ceil(12000 / 70));
+  for (let l = lo; l <= hi; l++) { let c = 0; for (let i = 0; i + l < n; i++) c += x[i] * x[i + l]; c /= (n - l); if (c > best) { best = c; bl = l; } }
+  return best > 0.45 * e / n && bl ? Math.round(12000 / bl) : null;
+}
+
+// ---- perception.js: the user's camera -> features (motion every frame) + discrete events (avatarEvent); corner preview only
+async function startPerception() {
+  if (!window.AvatarPerception || D.perc || Q.get('camera') === '0') return;
+  const box = document.getElementById('stage');
+  D.perc = AvatarPerception.createPerception({assetUrl: n => url('vision/' + n), container: box, preview: true, canon: !!D.learned && !D.unified, pose: D.learned ? true : undefined,   // learned: arms/hands need pose on every device
+    ...(D.unified ? {rawmp: true, onRaw: (m, msg) => pushMp(m, msg)} : {}),   // unified: raw MediaPipe up ('U')
+    mesh: false, deviceId: DEV.cam,              // rec: plain self-view (no landmark wireframe); the picked camera
+    onFeatures: f => { D.features = f; perceptionFrame(f); },
+    onEvent: ev => { if (ev && ev.type && !/^model_/.test(ev.type)) avatarEvent(ev.type, ev); }});
+  window.AvatarPerception.video = D.perc._state && D.perc._state.video;
+  startPerceptionLayers();                                                            // perception
+  try { await D.perc.start(); window.AvatarPerception.video = D.perc._state.video; listDevices(); }
+  catch (e) { showErr('Camera: ' + e.message + ' (voice still works)'); }
+}
+// ---- perception layers on top of perception.js: taught gestures (gestures.js), attention candidates → the server's
+// vision judge (attention.js; the ONLY way camera frames reach the voice model), nonverbal turn bids (turnbid.js).
+// Page APIs: window.Gestures (learn / list / forget / state), window.Attention (instruct / feedback / rules), window.TurnBids.
+function startPerceptionLayers() {
+  const ev = e => { try { perceptionLayerEvent(e); } catch (x) { console.warn('perception layer', x); } };
+  if (window.AvatarGestures && !D.gest) { D.gest = AvatarGestures.create({send: sendCtl, onEvent: ev}); window.Gestures = D.gest; sendCtl({type: 'gesture_list'}); }
+  if (window.AvatarAttention && !D.attn && Q.get('attention') !== '0') {
+    D.attn = AvatarAttention.create({send: sendCtl, onEvent: ev, video: D.perc && D.perc._state && D.perc._state.video, grab: (w, h, q) => grabStill()});
+    window.Attention = D.attn;
+  }
+  if (window.AvatarTurnBid && !D.turn && Q.get('turnbids') !== '0') { D.turn = AvatarTurnBid.create({onEvent: ev}); window.TurnBids = D.turn; }
+}
+function perceptionCtx(f) {
+  const v = D.voice, uv = v && v.userVoice ? v.userVoice() : null;
+  return {t: f.t, userSpeaking: !!(uv && uv.voiced), userLevel: uv ? +uv.rms || 0 : 0,
+    avatarSpeaking: !!((D.play && D.play.avatarVoice && D.play.avatarVoice().voiced) || (v && v.speaking && v.speaking()))};
+}
+function perceptionFrame(f) {
+  if (!D.gest && !D.attn && !D.turn) return;
+  const ctx = perceptionCtx(f);
+  if (D.gest) { try { D.gest.frame(f, ctx); } catch (e) { console.warn('gestures', e); } }
+  if (D.attn) { try { D.attn.frame(f, ctx); } catch (e) { console.warn('attention', e); } }
+  if (D.turn) { try { D.turn.frame(f, ctx); } catch (e) { console.warn('turnbid', e); } }
+}
+// events of the three layers: into the event log + motion (avatarEvent), then the voice model gets a silent note —
+// a verdict worth a reply brings its ONE camera frame and may answer; a reply bid while the user is silent asks for a reply
+function perceptionLayerEvent(e) {
+  if (!e || !e.type) return;
+  const ae = avatarEvent(e.type, e);
+  if (ae && D.vt) return;   // the voice tools' avatarEvent already gave this event to the voice tools (one note, not two)
+  if (window.onPerceptionEvent) { try { if (window.onPerceptionEvent(e) === false) return; } catch (x) {} }   // voice-tools hook
+  const v = D.voice; if (!v || !v.sendEvent) return;
+  if (e.type === 'attention' && e.worth_reply && e.what && !e.stale) {
+    const r = v.sendEvent('The camera shows: ' + e.what + ' (frame attached). React to it naturally if it fits the moment.', {image: e.image || null, respond: true});
+    sendCtl({type: 'event', name: 'attention', respond: r.responded, why: r.why || ''});
+  } else if (e.type === 'turn_bid' && e.bid === 'reply') {
+    const r = v.sendEvent('He is nonverbally inviting you to talk (' + String(e.cue).replace(/_/g, ' ') + '). Take your turn.', {respond: true});
+    sendCtl({type: 'event', name: 'turn_bid', respond: r.responded, why: r.why || ''});
+  } else if (e.type === 'gesture' && v.sendContext) {
+    try { v.sendContext('He just made his gesture "' + e.name + '".'); } catch (x) {}
+  } else if (e.type === 'gesture_learned' && v.sendContext) {
+    try { v.sendContext('Learned his gesture "' + e.name + '" from ' + e.examples + ' example(s)' + (e.quality === 'weak' ? ' (weak: ' + (e.why || 'close to his normal motion') + ')' : '') + '.'); } catch (x) {}
+  }
+}
+function stopPerception() { if (D.perc) { try { D.perc.stop(); } catch (e) {} D.perc = null; D.features = null; } }
+
+function makeVoice() {
+  const vmode = D.mode;
+  const mock = vmode === 'mock' || vmode === 'loopback' ? {urls: (Q.get('mock') || '').split(',').filter(Boolean).map(n => BASE + 'mock/' + encodeURIComponent(n) + '?k=' + encodeURIComponent(K)),
+    latMs: Q.get('mock_lat_ms') !== null ? +Q.get('mock_lat_ms') : 300} : null;
+  const v = AvatarVoice.createVoice({mode: vmode, character: sel, vad: Q.get('vad') || '', ctx: S.ctx, micStream: S.stream,
+    rtcUrl: url('api/rtc', {sid: S.sid}), rtcHeaders: HDR, mock, grabStill: Q.get('stills') === '1' ? grabStill : null,   // camera frames reach the voice only on attention verdicts
+    geminiUrl: url('api/gemini', {sid: S.sid}), visionFps: Q.get('vfps') !== null ? +Q.get('vfps') : 0,   // Gemini 3.8 Live history: D.history.filter(x => x.text).slice(-20),
+    renewMs: Q.get('renew_s') ? +Q.get('renew_s') * 1000 : 0, planner: plannerReq(),
+    gate: Q.get('gate') !== '0', gateRef: D.play ? D.play.out : null, hardDuplex: $('eg').checked, audible: () => !!(D.play && D.play.avatarVoice().voiced), effort: Q.get('effort') || '', style: Q.get('style') || '', early: Q.get('early') !== '0',
+    onState: (st, d) => {
+      if (st === 'live' && D.alog && v.sendNote) { try { v.sendNote(D.alog.summary()); D.alogNoteVer = D.alog.version(); } catch (e) {} }   // speech
+      if (D.voice !== v) return;
+      if (st === 'live') setStatus('Live — ' + charName(sel) + ' is listening (' + ({realtime: 'Realtime 2.1', live: 'GPT Live 1', gemini: 'Gemini 3.8 Live', 'gemini-think': 'Gemini 3.8 Live + thinking', mock: 'mock', loopback: 'mock'}[vmode]) + ')', 'live');
+      else if (st === 'error') { showErr('Voice: ' + d); }
+    },
+    onDrop: (reason, planned) => { if (D.voice === v) recoverVoice(reason, planned); },
+    onCall: (name, args, phase, info) => {
+      if (phase === 'start') { D.cmds.push({name, phase, t: Math.round(performance.now())}); return; }
+      // teach: teach_board / board_erase / go_home (app/teach.js) — the board, the TV station, home
+      if (D.teach && D.teach.handles(name)) {
+        if (phase !== 'done') return;
+        const r = D.teach.call(name, args || {}) || {ok: false, reason: 'not available'};
+        sendCtl({type: 'call', name, args, done_lat_ms: info && info.done_lat_ms, ran: {ok: r.ok !== false, status: r.status, reason: r.reason, did: r.did}});
+        return r;
+      }
+      // voice tools: do_action (alias perform_action) and the program / look / style / gesture tools (app/voicetools.js)
+      if (plannerOn() && D.vt && D.vt.handles(name)) {
+        if (phase === 'early') { if (/^(do_action|perform_action)$/.test(name)) D.vt.call(name, args || {}, phase, info); return; }   // do_action's move, streamed
+        if (phase !== 'done') return;
+        const r = D.vt.call(name, args || {}, phase, info);
+        sendCtl({type: 'call', name, args, start_lat_ms: info && info.start_lat_ms, done_lat_ms: info && info.done_lat_ms, ran: {ok: r.ok !== false, status: r.status, id: r.id, reason: r.reason, already: r.already || undefined}});
+        return r;
+      }
+      // planner mode: a commanded action = perform_action -> the server's planner; its result comes back at once
+      if (name === 'perform_action' && plannerOn()) {
+        if (phase !== 'done') return;
+        const r = D.perf ? D.perf.call(args && args.description, info) : {ok: false, reason: 'no body here'};
+        sendCtl({type: 'call', name, args, start_lat_ms: info && info.start_lat_ms, done_lat_ms: info && info.done_lat_ms, ran: {ok: r.ok !== false, status: r.status, id: r.id, reason: r.reason, already: r.already || undefined}});
+        return r;
+      }
+      const cmd = toolToCommand(name, args || {});
+      if (!cmd) return {ok: false, error: 'unknown tool'};
+      if (name === 'recall_actions' && D.alog) return {log: D.alog.summary({sinceS: args && args.since_s || undefined})};   // speech
+      const pl = plannerOn() && D.perf && phase === 'done';
+      if (pl && name === 'release' && (!args || !args.parts || args.parts === 'all')) D.perf.stop('he asked to stop');
+      let ran;
+      if (pl && name === 'object' && D.vt && D.vt.gate) {     // voice tools: the what-if guard for the scene tool too
+        const g = D.vt.gate([args && args.verb, args && args.object && (args.object.name || args.object.ref), args && (args.target || args.place)].filter(Boolean).join(' '),
+          () => { if (D.vt.expand) D.vt.expand(); const qd = D.perf.engineCall(info, () => runCommand(cmd, 'voice', info)); return qd.result; });
+        if (g) { sendCtl({type: 'call', name, args, done_lat_ms: info && info.done_lat_ms, ran: {ok: g.ok !== false, status: g.status, reason: g.reason}}); return g; }
+        // hybrid: a fast matcher already ran the user's words for this request -> the model's own step would repeat it
+        // (desk run: matcher put_back desk + the model's push back = a second, no-op job)
+        if (D.vt.covered && D.vt.covered()) { const r = {ok: true, already: true, did: 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)'};
+          coveredCheck(cmd, info);   // r2-objvoice
+          sendCtl({type: 'call', name, args, done_lat_ms: info && info.done_lat_ms, ran: {ok: true, dup: true, did: r.did}}); return r; }
+        if (D.vt.expand) D.vt.expand();        // the user's words' other steps of this request (the model calls one at a time)
+      }
+      if (pl && name === 'object') {           // an object step of the same request waits for the action before it
+        const qd = D.perf.engineCall(info, () => runCommand(cmd, 'voice', info));
+        if (qd.deferred) { sendCtl({type: 'call', name, args, done_lat_ms: info && info.done_lat_ms, ran: {ok: true, queued: true}}); return qd.result; }
+        ran = qd.result; if (D.lastCmdRes && D.lastCmdRes.dup) coveredCheck(cmd, info);   // r2-objvoice: deduplicated against a matcher record
+        // voice tools: the model's own step failed (a wrong argument) -> the user's fully understood words' steps, if any
+        if (ran && typeof ran === 'object' && ran.ok === false && D.vt && D.vt.expand && D.vt.expand(1)) ran = {ok: true, did: 'doing what he said (his own words)'};
+      } else ran = runCommand(cmd, phase === 'early' ? 'voice-early' : 'voice', info);
+      // the server's record says what the body did — a 'done' call dropped as a duplicate (its early phase or the
+      // matcher already ran it) records that first run's outcome, not false; an object result is kept as {ok, did|reason}
+      const dupOf = ran === false && D.intentRes && D.intentRes.dup ? (D.intentRes.first && typeof D.intentRes.first === 'object' ? D.intentRes.first : {ok: true}) : null;
+      const ranRec = dupOf ? {ok: dupOf.ok !== false, dup: true, did: dupOf.did, reason: dupOf.reason} : ran && typeof ran === 'object' ? {ok: ran.ok !== false, id: ran.id, did: ran.did, reason: ran.reason} : !!ran;
+      if (phase === 'done') sendCtl({type: 'call', name, args, start_lat_ms: info && info.start_lat_ms, early_lat_ms: info && info.early_lat_ms,
+        done_lat_ms: info && info.done_lat_ms, ran: ranRec});
+      if (D.alog) return speechToolResult(ran);                                  // speech: {ok, did|reason, now}
+      return intentToolResult(ran);                                                 // intent: {ok, did, reason}
+    },
+    onMetric: m => {
+      if (m.type === 'turn') { sendCtl({...m, type: 'turn', mode: vmode}); S.lastFA = m.audible_lat_ms; }
+      else if (m.type === 'usage') { if (m.usage && vmode === 'realtime') D.usd += usageUsd(m.usage); sendCtl(m); }
+    },
+    onTranscript: (who, text, fin, info) => { if (D.voice === v) { captions(who, text, fin); histAdd(who, text, fin); if (who === 'avatar' && D.cos) D.cos.text(text, Object.assign({final: fin}, info || {})); if (who === 'avatar' && D.vt && D.vt.avatarText && plannerOn()) D.vt.avatarText(text, fin);   /* fixes */
+      if (who === 'you' && D.vt) D.vt.userText(text, fin);   // voice tools: the user's words for the what-if guard
+      if (who === 'you' && D.teach) teachHeard(text, fin); } },   // teach: stop words + a change of subject end the lesson
+    onActivity: (k, info) => { if (k === 'speech') D.userSpokeAt = performance.now(); intentSpeech(k, info && info.startedAt); if (!D._act || performance.now() - D._act > 5000) { D._act = performance.now(); sendCtl({type: 'activity'}); } },   // intent: intentSpeech
+    onInterrupt: () => { if (D.play && D.voice === v) D.play.flush(); if (D.cos && D.voice === v) D.cos.cancel('cleared'); },
+    // speech: the user's speech start flushes a changed action log into context (before the user's question ends) and is a
+    // barge-in for the co-speech plan when the avatar is audible; a cancelled / truncated reply cancels its gestures
+    onUserSpeech: (ph) => { if (D.voice === v && ph === 'start') intentSpeech('speech', undefined, true); if (D.voice === v && D.vt) D.vt.userSpeech(ph);   // voice tools: start / stop for the what-if guard
+      if (D.voice === v && D.teach && D.teach.userSpeech) { try { if (D.teach.userSpeech(ph)) sendCtl({type: 'event', name: 'teach_pause', why: 'he started talking'}); } catch (e) {} }   // integ: chalk off the board at once
+      if (D.voice !== v || ph !== 'start') return; speechNote(true);
+      if (D.cos && ((D.play && D.play.avatarVoice().voiced) || v.speaking())) D.cos.cancel('barge-in'); },
+    onResponse: (ph, info) => { if (D.voice !== v || !D.cos) return;
+      if ((ph === 'done' && info && /cancel|incomplete|failed/.test(String(info.status))) || ph === 'truncated') D.cos.cancel(ph + ':' + (info && info.status || '')); },
+  });
+  v.audioNode.connect(D.bus);
+  if (v.setMicMuted) { v.setMicMuted(S.micMuted); v.setSpeakerMuted(S.spkMuted); }   // every new call (renewal, re-dial) starts in the current mute state
+  return v;
+}
+function wireMatcherMic(v) {
+  // the server's fast command matcher ('M' uplink) hears the same gated mic as the voice model
+  if (S.src && S.node) {
+    if (D.gateIntoM) { try { D.gateIntoM.disconnect(S.node); } catch (e) {} D.gateIntoM = null; }
+    if (v.gateNode) { try { S.src.disconnect(S.node); } catch (e) {} v.gateNode.connect(S.node); D.gateIntoM = v.gateNode; }
+    else { try { S.src.connect(S.node); } catch (e) {} }
+  }
+}
+async function dialVoice() {
+  let v = makeVoice();
+  D.voice = v;
+  try { await v.start(); }
+  catch (e) {   // Gemini unavailable (free-tier limit, token refused, setup timeout) -> Realtime 2.1 for this session
+    if (!/^gemini/.test(D.mode)) throw e;
+    console.warn('gemini failed, falling back to realtime', e && e.message); try { v.stop(); } catch (x) {}
+    D.mode = 'realtime'; D.gemFallback = String(e && e.message || e).slice(0, 120); sendCtl({type: 'activity', gemini_fallback: D.gemFallback});
+    v = makeVoice(); D.voice = v; await v.start(); showErr('Gemini unavailable (' + D.gemFallback + ') — using Realtime 2.1');
+  }
+  wireMatcherMic(v);
+}
+
+// ---- the conversation so far (both sides), carried into a re-dialed call
+function histAdd(who, text, fin) {
+  if (!text) return;
+  const role = who === 'you' ? 'user' : 'assistant', H = D.history;
+  let cur = H.length ? H[H.length - 1] : null;
+  if (!cur || cur.role !== role || cur.closed) { cur = {role, text: ''}; H.push(cur); }
+  if (fin) { cur.text = String(text); cur.closed = true; } else cur.text = (cur.text + text).slice(-600);
+  if (H.length > 40) H.splice(0, H.length - 40);
+}
+
+/* Voice auto-recovery (a session should last as long as the page is open): a dropped call (pc failed / disconnected > 3 s, data
+   channel closed, session expired) or one nearing the vendor's maximum length is re-dialed in the background with the
+   conversation so far; audio switches when the new call is live and the old one is hung up. A drop retries with
+   backoff (1, 2, 4 … 10 s) for as long as the page is live. Each gap is recorded (voiceReport().recoveries). */
+// a retry wait that the network coming back ('online') or the page becoming visible cuts short
+function kickableSleep(ms) { return new Promise(r => { const t = setTimeout(done, ms); function done() { clearTimeout(t); D.kick = null; r(); } D.kick = done; }); }
+addEventListener('online', () => { if (D.kick) D.kick(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && D.kick) D.kick(); });
+async function recoverVoice(reason, planned) {
+  if (!S.live || !S.direct || !D.play || D.recovering) return;
+  D.recovering = true;
+  const my = gen.n;                      // a quiet session restart (gen bump) ends this loop
+  const rec = {reason, planned: !!planned, t0: Math.round(performance.now()), tries: 0};
+  D.recoveries.push(rec);
+  const old = D.voice;
+  if (!planned && old) { try { old.stop(); } catch (e) {} }     // dead anyway: free its mic gate + pc now
+  let wait = 1000;
+  try {
+    while (gen.n === my && S.live && S.direct && D.play) {
+      rec.tries++;
+      const v = makeVoice();
+      try {
+        const live = new Promise((res, rej) => {
+          const t = setTimeout(() => rej(new Error('no session event in 12 s')), 12000);
+          const iv = setInterval(() => { const st = v.state(); if (st === 'live') { clearTimeout(t); clearInterval(iv); res(); }
+            else if (st === 'error' || st === 'stopped') { clearTimeout(t); clearInterval(iv); rej(new Error('state ' + st)); } }, 50);
+        });
+        await v.start();
+        await live;
+        if (gen.n !== my) { try { v.stop(); } catch (x) {} return; }
+        D.voice = v;                       // swap: from now on the page listens to the new call only
+        wireMatcherMic(v);
+        if (planned && old) setTimeout(() => { try { old.stop(); } catch (e) {} }, 600);   // let a last word finish
+        rec.live_ms = Math.round(performance.now() - rec.t0);
+        setStatus('Live — ' + charName(sel) + ' is listening', 'live');
+        return;
+      } catch (e) {
+        rec.err = String(e && e.message || e).slice(0, 80);
+        try { v.stop(); } catch (x) {}
+        if (gen.n !== my || !S.live) return;
+        await kickableSleep(wait); wait = Math.min(4000, wait * 2);
+      }
+    }
+  } finally { if (gen.n === my) D.recovering = false; else D.recovering = false; }
+}
+
+async function redial() {
+  if (!S.direct || !D.play) return;
+  const old = D.voice; D.voice = null;
+  if (old) { try { old.stop(); } catch (e) {} }
+  try { await dialVoice(); } catch (e) { showErr('Voice: ' + e.message); }
+}
+
+document.addEventListener('change', e => { if (e.target && e.target.id === 'eg') { try { localStorage.setItem('avatar.eg', e.target.checked ? '1' : '0'); } catch (x) {}
+  if (D.voice && D.voice.setHardDuplex) D.voice.setHardDuplex(e.target.checked); } });
+// strict echo guard ON by default on a phone / touch device (the
+// speaker is next to the mic and the normal gate cannot hold the echo there), remembered across reloads; ?eg=1|0 overrides.
+(function initEchoGuard() {
+  const el = $('eg'); if (!el) return;
+  let v = null; try { v = localStorage.getItem('avatar.eg'); } catch (x) {}
+  const touch = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent || '');
+  el.checked = Q.get('eg') === '1' ? true : Q.get('eg') === '0' ? false : v === '1' ? true : v === '0' ? false : touch;
+})();
+// tap the avatar while it is talking = interrupt it (strict mode cannot hear a barge-in over a loud speaker):
+// cancel the reply, drop the queued audio and the reply's gestures, and open the mic for 2.5 s for what the user says next
+function tapInterrupt(ev) {
+  const v = D.voice; if (!v || !S.live) return;
+  const audible = (D.play && D.play.avatarVoice && D.play.avatarVoice().voiced) || (v.speaking && v.speaking());
+  if (!audible) return;
+  if (v.mode === 'realtime' && v.send) { v.send({type: 'response.cancel'}); v.send({type: 'output_audio_buffer.clear'}); }
+  if (D.play && D.play.flush) D.play.flush();
+  if (D.cos) { try { D.cos.cancel('tap'); } catch (x) {} }
+  if (v.openMic) v.openMic(2500);
+  D.taps = (D.taps || 0) + 1; sendCtl({type: 'activity', tap_interrupt: D.taps});
+  setStatus('Interrupted — go ahead', 'live');
+}
+document.getElementById('stage').addEventListener('pointerdown', tapInterrupt);
+
+// ---- mute. S.micMuted: the user's microphone. The mic track is switched off (every consumer of S.stream - the vendor's gate, the local
+// level meter / turn-taking, the server's ASR uplink, the recording - then hears digital silence), the gate worklet freezes its echo
+// estimates and drops anything it was holding, and the vendor's uncommitted input is cleared. The session stays connected; the
+// avatar keeps talking. S.spkMuted: the avatar's voice at the speaker only (lips, transcript and recording are unaffected).
+S.micMuted = false; S.spkMuted = false;
+const MUTE_SVG = {
+  mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  micoff: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 9.3V6a3 3 0 0 0-5.9-.8M9 9v2a3 3 0 0 0 4.7 2.5"/><path d="M5 11a7 7 0 0 0 11.2 5.6M19 11a7 7 0 0 1-.6 2.8M12 18v3"/><path d="M3 3l18 18"/></svg>',
+  spk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+  spkoff: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
+};
+function renderMute() {
+  const m = $('mute'), sp = $('spk'); if (!m || !sp) return;
+  m.setAttribute('aria-pressed', S.micMuted ? 'true' : 'false');
+  m.setAttribute('aria-label', S.micMuted ? 'Microphone muted. Tap to unmute' : 'Mute microphone');
+  m.title = S.micMuted ? 'Unmute microphone (M)' : 'Mute microphone (M)';
+  m.innerHTML = (S.micMuted ? MUTE_SVG.micoff : MUTE_SVG.mic) + '<span>' + (S.micMuted ? 'Muted' : 'Mute') + '</span><span class="sub">· tap to unmute</span>';
+  sp.setAttribute('aria-pressed', S.spkMuted ? 'true' : 'false');
+  sp.setAttribute('aria-label', S.spkMuted ? "The avatar's voice is muted. Tap to unmute it" : "Mute the avatar's voice");
+  sp.title = S.spkMuted ? "Unmute the avatar's voice" : "Mute the avatar's voice (speaker)";
+  sp.innerHTML = S.spkMuted ? MUTE_SVG.spkoff : MUTE_SVG.spk;
+  $('mutebar').hidden = !S.micMuted; $('stage').classList.toggle('muted', S.micMuted);
+}
+function applyMicMute() {
+  if (S.stream) S.stream.getAudioTracks().forEach(t => { t.enabled = !S.micMuted; });
+  if (D.voice && D.voice.setMicMuted) D.voice.setMicMuted(S.micMuted);
+  renderMute();
+}
+function applySpkMute() {
+  if (D.play && D.play.setMuted) D.play.setMuted(S.spkMuted);
+  if (D.voice && D.voice.setSpeakerMuted) D.voice.setSpeakerMuted(S.spkMuted);
+  renderMute();
+}
+function announce(t) { const e = $('srlive'); if (e) { e.textContent = ''; setTimeout(() => { e.textContent = t; }, 30); } }
+function toggleMicMute() {
+  S.micMuted = !S.micMuted; applyMicMute();
+  announce(S.micMuted ? 'Microphone muted. The avatar cannot hear you.' : 'Microphone on.');
+  try { sendCtl({type: 'activity', mic_muted: S.micMuted}); } catch (e) {}
+}
+function toggleSpkMute() {
+  S.spkMuted = !S.spkMuted; applySpkMute();
+  announce(S.spkMuted ? "The avatar's voice is muted." : "The avatar's voice is on.");
+}
+$('mute').addEventListener('click', toggleMicMute);
+$('spk').addEventListener('click', toggleSpkMute);
+document.addEventListener('keydown', e => {      // M = mute / unmute the microphone (not while typing in a field)
+  if ((e.key === 'm' || e.key === 'M') && !e.ctrlKey && !e.metaKey && !e.altKey && !/^(INPUT|SELECT|TEXTAREA)$/.test((e.target && e.target.tagName) || '') && !(e.target && e.target.isContentEditable)) { e.preventDefault(); toggleMicMute(); }
+});
+renderMute();
+function echoGuardLoop(v) {      // (unused since the gate: kept for the server-voice path) mute the mic track while the avatar is audible
+  const tr = S.stream && S.stream.getAudioTracks()[0]; if (!tr) return;
+  const iv = setInterval(() => {
+    if (D.voice !== v || !S.live) { tr.enabled = !S.micMuted; clearInterval(iv); return; }
+    const av = D.play ? D.play.avatarVoice() : {voiced: false};
+    if (av.voiced) v._egUntil = performance.now() + 300;
+    tr.enabled = !S.micMuted && (!$('eg').checked || !(v._egUntil > performance.now()));
+  }, 30);
+}
+
+let capWhoD = null, capTxt = {you: '', avatar: ''};
+function captions(who, text, fin) {
+  if (who === 'avatar' && !fin && text) { (D.avSaid = D.avSaid || []).push([performance.now(), String(text)]); if (D.avSaid.length > 400) D.avSaid.splice(0, 200); }
+  if (fin && who === 'you' && text && typeof behaviorsFeed === 'function') behaviorsFeed({type: 'said', text: String(text).slice(0, 300)});   // games
+  if (fin && who === 'you') { capTxt.you = text; pageMatch(text); }
+  else if (!fin) { if (capWhoD !== who) { capTxt[who] = ''; capWhoD = who; } capTxt[who] = (capTxt[who] + text).slice(-300); }
+  $('capy').textContent = capTxt.you ? 'You: ' + capTxt.you : '';
+  $('capa').textContent = capTxt.avatar ? charName(sel) + ': ' + capTxt.avatar : '';
+  if (fin) sendCtl({type: 'transcript', who, text: String(text).slice(0, 500)});
+  affectCue(who, text, fin);   // devloop
+}
+// devloop: the first words of each reply (with the user's last words) go to the server's affect judge (app/affect.py), which
+// answers {type:'affect'} with the feeling to show while it talks
+function affectCue(who, text, fin) {
+  const A = D.aff = D.aff || {user: '', reply: '', at: 0, sent: false}, now = performance.now();
+  if (who === 'you') { if (fin && text) { A.user = String(text).slice(-300); A.reply = ''; A.sent = false; A.turnAt = now; } return; }
+  if (fin) return;
+  if (now - A.at > 2500 && A.sent) { A.reply = ''; A.sent = false; }
+  A.at = now; A.reply = (A.reply + String(text || '')).slice(-300);
+  if (!A.sent && (A.reply.trim().split(/\s+/).length >= 4 || /[.!?,]/.test(A.reply))) { A.sent = true; sendCtl({type: 'affect_cue', user: A.user, reply: A.reply}); }   // r2-joy: 4 words / a comma
+}
+// the server's verdict (r2-joy: continuous v / a / d + intensity + facets): the motion's feeling state (app/affect.js)
+// holds the face AND posture through the reply and decays after it; the judge's gesture is the onset accent's body part,
+// played only while the body is free, sized by intensity (a strong feeling repeats it)
+function onAffect(j) {
+  if (!D.motion || Q.get('affect') === '0') return;
+  const inten = Math.max(0.2, Math.min(1, +j.intensity || 0.6));
+  const A = D.aff = D.aff || {};
+  if (j.stage === 'pre' && A.replyAt && A.replyAt > (A.turnAt || 0)) return;   // this turn's reply verdict is already in
+  if (j.stage !== 'pre') A.replyAt = performance.now();
+  D.affLast = Object.assign({at: Math.round(performance.now())}, j);
+  // the body is busy: a whole-body / object job, a keyframe action, or a lesson (the feeling then shows in the face)
+  const kit = D.motion.engine && D.motion.engine.kit, ts = D.teach && D.teach.state ? D.teach.state() : null;
+  const busy = !!((kit && kit.busy && kit.busy()) || (ts && (ts.req || String(ts.at || '').startsWith('going'))) || (D.motion.kfBusy && D.motion.kfBusy()));
+  const hasDims = Number.isFinite(+j.v) && Number.isFinite(+j.a);
+  if (D.motion.affect && hasDims) D.motion.affect(j);
+  else if (j.feel && j.feel !== 'neutral') runCommand({action: 'expression', name: j.feel, intensity: inten, duration_ms: Math.round(Math.max(2, Math.min(14, +j.hold_s || 6)) * 1000)}, 'affect');   // an older server
+  const g = String(j.gesture || 'none');
+  // one gesture per feeling: a refinement that agrees does not repeat it
+  if (g && g !== 'none' && !busy && !(j.stage !== 'pre' && A.lastG === g && performance.now() - (A.gAt || 0) < 5000)) {
+    const held = /^(think|lean_in|lean_back|tilt_head|hand_on_heart)$/.test(g);   // r2-joy R2: a posture gesture lasts with the feeling
+    runCommand(Object.assign({action: 'gesture', name: g, intensity: 0.55 + 0.45 * inten, repeat: inten >= 0.85 && /^(clap|nod|shake_head|tail_wag|ear_wiggle)$/.test(g) ? 2 : 1},
+      held ? {duration_ms: Math.round(1000 * Math.max(2.5, Math.min(5, 0.5 * (+j.hold_s || 6))))} : {}), 'affect');
+    A.lastG = g; A.gAt = performance.now();
+  }
+  D.affLast.busy = busy;
+}
+
+// ---- tools -> contract Commands (the model speaks in its OWN left/right; rig _l = screen-left = its right)
+const POSE_MAP = {right_paw_x: 'hand_l_x', right_paw_y: 'hand_l_y', right_paw_z: 'hand_l_z', right_paw_open: 'hand_l_open',
+  right_thumb: 'thumb_l', right_shoulder: 'shoulder_l', left_paw_x: 'hand_r_x', left_paw_y: 'hand_r_y', left_paw_z: 'hand_r_z',
+  left_paw_open: 'hand_r_open', left_thumb: 'thumb_r', left_shoulder: 'shoulder_r', right_ear: 'ear_l', left_ear: 'ear_r',
+  right_brow: 'brow_l', left_brow: 'brow_r', head_yaw: 'head_yaw', head_pitch: 'head_pitch', head_roll: 'head_roll',
+  mouth_open: 'mouth_open', smile: 'smile', tongue_out: 'tongue_out', eye_wide: 'eye_wide', squint: 'squint',
+  body_lean: 'body_lean', body_pitch: 'body_pitch', tail_raise: 'tail_raise', tail_curl: 'tail_curl'};
+const PART_MAP = {right_paw: ['hand_l'], left_paw: ['hand_r'], paws: ['hand_l', 'hand_r'], head: ['head'], face: ['face'],
+  ears: ['ears'], tail: ['tail'], body: ['body']};
+function toolToCommand(name, a) {
+  const hold = !!a.hold;
+  switch (name) {
+    case 'gesture':
+      // on a character with whole-body moves (the muse) a gesture 'jump' / 'dance' is the real move (it was a seated bounce)
+      if ((a.name === 'jump' || a.name === 'dance') && typeof intentAct === 'function' && intentAct()) return actToolCommand('move', {name: a.name, count: a.repeat});
+      return {action: 'gesture', name: a.name === 'raise_paw' && a.side === 'both' ? 'raise_both' : String(a.name || 'wave'),
+      side: a.side || 'right', side_frame: 'character',
+      repeat: Math.max(1, Math.min(10, +a.repeat || 1)), hold};
+    case 'pose': {
+      const t = {}; for (const [k, v] of Object.entries(a.targets || {})) if (POSE_MAP[k] && isFinite(+v)) t[POSE_MAP[k]] = Math.max(-1.2, Math.min(1.2, +v));
+      return Object.keys(t).length ? {action: 'pose', targets: t, hold, ease_ms: 300} : null; }
+    case 'look': return {action: 'look', target: String(a.target || 'user'), hold};
+    case 'expression': return {action: 'expression', name: String(a.name || 'happy'), intensity: a.intensity == null ? 0.8 : Math.max(0, Math.min(1, +a.intensity)), hold};
+    case 'release': return {action: 'release', parts: !a.parts || a.parts === 'all' ? 'all' : (PART_MAP[a.parts] || [a.parts])};
+    case 'move': case 'object': return actToolCommand(name, a);                          // intent
+  }
+  return null;
+}
+// ---- intent: the move / object tools (app/rtc.py act_tools) -> contract commands (the intent contract, s.3),
+// the same shapes the fast matcher emits; sides stay the character's OWN (motion.js maps them)
+const ACT_TARGETS = ['me', 'closer', 'back', 'away'];
+// voice tools: spoken destinations that mean 'me' (harness: object(pull chair, target 'here') -> "there is no here here")
+const ACT_TARGET_ALIAS = {here: 'me', over_here: 'me', over: 'me', to_me: 'me', toward_me: 'me', towards_me: 'me', near_me: 'me', to_him: 'me', him: 'me',
+  nearer: 'closer', near: 'closer', in: 'closer', away_from_me: 'away', back_where_it_was: 'back', where_it_was: 'back', home: 'back'};
+function actToolCommand(name, a) {
+  const str = v => (v === undefined || v === null || v === '' ? null : String(v).toLowerCase().trim().replace(/\s+/g, '_'));
+  const int = (v, lo, hi) => (v === undefined || v === null || v === '' || !isFinite(+v) ? null : Math.max(lo, Math.min(hi, Math.round(+v))));
+  const c = name === 'move' ? {action: 'move', name: str(a.name)} : {action: 'object', verb: str(a.verb)};
+  if (!c.name && !c.verb) return null;
+  const n = int(a.count, 1, 10); if (n !== null) c.count = n;
+  if (name === 'move') {
+    for (const k of ['dir', 'speed', 'gaze']) { const v = str(a[k]); if (v) c[k] = v; }
+    if (a.style) c.style = String(a.style).slice(0, 40);
+    const d = int(a.distance, 1, 10); if (d !== null) c.distance = d;
+    const dg = int(a.degrees, 1, 3600); if (dg !== null) c.degrees = dg;                // B6: 360 = all the way around
+    if (a.height !== undefined && a.height !== null && isFinite(+a.height)) c.height = Math.max(0, Math.min(1, +a.height));
+  } else {
+    const o = a.object && typeof a.object === 'object' ? a.object : (typeof a.object === 'string' && a.object ? {name: a.object} : null);
+    if (o) {
+      const d = {};
+      for (const k of ['ref', 'id', 'name', 'color', 'category']) if (o[k]) d[k] = String(o[k]).toLowerCase().trim();
+      if (o.ordinal !== undefined && isFinite(+o.ordinal)) d.ordinal = Math.round(+o.ordinal);
+      if (d.ref === 'that' || d.ref === 'this') d.ref = 'it';
+      if (Object.keys(d).length) c.object = d;
+    }
+    const tg = str(a.target);
+    const tga = tg && ACT_TARGET_ALIAS[tg] ? ACT_TARGET_ALIAS[tg] : tg;                // voice tools
+    if (tga) c.target = ACT_TARGETS.includes(tga) ? tga : {name: (/^(my|your)_(back|head|foot|feet|left_foot|right_foot|lap|shoulder|left_shoulder|right_shoulder|tummy|belly|nose)$/.test(tga) ? tga : tga.replace(/^(the|my|your)_/, '')).replace(/_/g, ' ')};
+    // objects: 'my back / my head / my foot' stay possessive (a body part, not "put it back")
+    const BODY = /^(my|your)_(back|head|foot|feet|left_foot|right_foot|lap|shoulder|left_shoulder|right_shoulder|tummy|belly|nose)$/;
+    const pl = str(a.place); if (pl) c.place = BODY.test(pl) ? pl.replace(/_/g, ' ') : pl.replace(/^(the|my|your)_/, '');
+    const sd = str(a.side); if (sd) c.side = sd;
+    // objects: the general manipulation fields reach the engine (relation on/in/under/behind/next_to …, amounts)
+    const rl = str(a.relation); if (rl) c.relation = rl;
+    for (const k of ['amount']) if (Number.isFinite(+a[k]) && a[k] !== '' && a[k] !== null) c[k] = +a[k];
+    for (const k of ['axis', 'dir', 'speed', 'style']) { const v = str(a[k]); if (v) c[k] = v; }
+  }
+  if (a.hold) c.hold = true;
+  return c;
+}
+// the tool output = motion.command()'s result {ok, did, reason} (fallback {ok: bool}); a call dropped as a duplicate
+// (the matcher already acted on the same words) answers with what that first command did
+function intentToolResult(ran) {
+  const r = D.intentRes, pick = (x, o) => { if (x.did) o.did = String(x.did); if (x.reason) o.reason = String(x.reason); return o; };
+  if (r && r.dup) return r.first && typeof r.first === 'object' ? pick(r.first, {ok: r.first.ok !== false, already: true}) : {ok: true, already: true};
+  if (r && typeof r === 'object') return pick(r, {ok: r.ok !== false});
+  return {ok: !!ran};
+}
+// a new utterance for IntentDedupe: the user's speech after >= 1.2 s of quiet (GPT Live reports activity on every delta)
+function intentSpeech(k, startedAt, sure) {
+  if (k !== 'speech' || !window.IntentDedupe || !IntentDedupe.userSpoke) return;
+  // the local mic meter is not echo-gated — the avatar's own voice must not open a 'new utterance' mid-reply.
+  // fixes: a start the voice vendor's own (echo-cancelled) turn detection reported IS the user speaking over the avatar:
+  // dropping it left the previous utterance's matcher command "covering" the user's next, different request (judge: head-down
+  // asked three times after a head-up pose, each answered "already doing that")
+  if (!sure && !Number.isFinite(startedAt) && D.play && D.play.avatarVoice && D.play.avatarVoice().voiced) return;
+  const t = performance.now();
+  // the vendor's start event reaches here twice (onActivity, then onUserSpeech): the first one, which may know when the
+  // speech really began, has handled it
+  if (sure && D.intentSpeechAt !== undefined && t - D.intentSpeechAt < 150) return;
+  D.intentSpeechAt = t;
+  // a report that knows when the speech began (gpt-realtime's speech_started, sometimes seconds late) counts from
+  // then: the speech the mic meter already reported is not a new utterance, and a late report never hides a newer one
+  const s = Number.isFinite(startedAt) && startedAt <= t ? startedAt : t;
+  if (!D.intentSpokeAt || s - D.intentSpokeAt > 1200) IntentDedupe.userSpoke(t, s);
+  D.intentSpokeAt = Math.max(D.intentSpokeAt || 0, s);
+}
+// the page matcher's grammar: whole-body moves + props for a character with a scene (config.props) or the muse;
+// ?act=1 / ?act=0 force it on / off; every other character keeps the original matcher exactly
+function intentAct() {
+  const f = Q.get('act'), ch = (S.cfg && S.cfg.character) || sel;
+  return f === '1' || (f !== '0' && (ch === 'muse' || !!(S.cfg && S.cfg.props)));
+}
+function intentCharKey() { return ((S.cfg && S.cfg.character) || sel) + '|' + (intentAct() ? 1 : 0) + '|' + (S.cfg && S.cfg.props ? 1 : 0); }
+function intentOpts() { return {act: intentAct(), scene: intentAct() && S.cfg && S.cfg.props ? S.cfg.props : null}; }
+// intent end
+// echo guard for the matchers: drop a hit whose words the avatar itself said in the last 20 s (its own voice leaking
+// into the mic and being heard as a command: "turn around and see if your dog is asleep")
+function echoOfAvatar(text) {
+  if (!window.Intent || !D.avSaid || !D.avSaid.length) return false;
+  const now = performance.now();
+  const av = ' ' + Intent.normalize(D.avSaid.filter(x => now - x[0] < 20000).map(x => x[1]).join('')).filter(w => w !== '|').join(' ') + ' ';
+  const heard = Intent.normalize(String(text || '')).filter(w => w !== '|').join(' ');
+  return !!heard && av.includes(' ' + heard + ' ');
+}
+// hybrid (latency first): do_action's named move, or a description the page library fully reads, plays
+// from the engine at once (source voice: IntentDedupe drops what a fast matcher already started for this utterance and lets
+// a refinement replace it) -> {ran, dup, reason, did} | null (nothing read: the voice tools go on to the planner)
+function voiceLibrary(desc, move, info) {
+  let cmds = [];
+  if (move && move.name && intentAct()) { const c = actToolCommand('move', move); if (c) cmds = [c]; }
+  else if (window.Intent && window.INTENT_RULES && Q.get('intent') !== '0') {
+    const M = pageMatcherNow(), text = String(desc || '');
+    const hits = M.parse(text, {final: true, nowMs: performance.now()});
+    if (!hits.length || (M.understood && !M.understood(text))) return null;
+    cmds = hits.map(h => h.cmd);
+    if (!intentAct() && cmds.some(c => !/^(gesture|pose|expression|look|release)$/.test(c.action || ''))) return null;   // seated: the planner
+  }
+  if (!cmds.length) return null;
+  let ran = 0, dup = 0, reason = ''; const did = [];
+  for (const c of cmds) {
+    const r = runCommand(c, 'voice', info);
+    if (r === false && D.intentRes && D.intentRes.dup) dup++;
+    else if (r && (r === true || r.ok !== false)) { ran++; if (r.did) did.push(r.did); }
+    else reason = (r && r.reason) || reason;
+  }
+  return {ran, dup, reason: ran || dup ? '' : (reason || 'the body could not do it'), did: did.join(', ')};
+}
+// voice tools: the page matcher for this character (also read by the voice tools' step expansion, app/voicetools.js)
+function pageMatcherNow() {
+  const mk = intentCharKey();
+  if (!D.pageMatcher || D.pageMatcherKey !== mk) { D.pageMatcher = Intent.create(window.INTENT_RULES, intentOpts()); D.pageMatcherKey = mk; }
+  return D.pageMatcher;
+}
+// page-side fallback matcher (app/intent.js) on the user's FINAL transcript; the server's mic matcher is the fast path
+function pageMatch(text) {
+  if (Q.get('intent') === '0' || !window.Intent || !window.INTENT_RULES) return;
+  if (plannerOn() && D.vt && D.vt.whatIf && D.vt.whatIf(String(text || ''))) return;   // hybrid: runs in planner mode too, never a what-if
+  const mk = intentCharKey();                                                    // intent: per character
+  if (!D.pageMatcher || D.pageMatcherKey !== mk) { D.pageMatcher = Intent.create(window.INTENT_RULES, intentOpts()); D.pageMatcherKey = mk; }
+  if (echoOfAvatar(text)) return;
+  const hits0 = D.pageMatcher.parse(String(text || ''), {final: true, nowMs: performance.now()});
+  if (hits0.length && D.pageMatcher.understood && !D.pageMatcher.understood(String(text || ''))) return;   // the voice model's
+  for (const h of hits0) {
+    D.pageMatcher.commit(h, performance.now());
+    runCommand(h.cmd, 'caption', {text, rule: h.rule});
+  }
+}
+// release part names used by the matcher / tools -> motion.js groups
+const REL_ALIAS = {hand_l: ['paw_l'], hand_r: ['paw_r'], cheeks: ['cheek'], ear_l: ['ear_l', 'ear_flick_l', 'ear_l_turn'],
+  ear_r: ['ear_r', 'ear_flick_r', 'ear_r_turn']};
+// one entry for every command source (voice tools, the server's fast matcher 'matcher', the page's 'caption' matcher,
+// page UI). IntentDedupe drops a command when another source drove the same body part within ~3 s (the realtime
+// model's tool call ~1 s after the matcher already acted), and exact repeats from the same source.
+function runCommand(cmd, source, info) {
+  const t = performance.now();
+  D.intentRes = null;                                                                // intent
+  if (window.IntentDedupe && source !== 'ui') {
+    if (IntentDedupe.seen(cmd, t, source === 'voice' ? 'model' : source)) {
+      D.cmds.push({cmd, source, t: Math.round(t), dup: true}); if (D.alog) D.lastCmdRes = {dup: true}; D.intentRes = {dup: true, first: IntentDedupe.last && IntentDedupe.last.rec ? IntentDedupe.last.rec.res : null};
+      const fr = D.intentRes.first;   // the model's next steps of this request follow the job its call duplicated
+      if (fr && fr.id !== undefined && fr.id !== null && D.motion && D.motion.anchor && /^(move|object)$/.test(cmd.action || '')) { try { D.motion.anchor(fr.id, source); } catch (e) {} }
+      return false;
+    }
+  } else {
+    const key = JSON.stringify([cmd.action, cmd.name || cmd.target || '', cmd.side || '', cmd.targets || null, cmd.parts || null, !!cmd.hold]);
+    const prev = D.lastCmd.get(key); D.lastCmd.set(key, t);
+    if (prev && t - prev < 2500 && cmd.action !== 'release') { D.cmds.push({cmd, source, t: Math.round(t), dup: true}); return false; }
+  }
+  // fixes: the words a matcher's command was read from (the voice tools' "already started as the user said it" test)
+  if (window.IntentDedupe && source !== 'ui' && source !== 'voice' && source !== 'voice-early' && IntentDedupe.last && IntentDedupe.last.rec && !IntentDedupe.last.dup)
+    IntentDedupe.last.rec.text = info && typeof info.text === 'string' ? info.text.slice(0, 300) : '';
+  // intent c2: the model's call disagreed with the matcher's command for the same request -> it REPLACES that job
+  const cmd0 = cmd, cf = window.IntentDedupe && source !== 'ui' && IntentDedupe.last && IntentDedupe.last.conflict;
+  if (cf && cf.res && cf.res.id !== undefined && cf.res.id !== null && /^(move|object)$/.test(cmd.action || '')) { cmd = {...cmd, replaces: cf.res.id}; D.cmds.push({conflict: true, replaces: cf.res.id, was: cf.cmd || null, t: Math.round(t)}); }
+  if (D.alog) D.lastCmdRes = {dup: false};                                          // speech
+  if (source === 'matcher' && info && info.heard_at) D.cmds.push({intent_rx: Math.round(t), heard_at: info.heard_at, partial: info.partial, text: info.text, audio_s: info.audio_s});
+  D.cmds.push({cmd, source, t: Math.round(t)}); if (D.cmds.length > 300) D.cmds.splice(0, 100);
+  const asked = cmd0, dsrc = source === 'voice' ? 'model' : source;                  // intent c2: as seen() recorded it
+  if (cmd.action === 'release' && Array.isArray(cmd.parts)) cmd = {...cmd, parts: cmd.parts.flatMap(p => REL_ALIAS[p] || [p])};
+  if (D.motion && D.motion.command) {
+    let ok = false, res = null;
+    // r2-objvoice: the user's object request -> the lesson's chalk / eraser go back on the tray first (queued before it)
+    if (cmd.action === 'object' && source !== 'ui' && D.teach && D.teach.yieldTools) { try { D.teach.yieldTools(cmd); } catch (e) {} }
+    try { res = D.motion.command(cmd, {src: source}); ok = res === true || (res && typeof res === 'object' ? res.ok !== false : res !== false); } catch (e) { console.warn('motion.command', e); }
+    if (D.alog) { D.lastCmdRes = res; try { D.alog.noteSource(source); D.alog.command(cmd, res, source); } catch (e) {} }   // speech
+    D.intentRes = res; if (window.IntentDedupe && IntentDedupe.attach) IntentDedupe.attach(res);   // intent
+    if (ok) D.lastRanAt = t;                                                          // fixes: something really ran (vt claim check)
+    // not executable here (unknown gesture/expression name, 'hold'): let the next source's version through
+    if (!ok && window.IntentDedupe) IntentDedupe.forget(asked, dsrc);
+    return res && typeof res === 'object' ? res : ok;   // motion: the full {ok,id,did,reason} for the voice tool
+  }
+  legacyCommand(cmd);
+  return true;
+}
+// Until motion.js lands: drive the old interactive.js pose channels (renderer 'pose' message) so commands show.
+function legacyCommand(cmd) {
+  const I = window.__avatar && window.__avatar.interactive; if (!I) return;
+  const side = cmd.side === 'left' ? 'left' : 'right', dur = cmd.hold ? 30000 : 2600, rep = !!cmd.hold;
+  const M = (parts) => I.setAction('animate', 'voice', {motions: parts.map(([part, amount]) => ({part, amount, duration_ms: dur, repeat: rep}))});
+  if (cmd.action === 'release') { for (const k in I.state.channels) delete I.state.channels[k]; return; }
+  if (cmd.action === 'gesture') {
+    const both = cmd.side === 'both', sides = both ? ['left', 'right'] : [side];
+    const G = {wave: s => [[s + '_arm_wave', 1]], raise_paw: s => [[s + '_arm_raise', 1]], point: s => [[s + '_paw_point', 1], [s + '_arm_raise', .5]],
+      thumbs_up: () => [['thumbs_up', 1], ['right_arm_raise', .7]], clap: () => [['clap', 1]], nod: () => [['head_nod', 1]],
+      shake_head: () => [['head_shake', 1]], wink: s => [[s + '_eye_wink', 1]], blink: () => [['eyes_blink', 1]],
+      ear_wiggle: () => [['ears_wiggle', 1]], ear_flick: s => [[s + '_ear_wiggle', 1]], nose_wiggle: () => [['nose_wiggle', 1]],
+      tail_wag: () => [['tail_wag', 1]], shrug: () => [['left_arm_raise', .3], ['right_arm_raise', .3], ['head_tilt', .3]],
+      bow: () => [['head_pitch', .8], ['body_lean', .2]], stick_tongue_out: () => [['tongue_out', 1]],
+      look_around: () => [['head_yaw', 1]], jump: () => [['body_bounce', 1]], dance: () => [['body_bounce', 1], ['tail_wag', 1]],
+      cover_eyes: () => [['left_arm_raise', 1], ['right_arm_raise', 1]], hand_on_heart: s => [[s + '_arm_raise', .4]],
+      think: s => [[s + '_arm_raise', .5], ['head_tilt', .4]]};
+    const f = G[cmd.name]; if (!f) return;
+    M(sides.flatMap(s => f(s)));
+  } else if (cmd.action === 'look') {
+    const L = {left: [['eyes_x', -1], ['head_yaw', -.6]], right: [['eyes_x', 1], ['head_yaw', .6]], up: [['eyes_y', -1], ['head_pitch', -.6]],
+      down: [['eyes_y', 1], ['head_pitch', .6]], away: [['eyes_x', 1], ['head_yaw', .8]], user: [['eyes_x', 0]]};
+    M(L[cmd.target] || L.user);
+  } else if (cmd.action === 'expression') {
+    const E = {happy: [['mouth_smile', 1]], excited: [['mouth_smile', 1], ['eyes_widen', .6]], love: [['mouth_smile', 1], ['cheeks_blush', 1]],
+      proud: [['mouth_smile', .8], ['head_pitch', -.3]], sad: [['mouth_frown', 1]], surprised: [['eyes_widen', 1], ['mouth_open', .6]],
+      angry: [['left_brow_furrow', 1], ['right_brow_furrow', 1]], curious: [['head_tilt', .5], ['left_brow_raise', 1]],
+      thinking: [['head_tilt', .4], ['eyes_y', -.6]], silly: [['tongue_out', 1]], scared: [['eyes_widen', 1], ['mouth_frown', .5]],
+      sleepy: [['eyes_squint', 1]], embarrassed: [['cheeks_blush', 1]], neutral: []};
+    M((E[cmd.name] || []).map(([p, v]) => [p, v * (cmd.intensity ?? .8)]));
+  } else if (cmd.action === 'pose') {
+    const R = {hand_l_y: 'right_arm_raise', hand_r_y: 'left_arm_raise', hand_l_open: 'right_paw_open', hand_r_open: 'left_paw_open',
+      head_yaw: 'head_yaw', head_pitch: 'head_pitch', head_roll: 'head_tilt', mouth_open: 'mouth_open', smile: 'mouth_smile',
+      tongue_out: 'tongue_out', eye_wide: 'eyes_widen', squint: 'eyes_squint', tail_raise: 'tail_raise', body_lean: 'body_lean'};
+    M(Object.entries(cmd.targets).filter(([k]) => R[k]).map(([k, v]) => [R[k], v]));
+  }
+}
+
+// ---- the motion module (motion.js / perception.js, another agent): rig vector at 30 Hz up to the server
+function startMotion() {
+  const AM = window.AvatarMotion || window.AvatarMotionLib;
+  D.motion = AM && Q.get('motion') !== '0' ? (AM.createMotion ? AM.createMotion({prior: window.AvatarPrior || null, onAction: ev => speechOnAction(ev)}) : AM) : null;   // speech: onAction   // ?motion=0: no rig (renderer idle life) — lip tests
+  clearInterval(D.rigTimer);
+  // games: a rebuilt motion object must carry the program layer of behaviours already running (install is a no-op
+  // when none run; the layer otherwise stayed on the old motion and a running game went still)
+  if (window.Behaviors && typeof Behaviors.install === 'function') { try { Behaviors.install(); } catch (e) {} }
+  if (!D.motion || !D.motion.step) return;
+  // this motion object is created AFTER start() applied the session config (dialVoice awaits the voice), so a
+  // config / renderer-ready message that already arrived never reached it — the muse then ran as a seated, prop-less
+  // character ("can't backflip — it stays in its seat", "no objects in this scene"). Re-apply the current config.
+  if (D.motion.setProps && S.cfg && 'character' in S.cfg) { try { D.motion.setProps(S.cfg.props || null, S.cfg.body || null, S.cfg.character); D.propsFor = S.cfg.character; } catch (e) { console.warn('setProps', e); } }
+  speechStart();                                                                      // speech
+  D.unified = reactMode() === 'unified' && !!D.motion.setLearned;   // same page-side path as learned (affine map), raw MediaPipe up
+  D.learned = (reactMode() === 'learned' && !!D.motion.setLearned && !!window.AvatarReactFeat) || D.unified;
+  D.rx = {h: 0, hBytes: 0, ticks: 0, abN: 0, seq: -1, ok: null};
+  if (D.learned) { D.motion.setLearned(true); sendCtl({type: 'react', mode: D.unified ? 'unified' : 'learned', blinks: Q.get('react_blinks') || undefined}); }   // ?react_blinks=rules|learned (unified: model|rules)
+  let last = performance.now();
+  D.rigTimer = setInterval(() => {
+    if (!S.live || !D.play || D.play.startCt === null) return;
+    const t = performance.now(), dt = Math.min(0.1, (t - last) / 1000); last = t;
+    const v = D.voice;
+    const av = D.play.avatarVoiceTap ? D.play.avatarVoiceTap() : D.play.avatarVoice();
+    if (av.voiced && D.vpitch && performance.now() - D.vpitch.t < 120) av.pitch = D.vpitch.f0;
+    const rig = D.motion.step(dt, {features: D.features, userVoice: v ? v.userVoice() : null, avatarVoice: av,
+      speaking: v ? v.speaking() : false, listening: v ? v.listening() : false,
+      playT: S.ctx && D.play && Number.isFinite(D.play.startCt) ? S.ctx.currentTime - D.play.startCt : null}) || {};   // motion: playback clock for playGesture({at})
+    const names = (S.cfg && S.cfg.rig_params) || [];   // the RENDERER's order (its ready message), re-read every tick
+    if (D.alog || D.cos) speechFrame(rig, (S.ctx.currentTime - D.play.startCt));        // speech
+    if (!names.length) return;
+    const a = names.map(n => { const x = +rig[n]; return isFinite(x) ? Math.round(x * 1e4) / 1e4 : 0; });
+    D.lastRig = rig;   // motion: window.__avatar.lastRig()
+    const rt = Math.round((S.ctx.currentTime - D.play.startCt) * 1000) / 1000;
+    if (D.teach) { try { D.teach.frame(dt, rt); } catch (e) { console.warn('teach', e); } }   // teach: the director + chalk marks stamped rt
+    if (D.learned) {
+      const lp = D.motion.learnedParts(names);
+      S.upQ.push(rigMsgX(rt, a, lp)); D.rx.ticks++; D.rx.abN += lp.ab.length;
+      const c = D.features && D.features.canon;   // the user's newest canonical frame, stamped at its camera capture
+      if (c && c.seq !== D.rx.seq) {
+        D.rx.seq = c.seq;
+        const h = AvatarReactFeat.packHuman(rt - (performance.now() - c.t) / 1000, c.motion, c.mask);
+        S.upQ.push(h); D.rx.h++; D.rx.hBytes += h.length;
+      }
+    } else if (UPW.rigbin) S.upQ.push(rigMsg(rt, a)); else sendCtl({type: 'rig', t: rt, a});
+  }, 33);
+}
+
+// ---- perception events: speak only on real events (rate-limited inside voice.js); everything else = silent motion
+// camera events that may get a few spoken words: phrased as what THE USER did, plus how to answer — never an invitation to
+// describe the avatar's own movement (its reflexes happen silently on screen) or the camera
+const SPEAK_EVENTS = {wave: 'He just waved at you. Say hi back to him in a few words.',
+  look_back: 'He just looked back at you after looking away. Say something tiny and warm to him, in your own words.',
+  face_appear: 'Someone just came into view. Greet them in a few words.',
+  object_up: 'He is holding something up to show you (photo attached). Name it and react to him in one short sentence.'};
+function avatarEvent(name, detail) {
+  const ev = {name, t: Math.round(performance.now()), detail: detail || null};
+  D.events.push(ev); if (D.events.length > 200) D.events.splice(0, 100);
+  if (D.motion && D.motion.event) { try { D.motion.event(name, detail); } catch (e) {} }
+  if ((name === 'gesture' || name === 'attention' || name === 'turn_bid') && typeof behaviorsFeed === 'function') behaviorsFeed(Object.assign({}, detail || {}, {type: name}));   // games: the program layer's senses
+  if (D.vt && (name === 'gesture' || name === 'attention' || name === 'turn_bid')) { const r = D.vt.onEvent(Object.assign({}, detail || {}, {type: name})); ev.spoken = !!(r && r.respond); return {spoken: ev.spoken}; }   // voice tools
+  // a big change in the user's expression -> a silent context note for the voice model (tone only; never read out)
+  if (name === 'expression_change' && D.voice && D.voice.sendContext && detail && detail.to) {
+    const what = {happy: 'is smiling', sad: 'looks sad', frown: 'is frowning', surprised: 'looks surprised'}[detail.to];
+    if (what) { try { D.voice.sendContext('He ' + what + ' right now.'); } catch (e) {} }
+    return {spoken: false};
+  }
+  if (!D.voice || !SPEAK_EVENTS[name]) return {spoken: false};
+  // a talk-worthy wave needs a face in view, or two wave events within 3 s (one pose-only blip = a walk, a phone, a headset)
+  if (name === 'wave') {
+    const now = performance.now(), face = D.features && D.features.face && D.features.face.present;
+    const prev = D.lastWaveEv || -1e9; D.lastWaveEv = now;
+    if (!face && now - prev > 3000) { ev.spoken = false; ev.why = 'single faceless wave'; return {spoken: false, why: ev.why}; }
+  }
+  // with the attention layer on, what the user shows / who appears goes to the vision judge (its verdict brings the frame)
+  if (D.attn && (name === 'object_up' || name === 'face_appear')) { ev.spoken = false; ev.why = 'attention judge'; return {spoken: false, why: ev.why}; }
+  const image = (name === 'object_up' || name === 'face_appear') ? grabStill() : null;
+  const r = D.voice.sendEvent(SPEAK_EVENTS[name], {image, respond: true});
+  ev.spoken = r.responded; ev.why = r.why;
+  sendCtl({type: 'event', name, respond: r.responded, why: r.why || ''});
+  return {spoken: r.responded, why: r.why};
+}
+
+function voiceReport() {
+  const vs = D.voice ? D.voice.stats() : {};
+  const ps = D.play ? D.play.stats() : {};
+  const mins = (performance.now() - D.startedPerf) / 60000;
+  let usd = D.usd;
+  if (D.mode === 'live') usd = (vs.live_seconds || mins * 60) / 60 * 0.05;
+  return {...vs, mode: D.mode, delay_ms: ps.delay_ms, playout: ps,
+    video_rtt_ms: D.rtt.length ? {p50: r1(pct(D.rtt.slice(-300), .5)), p90: r1(pct(D.rtt.slice(-300), .9)), n: D.rtt.length} : null,
+    need_ms: D.need.length ? {p50: r1(pct(D.need.slice(-300), .5)), p90: r1(pct(D.need.slice(-300), .9))} : null,
+    video_lag_ms: {now: Math.round(S.vlag), max: Math.round(S.vlMax), ups: S.vlUps},
+    out_latency_ms: Math.round(((S.ctx && S.ctx.outputLatency) || 0) * 1000), base_latency_ms: Math.round(((S.ctx && S.ctx.baseLatency) || 0) * 1000),
+    commands: D.cmds.slice(-100), cam_events: D.events.slice(-50), usd_est: Math.round(usd * 10000) / 10000,
+    session_min: Math.round(mins * 100) / 100, frames_drawn: S.drawn, page: S.lastMsg || null,
+    life: window.__avatar && window.__avatar.life ? window.__avatar.life() : null, history_n: D.history.length,
+    planner: plannerOn(), perform: D.perf ? D.perf.stats() : null, think: D.think ? D.think.stats() : null, voicetools: D.vt ? D.vt.stats() : null};
+}
+
+function resetMedia() {
+  S.base = null; S.want = 1; S.vlag = 0; S.vlEx = []; S.got.clear(); S.lost.clear(); S.gapSince = 0; S.needKey = true;
+  for (const f of S.frames) f.bmp.close && f.bmp.close(); S.frames = []; S.drawnT = null;
+  S.micSeq = 0; S.upQ = []; S.ctlQ = []; S.voicedRanges = []; S.userEndCt = null; S.prevTurnCt = -1; S.turnsNew = [];
+  S.rtt = []; S.uprtt = []; S.sync = []; S.shownTimes = []; S.underTimes = []; S.lastUnder = 0;
+  for (const k in S.st) S.st[k] = 0;
+  if (S.dec) { try { S.dec.close(); } catch (e) {} S.dec = null; S.decCodec = null; }
+  if (S.node) S.node.port.postMessage({t: 'reset'});
+}
+
+// ------------------------------------------------------------------ rec: session recording + mic / camera pickers
+// app/recorder.js records the stage (avatar video + the user's self-view) and both voices and uploads it to the server in chunks
+// (opt-in: ?rec=1). The pickers list the devices (names once permission is given; refreshed on devicechange), remember
+// the choice per browser (localStorage; a missing device falls back to the default) and switch MID-SESSION without a
+// restart: the new mic feeds the server uplink, the voice session (gate / meter / sender) and the recording mix; the new
+// camera feeds the same <video> the perception workers, the self-view and the recording draw from.
+function recBegin() {
+  if (!window.AvatarRec || !S.live) return;
+  const vo = $('vm').selectedOptions && $('vm').selectedOptions[0];
+  try {
+    AvatarRec.begin({url, headers: HDR, stage: $('stage'), canvas: cv, placeholder: $('ph'), ctx: S.ctx, mic: S.stream,
+      voiceOut: () => (D.play ? D.play.out : S.node), character: sel, characterName: charName(sel),
+      voice: S.direct ? (D.mode || $('vm').value) : 'hub', voiceLabel: S.direct ? (vo ? vo.textContent : '') : 'Server bridge', sid: S.sid});
+  } catch (e) { console.warn('recording', e); }
+}
+const DEV = {mic: localStorage.getItem('avatar.mic') || '', cam: localStorage.getItem('avatar.cam') || '', switches: []};
+const MIC_C = {echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1};
+async function micGum(id, exact) {
+  if (id) {
+    try { return await navigator.mediaDevices.getUserMedia({audio: {...MIC_C, deviceId: {exact: id}}}); }
+    catch (e) { if (exact) throw e; console.warn('saved microphone unavailable, using the default', e && e.name); }
+  }
+  return navigator.mediaDevices.getUserMedia({audio: MIC_C});
+}
+function deviceNames(real, noun) {        // Android's "camera2 1, facing front" -> "Front camera" (numbered when repeated)
+  const base = real.map((d, i) => { const m = /facing (front|back)/i.exec(d.label || '');
+    return m ? (m[1].toLowerCase() === 'front' ? 'Front camera' : 'Back camera') : (d.label || (noun + ' ' + (i + 1))); });
+  const seen = {};
+  return base.map(n => base.filter(x => x === n).length > 1 ? n + ' ' + (seen[n] = (seen[n] || 0) + 1) : n);
+}
+function fillDevices(selEl, list, cur, noun, defLabel) {
+  const real = list.filter(d => d.deviceId && d.deviceId !== 'default' && d.deviceId !== 'communications');
+  const names = deviceNames(real, noun);
+  const want = [''].concat(real.map((d, i) => d.deviceId + '=' + names[i])).join('|');
+  if (selEl.dataset.ids !== want) {
+    selEl.textContent = '';
+    const add = (v, t) => { const o = document.createElement('option'); o.value = v; o.textContent = t; selEl.appendChild(o); };
+    add('', defLabel);
+    real.forEach((d, i) => add(d.deviceId, names[i]));
+    selEl.dataset.ids = want;
+  }
+  selEl.value = real.some(d => d.deviceId === cur) ? cur : '';
+}
+async function listDevices() {
+  const md = navigator.mediaDevices;
+  if (!md || !md.enumerateDevices) return;
+  let ds = [];
+  try { ds = await md.enumerateDevices(); } catch (e) { return; }
+  const live = kind => { const t = kind === 'audioinput' ? (S.stream && S.stream.getAudioTracks()[0]) : (D.perc && D.perc._state && D.perc._state.stream && D.perc._state.stream.getVideoTracks()[0]);
+    try { return (t && t.getSettings && t.getSettings().deviceId) || ''; } catch (e) { return ''; } };
+  fillDevices($('micsel'), ds.filter(d => d.kind === 'audioinput'), DEV.mic || live('audioinput'), 'Microphone', 'Default');
+  fillDevices($('camsel'), ds.filter(d => d.kind === 'videoinput'), DEV.cam || live('videoinput'), 'Camera', 'Front (default)');
+}
+async function switchMic(id) {
+  const old = S.stream, t0 = performance.now();
+  let ns;
+  try { ns = await micGum(id, true); }
+  catch (e) {                         // phones that cannot hold two microphones open: release the old one, then retry
+    if (!old) throw e;
+    old.getTracks().forEach(t => t.stop());
+    ns = await micGum(id, false);
+  }
+  if (!S.live || S.stream !== old) { ns.getTracks().forEach(t => t.stop()); return false; }
+  S.stream = ns; applyMicMute();                                  // a muted mic stays muted on the new microphone
+  const src = S.ctx.createMediaStreamSource(ns);
+  if (S.src) { try { S.src.disconnect(); } catch (e) {} }
+  S.src = src;
+  if (S.node && !D.gateIntoM) src.connect(S.node);          // with the gate, the server's 'M' uplink hears the gate's output
+  if (D.voice && D.voice.setMic) D.voice.setMic(ns);
+  if (window.AvatarRec && AvatarRec.setMic) AvatarRec.setMic(ns);
+  if (old && old !== ns) old.getTracks().forEach(t => t.stop());
+  DEV.switches.push({kind: 'mic', ms: Math.round(performance.now() - t0), t: Math.round(t0)});
+  return true;
+}
+function rememberDevice(key, id) { if (id) localStorage.setItem('avatar.' + key, id); else localStorage.removeItem('avatar.' + key); }
+$('micsel').onchange = async () => {
+  const id = $('micsel').value; DEV.mic = id; rememberDevice('mic', id);
+  if (S.live && S.stream) { try { await switchMic(id); showErr(''); } catch (e) { showErr('Microphone: ' + (e && e.message || e)); } }
+  listDevices();
+};
+$('camsel').onchange = async () => {
+  const id = $('camsel').value; DEV.cam = id; rememberDevice('cam', id);
+  if (D.perc && D.perc.running && D.perc.setCamera) {
+    const t0 = performance.now();
+    try { await D.perc.setCamera(id); DEV.switches.push({kind: 'cam', ms: Math.round(performance.now() - t0), t: Math.round(t0)}); showErr(''); }
+    catch (e) { showErr('Camera: ' + (e && e.message || e)); }
+  }
+  listDevices();
+};
+if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) navigator.mediaDevices.addEventListener('devicechange', () => listDevices());
+listDevices();
+
+// ------------------------------------------------------------------ start / stop
+async function detectCodec() {
+  if (codecPref) return codecPref;
+  try {
+    if (typeof VideoDecoder !== 'undefined') {
+      const r = await VideoDecoder.isConfigSupported({codec: 'avc1.42E01F', optimizeForLatency: true});
+      if (r && r.supported) return 'h264';
+    }
+  } catch (e) {}
+  return 'jpeg';
+}
+
+async function ensureAudio() {
+  if (!S.ctx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    try { S.ctx = new AC({sampleRate: SR, latencyHint: 'interactive'}); }
+    catch (e) { S.ctx = new AC({latencyHint: 'interactive'}); }
+    const blob = new Blob([WORKLET], {type: 'application/javascript'});
+    const u = URL.createObjectURL(blob);
+    await S.ctx.audioWorklet.addModule(u);
+    S.node = new AudioWorkletNode(S.ctx, 'avatar-io', {numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1]});
+    S.node.port.onmessage = onWorklet;
+    S.node.connect(S.ctx.destination);
+  }
+  await S.ctx.resume();
+  if (!S.stream) {
+    S.stream = await micGum(DEV.mic, false); applyMicMute();       // a mute set before / between sessions holds
+    S.src = S.ctx.createMediaStreamSource(S.stream);
+    S.src.connect(S.node);
+    listDevices();
+  }
+}
+
+async function start(quiet) {
+  if (S.live || S.starting) return;
+  if (!quiet) { D.history = []; D.recoveries = []; D.restarts = []; D.gaps = []; if (D.alog) D.alog.reset(); }   // speech: a new session forgets
+  if (D.perf) D.perf.stop('new session');
+  if (D.vt) { D.vt.reset(); D.vt.attach(); }                                          // voice tools
+  S.starting = true; showErr(''); $('go').disabled = true;
+  try {
+    setStatus('Starting microphone…');
+    await ensureAudio();
+    const codec = await detectCodec();
+    resetMedia();
+    gen.n++;
+    setStatus('Connecting…');
+    const vmode = $('vm').value;
+    S.direct = vmode !== 'hub';
+    const j = await apiJSON('api/session', {character: sel, quality: $('ql').value, codec, voice: S.direct ? 'direct' : 'hub', planner: plannerReq() ? undefined : false}, 15000);
+    S.sid = j.sid; S.cfg = j.config; S.D = (j.config.delay_ms || 300) / 1000; S.live = true; S.ended = false; S.stage = 'warming';
+    applyConfig(j.config);
+    $('go').textContent = 'Stop'; $('go').classList.add('stop');
+    sendCtl({type: 'hello', character: sel, quality: $('ql').value, codec,
+      ua: navigator.userAgent.slice(0, 120), ctx_rate: S.ctx.sampleRate, base_latency_ms: Math.round((S.ctx.baseLatency || 0) * 1000),
+      output_latency_ms: Math.round((S.ctx.outputLatency || 0) * 1000)});
+    const my = gen.n;
+    XL.legacy = Q.get('xlegacy') === '1';
+    XL.inflight = 0; XL.upSince = 0;
+    for (let lane = 0; lane < (XL.legacy ? 2 : XL.lanes); lane++) exchangeLoop(my, lane);
+    clearInterval(XL.kickTimer); if (XL.kick) XL.kickTimer = setInterval(() => xlKick(my), 10);
+    statsLoop(my);
+    wakeLock(true);
+    if (S.direct) await startDirect(vmode);      // the voice dials while the renderer warms (video joins when ready)
+    recBegin();                                  // rec: record this session to the server
+    return true;
+  } catch (e) {
+    if (S.sid) bye(false);
+    stopLocal();
+    if (quiet) throw e;
+    showErr('Could not start: ' + e.message);
+    setStatus('Not running', 'err');
+  } finally { S.starting = false; $('go').disabled = false; }
+}
+
+// ---- "it should last forever": the page never ends a session on its own while it is open
+// screen wake lock while live (re-acquired when the page is visible again; the OS drops it when hidden)
+async function wakeLock(on) {
+  try {
+    if (!on) { if (D.wake) { const w = D.wake; D.wake = null; await w.release(); } return; }
+    if (!S.live || !('wakeLock' in navigator) || document.visibilityState !== 'visible' || (D.wake && !D.wake.released)) return;
+    D.wake = await navigator.wakeLock.request('screen');
+    D.wake.addEventListener('release', () => { D.wakeReleased = (D.wakeReleased || 0) + 1; });
+  } catch (e) { D.wakeErr = String(e && e.message || e).slice(0, 80); }
+}
+// the server forgot the session (410: it timed out a frozen tab, restarted, …) while the page is still open: start a new
+// one quietly with the same character and voice; the conversation so far rides into the new voice call
+async function quietRestart(why) {
+  if (D.restarting || !S.live) return;
+  D.restarting = true;
+  const r = {why, t0: Math.round(performance.now())}; D.restarts.push(r);
+  setStatus('Reconnecting…');
+  stopLocal(true);
+  let wait = 1000;
+  try {
+    for (let i = 0; i < 1000 && !D.userStopped; i++) {
+      try { if (await start(true)) { r.live_ms = Math.round(performance.now() - r.t0); return; } }
+      catch (e) { r.err = String(e && e.message || e).slice(0, 80); }
+      await sleep(wait); wait = Math.min(10000, wait * 2);
+    }
+  } finally { D.restarting = false; }
+}
+
+function stopLocal(quiet) {
+  if (window.AvatarRec) { try { AvatarRec.end(quiet ? 'reconnect' : 'stop'); } catch (e) {} }   // rec: before the mic / voice go
+  if (!quiet) wakeLock(false);
+  if (D.voice) { try { D.voice.stop(); } catch (e) {} D.voice = null; }
+  if (D.play) { try { D.play.stop(); D.play.out.disconnect(); D.play.tap.disconnect(); } catch (e) {} D.play = null; }
+  clearInterval(D.rigTimer);
+  stopPerception();
+  S.live = false; S.sid = null; gen.n++;
+  $('go').textContent = 'Start'; $('go').classList.remove('stop');
+  if (S.stream) { for (const t of S.stream.getTracks()) t.stop(); S.stream = null; }
+  if (S.src) { try { S.src.disconnect(); } catch (e) {} S.src = null; }
+  if (S.node) S.node.port.postMessage({t: 'reset'});
+  if (S.ctx && S.ctx.state === 'running') S.ctx.suspend().catch(() => {});
+  $('ph').style.display = 'flex';
+}
+
+function bye(beacon) {
+  if (!S.sid) return;
+  const u = url('api/bye', {sid: S.sid});
+  let ok = false;
+  if (beacon && navigator.sendBeacon) { try { ok = navigator.sendBeacon(u, new Blob(['bye'])); } catch (e) {} }
+  if (!ok) fetch(u, {method: 'POST', keepalive: true, signal: tsignal(3000)}).catch(() => {});
+}
+
+async function stop() { D.userStopped = true; bye(false); stopLocal(); setStatus('Stopped. The renderer sleeps after 15 minutes idle.'); }
+
+$('go').onclick = () => { if (S.live) stop(); else { D.userStopped = false; start(); } };
+addEventListener('pagehide', () => { if (S.live) { D.userStopped = true; bye(true); stopLocal(); } });
+// hidden (screen off, app switch) does NOT end the session — only leaving the page does (pagehide above); coming back
+// re-takes the wake lock and checks the voice call is still up
+document.addEventListener('visibilitychange', () => {
+  const vis = document.visibilityState === 'visible';
+  D.gaps.push({vis, t: Math.round(performance.now())});
+  if (vis && S.live) { wakeLock(true); if (D.voice && D.voice.dropped && D.voice.dropped()) recoverVoice('page visible again', false); }
+  else if (vis && !S.live && !S.starting) warm();
+});
+
+// ------------------------------------------------------------------ up: mic + control
+function onWorklet(e) {
+  const m = e.data;
+  if (m.t === 'm') onMic(m);
+  else if (m.t === 'st') {
+    S.wst = m;
+    if (m.under > S.lastUnder) { S.underTimes.push(performance.now()); S.lastUnder = m.under; }
+  }
+}
+
+function onMic(m) {
+  const vad = m.rms > 350;
+  const echoGuard = $('eg').checked;
+  if (vad && !avatarAudibleAt(m.ct, 0)) { S.userEndCt = m.ct; D.micVoicedAt = performance.now(); }   // user's speech (not while the avatar is audible)
+  // integ: the user's voice on the mic itself (not the vendor's speech_started, which the barge-in shield can hold back
+  // for seconds while the avatar talks) lifts the chalk: 0.2 s of voice (not its own) is an onset, 0.7 s quiet ends it
+  if (D.teach && D.teach.userSpeech) {
+    const tn = performance.now(), own = vad && avatarAudibleAt(m.ct, 0);
+    if (vad && !own) { D.tmOn = D.tmOn || tn; D.tmLast = tn; if (!D.tmFired && tn - D.tmOn > 200) { D.tmFired = true; try { if (D.teach.userSpeech('start')) sendCtl({type: 'event', name: 'teach_pause', why: 'mic voice'}); } catch (e) {} } }
+    else if (D.tmOn && tn - (D.tmLast || 0) > 700) { D.tmOn = 0; D.tmFired = false; }
+  }
+  if (!S.live || S.stage !== 'live') return;
+  if (S.direct && !(S.cfg && S.cfg.intent_mic && Q.get('intent') !== '0') && !D.learned) return;   // mic up only for the server's intent matcher (and learned mode)
+  let pcm = m.pcm;
+  if (echoGuard && avatarAudibleAt(m.ct, 0.3)) pcm = new Int16Array(480);   // muted: digital silence keeps the vendor clocked
+  // direct mode: the mic only feeds the server's 16 kHz intent ASR -> 16 kHz mu-law (128 kbps); server voice keeps int16 24 kHz
+  const small = S.direct && UPW.ulaw, body = small ? ulawEnc(UPW.mic16 ? down16(pcm) : pcm) : new Uint8Array(pcm.buffer, pcm.byteOffset, pcm.byteLength);
+  const msg = new Uint8Array(8 + body.byteLength);
+  if (D.learned && S.micSeq % 25 === 0 && D.play && D.play.startCt !== null) sendCtl({type: 'rx_sync', seq: S.micSeq, t: Math.round((m.ct - D.play.startCt) * 1e4) / 1e4});
+  const dv = new DataView(msg.buffer); dv.setUint8(0, 0x4D); dv.setUint8(1, small ? (1 | (UPW.mic16 ? 2 : 0)) : 0); dv.setUint32(4, S.micSeq++, true);
+  msg.set(body, 8);
+  S.upQ.push(msg);
+  if (S.upQ.length > 150) S.upQ.splice(0, S.upQ.length - 150);
+}
+
+function avatarAudibleAt(ct, tail) {
+  const ol = S.ctx ? (S.ctx.outputLatency || S.ctx.baseLatency || 0) : 0;
+  for (let i = S.voicedRanges.length - 1; i >= 0; i--) {
+    const r = S.voicedRanges[i];
+    if (ct >= r[0] + ol - 0.02 && ct <= r[1] + ol + tail) return true;
+  }
+  return false;
+}
+
+function sendCtl(obj) { S.ctlQ.push(obj); }
+
+function frameMsgs(list) {
+  let n = 0; for (const m of list) n += 4 + m.byteLength;
+  const out = new Uint8Array(n), dv = new DataView(out.buffer); let o = 0;
+  for (const m of list) { dv.setUint32(o, m.byteLength, true); out.set(m, o + 4); o += 4 + m.byteLength; }
+  return out;
+}
+
+async function upLoop(my) {
+  const enc = new TextEncoder();
+  while (gen.n === my) {
+    await sleep(45);
+    if (S.upInflight >= 2 || (!S.upQ.length && !S.ctlQ.length)) continue;
+    const ctl = S.ctlQ.splice(0), mic = S.upQ.splice(0);
+    const msgs = ctl.map(o => { const b = enc.encode(JSON.stringify(o)); const m = new Uint8Array(1 + b.length); m[0] = 0x4A; m.set(b, 1); return m; }).concat(mic);
+    const body = frameMsgs(msgs);
+    S.upInflight++;
+    const t0 = performance.now();
+    fetch(url('api/up', {sid: S.sid}), {method: 'POST', headers: {...HDR, 'content-type': 'application/octet-stream'}, body, signal: tsignal(4000)})
+      .then(async r => {
+        S.uprtt.push(performance.now() - t0); if (S.uprtt.length > 400) S.uprtt.splice(0, 200);
+        if (r.status === 410) { if (gen.n === my) quietRestart('hub: session gone (410, up)'); return; }
+        if (r.status === 429) { XL.rps = Math.max(5, Math.round(XL.rps * 0.7)); XL.r429 = (XL.r429 || 0) + 1; }   // over a per-minute rate cap (e.g. a reverse proxy): slow down for good
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      })
+      .catch(e => { S.st.upErr++; if (gen.n === my) S.ctlQ.unshift(...ctl); })
+      .finally(() => { S.upInflight--; });
+  }
+}
+
+// One batched request carries both directions (latency): XL.lanes (default 3) requests are kept OUTSTANDING at the server at
+// all times. The server holds each one until it has something to send down (<= 300 ms), so a rendered frame leaves the
+// server the moment it exists (no 150 ms cadence wait), and the lane that returns re-issues at once carrying whatever
+// playback/mic/control is queued (uplink wait <= one frame interval). A global token bucket keeps the request rate
+// at <= XL.rps (default 14/s = 840/min, under a typical reverse proxy's per-client limit; a 429 lowers it for good).
+// ?lanes= / ?rps= override them; ?xlegacy=1 restores the old 2 lanes x 300 ms pacing for A/B runs.
+const XL = {lanes: Math.max(1, Math.min(6, +(Q.get('lanes') || 3))), rps: Math.max(5, Math.min(90, +(Q.get('rps') || 14))),
+  tokens: 4, at: performance.now(), legacy: false, sent: 0, upBytes: 0, downBytes: 0,
+  inflight: 0, upSince: 0, kicks: 0, kickTimer: 0, kick: Math.max(0, +(Q.get('kick') || 0))};
+// "send now" (latency): when every lane is parked at the server and voice/mic has waited >= XL.kick ms, push it up
+// at once with a non-holding /api/up (spends a token only while >= 2 are left, so the lanes keep their budget).
+function xlKick(my) {
+  if (XL.legacy || !XL.kick || !S.live || gen.n !== my || !S.sid) return;
+  const now = performance.now();
+  if (!S.upQ.length) { XL.upSince = 0; return; }
+  if (!XL.upSince) { XL.upSince = now; return; }
+  if (XL.inflight < xlLanes() || now - XL.upSince < XL.kick) return;
+  XL.tokens = Math.min(4, XL.tokens + (now - XL.at) * XL.rps / 1000); XL.at = now;
+  if (XL.tokens < 2) return;
+  XL.tokens -= 1; XL.kicks++; XL.upSince = 0;
+  const enc = new TextEncoder(), ctl = S.ctlQ.splice(0), mic = S.upQ.splice(0);
+  const body = frameMsgs(ctl.map(o => { const b = enc.encode(JSON.stringify(o)); const m = new Uint8Array(1 + b.length); m[0] = 0x4A; m.set(b, 1); return m; }).concat(mic));
+  XL.sent++; XL.upBytes += body.byteLength;
+  const sr = streamReq('api/up');
+  fetch(sr.u, {method: 'POST', headers: {...HDR, 'content-type': 'application/octet-stream'}, body, signal: tsignal(4000), cache: 'no-store'})
+    .then(r => { if (!r.ok && r.status !== 410) throw new Error('HTTP ' + r.status); })
+    .catch(() => { if (gen.n === my) { S.ctlQ.unshift(...ctl); S.upQ.unshift(...mic); } });
+}
+function xlLanes() { return XL.lanes; }
+function xlWait() {
+  const now = performance.now();
+  const rps = XL.rps;
+  XL.tokens = Math.min(4, XL.tokens + (now - XL.at) * rps / 1000); XL.at = now;
+  if (XL.tokens >= 1) { XL.tokens -= 1; return 0; }
+  return Math.ceil((1 - XL.tokens) * 1000 / rps);
+}
+async function exchangeLoop(my, lane) {
+  const enc = new TextEncoder(); let fails = 0;
+  await sleep(XL.legacy ? lane * 150 : lane * 15);
+  while (gen.n === my) {
+    if (!XL.legacy) { let w; while ((w = xlWait()) > 0) await sleep(w); if (gen.n !== my) return; }
+    const t0 = performance.now();
+    const ctl = S.ctlQ.splice(0), mic = S.upQ.splice(0); XL.upSince = 0;
+    const msgs = ctl.map(o => { const b = enc.encode(JSON.stringify(o)); const m = new Uint8Array(1 + b.length); m[0] = 0x4A; m.set(b, 1); return m; }).concat(mic);
+    XL.inflight++;
+    try {
+      const body = frameMsgs(msgs);
+      XL.sent++; XL.upBytes += body.byteLength;
+      const sr = streamReq('api/exchange', S.want - 1);
+      const r = await fetch(sr.u, {method:'POST', headers:{...HDR,'content-type':'application/octet-stream', ...sr.h},
+        body, signal:tsignal(5000), cache:'no-store'});
+      if (gen.n !== my) return;
+      if (r.status === 410) { XL.inflight--; quietRestart('hub: session gone (410)'); return; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const buf = new Uint8Array(await r.arrayBuffer());
+      XL.downBytes += buf.byteLength;
+      if (fails) { D.netGaps = D.netGaps || []; D.netGaps.push({ms: Math.round(performance.now() - XL.failSince), fails});
+        if (S.live && /Reconnecting/.test($('status').textContent)) setStatus('Live — ' + charName(sel) + ' is listening', 'live'); }
+      const rt = performance.now()-t0-(+(r.headers.get('x-hold-ms')||0));
+      S.rtt.push(rt); S.uprtt.push(performance.now()-t0);
+      if (S.rtt.length>600) S.rtt.splice(0,300);
+      if (S.uprtt.length>600) S.uprtt.splice(0,300);
+      fails=0; onBatch(buf);
+    } catch(e) {
+      if(gen.n !== my) return;
+      S.st.pollErr++; S.st.upErr++; if (!fails) XL.failSince = performance.now(); fails++;
+      S.ctlQ.unshift(...ctl); S.upQ.unshift(...mic);
+      if(S.upQ.length>400) S.upQ.splice(0,S.upQ.length-400);
+      if(S.ctlQ.length>300) S.ctlQ.splice(0,S.ctlQ.length-300);
+      XL.inflight--;
+      // never give up while the page is open (a frozen tab, a 20 s dead network): retry, backoff <= 2 s
+      if (fails >= 3) setStatus('Reconnecting…');
+      await sleep(Math.min(2000, 250 * 2 ** Math.min(fails, 3)));
+      continue;
+    }
+    XL.inflight--;
+    if (XL.legacy) await sleep(Math.max(0,300-(performance.now()-t0)));
+  }
+}
+
+// ------------------------------------------------------------------ down: long-polls
+async function pollLoop(my, idx) {
+  let fails = 0;
+  await sleep(idx * 60);
+  while (gen.n === my) {
+    const t0 = performance.now();
+    try {
+      const r = await fetch(url('api/down', {sid: S.sid, after: S.want - 1}), {headers: HDR, signal: tsignal(6000), cache: 'no-store'});
+      if (gen.n !== my) return;
+      if (r.status === 410) { if (S.stage === 'ended') sessionGone(''); else quietRestart('hub: session gone (410, poll)'); return; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const hold = +(r.headers.get('x-hold-ms') || 0);
+      const buf = new Uint8Array(await r.arrayBuffer());
+      const rt = performance.now() - t0 - hold;
+      S.rtt.push(rt); if (S.rtt.length > 600) S.rtt.splice(0, 300);
+      fails = 0;
+      onBatch(buf);
+    } catch (e) {
+      if (gen.n !== my) return;
+      S.st.pollErr++; fails++;
+      if (fails >= 3) setStatus('Reconnecting…');
+      await sleep(Math.min(1000, 100 * fails));
+    }
+  }
+}
+
+function onBatch(buf) {
+  if (buf.length < 4) return;
+  const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+  const seq = dv.getUint32(0, true);
+  if (seq === 0) { checkGap(); return; }
+  if (S.lost.has(seq)) { S.lost.delete(seq); processBatch(buf, true); return; }   // late: audio + JSON only
+  if (seq < S.want || S.got.has(seq)) return;
+  S.got.set(seq, buf);
+  drain();
+  checkGap();
+}
+function drain() {
+  while (S.got.has(S.want)) { const b = S.got.get(S.want); S.got.delete(S.want); S.want++; processBatch(b, false); }
+  S.gapSince = S.got.size ? (S.gapSince || performance.now()) : 0;
+}
+function checkGap() {
+  if (S.got.size && S.gapSince && performance.now() - S.gapSince > 400) {   // a batch is missing: move on, fix video
+    const next = Math.min(...S.got.keys());
+    for (let s = S.want; s < next; s++) S.lost.add(s);
+    S.st.skippedSeq += next - S.want; S.want = next; S.needKey = true; requestKey();
+    S.gapSince = 0; drain();
+  }
+}
+
+function processBatch(buf, lateOnly) {
+  const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+  let o = 4;
+  while (o + 4 <= buf.length) {
+    const n = dv.getUint32(o, true); o += 4;
+    if (o + n > buf.length) break;
+    const m = buf.subarray(o, o + n); o += n;
+    const ty = m[0];
+    if (ty === 0x41) onAudio(m);
+    else if (ty === 0x56) { if (!lateOnly) onVideo(m); }
+    else if (ty === 0x4A) { try { onJSON(JSON.parse(new TextDecoder().decode(m.subarray(1)))); } catch (e) { console.warn(e); } }
+  }
+}
+
+// ------------------------------------------------------------------ audio in
+function onAudio(m) {
+  const dv = new DataView(m.buffer, m.byteOffset, m.byteLength);
+  const s0 = Number(dv.getBigUint64(4, true));
+  const nb = m.byteLength - 12;
+  const pcm = new Int16Array(nb >> 1);
+  new Uint8Array(pcm.buffer).set(m.subarray(12, 12 + (nb & ~1)));
+  if (S.base === null) {
+    S.base = S.ctx.currentTime + S.D - s0 / SR;
+    S.node.port.postMessage({t: 'base', base: S.base});
+  }
+  let e = 0; for (let i = 0; i < pcm.length; i += 4) e += pcm[i] * pcm[i];
+  if (Math.sqrt(e / Math.max(1, pcm.length / 4)) > 20) {
+    if (!S.direct) avatarVoiced();                                                     // (server voice)
+    const a = S.base + s0 / SR, b = S.base + (s0 + pcm.length) / SR;
+    const L = S.voicedRanges, last = L[L.length - 1];
+    if (last && a - last[1] < 0.05) last[1] = Math.max(last[1], b); else L.push([a, b]);
+    if (L.length > 200) L.splice(0, 100);
+  }
+  S.node.port.postMessage({t: 'a', s0, pcm}, [pcm.buffer]);
+}
+
+// ------------------------------------------------------------------ video in
+function requestKey() { S.st.keyReq++; sendCtl({type: 'keyframe'}); }
+
+function makeDecoder(codec) {
+  const my = gen.n;
+  const d = new VideoDecoder({
+    output: f => {
+      if (my !== gen.n) { f.close(); return; }
+      const t = f.timestamp / 1e6;
+      createImageBitmap(f).then(bmp => { f.close(); addFrame(t, bmp); }, () => { f.close(); S.st.decErr++; });
+    },
+    error: e => { S.st.decErr++; console.warn('decoder', e); if (S.dec === d) { S.dec = null; S.needKey = true; requestKey(); } },
+  });
+  d.configure({codec, optimizeForLatency: true});
+  S.dec = d; S.decCodec = codec;
+}
+
+// ?flash=1 (sync test): ignore the renderer; at each voice onset on the tap timeline put a white synthetic frame
+// (100 ms) through the SAME display path, so a screen+sound recording shows heard-voice vs picture offset directly
+const FLASH = Q.get('flash') === '1';
+function flashAt(s0, silent, first) {
+  const F = flashAt; F.quiet = silent ? (F.quiet || 0) + 480 : (F.quiet >= 7200 || F.quiet === undefined ? -1 : 0);
+  if (F.quiet !== -1) return;
+  F.quiet = 0;
+  const t = (s0 + Math.max(0, first)) / SR;
+  const mk = c => { const cv2 = new OffscreenCanvas(320, 180), g = cv2.getContext('2d'); g.fillStyle = c; g.fillRect(0, 0, 320, 180); return cv2.transferToImageBitmap(); };
+  addFrame(t, mk('#fff')); addFrame(t + 0.1, mk('#000'));
+  (D.flashes = D.flashes || []).push({t, at: Math.round(performance.now())});
+}
+function onVideo(m) {
+  if (FLASH) return;
+  const dv = new DataView(m.buffer, m.byteOffset, m.byteLength);
+  const flags = m[1], fn = dv.getUint32(4, true), t = dv.getFloat64(8, true);
+  const data = m.subarray(16);
+  S.st.framesIn++;
+  if (flags & 2) {   // JPEG
+    createImageBitmap(new Blob([data], {type: 'image/jpeg'})).then(bmp => addFrame(t, bmp), () => S.st.decErr++);
+    return;
+  }
+  if (typeof VideoDecoder === 'undefined') return;
+  const key = !!(flags & 1);
+  const codec = (S.cfg && S.cfg.codec_string) || 'avc1.42E01F';
+  if (!S.dec || S.dec.state === 'closed' || S.decCodec !== codec) { try { makeDecoder(codec); } catch (e) { S.st.decErr++; return; } S.needKey = true; }
+  if (S.needKey && !key) { S.st.dropped++; if (!S._keyAsked || performance.now() - S._keyAsked > 1000) { S._keyAsked = performance.now(); requestKey(); } return; }
+  S.needKey = false;
+  try {
+    S.dec.decode(new EncodedVideoChunk({type: key ? 'key' : 'delta', timestamp: Math.round(t * 1e6), data}));
+  } catch (e) { S.st.decErr++; S.needKey = true; requestKey(); }
+}
+
+function addFrame(t, bmp) {
+  if (S.direct && D.play && D.play.startCt !== null) {
+    const heardUndelayed = audioTimeToPerf(D.play.startCt + t), nowp = performance.now();
+    const need = nowp - heardUndelayed + VSYNC / 2;
+    D.play.setNeed(need); D.need.push(need);
+    D.rtt.push(nowp - (heardUndelayed - ((S.ctx.outputLatency || 0) * 1000)));
+    if (D.rtt.length > 600) { D.rtt.splice(0, 300); D.need.splice(0, 300); }
+    vlagUpdate(need - D.play.delayMs());
+  }
+  // late = its slot (audio heard + the video lag) has passed: drop it (lips must not trail more than the lag), unless
+  // nothing has been drawn for 200 ms (overload) — then show it, so the picture stays alive
+  const fpsNow = (S.cfg && S.cfg.fps) || 24;
+  const lateMs = S.direct ? (performance.now() - (S.lastDrawPerf || 0) > 200 ? 600 : 1000 / fpsNow) : 1000 / 48;
+  if (S.base !== null && (audioTimeToPerf(S.base + t) + S.vlag < performance.now() - lateMs || (S.direct && S.drawnT !== null && t <= S.drawnT))) {
+    S.st.late++; bmp.close(); return;
+  }
+  let i = S.frames.length;
+  while (i > 0 && S.frames[i - 1].t > t) i--;
+  S.frames.splice(i, 0, {t, bmp});
+  while (S.frames.length > 48) { S.frames.shift().bmp.close(); S.st.dropped++; }
+}
+
+/* choppy: VIDEO LAG. Direct voice delays the avatar's voice by D (<= delay_max_ms) so its frames, which make a
+   phone -> server -> renderer -> server -> phone round trip, land in sync. On a phone link that trip needed 620-800 ms
+   (p50/p90, measured) against a 520 ms ceiling, so most frames arrived after their slot and were dropped as
+   late: 15-17k of 22k frames, ~5 fps shown. Now, when frames keep arriving after their slot, the picture runs a steady
+   S.vlag ms behind the voice (p90 of the excess + a margin, capped at video_lag_max_ms / ?vlag=<ms>, 0 = off): every
+   frame is shown at a steady cadence and the lips trail by that much. Up at once (one short hold), down slowly
+   (<= 1.5 ms per frame, never a visible skip), and it falls back to 0 when the delay covers the trip. */
+function vlagUpdate(excess) {
+  const cap = Q.get('vlag') !== null ? +Q.get('vlag') : ((S.cfg && S.cfg.video_lag_max_ms != null) ? +S.cfg.video_lag_max_ms : 120);
+  if (!(cap > 0)) { S.vlag = 0; return; }
+  S.vlEx.push(excess); if (S.vlEx.length > 192) S.vlEx.splice(0, 96);
+  if (S.vlEx.length < 12) return;
+  const want = Math.min(cap, Math.max(0, pct(S.vlEx.slice(-96), 0.9) + 25));
+  if (want > S.vlag + 5) { S.vlag = want; S.vlUps++; }
+  else if (want < S.vlag) S.vlag = Math.max(want, S.vlag - 1.5);
+  S.vlMax = Math.max(S.vlMax, S.vlag);
+}
+
+// audio-clock time -> performance.now() time at which that audio is HEARD
+function audioTimeToPerf(at) {
+  const c = S.ctx;
+  if (c && c.getOutputTimestamp) {
+    const ts = c.getOutputTimestamp();
+    if (ts && ts.performanceTime) return ts.performanceTime + (at - ts.contextTime) * 1000;
+  }
+  return performance.now() + (at - c.currentTime + (c.outputLatency || c.baseLatency || 0)) * 1000;
+}
+
+function tick(now) {
+  requestAnimationFrame(tick);
+  if (!S.live || S.base === null || !S.frames.length) return;
+  const visible = performance.now() + VSYNC;      // what we draw now is on glass about one refresh later
+  const half = 500 / ((S.cfg && S.cfg.fps) || 24);
+  let k = -1;
+  for (let i = 0; i < S.frames.length; i++) { if (audioTimeToPerf(S.base + S.frames[i].t) + S.vlag <= visible + half) k = i; else break; }
+  if (k < 0) return;
+  const f = S.frames[k];
+  for (const o of S.frames.splice(0, k)) { if (o.t !== S.drawnT) S.st.dropped++; o.bmp.close(); }
+  if (f.t !== S.drawnT) {
+    if (cv.width !== f.bmp.width || cv.height !== f.bmp.height) { cv.width = f.bmp.width; cv.height = f.bmp.height; }
+    g2.drawImage(f.bmp, 0, 0);
+    S.drawnT = f.t; S.drawn++; S.lastDrawPerf = performance.now();
+    S.shownTimes.push(visible);
+    S.sync.push(visible - audioTimeToPerf(S.base + f.t));
+    if (S.sync.length > 2000) S.sync.splice(0, 1000);
+    if ($('ph').style.display !== 'none') $('ph').style.display = 'none';
+  }
+}
+requestAnimationFrame(tick);
+
+// ------------------------------------------------------------------ JSON from the server
+let capLine = {you: '', avatar: ''}, capWho = null;
+function onJSON(j) {
+  switch (j.type) {
+    case 'status': onStatus(j); break;
+    case 'config': applyConfig(j); break;
+    case 'affect': onAffect(j); break;                          // devloop: feelings on the face / body
+    case 'board_item': case 'board_plan_done': case 'board_plan_error': case 'board_state': case 'teach_abort':   // teach
+      if (D.teach) D.teach.onHub(j); break;
+    case 'teach_heard':                                         // integ: stop words from the server's fast recognizer
+      if (D.teach && !echoOfAvatar(j.text) && D.teach.userText(j.text, !!j.final)) sendCtl({type: 'event', name: 'teach_stop_words', why: String(j.text).slice(0, 60), via: 'hub_asr'});
+      break;
+    case 'transcript': {
+      if (!S.direct && D.vt) {                                  // voice tools: the server-relayed voice's words for the guard
+        if (j.who === 'you') { if (D.vtWho !== 'you') D.vt.userSpeech('start'); D.vt.userText(j.text, false); }
+        else if (D.vtWho === 'you') D.vt.userText('', true);
+        if (j.who === 'avatar' && j.text && D.vt.avatarText) D.vt.avatarText(j.text, false);   // fixes: the claim check
+        D.vtWho = j.who;
+      }
+      if (capWho !== j.who) { capLine[j.who] = ''; capWho = j.who; }
+      capLine[j.who] = (capLine[j.who] + j.text).slice(-300);
+      $('capy').textContent = capLine.you ? 'You: ' + capLine.you : '';
+      $('capa').textContent = capLine.avatar ? charName(S.cfg ? S.cfg.character : sel) + ': ' + capLine.avatar : '';
+      break;
+    }
+    case 'turn': if (!S.direct) onTurn(j); break;
+    case 'act': {   // B8: a move / object call from the server's GPT Live 1 session: run it here, answer with the real result
+      if (plannerOn() && D.vt && D.vt.handles(j.name)) {        // voice tools: the voice tools (do_action, behaviours, look, ...)
+        const r = D.vt.call(j.name, j.args || {}, 'done', {via: 'hub'});
+        sendCtl({type: 'act_result', id: j.id, result: r});
+        sendCtl({type: 'call', name: j.name, args: j.args, ran: {ok: r.ok !== false, status: r.status, id: r.id, reason: r.reason, already: r.already || undefined}, via: 'hub'});
+        break;
+      }
+      if (j.name === 'perform_action' && plannerOn()) {         // planned on the server, answered at once
+        const r = D.perf ? D.perf.call((j.args || {}).description, {via: 'hub'}) : {ok: false, reason: 'no body here'};
+        sendCtl({type: 'act_result', id: j.id, result: r});
+        sendCtl({type: 'call', name: j.name, args: j.args, ran: {ok: r.ok !== false, status: r.status, id: r.id, reason: r.reason, already: r.already || undefined}, via: 'hub'});
+        break;
+      }
+      const cmd = toolToCommand(j.name, j.args || {});
+      if (cmd && plannerOn() && D.perf && j.name === 'release' && (!j.args || !j.args.parts || j.args.parts === 'all')) D.perf.stop('he asked to stop');
+      let ran = null;
+      if (cmd && plannerOn() && D.perf && j.name === 'object' && D.vt && D.vt.gate) {   // voice tools: the what-if guard
+        const a = j.args || {}, g = D.vt.gate([a.verb, a.object && (a.object.name || a.object.ref), a.target || a.place].filter(Boolean).join(' '),
+          () => { if (D.vt.expand) D.vt.expand(); return D.perf.engineCall({via: 'hub'}, () => runCommand(cmd, 'voice')).result; });
+        if (g) { sendCtl({type: 'act_result', id: j.id, result: g}); sendCtl({type: 'call', name: j.name, args: j.args, ran: {ok: g.ok !== false, status: g.status, reason: g.reason}, via: 'hub'}); break; }
+        if (D.vt.covered && D.vt.covered()) { const r = {ok: true, already: true, did: 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)'};   // hybrid
+          coveredCheck(cmd, {via: 'hub'});   // r2-objvoice
+          sendCtl({type: 'act_result', id: j.id, result: r}); sendCtl({type: 'call', name: j.name, args: j.args, ran: {ok: true, dup: true}, via: 'hub'}); break; }
+        if (D.vt.expand) D.vt.expand();
+      }
+      if (cmd && plannerOn() && D.perf && j.name === 'object') {
+        const qd = D.perf.engineCall({via: 'hub'}, () => runCommand(cmd, 'voice'));
+        if (qd.deferred) { sendCtl({type: 'act_result', id: j.id, result: qd.result}); sendCtl({type: 'call', name: j.name, args: j.args, ran: {ok: true, queued: true}, via: 'hub'}); break; }
+        ran = qd.result;
+        if (D.lastCmdRes && D.lastCmdRes.dup) coveredCheck(cmd, {via: 'hub'});   // r2-objvoice: deduplicated against a matcher's record
+      } else ran = cmd ? runCommand(cmd, 'voice') : null;
+      const result = !cmd ? {ok: false, reason: 'unknown tool'} : D.alog ? speechToolResult(ran) : intentToolResult(ran);
+      sendCtl({type: 'act_result', id: j.id, result});
+      sendCtl({type: 'call', name: j.name, args: j.args, ran: {ok: result.ok !== false, did: result.did, reason: result.reason}, via: 'hub'});
+      break;
+    }
+    case 'kf': if (D.perf) D.perf.onKf(j); break;              // the server planner's poses / library commands
+    case 'tv_state':                                          // tv: what the wall TV shows (window.__avatar.tv())
+      D.tvState = j; if (D.vt) D.vt.onHub(j); break;
+    case 'behavior_code':                                      // the behaviour writer's answer (program layer first)
+      if (window.Behaviors && typeof Behaviors.onCode === 'function' && Behaviors.onCode(j)) break;
+      if (D.vt) D.vt.onHub(j); break;
+    case 'intent':
+      // hybrid: the server fast matcher executes in planner mode too (the planner path), never on a what-if
+      if (j.cmd && plannerOn() && D.vt && D.vt.whatIf && D.vt.whatIf(String(j.text || ''))) { D.cmds.push({cmd: j.cmd, source: j.source || 'matcher', t: Math.round(performance.now()), skipped: 'what-if', text: j.text}); break; }
+      if (j.cmd && Q.get('intent') !== '0') {
+        if (echoOfAvatar(j.text)) D.cmds.push({cmd: j.cmd, source: 'matcher', t: Math.round(performance.now()), echo: true, text: j.text});
+        else {
+          // a refinement ("point at me" -> "... with your left paw"): release the parts only the earlier command drove
+          const old = j.replaces && Array.isArray(j.replaces.parts) ? j.replaces.parts : [];
+          const gone = old.filter(p => !(j.cmd.parts || []).includes(p));
+          if (gone.length && D.motion && D.motion.command) D.motion.command({action: 'release', parts: gone.flatMap(p => REL_ALIAS[p] || [p])});
+          // motion: a refinement of a move/object command REPLACES the job the partial started (motion.command
+          // `replaces: id`; the engine restarts / merges / cancels-and-starts it), so "jump" → "jump higher" is one jump
+          let cmd = j.cmd;
+          const prevM = D.matcherRes;
+          if (j.replaces && prevM && prevM.res && prevM.res.id && performance.now() - prevM.t < 4000 && /^(move|object)$/.test(cmd.action || '') && /^(move|object)$/.test(prevM.action || '')) cmd = {...cmd, replaces: prevM.res.id};
+          const res = runCommand(cmd, j.source === 'matcher-llm' ? 'matcher-llm' : 'matcher', j);   // intent c2: the server's LLM read
+          if (res && typeof res === 'object' && res.ok) D.matcherRes = {res, t: performance.now(), action: cmd.action};   // motion
+        }
+      }
+      break;
+    case 'spend': $('spend').textContent = 'Spent today: $' + (+j.usd_today).toFixed(2); break;
+    case 'rx_shown': if (D.learned && D.motion && D.motion.setShown && S.cfg) D.motion.setShown(S.cfg.rig_params || [], j.a); break;
+    case 'react':
+      if (D.rx) D.rx.ok = !!j.ok;
+      if (j.mode !== (D.unified ? 'unified' : 'learned') && D.learned) { D.learned = false; D.unified = false; if (D.motion && D.motion.setLearned) D.motion.setLearned(false); console.warn('react: back to rules —', j.why || ''); }
+      break;
+    case 'metrics': if (j.render) S.renderStats = j.render; if (j.render_error) showErr('Video: ' + j.render_error); break;
+    case 'gestures': case 'gesture_saved': if (D.gest) D.gest.onHub(j); break;                                  // perception
+    case 'attention': case 'attention_rules': if (D.attn) D.attn.onHub(j); break;
+  }
+}
+
+function onTurn(j) {
+  // first-audio delay: end of the user's speech -> this turn's first voiced sample heard on the phone
+  if (S.base === null) return;
+  const at = S.base + j.s / SR;                       // audio-clock time the sample is rendered
+  const heardPerf = audioTimeToPerf(at);
+  const ue = S.userEndCt;
+  if (ue === null || ue <= S.prevTurnCt) { S.prevTurnCt = at; return; }
+  const uePerf = audioTimeToPerf(ue) - ((S.ctx.outputLatency || 0) * 1000);   // capture time: no output latency
+  const ms = Math.round(heardPerf - uePerf);
+  S.prevTurnCt = at;
+  if (ms > 0 && ms < 20000) { S.turnsNew.push({first_audio_ms: ms, hub_ms: j.hub_ms, s: j.s}); S.lastFA = ms; }
+}
+
+function applyConfig(c) {
+  S.cfg = Object.assign(S.cfg || {}, c);
+  // motion: the character's body + scene for the move engine (absent = the older characters: engine off)
+  if (D.motion && D.motion.setProps && 'character' in c) { try { D.motion.setProps(c.props || null, c.body || null, c.character); D.propsFor = c.character; } catch (e) { console.warn('setProps', e); } }
+  if ('character' in c) teachConfig(c);                                                    // teach
+  if ('character' in c && window.IntentDedupe && IntentDedupe.setScene) { try { IntentDedupe.setScene(c.props || null); } catch (e) {} }   // B5: names → the scene's ids
+  if (c.delay_ms && S.base === null) S.D = c.delay_ms / 1000;
+  if (c.width && c.height && (cv.width !== c.width || cv.height !== c.height)) { cv.width = c.width; cv.height = c.height; }
+}
+
+function onStatus(j) {
+  S.stage = j.stage;
+  warmBar(j.stage === 'warming', null, j.eta_s);
+  const name = charName((S.cfg && S.cfg.character) || sel);
+  warmStatus(j);                                // honest warm-up text (elapsed counter once the estimate is overrun) + the voice's body note
+  if (j.stage === 'warming') { /* drawn by warmStatus */ }
+  else if (j.stage === 'connecting') { setStatus('Connecting to ' + name + '…'); $('phtx').textContent = 'Connecting…'; }
+  else if (j.stage === 'live') { setStatus('Live — ' + (j.detail || 'say hi!'), 'live'); $('phtx').textContent = j.detail || ''; }
+  else if (j.stage === 'switching') setStatus('Switching… ' + (j.detail || ''));
+  else if (j.stage === 'ended') {
+    // the server's own stop rules (box idle, daily cap, a newer session elsewhere) are respected; anything else
+    // (a page-gone timeout of a frozen tab, a server restart) is reconnected quietly while the page is open
+    if (/idle|cap|limit|replaced|page closed|stopped by/i.test(j.detail || '') || D.userStopped) sessionGone(j.detail ? 'Ended: ' + j.detail : 'Ended.');
+    else quietRestart('hub ended: ' + (j.detail || '?'));
+  }
+  else if (j.stage === 'error') { showErr(j.detail || 'error'); setStatus('Error', 'err'); }
+}
+
+function sessionGone(msg) {
+  if (!S.live) return;
+  stopLocal();
+  setStatus(msg || 'Ended.', /limit|cap|error|Lost/.test(msg || '') ? 'err' : '');
+}
+
+// ------------------------------------------------------------------ stats -> server + HUD
+function pct(xs, p) { if (!xs.length) return null; const a = xs.slice().sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.floor(p * a.length))]; }
+function r1(x) { return x === null || x === undefined ? null : Math.round(x * 10) / 10; }
+
+async function statsLoop(my) {
+  let lastSync = 0, lastRtt = 0, lastUp = 0;
+  while (gen.n === my) {
+    await sleep(2000);
+    if (gen.n !== my) return;
+    const now = performance.now();
+    S.shownTimes = S.shownTimes.filter(x => x > now - 1000);
+    const fps = S.shownTimes.length;
+    const sy = S.sync.slice(lastSync); lastSync = S.sync.length;
+    const rt = S.rtt.slice(lastRtt); lastRtt = S.rtt.length;
+    const up = S.uprtt.slice(lastUp); lastUp = S.uprtt.length;
+    // late audio: underruns in the last 2 s -> widen the playout delay (max 1 s)
+    const recentUnder = S.underTimes.filter(x => x > now - 2000).length;
+    if (recentUnder >= 3 && S.D < 1.0 && S.base !== null) {
+      S.D += 0.05; S.base += 0.05; S.st.dDelta += 50; S.node.port.postMessage({t: 'base', base: S.base}); S.underTimes = [];
+    }
+    const w = S.wst || {};
+    const msg = {type: 'stats', fps, late: S.st.late, dropped: S.st.dropped, decode_errors: S.st.decErr, keyframe_requests: S.st.keyReq,
+      frames_in: S.st.framesIn, poll_errors: S.st.pollErr, up_errors: S.st.upErr, skipped_batches: S.st.skippedSeq,
+      sync_ms: sy.length ? {p50: r1(pct(sy, .5)), mean: r1(sy.reduce((a, b) => a + b, 0) / sy.length), abs_p95: r1(pct(sy.map(Math.abs), .95)), n: sy.length} : null,
+      poll_rtt_ms: rt.length ? {p50: r1(pct(rt, .5)), p95: r1(pct(rt, .95)), n: rt.length} : null,
+      up_rtt_ms: up.length ? {p50: r1(pct(up, .5)), p95: r1(pct(up, .95)), n: up.length} : null,
+      xchg: (() => { const n = performance.now(), dt = Math.max(0.5, (n - (XL._t || n - 2000)) / 1000), o = {lanes: XL.legacy ? 'legacy' : xlLanes(), kicks: XL.kicks, ulaw: UPW.ulaw, rigbin: UPW.rigbin, req_s: r1((XL.sent - (XL._n || 0)) / dt), up_kbps: r1((XL.upBytes - (XL._u || 0)) * 8 / dt / 1000), down_kbps: r1((XL.downBytes - (XL._d || 0)) * 8 / dt / 1000)}; XL._t = n; XL._n = XL.sent; XL._u = XL.upBytes; XL._d = XL.downBytes; return o; })(),
+      react: D.learned && D.rx ? Object.assign({}, D.rx) : undefined,
+      audio_buf_ms: w.hi > 0 && w.playing >= 0 ? Math.round((w.hi - w.playing) / SR * 1000) : null,
+      underruns: w.under || 0, underrun_ms: Math.round(w.underMs || 0), late_audio: w.late || 0,
+      delay_ms: Math.round(S.D * 1000), delay_added_ms: S.st.dDelta, out_latency_ms: Math.round(((S.ctx && S.ctx.outputLatency) || 0) * 1000),
+      echo_guard: $('eg').checked, turns: S.turnsNew.splice(0)};
+    if (S.direct) {
+      const ps = D.play ? D.play.stats() : {};
+      msg.voice = {mode: D.mode, ...ps, video_rtt_ms: D.rtt.length ? {p50: r1(pct(D.rtt.slice(-200), .5)), p90: r1(pct(D.rtt.slice(-200), .9)), n: D.rtt.length} : null,
+        need_ms: D.need.length ? {p50: r1(pct(D.need.slice(-200), .5)), p90: r1(pct(D.need.slice(-200), .9))} : null,
+        video_lag_ms: {now: Math.round(S.vlag), max: Math.round(S.vlMax), ups: S.vlUps}};
+      msg.delay_ms = ps.delay_ms; msg.audio_buf_ms = null;
+    }
+    sendCtl(msg);
+    S.lastMsg = msg;
+    hud(msg);
+  }
+}
+
+function hud(m) {
+  const on = $('hudon').checked; $('hud').style.display = on ? 'block' : 'none';
+  if (!on) return;
+  const r = S.renderStats || {};
+  $('hud').textContent =
+    'fps ' + m.fps + '  render ' + (r.fps ?? '–') + ' fps ' + (r.render_ms ?? '–') + ' ms\n' +
+    'first audio ' + (S.lastFA ?? '–') + ' ms\n' +
+    'sync ' + (m.sync_ms ? m.sync_ms.p50 + ' ms (|p95| ' + m.sync_ms.abs_p95 + ')' : '–') + '\n' +
+    'poll rtt ' + (m.poll_rtt_ms ? m.poll_rtt_ms.p50 + '/' + m.poll_rtt_ms.p95 + ' ms' : '–') + '  up ' + (m.up_rtt_ms ? m.up_rtt_ms.p50 : '–') + '\n' +
+    'delay ' + m.delay_ms + ' ms  buf ' + (m.audio_buf_ms ?? '–') + ' ms' + (m.voice ? '  vrtt p90 ' + ((m.voice.video_rtt_ms || {}).p90 ?? '–') + ' ' + m.voice.mode : '') + '\n' +
+    'late ' + m.late + '  drop ' + m.dropped + '  under ' + m.underruns + '  dec err ' + m.decode_errors;
+}
+$('hudon').onchange = () => { if (S.lastMsg) hud(S.lastMsg); else $('hud').style.display = $('hudon').checked ? 'block' : 'none'; };
+$('hudon').checked = Q.get('hud') === '1';
+
+// ------------------------------------------------------------------ idle: warm-up + state
+let warmT = 0;
+async function warm() {
+  if (!K) { setStatus('This link is missing its key.', 'err'); return; }
+  const codec = await detectCodec();
+  try {
+    const j = await apiJSON('api/warm', {character: sel, quality: $('ql').value, codec}, 8000);
+    showState(j);
+  } catch (e) { setStatus('Server unreachable: ' + e.message, 'err'); }
+}
+// warm-up progress bar: elapsed / (elapsed + remaining estimate); hidden when not warming
+function warmBar(on, elapsed, remain) {
+  const b = $('wbar'); if (!b) return;
+  if (!on) { b.style.display = 'none'; W.t0 = null; return; }
+  if (W.t0 === null) W.t0 = performance.now() - 1000 * (elapsed || 0);
+  const el = elapsed != null ? elapsed : (performance.now() - W.t0) / 1000, rem = Math.max(3, remain || 60);
+  b.style.display = 'block'; b.firstChild.style.width = Math.min(97, 100 * el / (el + rem)).toFixed(0) + '%';
+}
+const W = {t0: null};
+// honest warm-up. The server sends eta_s while the box is within its usual start time; once that is used up it
+// sends eta_s null + elapsed_s / usual_s, and the page counts the elapsed time itself (1 s timer) instead of a made-up ETA.
+function warmText(eta_s, elapsed_s, usual_s) {
+  if (eta_s || elapsed_s == null) return 'Warming up' + (eta_s ? ' (about ' + eta_s + ' s)' : '');
+  const e = Math.max(0, Math.floor(elapsed_s)), u = Math.round(usual_s || 0);
+  const usual = !u ? '' : ' (usually about ' + (u < 120 ? u + ' s' : Math.round(u / 60) + ' min') + ')';
+  return 'Still starting the renderer — ' + Math.floor(e / 60) + ':' + String(e % 60).padStart(2, '0') + ' so far' + usual + (u && e >= u + 150 ? ', taking longer than usual' : '');
+}
+const WS = {timer: 0, eta: null, over: null, detail: "", note: null, noVideo: false, tries: 0};   // over: {t0 (perf ms of the box's start), usual}; note: {v: the voice told, said: 'loading'|'live'}
+function warmDraw() {
+  const o = WS.over, t = warmText(o ? null : WS.eta, o ? (performance.now() - o.t0) / 1000 : null, o ? o.usual : 0);
+  setStatus(t + ' — ' + WS.detail); $('phtx').textContent = t + '…';
+}
+// the voice dials while the renderer warms: one silent note tells the model its body is not on screen yet, one more when
+// it is (direct voice only; sendNote = context only, never a reply of its own; a redialled voice is told again)
+function bodyNote() {                                                      // true = nothing (more) to send for this stage
+  if (!S.direct || !S.live) return true;
+  const want = S.stage === 'warming' ? 'loading' : S.stage === 'live' ? (WS.noVideo ? 'none' : 'live') : null;
+  if (!want || (want !== 'loading' && !WS.note)) return true;             // never told it was loading: nothing to correct
+  const v = D.voice; if (!v || !v.sendNote) return false;
+  if (WS.note && WS.note.v === v && WS.note.said === want) return true;
+  const text = want === 'loading' ? 'Your body is not on his screen yet (the picture is still loading): he hears you but cannot see you or anything you do, so nothing you do with your body is visible to him for now.'
+    : want === 'live' ? 'Your body is on his screen now: he can see you.'
+    : 'Your picture could not be loaded this time: he hears you but cannot see your body.';
+  let ok = false; try { ok = !!v.sendNote(text); } catch (e) {}
+  if (ok) WS.note = {v, said: want};
+  return ok;
+}
+function warmTick() {
+  if (!S.live || S.stage === 'ended' || S.stage === 'error') return warmStop(true);
+  if (S.stage === 'warming') { if (WS.over) warmDraw(); bodyNote(); return; }
+  // past warming: keep trying the "on screen now" note for a voice that is mid-redial, at most 60 s
+  if (S.stage !== 'live' || bodyNote() || ++WS.tries > 60) warmStop(false);
+}
+function warmStop(forget) { clearInterval(WS.timer); WS.timer = 0; WS.over = null; WS.tries = 0; if (forget) WS.note = null; }
+function warmStatus(j) {
+  if (j.stage === 'warming') {
+    WS.eta = j.eta_s; WS.detail = j.detail || '';
+    WS.over = !j.eta_s && j.elapsed_s != null ? {t0: performance.now() - 1000 * j.elapsed_s, usual: j.usual_s || 0} : null;
+    warmDraw();
+    if (!WS.timer) { WS.tries = 0; WS.note = null; WS.timer = setInterval(warmTick, 1000); }
+    bodyNote();
+    return;
+  }
+  WS.over = null;
+  if (j.stage === 'live') { WS.noVideo = /video unavailable/.test(j.detail || ''); WS.tries = 0; if (bodyNote()) warmStop(false); }
+  else if (j.stage === 'ended' || j.stage === 'error') warmStop(true);
+}
+function showState(j) {
+  if (j.characters) { CHARS = j.characters.map(c => ({key: c.key, name: c.name})); drawGrid(); }
+  if (typeof j.usd_today === 'number') $('spend').textContent = 'Spent today: $' + j.usd_today.toFixed(2) + ' of $' + (j.cap_usd || 10).toFixed(0);
+  if (S.live || S.starting) return;
+  if (j.setup_pending) { setStatus(j.setup_pending, 'err'); $('go').disabled = true; return; }
+  if (j.capped || (j.usd_today >= j.cap_usd)) { setStatus("Today's limit is used up — back tomorrow.", 'err'); $('go').disabled = true; return; }
+  $('go').disabled = false;
+  const b = j.box || {};
+  $('mode').textContent = 'Local renderer · Animation can slow while this computer runs other GPU work.';
+  const w = j.warm;
+  warmBar(b.state === 'starting' || (b.state === 'running' && w && w.character === sel && !w.ready && w.stage !== 'error' && Date.now() / 1000 - w.at < 300),
+    b.started_at && b.now ? b.now - b.started_at : null, b.state === 'starting' ? b.eta_s : (w && w.eta_s));
+
+  if (b.state === 'running' && w && w.character === sel && !w.ready && w.stage !== 'error' && Date.now() / 1000 - w.at < 300)
+    setStatus('Loading ' + charName(sel) + (w.eta_s ? ' (about ' + Math.round(w.eta_s) + ' s)' : '') + '… you can press Start now.');
+  else if (b.state === 'running') setStatus('Ready — press Start and say hi to ' + charName(sel) + '.');
+  else if (b.state === 'starting') setStatus('Warming up the renderer' + (b.eta_s ? ' (about ' + Math.round(b.eta_s) + ' s left)' : '') + (b.detail ? ' — ' + b.detail : '') + '… you can press Start now.');
+  else if (b.state === 'error') setStatus('Renderer problem: ' + (b.detail || '?') + ' — Start will retry.', 'err');
+  else setStatus('Press Start to talk to ' + charName(sel) + '.');
+}
+async function idleLoop() {
+  for (;;) {
+    await sleep($('wbar') && $('wbar').style.display === 'block' ? 2000 : 4000);
+    if (S.live || S.starting || document.visibilityState !== 'visible') continue;
+    try { showState(await apiJSON('api/state', undefined, 6000)); } catch (e) { setStatus('Server unreachable: ' + e.message, 'err'); }
+  }
+}
+
+drawGrid();
+// one-time migration of a stored voice choice (an earlier build briefly defaulted to Gemini 3.8 Live)
+if (localStorage.getItem('avatar.voice.v') !== '2') { localStorage.removeItem('avatar.voice'); localStorage.setItem('avatar.voice.v', '2'); }
+// GPT Realtime 2.1 is the default voice model (Gemini 3.8 Live stays in the menu); a menu choice stored while Gemini
+// was the default is reset once so the device lands on Realtime 2.1
+if (localStorage.getItem('avatar.voiceDefault') !== 'realtime-20261108') { localStorage.removeItem('avatar.voice'); localStorage.setItem('avatar.voiceDefault', 'realtime-20261108'); }
+$('vm').value = Q.get('voice') || localStorage.getItem('avatar.voice') || 'realtime';
+$('vm').onchange = () => localStorage.setItem('avatar.voice', $('vm').value);
+$('ql').value = localStorage.getItem('avatar.q') || 'auto';
+$('ql').onchange = () => { localStorage.setItem('avatar.q', $('ql').value); if (!S.live) warm(); };
+warm();
+idleLoop();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !S.live && !S.starting) warm(); });
+// ------------------------------------------------------------------ speech: action memory + co-speech gestures
+// Muse only (?speechfeat=1 forces it on another character, =0 off). ?amem=0 = no log notes /
+// rich tool results; ?cospeech=0 = no co-speech gestures (motion keeps its own prosody beats).
+function speechFeat() { const f = Q.get('speechfeat'); return f === '1' || (f !== '0' && (sel === 'muse' || (S.cfg && S.cfg.character === 'muse'))); }
+function speechStart() {
+  D.alog = null; D.cos = null; D.alogEvents = []; D.alogOnAction = false; D.alogNoteVer = -1; D.alogNoteAt = 0;
+  if (!speechFeat()) return;
+  if (window.AvatarActionLog && Q.get('amem') !== '0') {
+    const t0 = performance.now();
+    D.alog = AvatarActionLog.createActionLog({now: () => (performance.now() - t0) / 1000, limb: sel === 'muse' ? 'hand' : 'paw'});
+  }
+  if (window.AvatarCospeech && Q.get('cospeech') !== '0') {
+    D.cos = AvatarCospeech.createCospeech({motion: D.motion, seed: (Date.now() & 0xffff) + 1,
+      motionNow: () => (D.motion && D.motion.state && typeof D.motion.state === 'object' ? D.motion.state.t : 0)});
+    D.cosCov = null;
+  }
+}
+// r2-objvoice: the user's object request answered "already begun from the user's own words" must really be under way. Live v3
+// ("put the red mug on the blue book"): a matcher record covered the model's call, nothing ever moved, and the model said
+// it was placing it. ~2.5 s later: if no body action started since the user began this utterance and the body is idle, the
+// model's own command runs after all (the matcher's record is dropped so it is not deduplicated again).
+function coveredCheck(cmd, info) {
+  const t0 = performance.now(), since = window.IntentDedupe && IntentDedupe.speechAt !== null && IntentDedupe.speechAt !== undefined ? Math.min(IntentDedupe.speechAt, t0) : t0 - 8000;
+  setTimeout(() => {
+    try {
+      if ((D.bodyStartAt || -1e12) >= since - 300) return;
+      const kit = D.motion && D.motion.engine && D.motion.engine.kit, ts = D.teach && D.teach.state ? D.teach.state() : null;
+      if ((kit && kit.busy && kit.busy()) || (ts && ts.req) || (D.motion && D.motion.kfBusy && D.motion.kfBusy())) return;
+      if (window.IntentDedupe && IntentDedupe.recs) IntentDedupe.recs = IntentDedupe.recs.filter(r => r.t < since - 300);
+      console.info('vt: covered by a matcher but nothing started -> running the model\'s ' + JSON.stringify(cmd).slice(0, 160));
+      const run = () => runCommand(cmd, 'voice', info);
+      if (D.perf && D.perf.engineCall) D.perf.engineCall(info || {via: 'covered-check'}, run); else run();
+    } catch (e) { console.warn('coveredCheck', e); }
+  }, 2500);
+}
+function speechOnAction(ev) {
+  if (!ev) return;
+  // r2-objvoice: a matcher's job that FAILED / was cut (planning found it impossible, a later request replaced it)
+  // no longer "covers" the user's request: the voice model's own call for it runs instead of returning "already begun" over
+  // nothing (live v3: "put the red mug on the blue book" -> already:true, nothing moved)
+  if (ev.phase === 'start' && !/^(expression|gesture)$/.test(String(ev.kind || '')) && !/^(fidget|affect|auto|idle)$/.test(String(ev.src || ''))) D.bodyStartAt = performance.now();   // r2-objvoice (coveredCheck)
+  if (window.IntentDedupe && IntentDedupe.recs && ev.id !== undefined && ev.id !== null && /^(fail|failed|interrupted|cancelled)$/.test(String(ev.phase || ''))) {
+    for (const r of IntentDedupe.recs) if (r.source !== 'model' && r.res && typeof r.res === 'object' && r.res.id === ev.id) r.failed = true;
+  }
+  if (D.teach) { try { D.teach.onAction(ev); } catch (e) { console.warn('teach', e); } }   // teach: its jobs' ends
+  if (D.perf) { try { D.perf.onAction(ev); } catch (e) { console.warn('perform', e); } }   // kf ready/start/end, engine ends
+  D.alogEvents && D.alogEvents.push(Object.assign({wall: Date.now()}, ev)); if (D.alogEvents && D.alogEvents.length > 600) D.alogEvents.splice(0, 300);
+  if (!D.alog) return;
+  D.alogOnAction = true;
+  try { D.alog.push(Object.assign({}, ev, {t: undefined})); } catch (e) {}
+}
+function speechFrame(rig, rt) {
+  const m = D.motion;
+  if (D.alog) {
+    if (!D.alogOnAction) D.alog.pollLegacy(m);                       // legacy motion.js: observe its gestures until onAction lands
+    if (m && typeof m.state === 'function' && (D._stT = (D._stT || 0) + 1) % 6 === 0) { try { D.alog.observe(m.state()); } catch (e) {} }
+    speechNote(false);
+  }
+  if (D.cos) {
+    D.cos.tick(rt);
+    const cov = D.cos.covering(rt);
+    if (m && m.setCospeech && cov !== D.cosCov) { D.cosCov = cov; m.setCospeech(cov); }   // its prosody beats only when we are not covering a reply
+    if (m && !m.playGesture && m.state && typeof m.state === 'object') {
+      Object.assign(rig, D.cos.extras(m.state.t));                    // shim: fingers_* the legacy engine does not carry
+      if (cov && m.state.speech) m.state.speech.beatNext = m.state.t + 0.5;   // shim: its own prosody beats off while we gesture
+    }
+  }
+}
+// a silent note when the log changed (coalesced: 0.6 s quiet, at most one per 1.5 s); force = the user's speech just started
+function speechNote(force) {
+  if (!D.alog || !D.voice || !D.voice.sendNote) return;
+  const v = D.alog.version(), now = performance.now();
+  if (v === D.alogNoteVer) return;
+  if (!force && (now - D.alogNoteAt < 1500 || D.alog.now() - D.alog.lastChange() < 0.6)) return;
+  if (D.voice.sendNote(D.alog.summary())) { D.alogNoteVer = v; D.alogNoteAt = now; }
+}
+function speechToolResult(ran) {
+  const r = D.lastCmdRes;
+  const out = {ok: !!ran || !!(r && r.dup)};
+  if (r && r.dup) out.did = 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)';
+  else if (r && typeof r === 'object') { if (r.did) out.did = r.did; if (r.reason) out.reason = r.reason; if (r.ok === false) out.ok = false; }
+  else if (!ran) out.reason = "couldn't do that";
+  out.now = D.alog.brief();
+  return out;
+}
+// speech end
+
+// ------------------------------------------------------------------ planner mode: perform_action for every character
+// Every directly commanded body action is ONE voice-model call perform_action(description) (rtc.py); app/perform.js
+// sends it to the server's live keyframe planner ({type:'plan'}), plays its 'kf' answer on the motion layer (held until the
+// cue's first audio, <= 700 ms), and gives the voice model silent notes (about to start / started / finished / failed)
+// through voice.js prompt(). ?planner=0 / config planner:false = the pre-planner path exactly (move tool, both matchers
+// execute). Gemini + thinking makes no function calls: it keeps the matcher path. ?pagecache=0 = no page-side cache.
+function plannerReq() { return Q.get('planner') !== '0' && !(S.cfg && S.cfg.planner === false); }
+function plannerOn() { return plannerReq() && D.mode !== 'gemini-think'; }
+function voicePrompt(note, opt) {
+  if (S.direct) return D.voice && D.voice.prompt ? D.voice.prompt(note, opt) : null;
+  sendCtl({type: 'voice_prompt', text: ((window.AvatarVoice && AvatarVoice.SILENT) || '') + note, respond: !!(opt && opt.respond)});   // server-relayed voice
+  return null;
+}
+function avatarVoiced() {                // silence (>= 250 ms) -> voiced at the playback tap = the avatar starts talking
+  const t = performance.now();
+  if (D.perf && t - (D.avVoicedAt || -1e9) > 250) D.perf.avatarAudio();
+  D.avVoicedAt = t;
+}
+// the thinking gesture while the planner writes a commanded move (app/thinking.js); ?think=0 = off,
+// ?think_gate=<ms> = the delay gate (default 100 ms: a cache / library answer inside it never shows the thinking)
+D.think = window.AvatarThinking && Q.get('think') !== '0' && !(S.cfg && S.cfg.think === false) ? AvatarThinking.createThinker({
+  motion: () => D.motion, gateMs: Q.get('think_gate') != null ? +Q.get('think_gate') : undefined,
+  enabled: () => !(S.cfg && S.cfg.think === false),
+  arms: () => { const T = window.Behaviors && Behaviors.TRAITS, c = (S.cfg && S.cfg.character) || sel; return !(T && T[c] && T[c].arms === false); },
+  fingers: () => { const T = window.Behaviors && Behaviors.TRAITS, c = (S.cfg && S.cfg.character) || sel; return !!(T && T[c] && T[c].fingers); },
+  log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
+}) : null;
+D.perf = window.AvatarPerform ? AvatarPerform.createPerformer({
+  motion: () => D.motion, prompt: voicePrompt, sendCtl,
+  runCommand: (cmd, info) => { const r = runCommand(cmd, 'voice', info); return r === false && D.intentRes && D.intentRes.dup ? {ok: false, dup: true} : r; },   // dup = already running
+  character: () => (S.cfg && S.cfg.character) || sel,
+  bodyState: () => { const s = D.motion && typeof D.motion.state === 'function' ? D.motion.state() : null;
+    return s ? {posture: s.posture || null, holding: s.holding || null, wearing: s.wearing || [], seated: s.posture === 'seated' || !!s.sittingOn} : {}; },
+  userSpeaking: () => S.direct ? !!(D.voice && (D.voice.userTalking ? D.voice.userTalking() : D.voice.listening())) : performance.now() - (D.micVoicedAt || -1e9) < 600,
+  lastUserSpeech: () => Math.max(D.userSpokeAt || -1e12, D.micVoicedAt && !S.direct ? D.micVoicedAt : -1e12, D.voice && D.voice.lastUserSpeechAt ? D.voice.lastUserSpeechAt() : -1e12),
+  alog: () => D.alog, cache: Q.get('pagecache') !== '0', thinker: () => D.think,
+  log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
+}) : null;
+// end
+
+// ------------------------------------------------------------------ voice tools: the voice tools (app/voicetools.js)
+// do_action (alias perform_action) -> D.perf after the what-if guard; start/change/stop/list_behaviors -> window.Behaviors
+// (+ the server's behaviour writer: {type:'behavior_code'}); look -> the motion's look target; set_style -> {type:'style'} to
+// the server's unified worker; learn_gesture -> window.Gestures. Perception / program events come back as silent notes.
+D.vt = window.AvatarVoiceTools ? AvatarVoiceTools.createVoiceTools({
+  perf: () => D.perf, motion: () => D.motion, behaviors: () => window.Behaviors || null, gestures: () => window.Gestures || null,
+  attention: () => window.Attention || null, runCommand: (cmd, info) => runCommand(cmd, 'voice', info), sendCtl, prompt: voicePrompt,
+  sceneMatcher: () => (Q.get('steps') !== '0' && Q.get('intent') !== '0' && window.Intent && window.INTENT_RULES && intentAct() ? pageMatcherNow() : null),
+  runStep: (cmd, info) => (D.perf ? D.perf.engineCall({}, () => runCommand(cmd, 'caption', info)).result : runCommand(cmd, 'caption', info)),
+  sceneAliases: () => (S.cfg && S.cfg.props && Array.isArray(S.cfg.props.props) ? S.cfg.props.props.map(p => ({id: p.id, aliases: p.aliases || []})) : []),
+  runLibrary: (desc, move, info) => voiceLibrary(desc, move, info),                   // hybrid
+  teachRoute: desc => teachRoute(desc),                                              // devloop: board work asked through do_action
+  // see_camera: one still; direct voices get it as a context image item, the server-relayed one as camera_frame
+  cameraFrame: () => (typeof grabStill === 'function' ? grabStill() : null),
+  sendFrame: (img, note) => { if (S.direct) { const r = D.voice && D.voice.sendEvent ? D.voice.sendEvent(note, {image: img, respond: false}) : null; return !!(r && r.sent); }
+    sendCtl({type: 'camera_frame', image: img, observation: note.slice(0, 120)}); return true; },
+  lastActionAt: () => (D.lastRanAt === undefined ? -1e12 : D.lastRanAt),            // fixes: on the vt clock (performance.now())
+  matcherForget: () => { if (D.pageMatcher && D.pageMatcher.forgetContext) D.pageMatcher.forgetContext(); },   // fixes
+  // fixes: -> false | the words each such matcher command was read from ('' = not known, null = a release)
+  coveredByMatcher: () => { const rs = window.IntentDedupe && IntentDedupe.recs ? IntentDedupe.recs.filter(r => r.source !== 'model' && !r.failed && !(r.res && typeof r.res === 'object' && r.res.ok === false) &&   // r2-objvoice
+    (IntentDedupe.speechAt === null || r.t >= IntentDedupe.speechAt) && performance.now() - r.t < (IntentDedupe.TURN_MS || 30000)) : [];
+    return rs.length ? rs.map(r => (r.cmd && r.cmd.action === 'release' ? null : (typeof r.text === 'string' ? r.text : ''))) : false; },
+  sendEvent: (note, opt) => (S.direct && D.voice && D.voice.sendEvent ? D.voice.sendEvent(note, opt) : voicePrompt(note, opt)),
+  userSpeaking: () => S.direct ? !!(D.voice && (D.voice.userTalking ? D.voice.userTalking() : D.voice.listening())) : performance.now() - (D.micVoicedAt || -1e9) < 600,
+  avatarSpeaking: () => !!(D.play && D.play.avatarVoice && D.play.avatarVoice().voiced),
+  lastUserSpeech: () => Math.max(D.userSpokeAt || -1e12, D.voice && D.voice.lastUserSpeechAt ? D.voice.lastUserSpeechAt() : -1e12),
+  reactMode: () => (D.unified ? 'unified' : D.learned ? 'learned' : 'rules'), character: () => (S.cfg && S.cfg.character) || sel,
+  thinker: () => D.think,
+  onTv: (name, args) => teachTv(name, args),                                           // teach: walk to the TV / home
+  objectPlans: () => Q.get('objplan') !== '0',                                         // tricks with things -> the planner (?objplan=0 = the old refusal)
+  log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
+}) : null;
+if (D.vt) { D.vt.attach(); addEventListener('load', () => D.vt.attach()); }
+// games: wire the program layer (app/behavior.js PAGE NOTES) to this page. It was never attached, so every
+// start_behavior's Behaviors.request() failed at once with 'no hub link' (the coder never ran) and the voice model was
+// told the behaviour "could not be started" -> "I can't set that up". Getters: the motion / perf may be rebuilt later.
+if (window.Behaviors && typeof Behaviors.attach === 'function') {
+  Behaviors.attach({
+    motion: () => D.motion, character: () => (S.cfg && S.cfg.character) || sel,
+    doAction: (description, meta) => (D.perf ? D.perf.call(description, {source: 'behavior', behavior: meta && meta.name}) : null),
+    setStyle: s => sendCtl(Object.assign({type: 'style'}, s)),
+    requestCode: msg => sendCtl(msg),                        // {type:'behavior_code', ...} -> the server's coder (app.py)
+    gestures: () => (window.Gestures && typeof Gestures.list === 'function' ? Gestures.list().map(g => g.name).filter(Boolean).slice(0, 40) : []),
+  });
+}
+function behaviorsFeed(ev) { if (window.Behaviors && typeof Behaviors.feed === 'function') { try { Behaviors.feed(ev); } catch (e) {} } }
+// the perception layer's hook: every gesture / attention / turn_bid event comes here first;
+// false = the voice tools made the note (the page's default note is skipped)
+window.onPerceptionEvent = e => { if (!D.vt || !e || !/^(gesture|attention|turn_bid)$/.test(e.type || '')) return undefined; const r = D.vt.onEvent(e); return r && r.noted ? false : undefined; };
+// voice tools end
+
+// ------------------------------------------------------------------ quiet: talkativeness + quiet mode (app/quiet.js)
+// set_talkativeness / be_quiet / end_quiet are answered by this controller straight from voice.js (window.AvatarQuietCtl,
+// never the onCall above); it owns the level, the timer and the cue line under the stage, voice.js enforces the speech
+// gate ("quiet" there). ?quiet=0 = off. Page API: window.Quiet (setTalk / quiet / end / state / stats).
+if (window.AvatarQuiet && Q.get('quiet') !== '0') {
+  window.Quiet = window.AvatarQuietCtl = D.quiet = AvatarQuiet.create({
+    voice: () => (S.direct ? D.voice : null), el: AvatarQuiet.cue(document, 'caps'), turnBid: () => D.turn || null, name: () => charName(sel),
+    attention: () => (D.features && D.features.face && !D.features.face.present ? 0.1 : null),   // no face in view = not facing it (a face in view says nothing)
+    nod: () => { const c = toolToCommand('gesture', {name: 'nod'}); if (c) runCommand(c, 'ui'); },
+    log: rec => { D.cmds.push(Object.assign({t: Math.round(performance.now())}, rec)); if (D.cmds.length > 300) D.cmds.splice(0, 100);
+      if (rec.ev === 'call') sendCtl({type: 'call', name: rec.name, args: rec.args, ran: rec.ran});
+      else if (rec.ev !== 'not_addressed') sendCtl({type: 'event', name: 'quiet_' + rec.ev, why: rec.why || rec.to || ''}); },
+  });
+}
+// quiet end
+
+// ------------------------------------------------------------------ teach: the chalkboard / TV performance (app/teach.js)
+// Created with the motion object (it drives the muse's job queue through motion.engine.kit), configured from config.props
+// (a scene with a board place); off for every other character and with ?teach=0. Its voice tools answer before
+// voicetools.js; its silent "say this line" notes go through voice.prompt (never narrated all at once); the user's words feed the
+// stop / change-of-subject abort; window.AvatarTeachHook.goStation('tv') is the hook for the TV tool.
+function teachConfig(c) {
+  if (!window.AvatarTeach || Q.get('teach') === '0') return;
+  const has = c && c.props && (c.props.places || []).some(p => p && (p.plane || p.screen) && /board|tv/.test(String(p.id || p.kind)));
+  if (!has) { D.teach = null; return; }
+  if (!D.teach) D.teach = AvatarTeach.createTeach({engine: () => D.motion && D.motion.engine, send: sendCtl,
+    prompt: (text, o) => D.voice && D.voice.prompt ? D.voice.prompt(text, o) : null,
+    audible: () => !!(D.play && D.play.avatarVoice && D.play.avatarVoice().voiced), now: () => performance.now(),
+    userSpeaking: () => S.direct ? !!(D.voice && (D.voice.userTalking ? D.voice.userTalking() : D.voice.listening && D.voice.listening())) : performance.now() - (D.micVoicedAt || -1e9) < 600,
+    history: () => D.history, log: r => { (D.teachLog = D.teachLog || []).push(Object.assign({t: Math.round(performance.now())}, r)); if (D.teachLog.length > 400) D.teachLog.splice(0, 200); },
+    cfg: (S.cfg && S.cfg.teach) || {}});
+  const sc = D.teach.setConfig(c.props);
+  if (sc && sc.board && !D.teachHello) { D.teachHello = true; sendCtl({type: 'teach_hello'}); }   // the server prewarms the board brain
+  window.AvatarTeachHook = {goStation: (id, o) => D.teach ? D.teach.goStation(id, o) : {ok: false}, state: () => D.teach ? D.teach.state() : null};
+}
+function teachE2E() {
+  const T = D.teach, st = T ? T.state() : null, ms = D.motion && D.motion.state ? D.motion.state() : null;
+  const tv = window.__avatar && typeof window.__avatar.tvState === 'function' ? (() => { try { return window.__avatar.tvState(); } catch (e) { return null; } })() : (window.TvState || null);
+  if (!T) return {busy: false, station: 'home', phase: 'idle', holding: ms ? ms.holding : null, board: null, tv};
+  const e = T.e2e();
+  return Object.assign(e, {holding: ms ? ms.holding : null, tv, where: ms ? ms.station || null : null});
+}
+// teach: the TV tool's hook — a new picture walks the muse over to the TV station (camera eases to the TV view)
+// and it presents it; turning the TV off sends it home. An update of a picture it already stands by changes nothing.
+function teachTv(name, args) {
+  const T = D.teach; if (!T || !T.surface('tv')) return;
+  const at = T.state().at;
+  if (name === 'tv_show') { if (!(args && args.mode === 'update' && (at === 'tv' || at === 'going:tv'))) T.goStation('tv', {present: true}); }
+  else if (name === 'tv_clear' && (at === 'tv' || at === 'going:tv')) T.goStation('home', {why: 'the TV is off'});
+}
+// devloop (r4 tea: "erase the whole board" went to do_action -> a keyframe mime, the board stayed full): a do_action
+// that is about the chalkboard's content is the board's own tool (erase / write / draw), never a body mime
+function teachRoute(desc) {
+  if (!D.teach || !D.teach.handles || !D.teach.handles('board_erase')) return null;
+  const d = String(desc || '');
+  if (!/\b(chalk\s?board|black\s?board|board)\b/i.test(d)) return null;
+  if (/\b(pick|hold|take|grab|give|hand|toss|throw)\b/i.test(d) && /\b(chalk|eraser|duster)\b/i.test(d)) return null;   // a thing from the tray: the object tool
+  let r = null;
+  if (/\b(eras\w*|wip\w*|clear\w*|clean\w*|rub\w* (?:out|off))\b/i.test(d)) r = D.teach.call('board_erase', {what: /\b(whole|entire|all|everything|completely)\b/i.test(d) ? 'all' : d.slice(0, 200)});
+  else if (/\b(write|draw|sketch|work out|solve)\b/i.test(d)) r = D.teach.call('teach_board', {request: d.slice(0, 400)});
+  if (r) { sendCtl({type: 'event', name: 'teach_route', why: d.slice(0, 80)}); }
+  return r;
+}
+function teachHeard(text, fin) {
+  if (!D.teach) return;
+  if (D.teach.userText(text, fin)) { sendCtl({type: 'event', name: 'teach_stop_words', why: String(text).slice(0, 60)}); return; }
+  const st = D.teach.state();
+  if (fin && text && st && st.req) sendCtl({type: 'teach_utterance', text: String(text).slice(0, 300), teaching: true, topic: D.teach._T.req ? D.teach._T.req.request : ''});
+}
+
+window.__avatar = {S, D, testDrop: () => D.voice && D.voice.testDrop(), context: t => D.voice && D.voice.sendContext(t),
+  life: () => ({recoveries: D.recoveries, restarts: D.restarts, net_gaps: D.netGaps || [], vis: D.gaps, wake: !!(D.wake && !D.wake.released),
+    wake_err: D.wakeErr || null, wake_released: D.wakeReleased || 0, sid: S.sid, live: S.live, renew_at: D.voice && D.voice.renewAt ? D.voice.renewAt() : null}), stats: () => S.lastMsg, start, stop, pick, voiceReport, event: avatarEvent, command: runCommand,
+  // motion: test hooks (the move engine / objects; the speech agent adds log/summary/cospeechPlan)
+  mstate: () => D.motion && D.motion.state ? D.motion.state() : null, events: s => D.motion && D.motion.events ? D.motion.events(s) : [],
+  mevents: s => D.motion && D.motion.events ? D.motion.events(s) : [], lastRig: () => D.lastRig || null, props: () => D.motion && D.motion.props ? D.motion.props() : [],
+  e2eState: () => teachE2E(),   // the E2E harness's view (busy / station / phase / board / first mark / tv)
+  teach: () => D.teach ? D.teach.state() : null, teachCall: (n, a) => D.teach ? D.teach.call(n, a || {}) : null, teachLog: () => D.teachLog || []};   // teach
+if (!('state' in window.__avatar)) window.__avatar.state = window.__avatar.mstate;   // motion
+// speech test hooks: action log + co-speech plan
+Object.assign(window.__avatar, {
+  log: sinceS => D.alog ? D.alog.items(sinceS) : null, summary: o => D.alog ? D.alog.summary(o || {}) : null,
+  state: () => D.motion && typeof D.motion.state === 'function' ? D.motion.state() : null,
+  events: sinceS => (D.alogEvents || []).filter(e => sinceS == null || Date.now() - e.wall <= sinceS * 1000),
+  cospeechPlan: () => D.cos ? D.cos.plan() : null, cospeechPlans: () => D.cos ? D.cos.plans() : null,
+  cospeechCommits: () => D.cos ? D.cos.commits() : null, cospeechStats: () => D.cos ? D.cos.stats() : null,
+  speechFeat: () => ({on: speechFeat(), alog: !!D.alog, cospeech: !!D.cos, onAction: !!D.alogOnAction}),
+  perform: () => D.perf ? D.perf.list() : [], planner: () => plannerOn(),
+  vt: () => D.vt ? D.vt.stats() : null, vtEvent: ev => D.vt ? D.vt.onEvent(ev) : null,   // voice tools
+  tv: () => D.tvState || {phase: 'idle', scene_id: 0, title: '', description: 'The TV is off (nothing shown).', n_patches: 0},   // tv
+  rec: () => window.AvatarRec ? AvatarRec.stats() : null, devices: () => ({mic: DEV.mic, cam: DEV.cam, switches: DEV.switches.slice(),   // rec
+    micTrack: S.stream && S.stream.getAudioTracks()[0] ? S.stream.getAudioTracks()[0].label : null,
+    camTrack: D.perc && D.perc._state && D.perc._state.stream && D.perc._state.stream.getVideoTracks()[0] ? D.perc._state.stream.getVideoTracks()[0].label : null}),
+  switchMic: id => { $('micsel').value = id; return $('micsel').onchange(); }, switchCam: id => { $('camsel').value = id; return $('camsel').onchange(); }});
+if (Q.get('auto') === '1') addEventListener('load', () => setTimeout(() => $('go').click(), 300));   // via the button: camera hooks run too
+</script>
+</body></html>

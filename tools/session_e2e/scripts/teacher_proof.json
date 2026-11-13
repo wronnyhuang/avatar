@@ -1,0 +1,27 @@
+{
+  "name": "teacher_proof",
+  "char": "muse",
+  "voice": "ash",
+  "start_wait_s": 5,
+  "quiet_s": 2.2,
+  "turns": [
+    {"id": "hello", "say": "Hey Muse! I'm trying to get ready for a test tomorrow. Can you help me practice some math?", "wait": "idle",
+     "expect": "Muse answers warmly by voice and offers to help; it may already suggest or walk to the chalkboard. No broken visuals.", "judge_frames": 4},
+    {"id": "sum", "say": "Okay. Walk me through twelve plus thirty, then multiply the result by three, and show each step on the board.", "wait": "idle", "max_s": 120,
+     "expect": "Muse walks to the chalkboard, picks up chalk and writes the worked steps on the board in legible handwriting: 12 + 30 = 42 and then 42 x 3 = 126 (or equivalent), with chalk marks visibly appearing where its hand is; it speaks between writing steps and the final board shows the correct numbers.", "judge_frames": 8},
+    {"id": "diagram", "say": "Thanks. Now could you draw a simple diagram of the water cycle on the board? Evaporation, clouds, rain.", "wait": "idle", "max_s": 150,
+     "expect": "On the chalkboard a diagram of the water cycle is drawn with chalk: recognizable shapes (sun/water/cloud/rain arrows or similar) and short labels such as evaporation, cloud(s), rain. Marks appear progressively as Muse draws, and the diagram is readable in the final frames.", "judge_frames": 8},
+    {"id": "optics", "say": "Great. Now I need to understand lenses. Can you show me on the TV how a thin lens focuses light, and explain the lensmaker's equation?", "wait": "idle", "max_s": 150,
+     "expect": "Muse turns to / uses the wall TV: an illustration of a thin convex lens with light rays converging to a focal point is visible on the TV in the frames, animated or progressively built, and Muse explains the lens equation by voice.", "judge_frames": 8},
+    {"id": "followup", "say": "What happens to the picture if I make the lens surfaces more curved? Show me.", "wait": "idle", "max_s": 120,
+     "expect": "The TV picture updates live to a more strongly curved (thicker) lens with a shorter focal length: the rays focus closer to the lens than before. The change is visible between frames before and after.", "judge_frames": 8},
+    {"id": "object", "say": "Cool. Can you take the eraser from the tray and hold it up so I can see it?", "wait": "idle", "max_s": 90,
+     "expect": "Muse picks up the eraser (or another object from the board tray) and holds it up toward the camera; it is visibly in its hand.", "judge_frames": 6},
+    {"id": "write_again", "say": "Now write the formula for the area of a circle on the board and then explain where it comes from.", "wait": "idle", "max_s": 120,
+     "expect": "Muse goes to the chalkboard (clearing room if needed) and STARTS writing the area-of-a-circle formula with chalk: the first chalk marks of this lesson (its heading such as 'Area...' or the formula 'A = ...') visibly appear on the board where its hand is. The user interrupts about 2.5 s after the writing begins, so a finished formula is NOT required here; marks unrelated to the circle formula, or no new marks at all, are a FAIL.", "judge_frames": 5},
+    {"id": "abort", "say": "Wait wait, stop! Never mind, come back here please.", "wait": {"during": "writing", "delay_s": 2.5},
+     "expect": "Muse stops writing mid-stroke immediately, puts the chalk away and walks back to its home spot facing the user; it acknowledges briefly by voice. No further marks appear on the board after the stop.", "judge_frames": 8},
+    {"id": "after", "say": "Thanks. Are you okay to carry on with the math later?", "wait": "idle",
+     "expect": "Muse is back at its home position facing the user and answers naturally by voice; it does not resume writing on its own.", "judge_frames": 3}
+  ]
+}

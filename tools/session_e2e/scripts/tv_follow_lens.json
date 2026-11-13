@@ -1,0 +1,33 @@
+{
+ "name": "tv_follow_lens",
+ "char": "muse",
+ "voice": "ash",
+ "start_wait_s": 5,
+ "quiet_s": 2.2,
+ "turns": [
+  {
+   "id": "lens",
+   "say": "Can you show me on the TV how a biconvex lens focuses parallel light?",
+   "wait": "idle",
+   "max_s": 120,
+   "expect": "Muse uses the wall TV: a biconvex lens with parallel rays converging to a focal point is visible on the TV, and Muse explains it by voice.",
+   "judge_frames": 8
+  },
+  {
+   "id": "curved",
+   "say": "Make the lens surfaces more curved.",
+   "wait": "idle",
+   "max_s": 90,
+   "expect": "The TV DRAWING changes within a few seconds: the lens becomes visibly more curved (fatter) and the rays meet closer to the lens than before (shorter focal length). Not just a caption change. Muse says in a few words what changed.",
+   "judge_frames": 8
+  },
+  {
+   "id": "index",
+   "say": "And now use glass with a lower refractive index.",
+   "wait": "idle",
+   "max_s": 90,
+   "expect": "The TV picture changes again: with a lower index the rays bend less and the focal point moves farther from the lens; the lens keeps its new curved shape.",
+   "judge_frames": 8
+  }
+ ]
+}
