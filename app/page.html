@@ -54,6 +54,8 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 @media (prefers-reduced-motion:no-preference){#mute[aria-pressed=true]{animation:mpulse 1.8s ease-in-out infinite}}
 @keyframes mpulse{50%{box-shadow:0 0 0 9px rgba(229,83,75,.14),0 6px 18px #000a}}
 @media (max-width:380px){#mute .sub{display:none!important}}
+#rigbtn{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:3px 11px 3px 9px;font:600 13.5px system-ui,sans-serif;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#rigbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 </style></head><body>
 <div class="note" id="mode"></div>
 <div id="stage"><canvas id="cv" width="640" height="360"></canvas>
@@ -70,6 +72,7 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
   <label title="Phone speakerphone: the avatar never hears itself; tap the avatar to interrupt it"><input type="checkbox" id="eg"> Echo guard (strict)</label>
   <label>Quality <select id="ql"><option value="auto">auto</option><option>720p</option><option>540p</option><option>360p</option></select></label>
   <label><input type="checkbox" id="hudon"> Stats</label>
+  <button type="button" id="rigbtn" aria-pressed="false" title="Rig debug: every rig control live, who drives it, what it sees"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg>Rig</button><!-- app/rigdebug.js -->
   <label>Mic <select id="micsel" class="dev"><option value="">Default</option></select></label>
   <label>Camera <select id="camsel" class="dev"><option value="">Front (default)</option></select></label>
 </div>
@@ -249,7 +252,7 @@ const gen = {n: 0};
 // voice.js does the session (Realtime 2.1 / GPT Live 1 / Mock); this block wires it to the playout graph (tap -> server
 // 'P', DelayNode -> speakers), the video clock, the motion module and the camera-event policy.
 const D = {voice: null, play: null, mode: '', rtt: [], need: [], cmds: [], history: [], recoveries: [], restarts: [], gaps: [], lastCmd: new Map(), motion: null, features: null,
-  rigTimer: 0, events: [], usd: 0, startedPerf: 0};
+  rigTimer: 0, events: [], usd: 0, startedPerf: 0, rdbg: null};   // rdbg = the open rig debug panel (null while closed)
 const RT_RATES = {text_in: 4, audio_in: 32, image_in: 5, cached: 0.4, text_out: 16, audio_out: 64};   // $/1M (est.)
 function usageUsd(u) {
   const i = u.input_token_details || {}, o = u.output_token_details || {}, c = i.cached_tokens_details || {};
@@ -959,6 +962,7 @@ const REL_ALIAS = {hand_l: ['paw_l'], hand_r: ['paw_r'], cheeks: ['cheek'], ear_
 // model's tool call ~1 s after the matcher already acted), and exact repeats from the same source.
 function runCommand(cmd, source, info) {
   const t = performance.now();
+  if (D.rdbg) D.rdbg.cmd(cmd, source, info);
   D.intentRes = null;                                                                // intent
   if (window.IntentDedupe && source !== 'ui') {
     if (IntentDedupe.seen(cmd, t, source === 'voice' ? 'model' : source)) {
@@ -1064,6 +1068,8 @@ function startMotion() {
     const rig = D.motion.step(dt, {features: D.features, userVoice: v ? v.userVoice() : null, avatarVoice: av,
       speaking: v ? v.speaking() : false, listening: v ? v.listening() : false,
       playT: S.ctx && D.play && Number.isFinite(D.play.startCt) ? S.ctx.currentTime - D.play.startCt : null}) || {};   // motion: playback clock for playGesture({at})
+    if (D.rdbg) D.rdbg.tick(rig, S.ctx.currentTime - D.play.startCt);   // rig debug panel (null while closed)
+    if (D.rigTrace) rigTraceRow(rig, (S.ctx.currentTime - D.play.startCt));   // test hook (off = this check)
     const names = (S.cfg && S.cfg.rig_params) || [];   // the RENDERER's order (its ready message), re-read every tick
     if (D.alog || D.cos) speechFrame(rig, (S.ctx.currentTime - D.play.startCt));        // speech
     if (!names.length) return;
@@ -1093,6 +1099,7 @@ const SPEAK_EVENTS = {wave: 'He just waved at you. Say hi back to him in a few w
   object_up: 'He is holding something up to show you (photo attached). Name it and react to him in one short sentence.'};
 function avatarEvent(name, detail) {
   const ev = {name, t: Math.round(performance.now()), detail: detail || null};
+  if (D.rdbg) D.rdbg.ev(name, detail);
   D.events.push(ev); if (D.events.length > 200) D.events.splice(0, 100);
   if (D.motion && D.motion.event) { try { D.motion.event(name, detail); } catch (e) {} }
   if ((name === 'gesture' || name === 'attention' || name === 'turn_bid') && typeof behaviorsFeed === 'function') behaviorsFeed(Object.assign({}, detail || {}, {type: name}));   // games: the program layer's senses
@@ -1133,7 +1140,8 @@ function voiceReport() {
     commands: D.cmds.slice(-100), cam_events: D.events.slice(-50), usd_est: Math.round(usd * 10000) / 10000,
     session_min: Math.round(mins * 100) / 100, frames_drawn: S.drawn, page: S.lastMsg || null,
     life: window.__avatar && window.__avatar.life ? window.__avatar.life() : null, history_n: D.history.length,
-    planner: plannerOn(), perform: D.perf ? D.perf.stats() : null, think: D.think ? D.think.stats() : null, voicetools: D.vt ? D.vt.stats() : null};
+    planner: plannerOn(), perform: D.perf ? D.perf.stats() : null, think: D.think ? D.think.stats() : null, voicetools: D.vt ? D.vt.stats() : null,
+    ...(D.planMode === 'semantic' ? {planner_mode: 'semantic', sem_last: D.perf && D.perf.semLast ? D.perf.semLast() : null} : {})};   // (only when on)
 }
 
 function resetMedia() {
@@ -1293,6 +1301,7 @@ async function start(quiet) {
     sendCtl({type: 'hello', character: sel, quality: $('ql').value, codec,
       ua: navigator.userAgent.slice(0, 120), ctx_rate: S.ctx.sampleRate, base_latency_ms: Math.round((S.ctx.baseLatency || 0) * 1000),
       output_latency_ms: Math.round((S.ctx.outputLatency || 0) * 1000)});
+    semWarm();                                                                   // semantic planner on -> warm its door
     const my = gen.n;
     XL.legacy = Q.get('xlegacy') === '1';
     XL.inflight = 0; XL.upSince = 0;
@@ -1421,7 +1430,7 @@ function avatarAudibleAt(ct, tail) {
   return false;
 }
 
-function sendCtl(obj) { S.ctlQ.push(obj); }
+function sendCtl(obj) { S.ctlQ.push(obj); if (D.rdbg) D.rdbg.ctl(obj); }   // voice tool calls -> the rig panel's log
 
 function frameMsgs(list) {
   let n = 0; for (const m of list) n += 4 + m.byteLength;
@@ -1732,6 +1741,7 @@ function tick(now) {
     if (cv.width !== f.bmp.width || cv.height !== f.bmp.height) { cv.width = f.bmp.width; cv.height = f.bmp.height; }
     g2.drawImage(f.bmp, 0, 0);
     S.drawnT = f.t; S.drawn++; S.lastDrawPerf = performance.now();
+    if (D.rdbg) D.rdbg.shown(f.t);   // the timeline t of the frame on screen (lip rows are matched to it)
     S.shownTimes.push(visible);
     S.sync.push(visible - audioTimeToPerf(S.base + f.t));
     if (S.sync.length > 2000) S.sync.splice(0, 1000);
@@ -1803,6 +1813,8 @@ function onJSON(j) {
       break;
     }
     case 'kf': if (D.perf) D.perf.onKf(j); break;              // the server planner's poses / library commands
+    case 'sem': if (D.perf && D.perf.onSem) D.perf.onSem(j); break;   // the semantic program as it streams (rig panel)
+    case 'semwarm': D.semWarmAns = j; break;                   // the hub's answer (available for this character?)
     case 'tv_state':                                          // tv: what the wall TV shows (window.__avatar.tv())
       D.tvState = j; if (D.vt) D.vt.onHub(j); break;
     case 'behavior_code':                                      // the behaviour writer's answer (program layer first)
@@ -1835,6 +1847,7 @@ function onJSON(j) {
       if (j.mode !== (D.unified ? 'unified' : 'learned') && D.learned) { D.learned = false; D.unified = false; if (D.motion && D.motion.setLearned) D.motion.setLearned(false); console.warn('react: back to rules —', j.why || ''); }
       break;
     case 'metrics': if (j.render) S.renderStats = j.render; if (j.render_error) showErr('Video: ' + j.render_error); break;
+    case 'rigdbg': if (window.AvatarRigDebug) AvatarRigDebug.onRender(j); break;   // the renderer's lip values per frame (only while the rig panel is open)
     case 'gestures': case 'gesture_saved': if (D.gest) D.gest.onHub(j); break;                                  // perception
     case 'attention': case 'attention_rules': if (D.attn) D.attn.onHub(j); break;
   }
@@ -2150,6 +2163,30 @@ function speechToolResult(ran) {
 // execute). Gemini + thinking makes no function calls: it keeps the matcher path. ?pagecache=0 = no page-side cache.
 function plannerReq() { return Q.get('planner') !== '0' && !(S.cfg && S.cfg.planner === false); }
 function plannerOn() { return plannerReq() && D.mode !== 'gemini-think'; }
+// (docs/SEMANTIC.md §4): WHICH planner writes a commanded move — 'current' (the keyframe planner, every
+// message byte for byte as before) or 'semantic' (the semantic API planner: plan messages carry planner:'semantic' and
+// state.sem). ?planner=semantic / ?sem=1 at load, the rig panel's Planner row or window.__avatar.setPlanner() later (the
+// next command; never persisted). On: {type:'semwarm', character} once per (session, character) so the hub warms the door.
+D.planMode = Q.get('planner') === 'semantic' || Q.get('sem') === '1' ? 'semantic' : 'current';
+D.semWarmed = new Set(); D.semWarmAns = null;
+function semWarm() {
+  if (D.planMode !== 'semantic' || !S.live || !S.sid) return;
+  const c = (S.cfg && S.cfg.character) || sel, k = S.sid + '|' + c;
+  if (D.semWarmed.has(k)) return;
+  D.semWarmed.add(k); sendCtl({type: 'semwarm', character: c});
+}
+function setPlanner(x) {
+  const v = x === 'semantic' || x === 'sem' || x === true ? 'semantic' : 'current';
+  if (v !== D.planMode) { D.planMode = v; D.cmds.push({planner: v, t: Math.round(performance.now())}); }
+  semWarm();
+  return D.planMode;
+}
+// his face as gaze following sees it (perception's feature frame): the semantic planner's live `user` target
+function semStateNow() {
+  const f = D.features, fc = f && f.face, r = v => (Number.isFinite(+v) ? Math.round(+v * 1000) / 1000 : null);
+  const user = fc && fc.present ? {present: true, ax: r(fc.ax), ay: r(fc.ay), z: r(fc.z), size: r(fc.size)} : {present: false};
+  return {user, attending: !!(f && f.attending)};
+}
 function voicePrompt(note, opt) {
   if (S.direct) return D.voice && D.voice.prompt ? D.voice.prompt(note, opt) : null;
   sendCtl({type: 'voice_prompt', text: ((window.AvatarVoice && AvatarVoice.SILENT) || '') + note, respond: !!(opt && opt.respond)});   // server-relayed voice
@@ -2178,6 +2215,7 @@ D.perf = window.AvatarPerform ? AvatarPerform.createPerformer({
   userSpeaking: () => S.direct ? !!(D.voice && (D.voice.userTalking ? D.voice.userTalking() : D.voice.listening())) : performance.now() - (D.micVoicedAt || -1e9) < 600,
   lastUserSpeech: () => Math.max(D.userSpokeAt || -1e12, D.micVoicedAt && !S.direct ? D.micVoicedAt : -1e12, D.voice && D.voice.lastUserSpeechAt ? D.voice.lastUserSpeechAt() : -1e12),
   alog: () => D.alog, cache: Q.get('pagecache') !== '0', thinker: () => D.think,
+  planner: () => D.planMode, semState: () => semStateNow(),
   log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
 }) : null;
 // end
@@ -2320,13 +2358,31 @@ Object.assign(window.__avatar, {
   cospeechPlan: () => D.cos ? D.cos.plan() : null, cospeechPlans: () => D.cos ? D.cos.plans() : null,
   cospeechCommits: () => D.cos ? D.cos.commits() : null, cospeechStats: () => D.cos ? D.cos.stats() : null,
   speechFeat: () => ({on: speechFeat(), alog: !!D.alog, cospeech: !!D.cos, onAction: !!D.alogOnAction}),
-  perform: () => D.perf ? D.perf.list() : [], planner: () => plannerOn(),
+  perform: () => D.perf ? D.perf.list() : [], planner: () => (plannerOn() ? D.planMode : false),   // 'current' | 'semantic'
+  setPlanner: x => setPlanner(x), semLast: () => (D.perf && D.perf.semLast ? Object.assign(D.perf.semLast() || {mode: D.planMode}, {warm: D.semWarmAns}) : null),
+  performAction: (text, info) => (D.perf ? D.perf.call(text, Object.assign({via: 'test'}, info || {})) : {ok: false, reason: 'no body here'}),   // what perform_action does
+  onHub: j => onJSON(j), rigTrace: on => rigTrace(on),                                 // tests: a server message as the socket delivers it; per-frame rig
   vt: () => D.vt ? D.vt.stats() : null, vtEvent: ev => D.vt ? D.vt.onEvent(ev) : null,   // voice tools
   tv: () => D.tvState || {phase: 'idle', scene_id: 0, title: '', description: 'The TV is off (nothing shown).', n_patches: 0},   // tv
   rec: () => window.AvatarRec ? AvatarRec.stats() : null, devices: () => ({mic: DEV.mic, cam: DEV.cam, switches: DEV.switches.slice(),   // rec
     micTrack: S.stream && S.stream.getAudioTracks()[0] ? S.stream.getAudioTracks()[0].label : null,
     camTrack: D.perc && D.perc._state && D.perc._state.stream && D.perc._state.stream.getVideoTracks()[0] ? D.perc._state.stream.getVideoTracks()[0].label : null}),
   switchMic: id => { $('micsel').value = id; return $('micsel').onchange(); }, switchCam: id => { $('camsel').value = id; return $('camsel').onchange(); }});
+window.__avatar.rigdbg = () => (window.AvatarRigDebug ? AvatarRigDebug.snapshot() : null);   // rig debug panel
+// the per-frame rig recorder (tests): rigTrace(true) starts, rigTrace(false) stops and returns, rigTrace() = so far
+function rigTraceRow(rig, rt) {
+  const T = D.rigTrace; if (T.rows.length >= 20000) return;
+  const v = {}; for (const k in rig) { const x = rig[k]; if (typeof x === 'number' && (x !== 0 || T.seen.has(k))) { v[k] = Math.round(x * 1e4) / 1e4; T.seen.add(k); } }
+  T.rows.push({t: Math.round(performance.now() * 10) / 10, rt: Math.round(rt * 1000) / 1000, v});
+}
+function rigTrace(on) {
+  if (on === true) { D.rigTrace = {rows: [], seen: new Set(), t0: performance.now()}; return true; }
+  const rows = D.rigTrace ? D.rigTrace.rows : (D.rigTraceLast || []);
+  if (on === false) { D.rigTraceLast = rows; D.rigTrace = null; }
+  return rows;
+}
+if (window.AvatarRigDebug) AvatarRigDebug.mount({D, S, Q, sendCtl,   // wires #rigbtn only (?rig=1 opens it)
+  planner: {get: () => (plannerOn() ? D.planMode : 'off'), set: x => setPlanner(x), last: () => (D.perf && D.perf.semLast ? D.perf.semLast() : null), warm: () => D.semWarmAns}});
 if (Q.get('auto') === '1') addEventListener('load', () => setTimeout(() => $('go').click(), 300));   // via the button: camera hooks run too
 </script>
 </body></html>

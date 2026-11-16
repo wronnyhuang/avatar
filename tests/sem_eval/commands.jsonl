@@ -1,0 +1,41 @@
+{"id": "sp01_point_board", "utterance": "Point at the board behind you", "category": "spatial", "page": true, "expected": "turns and points an extended arm/finger toward the board", "source": "new"}
+{"id": "sp02_look_tv", "utterance": "Take a look at the TV for a sec", "category": "spatial", "page": false, "expected": "head and eyes turn toward the TV and hold", "source": "new"}
+{"id": "sp03_point_me", "utterance": "Point right at me", "category": "spatial", "page": true, "expected": "extends an arm forward pointing at the viewer/camera", "source": "new"}
+{"id": "sp04_hand_shoulder", "utterance": "Put your left hand on your right shoulder", "category": "spatial", "page": false, "expected": "own left hand crosses the body to rest on own right shoulder", "source": "new"}
+{"id": "sp05_hands_knees", "utterance": "Rest your hands on your knees", "category": "spatial", "page": false, "expected": "both hands lower to the knees/lap area and stay", "source": "new"}
+{"id": "sp06_point_up_left", "utterance": "Point up and to your left, like you saw a bird", "category": "spatial", "page": false, "expected": "arm raised pointing high toward own left, head follows", "source": "new"}
+{"id": "sp07_shade_eyes", "utterance": "Shade your eyes with your hand and look far away", "category": "spatial", "page": true, "expected": "flat hand at the brow like a visor, gaze into the distance", "source": "new"}
+{"id": "sp08_look_floor", "utterance": "Look down at the floor next to you", "category": "spatial", "page": false, "expected": "head tilts down and slightly sideways, eyes down", "source": "new"}
+{"id": "sp09_touch_chin", "utterance": "Tap your chin with one finger", "category": "spatial", "page": false, "expected": "one hand rises to the chin and taps a couple of times", "source": "new"}
+{"id": "sp10_scratch_head", "utterance": "Scratch your head like you're confused", "category": "spatial", "page": true, "expected": "one hand at the top/side of the head scratching, puzzled face", "source": "sealed"}
+{"id": "sp11_point_right", "utterance": "Show me which way is right - point that way", "category": "spatial", "page": false, "expected": "points to own right side", "source": "sealed"}
+{"id": "sp12_hand_heart", "utterance": "Put your hand on your heart", "category": "spatial", "page": false, "expected": "a hand rests flat on the chest", "source": "sealed"}
+{"id": "fa01_wink", "utterance": "Give me a wink", "category": "face", "page": true, "expected": "one eye closes briefly while the other stays open", "source": "new"}
+{"id": "fa02_raise_one_brow", "utterance": "Raise just one eyebrow, like you don't believe me", "category": "face", "page": false, "expected": "one eyebrow up, skeptical look", "source": "new"}
+{"id": "fa03_puff_cheeks", "utterance": "Puff out your cheeks", "category": "face", "page": false, "expected": "cheeks inflate, lips closed", "source": "new"}
+{"id": "fa04_squint", "utterance": "Squint like the sun's in your eyes", "category": "face", "page": false, "expected": "eyes narrow strongly, maybe brow down", "source": "new"}
+{"id": "fa05_big_smile", "utterance": "Show me your biggest smile", "category": "face", "page": true, "expected": "a wide open smile", "source": "new"}
+{"id": "fa06_eyes_closed", "utterance": "Close your eyes for a few seconds", "category": "face", "page": false, "expected": "both eyes closed and held several seconds, then open", "source": "new"}
+{"id": "fa07_eyebrow_cock", "utterance": "Cock an eyebrow at me", "category": "face", "page": false, "expected": "one eyebrow raised at the viewer", "source": "sealed"}
+{"id": "co01_point_look_tv", "utterance": "Point at the TV and look over there", "category": "compound", "page": true, "expected": "points toward the TV with head and eyes turned the same way", "source": "new"}
+{"id": "co02_wave_smile", "utterance": "Wave at me with a big smile", "category": "compound", "page": false, "expected": "waves a raised hand while smiling", "source": "new"}
+{"id": "co03_nod_thumbs", "utterance": "Nod and give me a thumbs up", "category": "compound", "page": true, "expected": "head nods while a thumbs-up hand is shown", "source": "new"}
+{"id": "co04_shrug_then_smile", "utterance": "Shrug, then smile at me", "category": "compound", "page": false, "expected": "shoulders up with palms out, followed by a smile at the viewer", "source": "new"}
+{"id": "co05_look_left_right", "utterance": "Look left, then right, then back at me", "category": "compound", "page": false, "expected": "head turns left, then right, then returns to the viewer", "source": "new"}
+{"id": "co06_hands_up_wink", "utterance": "Put both hands up and wink", "category": "compound", "page": false, "expected": "both hands raised, one-eye wink", "source": "new"}
+{"id": "co07_chin_then_nod", "utterance": "Think about it with your hand on your chin, then nod yes", "category": "compound", "page": false, "expected": "hand on chin pondering, then nods", "source": "sealed"}
+{"id": "co08_point_left_look", "utterance": "Point to your left and look over there", "category": "compound", "page": false, "expected": "points to own left and looks the same way", "source": "sealed"}
+{"id": "nv01_thinking", "utterance": "Act like you're thinking really hard", "category": "novel", "page": true, "expected": "visible pondering: hand to chin or head, eyes up/aside, maybe a frown", "source": "new"}
+{"id": "nv02_mime_wall", "utterance": "Pretend there's an invisible wall in front of you", "category": "novel", "page": true, "expected": "flat palms pressing on an invisible surface, mime style", "source": "new"}
+{"id": "nv03_phone_call", "utterance": "Act like you're talking on the phone", "category": "novel", "page": false, "expected": "a hand held to the ear like a phone", "source": "new"}
+{"id": "nv04_air_guitar", "utterance": "Play some air guitar", "category": "novel", "page": false, "expected": "one hand frets high, the other strums at the hip", "source": "new"}
+{"id": "nv05_yawn_stretch", "utterance": "Do a big sleepy yawn and stretch", "category": "novel", "page": false, "expected": "mouth opens wide, arms stretch up/out", "source": "new"}
+{"id": "nv06_sneeze", "utterance": "Pretend you're about to sneeze", "category": "novel", "page": false, "expected": "build-up with head back, eyes squinting, then a sneeze forward", "source": "new"}
+{"id": "nv07_drums", "utterance": "Bang on some imaginary drums", "category": "novel", "page": false, "expected": "both hands alternate striking downward", "source": "sealed"}
+{"id": "nv08_robot", "utterance": "Why don't you do a little robot dance?", "category": "novel", "page": false, "expected": "stiff, angular, mechanical arm moves", "source": "sealed"}
+{"id": "wb01_backflip", "utterance": "Can you do a backflip?", "category": "whole_body", "page": true, "expected": "a backflip or the closest believable try (crouch and jump back) ", "source": "new"}
+{"id": "wb02_jump", "utterance": "Jump up and down a couple of times", "category": "whole_body", "page": false, "expected": "two vertical hops", "source": "new"}
+{"id": "wb03_spin", "utterance": "Spin around once", "category": "whole_body", "page": true, "expected": "a full turn about the vertical axis", "source": "new"}
+{"id": "wb04_lean_in", "utterance": "Lean in close like you're telling me a secret", "category": "whole_body", "page": false, "expected": "torso leans toward the viewer, maybe a hand by the mouth", "source": "new"}
+{"id": "wb05_bow", "utterance": "Bow to the audience", "category": "whole_body", "page": false, "expected": "bends forward at the waist and comes back up", "source": "sealed"}
+{"id": "sp13_wave", "utterance": "Wave hello", "category": "spatial", "page": false, "expected": "raises a hand and waves side to side", "source": "new"}

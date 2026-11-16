@@ -44,14 +44,17 @@
     const motion = () => { try { return d.motion ? d.motion() : null; } catch (e) { return null; } };
     const enabled = () => { try { return typeof d.enabled === 'function' ? !!d.enabled() : d.enabled !== false; } catch (e) { return true; } };
     const arms = () => { try { return typeof d.arms === 'function' ? d.arms() !== false : d.arms !== false; } catch (e) { return true; } };
+    // a begin(key, {arms: false}) = this wait is expected to be short (the semantic planner's running latency): head /
+    // gaze / brow variants only — a paw raised for under a second before the move reads as an extra gesture
+    const armsOf = s => arms() && !(s && s.info && s.info.arms === false);
     const fingers = () => { try { return typeof d.fingers === 'function' ? d.fingers() !== false : d.fingers !== false; } catch (e) { return true; } };
     const K = {cur: null, last: null, recent: [], hist: [], n: 0, c: {begun: 0, shown: 0, skipped: 0, refused: 0, switched: 0, capped: 0, joined: 0}};
     function log(rec) { if (d.log) { try { d.log(rec); } catch (e) {} } }
 
-    function pick(prev) {
+    function pick(prev, s) {
       const mains = K.recent.slice(-2).filter(v => v === MAIN || v === 'away').length;
       if (mains < 2 && rand() < MAIN_P) return MAIN;
-      const pool = VARIANTS.filter(v => v !== MAIN && v !== prev && (v !== 'finger' || (arms() && fingers())));
+      const pool = VARIANTS.filter(v => v !== MAIN && v !== prev && (v !== 'finger' || (armsOf(s) && fingers())));
       return pool[Math.floor(rand() * pool.length) % pool.length];
     }
     function begin(key, info) {
@@ -72,7 +75,7 @@
     function show(s) {
       if (s.done || s.state !== 'gate') return;
       T.clear(s.timers.gate);
-      const r = play(s, pick(K.last));
+      const r = play(s, pick(K.last, s));
       if (!r) { s.state = 'refused'; K.c.refused++; close(s, 'refused'); return; }
       s.state = 'on'; s.shown_ms = now(); K.c.shown++;
       log({think: s.id, shown: s.variant, gate_ms: Math.round(s.shown_ms - s.t0)});
@@ -80,7 +83,7 @@
         if (s.done || s.state !== 'on') return;
         const m = motion(), th = m && typeof m.thinking === 'function' ? m.thinking() : null;
         if (th && !th.on) { close(s, 'motion took over'); return; }   // a move / command already faded it: never restart it
-        if (play(s, s.variant === MAIN || s.variant === 'away' ? pick(s.variant) : MAIN)) K.c.switched++;
+        if (play(s, s.variant === MAIN || s.variant === 'away' ? pick(s.variant, s) : MAIN)) K.c.switched++;
         s.timers.sw = T.set(sw, switchMs);
       }, switchMs);
       if (maxMs > 0) s.timers.cap = T.set(() => { if (!s.done) { K.c.capped++; finish(s, 'cap'); } }, Math.max(0, maxMs - (s.shown_ms - s.t0)));
@@ -88,7 +91,7 @@
     function play(s, v) {
       const m = motion(); if (!m || typeof m.think !== 'function') return null;
       let r = null;
-      try { r = m.think({variant: v, avoid: v === MAIN ? null : (s.variant || K.last), dir: rand() < 0.5 ? -1 : 1, arms: arms()}); } catch (e) { r = null; }
+      try { r = m.think({variant: v, avoid: v === MAIN ? null : (s.variant || K.last), dir: rand() < 0.5 ? -1 : 1, arms: armsOf(s)}); } catch (e) { r = null; }
       if (!r || !r.ok) { s.lastRefusal = r && r.reason; return null; }
       s.variant = r.variant; K.last = r.variant; s.variants.push(r.variant);
       K.recent.push(r.variant); if (K.recent.length > 8) K.recent.splice(0, 4);

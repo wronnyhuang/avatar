@@ -14,6 +14,14 @@ Key: --key, else env RENDER_KEY, else no key check. Prints `READY port=<n>` on s
 Endpoints: GET /health, WebSocket GET /render?key=<KEY> (wrong key -> 403). One session at a time; a new
 connection replaces (closes) the old one.
 
+ rigdbg: {"type":"rigdbg","on":bool} as the real server (renderer/avatar/PROTOCOL-NOTES.txt note 14): while on,
+every drawn frame adds a row and at most every 100 ms a {"type":"rigdbg","fps","cols","rows":[[F, t, v...]],"src":"stub"}
+goes out ("cols" only on the first message after each "on", then at most every 2 s, as the real server).  The stub
+has no lip animator and no rig: the one number it draws the mouth with -- the 40 ms audio level (level_from_rms,
+-50 dBFS closed .. -10 dBFS fully open, the ellipse height) -- is reported in the opening columns jaw, lip_open,
+teeth_gap and in voice; every other column is 0 because the stub draws nothing for it.  "stop" turns it
+off (the hub's connection to the stub outlives a session).
+
 Schedule (causal, like the real server): frame j (instant t_j = j/fps) is rendered once the received audio covers
 t_j + lookahead_ms, never earlier; frames go out in order, each number once. A frame more than 0.5 s behind (later
 than both its audio's arrival and its due time on the estimated timeline clock) is skipped together with the rest
@@ -57,6 +65,13 @@ LATE_S = 0.5
 MSG_A = 0x41
 MSG_V = 0x56
 MSG_S = 0x53                     # scene: surface update (app/surfaces.py)
+# rigdbg: the real server's columns (anim/rig.py LIP_OWNED + the final rendered extras), same order
+RIGDBG_COLS = ["jaw", "round", "spread", "press", "labdent", "tongue", "cheek", "voice",
+               "lip_open", "lip_upper", "lip_lower", "lip_width", "lip_protrude", "lip_press", "lip_tuck",
+               "teeth_gap", "tongue_tip", "tongue_dental", "tongue_back",
+               "smile", "mouth_open", "hand_l_x", "hand_l_y", "hand_l_z", "hand_r_x", "hand_r_y", "hand_r_z",
+               "hand_l_open", "hand_r_open"]
+RIGDBG_LEVEL = [RIGDBG_COLS.index(c) for c in ("jaw", "voice", "lip_open", "teeth_gap")]   # what the drawn mouth is
 FLAG_KEY = 0x01
 FLAG_JPEG = 0x02
 V_HDR = struct.Struct("<BBHId")  # 16 bytes: 'V', flags, 0, uint32 frame, float64 t
@@ -401,6 +416,9 @@ class Session:
         self.encoder = None
         self.painter = None
         self.closed = False
+        self.rigdbg = None           # rigdbg: None = off; on = [(F, level), ...] since the last message
+        self.rigdbg_at = 0.0
+        self.rigdbg_cols_at = None   # rigdbg: when "cols" last went out (None = the next message carries it)
         self._reset_counters()
         self.render_task = asyncio.create_task(self._render_loop())
         self.stats_task = asyncio.create_task(self._stats_loop())
@@ -457,9 +475,18 @@ class Session:
             await self._character(m)
         elif typ == "stop":
             self._stop()
+            self.rigdbg = None       # rigdbg: the next session on this connection starts off
             log("stop")
         elif typ == "keyframe":
             self.force_kf = True
+        elif typ == "rigdbg":        # rigdbg
+            if m.get("on"):
+                self.rigdbg_cols_at = None
+                if self.rigdbg is None:
+                    self.rigdbg, self.rigdbg_at = [], time.monotonic()
+            else:
+                self.rigdbg = None
+            log(f"rigdbg {'on' if m.get('on') else 'off'}")
         else:
             await self.error(f"unknown message type {typ!r}")
 
@@ -699,6 +726,28 @@ class Session:
                     await self.send_bytes(V_HDR.pack(MSG_V, flags, 0, fn, fn / fps) + payload)
                 self.win.append((time.monotonic(), r_ms, e_ms))
                 self.next_j = j + 1
+                dbg = self.rigdbg
+                if dbg is not None:  # rigdbg: the level this frame's mouth was drawn with
+                    dbg.append((j, level))
+                    if time.monotonic() - self.rigdbg_at >= 0.1:
+                        await self._rigdbg_post(fps)
+
+    async def _rigdbg_post(self, fps):
+        rows, self.rigdbg = (self.rigdbg or [])[-40:], []
+        self.rigdbg_at = time.monotonic()
+        out = []
+        for F, level in rows:
+            v = [0.0] * len(RIGDBG_COLS)
+            for i in RIGDBG_LEVEL:
+                v[i] = round(float(level), 3)
+            out.append([int(F), F / fps] + v)
+        if out:
+            msg = {"type": "rigdbg", "fps": fps}
+            if self.rigdbg_cols_at is None or self.rigdbg_at - self.rigdbg_cols_at >= 2.0:
+                msg["cols"] = RIGDBG_COLS
+                self.rigdbg_cols_at = self.rigdbg_at
+            msg.update(rows=out, src="stub")
+            await self.send_json(msg)
 
     def _produce(self, j, level, force, overlays=None):  # session thread
         t0 = time.perf_counter()

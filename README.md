@@ -49,7 +49,8 @@ and microphone on a secure origin). Any reverse proxy or tunnel to `127.0.0.1:10
 `https://<your-host>/?k=<secret>`.
 
 Useful URL flags: `&char=fox` (other characters), `&voice=gemini`, `&react=unified` (learned face model, needs
-`onnxruntime`), `&rec=1` (record the session to `recordings/`; recording is off by default), `&hud=1` (stats).
+`onnxruntime`), `&rec=1` (record the session to `recordings/`; recording is off by default), `&hud=1` (stats),
+`&planner=semantic` (the [semantic motion API](#semantic-motion-api) planner), `&rig=1` (open the rig debug panel).
 
 ## API keys
 
@@ -89,9 +90,11 @@ Every variable is listed with comments in [`.env.example`](.env.example). Runtim
  │   landmarks + occasional stills ──────────────────────► ├─ voice: page↔OpenAI Realtime direct (rtc.py mints the
  ├─ mic ⇄ voice model (WebRTC, tools in voicetools.js)      │   session), server bridge (vendor.py) or Gemini Live
  ├─ move engine (motion.js, moves.js, perform.js,           ├─ planner.py   — "do X" → keyframe JSON (claude CLI /
- │   gestures.js, behavior.js, teach.js, attention.js…)     │   Anthropic / OpenRouter / OpenAI routes), cache
- │   → 34 rig controls + face/gaze/mouth, 24 fps  ───────►  ├─ board_brain.py + board/ — what to write on the board
- └─ <video> ◄──── H.264 stream ◄──────────────────────────  ├─ tv_agent.py + tvdsl/ — wall-TV program + renderer
+ │   gestures.js, behavior.js, teach.js, attention.js…)     │   Anthropic / OpenRouter / OpenAI routes), cache; with
+ │   → 34 rig controls + face/gaze/mouth, 24 fps  ───────►  │   ?planner=semantic: Claude writes a semantic-API program,
+ ├─ rig debug panel (rigdebug.js; ?rig=1, off by default)   │   semantic/ runs it as it streams (IK, rig map) → poses
+ └─ <video> ◄──── H.264 stream ◄──────────────────────────  ├─ board_brain.py + board/ — what to write on the board
+                                                           ├─ tv_agent.py + tvdsl/ — wall-TV program + renderer
                                                            ├─ teach_hub.py, surfaces.py — board/TV canvases → renderer
                                                            ├─ affect.py, attention_judge.py, behavior_coder.py, intent_*
                                                            ├─ unified_link.py — optional learned face/gaze model
@@ -105,7 +108,8 @@ Every variable is listed with comments in [`.env.example`](.env.example). Runtim
    and evals.
 ```
 
-Docs: `docs/RIG.md` (the rig), `docs/PLANNER.md` (planner), `docs/BOARD-BRAIN.md`, `docs/TV-AGENT.md`,
+Docs: `docs/RIG.md` (the rig), `docs/PLANNER.md` (planner), `docs/SEMANTIC.md` (semantic motion API planner),
+`docs/RIG-DEBUG.md` (rig debug panel), `docs/BOARD-BRAIN.md`, `docs/TV-AGENT.md`,
 `docs/SCENE.md` and `docs/OBJECTS.md` (board, TV, objects), `docs/INTENT-RULES.md`, `docs/CLAUDE-DOOR.md`,
 `motion-model/docs/CONTRACT.md` (canonical motion format), `motion-model/README.md`.
 
@@ -114,13 +118,240 @@ Docs: `docs/RIG.md` (the rig), `docs/PLANNER.md` (planner), `docs/BOARD-BRAIN.md
 | path | what |
 |---|---|
 | `app/` | app server and the browser page (Python + plain JS, no build step) |
+| `app/semantic/` | semantic motion API: interpreter, streaming, IK / per-character rig mapping, the planner prompt (`prompt/API.md`) |
 | `renderer/` | real-time SDF renderer, encoder, render server |
 | `deploy/config.local.example.json` | config template that `scripts/setup.sh` copies to `.avatar-home/state/config.json` |
 | `scripts/` | `setup.sh`, `run_local.sh`, `smoke.sh`, `test_all.sh` |
-| `tests/` | offline unit suites (`test_*.py`, `*_test.cjs`) + fixtures |
+| `tests/` | offline unit suites (`test_*.py`, `*_test.cjs`) + fixtures (`fixtures/sem_programs.json`: semantic-API program corpus) |
 | `tools/`, `eval/` | eval harnesses: planner evals, session end-to-end driver + judge, latency, TV/board evals, voice evals |
 | `motion-model/` | learned motion model: `canon1/` data format, `unified/` model + runtime + ONNX export, `retarget/`, `evalkit/`, `tools/data`, `tools/train` |
 | `models/unified-v2/` | the small inference bundle for the opt-in learned face model (`?react=unified`) |
+
+## Semantic motion API
+
+An opt-in planner for commanded moves. Instead of asking a model for raw rig keyframes (the default planner,
+`docs/PLANNER.md`), Claude writes a short program of goal-level calls — `reach('right', 'top_of_head')`,
+`look_at('user')`, `point_at('board')`, `expression('surprise')` — with named body targets and real units (cm,
+degrees, seconds). An interpreter turns it into motion: inverse kinematics for the arms, timing curves and shaping
+(anticipation, overshoot, eyes leading the head), retargeting to the character's rig. Models are much better at
+"put the left hand on the right shoulder" than at choosing `hand_l_x = 0.42`, so spatial and multi-step commands
+come out right far more often (results below).
+
+### Switching it on
+
+- URL: `?planner=semantic` (or `?sem=1`) on the page link. The default is the keyframe planner on every load.
+- In the page: open the **Rig** panel (button next to *Stats*, or `?rig=1`); its top row is a *current | semantic API*
+  switch that applies to the next command.
+- From the console / tests: `window.__avatar.setPlanner('semantic')`, `window.__avatar.semLast()`.
+- Model: Claude only. With the `claude` CLI on PATH (Claude Code, signed in) it runs through the CLI and needs no key;
+  otherwise it uses `ANTHROPIC_API_KEY`. No other provider is used and it never falls back to the keyframe planner.
+  Config `"planner": {"semantic": {...}}` in `.avatar-home/state/config.json`:
+
+  | key | default | |
+  |---|---|---|
+  | `model` | `claude-sonnet-5-5` | any Claude model id; env `AVATAR_SEM_MODEL` |
+  | `effort` | `none` | thinking off (fastest; `low` was slower and no better); env `AVATAR_SEM_EFFORT` |
+  | `route` | `auto` | `claude_door` (CLI), `anthropic` (API key), `auto` = CLI if found; env `AVATAR_SEM_ROUTE` |
+  | `timeout_s`, `retry_min_s` | 20, 8 | one retry on the same model if it fails before its first pose |
+  | `cache`, `hz` | true, 20 | program cache (`.avatar-home/cache/semplans/`), pose rate |
+
+  Sonnet with thinking off was as fast to the first pose as Haiku and judged clearly better, so it is the default.
+  Full list and the wire messages: `docs/SEMANTIC.md`.
+
+### How the pieces fit
+
+```
+spoken command -> voice tool perform_action -> page (perform.js) -> {type:'plan', planner:'semantic'}
+server (app/planner.py)
+  named-move library hit? -> played at once (unchanged)          cached program? -> served (re-run if it uses live targets)
+  else Claude streams the program text ──► semantic.Stream.feed(delta)   (worker thread, ~5-10 ms per statement)
+     each complete top-level statement ──► goals (reach / look / point / pose / face ...)
+                                       ──► IK + look-at solver, timing + shaping
+                                       ──► per-character rig mapping (hand geometry, head / torso gains, face map)
+                                       ──► dense rig-space keyframes {t, <rig param>: value} for that statement
+  -> {type:'kf', space:'rig', poses} per statement (motion starts after the first one) + {type:'sem'} progress
+page (app/motion.js keyframe-job layer): blends the track in from the live values and back out at the end; it owns
+only the channels the program drives — gaze following, lip sync, mirrored expressions, idle motion and reflexes keep
+every other channel; the mouth yields to lip sync while the avatar speaks; a new command or 'stop' interrupts.
+```
+
+Already-sent poses are never revised, so the avatar starts moving as soon as the first statement is complete (the
+prompt asks for the opening move first). Streaming a program gives exactly the same poses as replaying it whole.
+
+### The API
+
+Reference (this is also what the model reads): [`app/semantic/prompt/API.md`](app/semantic/prompt/API.md).
+[Interactive explainer](docs/semantic-api-explainer.html) (open the file locally in a browser): every call with a
+Play button on the real character shader, all rig dials to drag, and an in-page interpreter for your own programs.
+Families:
+
+- **Arms and hands**: `reach`, `touch`, `cover`, `point_at`, `arm` (a direction from the shoulder), `raise_hand`,
+  `move_hand` (relative cm), `rotate_wrist`, `hand` (shapes: fist, point, thumbs_up, peace, ok, ...), `pat`, `rub`,
+  `hands_together`, `rest_arm`, gestures `wave`, `clap`, `thumbs_up`, `shrug`, `cross_arms`, `hands_on_hips`.
+- **Head and eyes**: `look_at`, `rotate('head'|'torso'|'body', yaw, pitch, roll)`, `nod`, `shake_head`, `tilt_head`,
+  `head_turn`, `gaze`, `roll_eyes`.
+- **Torso and whole body**: `lean`, `twist`, `shoulders`, `bow`, `jump`, `flip`, `spin`, `turn`, `crouch`, `stand`,
+  `step`, `sway`, `bounce`, `oscillate` (an additive wiggle on any part).
+- **Face**: `expression` (30 named), `face(**ARKit blendshapes)`, shortcuts `smile`, `wink`, `blink`, `close_eyes`,
+  `raise_brow`, `furrow`, `puff_cheeks`, `open_mouth`, `kiss`, ...
+- **Composition**: `with parallel():`, `with sequence():`, `with after(s):`, `for i in range(n):`, `hold`, `release`,
+  `return_to_neutral`, `keep_pose`.
+- **Targets**: body points (`nose`, `chin`, `top_of_head`, `left_shoulder`, `chest`, `right_palm`, ...), directions
+  (`up`, `upper_left`, `in_front_of_face`, ...), `(x, y, z)` cm from the pelvis, and live targets: `camera`, `user`
+  (the person's face from the camera, or the camera when nobody is seen), `user_left` / `user_right`, and the scene's
+  things for the Muse (`board`, `tv`, `desk`, `laptop`, `chair`, ...). Left / right are always the avatar's own.
+
+The program language is a restricted Python subset run in an AST sandbox (no imports, attributes, `if` or `def`).
+
+### Example programs
+
+"Glance at the laptop on your desk, then back at me" (the Muse; the fox has no laptop and looks at the camera):
+```python
+look_at('laptop', dur=0.5)
+with parallel():
+    lean('forward', deg=8)
+    expression('thinking', 0.6)
+hold(0.7)
+with parallel():
+    look_at('user', dur=0.4)
+    lean('back', deg=0)
+    expression('smile', 0.6)
+hold(0.4)
+```
+
+"Rub the back of your neck, a bit embarrassed":
+```python
+reach('right', 'back_of_head', part='palm', offset_cm=dict(down=8), dur=0.6)
+with parallel():
+    rub('right', 'back_of_head', times=3, cm=4)
+    tilt_head('right', deg=10)
+    look_at('down', eyes_only=True, dur=0.3)
+    expression('embarrassed', 0.8)
+hold(0.4)
+```
+
+"Clap both hands over your mouth like you said something you shouldn't":
+```python
+cover('mouth', hand='both', dur=0.4)
+with parallel():
+    expression('surprise', 0.9)
+    lean('back', deg=6)
+    gaze(yaw=15, dur=0.2)
+hold(0.8)
+```
+
+"Make an OK sign with your left hand and keep it there":
+```python
+raise_hand('left', height='shoulder', palm='camera', shape='ok', dur=0.5)
+with parallel():
+    expression('smile', 0.7)
+    tilt_head('left', deg=8)
+keep_pose()
+```
+
+### Using the interpreter on its own
+
+`app/semantic` needs only numpy and scipy and does not import the server.
+
+```python
+import sys; sys.path.insert(0, "app")
+import semantic as sem
+
+prog = "look_at('camera')\nwave(hand='right', cycles=3)\nhold(0.4)\n"
+targets = sem.resolve_targets("muse", None)            # {name: (x, y, z) cm}; pass the page's state for live targets
+poses, report = sem.replay("muse", prog, targets)      # [{t, <rig param>: value}, ...] at 20 Hz
+print(report["n_statements"], report["duration_s"], report["channels"], report["errors"])
+
+s = sem.Stream("fox", targets=sem.resolve_targets("fox", None))   # incremental: feed model text as it arrives
+batches = s.feed("```python\nnod(times=2)\n") + s.feed("smile()\n```\n") + s.finish()
+system = sem.system_prompt("muse", targets)            # the planner's system prompt (stable text per target set)
+```
+
+`tools/sem_smoke.py` replays the prompt's examples and a corpus for every character (no key); `tools/sem_bench.py`
+times the interpreter; `tools/sem_stills.py` renders the end pose of each program on the real renderer (CPU) as a
+contact sheet — the way to check hand-on-target accuracy; `tools/sem_llm_try.py` runs the live prompt through
+`claude -p`.
+
+### Adding a character
+
+The interpreter works on a canonical human skeleton and maps to each rig in `app/semantic`:
+
+1. `fastrender.py` `CHAR[...]`: head gain (rig radians per real radian), torso radians per rig unit (yaw, pitch,
+   lean), gaze tangent per unit, whether it has root motion (can stand / jump / spin) and ears.
+2. `arms.py`: the hand geometry — where a rig hand target `hand_<s>_x/y/z` puts the wrist. For characters whose
+   `renderer/animals/<name>.body.json` has a linear `hand_map` (the Muse) this is read from that file; otherwise
+   invert the shader's hand-target function (the fox: `fox.glsl` `handTarget()`), and give the face and torso points
+   in the character's head / body space.
+3. `rigmap.py` `HAS_ROOT` / `HAS_EARS`, `retarget/maps/<name>.json` (the canonical-skeleton path), `targets.py` scene
+   things (from `<name>.props.json`), `prompt/__init__.py` `CHAR_NOTES` (one line on what the body can do), and add the
+   name to `semantic.CHARACTERS`. A character not in the list gets the keyframe planner and the panel says
+   "semantic API not available for this character".
+4. Check: `tools/sem_stills.py --character <name>` (touch nose / top of head / shoulder, cover eyes, point left / right
+   / up / camera) and `tests/test_sem_core.py` (left / right, targets land, no pops).
+
+Rig `_l` columns are screen-left, i.e. the character's own right hand; the API's "left" is the character's own left.
+
+### Results
+
+Offline bake-off: 106 held-out commands × 3 seeds, the same Claude model writing either raw rig keyframes (the
+current planner's approach) or semantic-API programs, rendered and judged blind from contact sheets (Claude Sonnet as
+the judge) plus automatic checks per command.
+
+| | keyframe planner | semantic API |
+|---|---|---|
+| action checks passed (all 106) | 71% | **91%** |
+| spatial commands (24) | 57% | **100%** |
+| compound / multi-step (15) | 58% | **100%** |
+| face (20) | 65% | **95%** |
+| whole-body moves (15) | **98%** | 87% |
+| blind "looks like real motion" | 20% | 27% (real mocap: 83%) |
+| interpreter time | – | ~5-10 ms per statement, ~20-35 ms per whole 3-6 s program |
+
+It does what was asked much more often, and it is slightly preferred for naturalness, but it still looks robotic:
+motion is built from eased segments and procedural shaping, not learned from human motion. Learned in-betweening
+(a motion model filling the timing and secondary motion between the program's goals) is future work. Whole-body moves
+(jumps, spins, flips) are better with keyframes, which can shape the root freely.
+
+<!-- LIVE-RESULTS:START -->
+**Live comparison** (both planners through the real page, server and renderer; 41 fresh spoken-style commands per
+character, the two planners interleaved command by command on a busy shared machine; "planned" = commands that are
+not instant library moves; blind Claude judge on rendered clips, score = yes + half of partly; judge noise is about
++-15 points per character, so read small gaps as ties):
+
+| planned commands | keyframe planner | semantic API |
+|---|---|---|
+| did the command, Muse (n 29) | 55% | 62% |
+| did the command, fox (n 33) | 56% | 58% |
+| did the command, a third human-proportioned rig not in this repo (n 29) | 38% | 53% |
+| blind pairwise "more natural" (n 91) | 40% | 60% |
+| command to move starting, median / p90 | 4.25 s / 6.36 s | 2.35 s / 4.51 s |
+| server first pose after the request, median | 2.81 s | 2.01 s |
+| repeated command (cache), move starts | 0.79 s | 0.35 s |
+| interpreter errors / timeouts in 91 plans | n/a | 2 skipped statements / 0 |
+
+Where it is better: simultaneous asks (point and look), spatial targets, staying in place and returning cleanly, and
+time to first motion. Where it is not: whole-body moves on a seated torso-only character, reaches the rig's arms
+cannot make (cross-body, top of a large head), and the motion still reads as scripted: one ease in, a hold, the same
+ease back.
+<!-- LIVE-RESULTS:END -->
+
+### Known limits
+
+- Still robotic (see above); hand contact is approximate on stylised bodies (a paw on top of a big head lands on the
+  temple), and the fox's paws cannot form separate fingers (shapes become open / fist / point / thumb).
+- Whole-body moves on the fox (seated) degrade to torso moves.
+- Latency = model time to the first complete statement plus ~5-10 ms; a cold CLI process or no prompt-cache hit adds
+  a second or more. Repeats come from the cache at once.
+- Live targets are resolved when the plan starts (a program that tracks `user` does not follow later head motion).
+- The interpreter has rig mappings for a third rig family (a human character) that is not part of this repo.
+
+### Rig debug panel
+
+The **Rig** button (or `?rig=1`) opens a live view of the rig: every rig dial with its value and which layer drives
+it (gaze, mirror, listen, speech, feeling, reflex, command, hold, planner, lips, ...), the renderer's final lip values
+for the frame on screen, the active gestures / holds / planner job, perception (face / hands tracking, voice
+activity), an event log, and the Planner section (switch, program as it streams, timings, warnings). Closed, it costs
+nothing (one null check per frame, no messages). Details: `docs/RIG-DEBUG.md`.
 
 ## Optional extras
 
@@ -137,7 +368,14 @@ scripts/test_all.sh            # offline Python + Node unit suites (no keys), ~1
                                #   npm i playwright-core (or PLAYWRIGHT_CORE=<path>), CHROME_PATH=<chrome binary>.
                                # Suites that need non-shipped data (eval clips from Seamless) print SKIP.
                                # Known failure: muse_regressions_test.cjs check B9 ("reverse burst").
-scripts/smoke.sh               # boot + page + auth + real renderer warm-up, no keys
+                               # Includes the semantic API suites (test_sem_core.py, test_sem_hub.py,
+                               #   sem_page*_test.cjs, rigprobe_test.cjs), renderer/avatar/test_rigdbg.py and
+                               #   tools/sem_smoke.py.
+scripts/smoke.sh               # boot + page + auth + real renderer warm-up + semantic interpreter replay, no keys
+                               #   (SMOKE_RIGDBG=1: + the rig debug relay end to end through the real renderer)
+python tests/sem_hub_smoke.py --url 'http://127.0.0.1:10250/?k=<secret>'   # semantic planner end to end on a
+                                                                 # running server (needs the claude CLI or ANTHROPIC_API_KEY)
+python tools/sem_bench.py                 # interpreter speed + stream == replay on the program corpus
 python tools/session_e2e/run_session.py --url 'http://127.0.0.1:10250/?k=<secret>' \
   --script tools/session_e2e/scripts/smoke.json --out runs/e2e   # drives the real page like a user (Playwright,
                                                                  # TTS mic, recording, judge); needs keys
@@ -152,8 +390,9 @@ model needs `torch`, `onnxruntime`, `safetensors`, `soundfile`, `mediapipe` and 
 
 ## Known limitations
 
-- New, never-seen move commands work about half the time (some come out wrong or too small). A move starts about
-  3 s after your last word.
+- New, never-seen move commands work about half the time with the default keyframe planner (some come out wrong or
+  too small); the opt-in semantic API planner gets most spatial and multi-step commands right but still looks
+  robotic (see [Semantic motion API](#semantic-motion-api)). A move starts about 3 s after your last word.
 - The voice model sometimes answers other people in the room, can talk out of turn, and occasionally claims a move
   it didn't make. You interrupt it by tapping, not by voice.
 - The learned face model (`?react=unified`) is flat (few blinks or nods, no smile-back). The rule-based reactions

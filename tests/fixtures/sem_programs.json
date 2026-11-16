@@ -1,0 +1,381 @@
+{
+ "note": "Semantic-API programs written by Claude Sonnet for generic commands (one per command), used as a regression corpus by tests/test_sem_core.py and tools/sem_bench.py.",
+ "programs": [
+  {
+   "id": "wave",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('smile', 0.8, dur=0.4)\n    raise_hand('right', height='head', palm='camera', shape='open', dur=0.6)\nwave(hand='right', cycles=3, size_cm=14, speed=1.0)\nhold(0.5)"
+  },
+  {
+   "id": "wave_bye_both",
+   "program": "with parallel():\n    arm('both', 'forward_up', extend=0.8, palm='camera', shape='open', dur=0.6)\n    look_at('camera', dur=0.4)\n    expression('smile', 0.8)\nwith parallel():\n    oscillate('left_hand', 'x', 12, cycles=4, dur=2.4)\n    oscillate('right_hand', 'x', 12, cycles=4, dur=2.4, phase_deg=180)\n    with sequence():\n        tilt_head('left', deg=8, dur=1.2)\n        tilt_head('right', deg=8, dur=1.2)\nhold(0.5)"
+  },
+  {
+   "id": "nod",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('smile', 0.5)\nnod(times=3, deg=15, speed=1)\nhold(0.5)"
+  },
+  {
+   "id": "shake_head",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('frown', 0.4)\nshake_head(times=3, deg=20, speed=1)\nhold(0.5)"
+  },
+  {
+   "id": "clap",
+   "program": "with parallel():\n    raise_hand('both', height='chest', palm='in', shape='open', dur=0.5)\n    expression('smile', 0.7)\n    look_at('camera', dur=0.4)\nhold(0.2)\nclap(times=4, speed=1.2)\nhold(0.4)"
+  },
+  {
+   "id": "thumbs_up",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    arm('right', 'forward_up', extend=0.7, palm='in', dur=0.6)\n    expression('smile', 0.8, dur=0.4)\nhold(0.1)\nthumbs_up('right')\nwith parallel():\n    nod(times=1, deg=10)\n    expression('big_smile', 0.8, dur=0.4)\nhold(1.0)"
+  },
+  {
+   "id": "shrug",
+   "program": "with parallel():\n    shrug(side='both', amount=1, hold_s=0.9)\n    expression('confused', 0.5)\n    raise_brow(amount=0.7)\n    tilt_head('left', deg=8, dur=0.5)\n    arm('both', 'out', extend=0.5, palm='up', shape='open', dur=0.6, elbow='out')\nhold(0.6)"
+  },
+  {
+   "id": "salute",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('determined', 0.7)\n    rotate('torso', pitch=-3, dur=0.4)\nwith parallel():\n    reach('right', 'right_temple', part='fingertips', palm='down', shape='flat', elbow='out', dur=0.6)\n    lean('back', deg=3, dur=0.5)\nhold(1.2)\nwith parallel():\n    arm('right', 'out', extend=0.8, palm='down', shape='flat', dur=0.6)\n    expression('smile', 0.6)\nhold(0.5)"
+  },
+  {
+   "id": "bow",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('smile', 0.8, dur=0.4)\n    arm('right', 'across', extend=0.4, palm='body', shape='flat', dur=0.6)\nhold(0.3)\nwith parallel():\n    bow(deg=35, hold_s=1.0, dur=0.9)\n    expression('smile', 0.7)\nhold(0.4)\nwith parallel():\n    rest_arm('right', dur=0.5)\n    look_at('camera', dur=0.4)\n    expression('big_smile', 0.8, dur=0.4)\nhold(0.5)"
+  },
+  {
+   "id": "point_forward",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    point_at('camera', hand='right', dur=0.6)\n    expression('smile', 0.5)\nhold(1.2)"
+  },
+  {
+   "id": "facepalm",
+   "program": "with parallel():\n    cover('face', hand='right', dur=0.7)\n    rotate('head', pitch=-15, dur=0.7)\n    lean(direction='forward', deg=10, dur=0.7)\n    expression('grimace', 0.6)\n    close_eyes(amount=0.8, dur=0.5)\nhold(1.2)\nwith parallel():\n    rotate('head', pitch=-20, dur=0.8)\n    shake_head(times=2, deg=12, speed=0.8)\nhold(0.8)"
+  },
+  {
+   "id": "raise_hand",
+   "program": "with parallel():\n    raise_hand('right', height='high', palm='camera', shape='open', dur=0.8)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.6)\nhold(1.5)"
+  },
+  {
+   "id": "peace_sign",
+   "program": "with parallel():\n    raise_hand('right', height='head', palm='camera', shape='peace', dur=0.7)\n    look_at('camera', dur=0.4)\n    expression('big_smile', 0.8)\nhold(1.5)\nrotate_wrist('right', side=10, dur=0.3)\nrotate_wrist('right', side=-10, dur=0.3)\nhold(0.7)"
+  },
+  {
+   "id": "arms_cross",
+   "program": "with parallel():\n    cross_arms()\n    expression('determined', 0.5)\n    look_at('camera', dur=0.5)\nhold(1.2)"
+  },
+  {
+   "id": "cover_eyes",
+   "program": "with parallel():\n    cover('eyes', hand='both', dur=0.7)\n    lean('back', deg=5, dur=0.7)\n    expression('fear', 0.3)\nhold(1.5)"
+  },
+  {
+   "id": "cover_ears",
+   "program": "with parallel():\n    cover('left_ear', hand='both', dur=0.6)\n    expression('wince', 0.7)\n    close_eyes(amount=0.8, dur=0.4)\n    lean('back', deg=5, dur=0.6)\nhold(1.5)"
+  },
+  {
+   "id": "cover_mouth",
+   "program": "with parallel():\n    cover('mouth', hand='both', dur=0.6)\n    expression('surprise', 0.6)\n    look_at('camera', dur=0.5)\nhold(1.2)"
+  },
+  {
+   "id": "touch_nose_l",
+   "program": "with parallel():\n    touch('left', 'nose', part='index_tip', dur=0.8)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.4)\nhold(1.2)"
+  },
+  {
+   "id": "touch_r_shoulder_l_hand",
+   "program": "with parallel():\n    reach('left', 'right_shoulder', part='palm', palm='body', elbow='down', dur=0.8)\n    look_at('right_shoulder', dur=0.6)\n    expression('smile', 0.4)\nhold(1.2)"
+  },
+  {
+   "id": "both_hands_head",
+   "program": "with parallel():\n    reach('left', 'top_of_head', part='palm', palm='down', elbow='out', dur=0.8)\n    reach('right', 'top_of_head', part='palm', palm='down', elbow='out', dur=0.8)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.4)\nhold(1.5)"
+  },
+  {
+   "id": "hands_hips",
+   "program": "with parallel():\n    hands_on_hips()\n    look_at('camera', dur=0.5)\n    expression('smile', 0.5)\nhold(1.2)"
+  },
+  {
+   "id": "chin_think",
+   "program": "with parallel():\n    reach('right', 'chin', part='back_of_hand', palm='out', shape='relaxed', elbow='down', dur=0.8)\n    look_at('upper_left', dur=0.7)\n    expression('thinking', 0.8)\n    tilt_head('right', deg=8, dur=0.7)\nhold(0.6)\nwith parallel():\n    rotate('torso', pitch=-5, dur=0.5)\n    gaze(yaw=10, pitch=10, dur=0.4)\n    raise_brow(side='left', amount=0.5)\nhold(1.2)"
+  },
+  {
+   "id": "raise_left",
+   "program": "with parallel():\n    arm('left', 'overhead', extend=1.0, palm='forward', shape='open', dur=0.8)\n    look_at('camera', dur=0.5)\nhold(1.2)"
+  },
+  {
+   "id": "both_arms_up",
+   "program": "with parallel():\n    arm('both', 'up', extend=1.0, palm='forward', shape='open', dur=0.9)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.6)\nhold(1.2)"
+  },
+  {
+   "id": "arms_out",
+   "program": "with parallel():\n    arm('both', 'out', extend=1.0, palm='down', shape='open', dur=1.0)\n    lean('back', deg=6, dur=1.0)\n    rotate('head', pitch=10, dur=1.0)\n    expression('smile', 0.5)\nhold(1.2)\nwith parallel():\n    oscillate('left_hand', 'y', 3, cycles=1, dur=0.8)\n    oscillate('right_hand', 'y', 3, cycles=1, dur=0.8)\n    hand('both', 'spread', dur=0.4)\nhold(0.5)"
+  },
+  {
+   "id": "point_left",
+   "program": "with parallel():\n    point_at('left', hand='left', dur=0.7)\n    look_at('left', dur=0.6)\nhold(1.2)"
+  },
+  {
+   "id": "scratch_head",
+   "program": "with parallel():\n    reach('right', 'top_of_head', part='fingertips', palm='body', elbow='out', shape='claw', dur=0.7)\n    expression('confused', 0.6)\n    look_at('upper_left', dur=0.6, eyes_only=True)\n    tilt_head('right', deg=8, dur=0.5)\nrub('right', 'top_of_head', times=5, cm=5, part='fingertips', direction='sideways')\nhold(0.5)"
+  },
+  {
+   "id": "hand_behind_head",
+   "program": "with parallel():\n    reach('left', 'back_of_head', part='palm', palm='body', elbow='out', dur=0.9)\n    reach('right', 'back_of_head', part='palm', palm='body', elbow='out', dur=0.9)\n    expression('smile', 0.5, dur=0.8)\nwith parallel():\n    lean('back', deg=12, dur=1.0)\n    rotate('head', pitch=5, dur=1.0)\n    close_eyes(amount=0.3, dur=0.8)\n    expression('sleepy', 0.3, dur=0.8)\nhold(1.5)"
+  },
+  {
+   "id": "touch_shoulders",
+   "program": "with parallel():\n    reach('left', 'left_shoulder', part='fingertips', palm='body', elbow='out', dur=0.8)\n    reach('right', 'right_shoulder', part='fingertips', palm='body', elbow='out', dur=0.8)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.5)\nhold(1.2)"
+  },
+  {
+   "id": "look_up",
+   "program": "with parallel():\n    look_at('sky', dur=0.6)\n    rotate('head', pitch=25, dur=0.6)\nhold(1.2)"
+  },
+  {
+   "id": "look_down",
+   "program": "with parallel():\n    look_at('down', dur=0.6)\n    rotate('head', pitch=-25, dur=0.6)\nhold(1.2)"
+  },
+  {
+   "id": "head_down_low",
+   "program": "with parallel():\n    rotate('head', pitch=-40, dur=0.8)\n    lean('forward', deg=12, dur=0.8)\n    expression('sad', 0.4)\n    shoulders(amount=-0.3, dur=0.6)\nhold(2.0)\nkeep_pose()"
+  },
+  {
+   "id": "look_left",
+   "program": "with parallel():\n    head_turn('left', deg=45, dur=0.6)\n    look_at('left', dur=0.6)\nhold(1.2)"
+  },
+  {
+   "id": "tilt_head",
+   "program": "with parallel():\n    tilt_head('left', deg=22, dur=0.6)\n    look_at('camera', dur=0.5, eyes_only=True)\n    expression('smile', 0.3)\nhold(1.2)"
+  },
+  {
+   "id": "smile",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('big_smile', 0.9, dur=0.6)\n    raise_brow(amount=0.3)\nhold(1.5)"
+  },
+  {
+   "id": "frown",
+   "program": "with parallel():\n    expression('frown', 1.0, dur=0.5)\n    furrow(amount=0.8)\n    rotate('head', pitch=-6, dur=0.5)\n    look_at('camera', dur=0.5)\nhold(1.5)"
+  },
+  {
+   "id": "wink_left",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('smile', 0.6, dur=0.4)\nhold(0.2)\nwink(side='left', hold_s=0.8)\nhold(0.5)"
+  },
+  {
+   "id": "wink_any",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    smile(0.7)\n    tilt_head('left', deg=8, dur=0.4)\nhold(0.3)\nwink('left', hold_s=0.8)\nhold(0.5)"
+  },
+  {
+   "id": "blink_twice",
+   "program": "look_at('camera', dur=0.4)\nhold(0.4)\nblink(times=2)\nhold(1.0)"
+  },
+  {
+   "id": "close_eyes",
+   "program": "with parallel():\n    close_eyes(side='both', amount=1, dur=0.4)\n    expression('smile', 0.3, dur=0.5)\n    rotate('head', pitch=-4, dur=0.6)\nhold(1.8)\nopen_eyes()\nrotate('head', yaw=0, pitch=0, roll=0, dur=0.5)\nhold(0.4)"
+  },
+  {
+   "id": "raise_brows",
+   "program": "with parallel():\n    raise_brow(side='both', amount=1.0)\n    look_at('camera', dur=0.4)\nhold(1.2)\nraise_brow(side='both', amount=0.3)\nhold(0.4)\nwith parallel():\n    raise_brow(side='both', amount=1.0)\n    expression('surprise', 0.3)\nhold(1.0)"
+  },
+  {
+   "id": "one_brow",
+   "program": "with parallel():\n    raise_brow(side='left', amount=1.0)\n    face(dur=0.4, browOuterUpLeft=0.9, browDownRight=0.3, mouthSmileLeft=0.3)\n    look_at('camera', dur=0.4)\n    tilt_head('right', deg=6, dur=0.5)\nhold(1.5)"
+  },
+  {
+   "id": "surprised",
+   "program": "with parallel():\n    expression('surprise', 1.0, dur=0.3)\n    raise_brow(amount=1.0)\n    lean('back', deg=12, dur=0.4)\n    look_at('camera', dur=0.3)\n    arm('both', 'forward_up', extend=0.6, palm='camera', shape='spread', dur=0.5)\n    shoulders(amount=0.5, dur=0.3)\nhold(1.2)"
+  },
+  {
+   "id": "puff_cheeks",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    puff_cheeks(amount=1)\n    expression('silly', 0.3)\nhold(1.5)\nwith parallel():\n    rotate('head', roll=8, dur=0.4)\n    puff_cheeks(amount=1)\nhold(0.8)"
+  },
+  {
+   "id": "open_mouth",
+   "program": "with parallel():\n    face(jawOpen=0.95, browInnerUp=0.4, eyeWideLeft=0.3, eyeWideRight=0.3, dur=0.6)\n    look_at('camera', dur=0.5)\n    rotate('head', pitch=8, dur=0.6)\nhold(1.5)"
+  },
+  {
+   "id": "squint",
+   "program": "with parallel():\n    squint(amount=0.9)\n    furrow(amount=0.4)\n    lean('forward', deg=6, dur=0.6)\n    look_at('camera', dur=0.5)\nhold(1.5)"
+  },
+  {
+   "id": "angry",
+   "program": "with parallel():\n    expression('angry', 1.0, dur=0.5)\n    furrow(amount=1.0)\n    look_at('camera', dur=0.5)\n    lean(direction='forward', deg=10, dur=0.6)\n    shoulders(amount=0.4, dur=0.5)\nhold(0.8)\nwith parallel():\n    hand('both', 'fist', dur=0.4)\n    arm('both', 'forward_down', extend=0.5, shape='fist', dur=0.6, elbow='out')\nhold(1.0)"
+  },
+  {
+   "id": "sad",
+   "program": "with parallel():\n    expression('sad', 1.0, dur=0.6)\n    rotate('head', pitch=-12, roll=6, dur=0.7)\n    lean('forward', deg=8, dur=0.7)\n    shoulders(amount=-0.5, dur=0.6)\n    raise_brow(amount=0.7)\nhold(1.5)"
+  },
+  {
+   "id": "eyes_up_roll",
+   "program": "with parallel():\n    roll_eyes(dur=1.2)\n    expression('skeptical', 0.6)\n    tilt_head('left', deg=8, dur=0.6)\nhold(0.5)"
+  },
+  {
+   "id": "side_eye_right",
+   "program": "look_at('camera', dur=0.4)\nhold(0.3)\nwith parallel():\n    gaze(yaw=-35, pitch=0, dur=0.3)\n    expression('skeptical', 0.7, dur=0.4)\n    squint(amount=0.4)\nhold(1.5)"
+  },
+  {
+   "id": "yawn",
+   "program": "with parallel():\n    look_at('camera', dur=0.5)\n    expression('sleepy', 0.8, dur=0.5)\n    lean('back', deg=8, dur=0.6)\nhold(0.3)\nwith parallel():\n    expression('yawn', 1.0, dur=0.9)\n    rotate('head', pitch=15, dur=0.9)\n    arm('both', 'up_out', extend=0.8, palm='forward', shape='open', dur=1.0)\n    close_eyes(amount=0.9, dur=0.8)\n    shoulders('both', amount=0.6, dur=0.8)\nhold(1.2)\nwith parallel():\n    rest_arm('both', dur=0.7)\n    rotate('head', pitch=0, dur=0.7)\n    shoulders('both', amount=0, dur=0.5)\n    lean('forward', deg=0, dur=0.6)\n    expression('sleepy', 0.7, dur=0.6)\n    open_eyes()\nhold(0.5)"
+  },
+  {
+   "id": "jump",
+   "program": "with parallel():\n    crouch(depth_cm=20, dur=0.5)\n    lean(direction='forward', deg=10, dur=0.5)\n    arm('both', 'back', extend=0.6, dur=0.5)\nhold(0.2)\nwith parallel():\n    jump(height_cm=35)\n    arm('both', 'up', extend=0.9, shape='open', dur=0.4)\n    expression('big_smile')\n    look_at('sky', dur=0.4)\nhold(0.5)"
+  },
+  {
+   "id": "spin",
+   "program": "with parallel():\n    expression('smile', 0.7)\n    arm('both', 'out', extend=0.6, palm='down', shape='open', dur=0.5)\nhold(0.2)\nwith parallel():\n    spin(deg=360, direction='left', dur=1.6)\n    expression('big_smile', 0.8)\nhold(0.5)\nlook_at('camera', dur=0.4)"
+  },
+  {
+   "id": "turn_right",
+   "program": "with parallel():\n    turn('right', deg=60, dur=0.9)\n    look_at('right', dur=0.7)\nhold(1.0)"
+  },
+  {
+   "id": "turn_away",
+   "program": "with parallel():\n    turn('left', deg=180, dur=1.2)\n    look_at('forward', dur=0.8)\nhold(1.2)\nkeep_pose()"
+  },
+  {
+   "id": "lean_left",
+   "program": "with parallel():\n    lean('left', deg=22, dur=0.9)\n    tilt_head('left', deg=12, dur=0.9)\n    look_at('camera', dur=0.6)\nhold(1.2)"
+  },
+  {
+   "id": "lean_back",
+   "program": "with parallel():\n    lean('back', deg=18, dur=1.2)\n    rotate('head', pitch=8, roll=5, dur=1.2)\n    expression('smile', 0.5, dur=0.9)\n    shoulders(amount=-0.5, dur=0.8)\nwith parallel():\n    arm('both', 'back', extend=0.5, palm='forward', elbow='out', dur=0.9)\n    close_eyes(amount=0.5, dur=0.8)\nhold(1.5)"
+  },
+  {
+   "id": "crouch",
+   "program": "with parallel():\n    crouch(depth_cm=30, dur=0.8)\n    lean(direction='forward', deg=10, dur=0.8)\n    arm('both', 'forward_down', extend=0.6, palm='down', shape='relaxed', dur=0.8)\nhold(1.2)\nstand(dur=0.7)"
+  },
+  {
+   "id": "hop3",
+   "program": "with parallel():\n    expression('big_smile', 0.8)\n    look_at('camera', dur=0.4)\n    arm('both', 'forward_down', extend=0.5, shape='relaxed', dur=0.5)\nhold(0.2)\njump(height_cm=25, times=3)\nhold(0.5)"
+  },
+  {
+   "id": "step_forward",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('smile', 0.6)\nwith parallel():\n    step('forward', cm=30, dur=0.8)\n    lean('forward', deg=8, dur=0.8)\n    arm('both', 'forward_down', extend=0.5, palm='up', shape='open', dur=0.8)\nhold(1.0)"
+  },
+  {
+   "id": "sway",
+   "program": "with parallel():\n    expression('smile', 0.7, dur=0.5)\n    close_eyes(amount=0.5, dur=0.5)\n    tilt_head('left', deg=10, dur=0.5)\nwith parallel():\n    sway(cycles=4, deg=12, speed=0.8)\n    oscillate('head', 'roll', 10, cycles=4, dur=4.0)\n    oscillate('torso', 'lean_side', 8, cycles=4, dur=4.0)\n    with sequence():\n        arm('both', 'forward_down', extend=0.5, palm='down', shape='relaxed', dur=0.6)\n        oscillate('left_hand', 'x', 6, cycles=3, dur=3.0)\nhold(0.3)"
+  },
+  {
+   "id": "backflip",
+   "program": "with parallel():\n    crouch(depth_cm=20, dur=0.5)\n    arm('both', 'back', extend=0.8, shape='open', dur=0.5)\n    lean('forward', deg=10, dur=0.5)\nhold(0.2)\nwith parallel():\n    arm('both', 'up', extend=0.9, shape='open', dur=0.3)\n    stand(dur=0.3)\nflip(direction='back', height_cm=50)\nwith parallel():\n    expression('big_smile')\n    look_at('camera', dur=0.4)\n    arm('both', 'out', extend=0.8, shape='open', dur=0.5)\nhold(0.8)"
+  },
+  {
+   "id": "bounce_excited",
+   "program": "with parallel():\n    expression('big_smile', 0.9)\n    arm('both', 'forward_up', extend=0.6, shape='fist', dur=0.5)\n    look_at('camera', dur=0.4)\n    raise_brow(amount=0.6)\nwith parallel():\n    bounce(times=6, cm=6, speed=1.3)\n    oscillate('left_hand', 'y', 6, cycles=6, dur=3.0)\n    oscillate('right_hand', 'y', 6, cycles=6, dur=3.0, phase_deg=0)\nwith sequence():\n    jump(height_cm=20, times=2)\nhold(0.5)"
+  },
+  {
+   "id": "rub_tummy",
+   "program": "with parallel():\n    reach('right', 'belly', palm='body', dur=0.7)\n    look_at('down', dur=0.5)\n    expression('smile', 0.8, dur=0.5)\nhold(0.2)\nwith parallel():\n    rub('right', 'belly', times=4, cm=7, direction='sideways')\n    sway(cycles=2, deg=4)\n    expression('big_smile', 0.7, dur=0.5)\nhold(0.5)"
+  },
+  {
+   "id": "rub_tummy",
+   "program": "with parallel():\n    reach('right', 'belly', palm='body', dur=0.6)\n    expression('smile', 0.7)\n    look_at('camera', dur=0.5)\nhold(0.2)\nrub('right', 'belly', times=4, cm=8, direction='sideways')\nwith parallel():\n    expression('big_smile', 0.8)\n    rub('right', 'belly', times=3, cm=8, direction='vertical')\nhold(0.4)"
+  },
+  {
+   "id": "pat_head",
+   "program": "with parallel():\n    reach('right', 'top_of_head', palm='body', dur=0.7)\n    expression('smile', 0.7)\n    look_at('camera', dur=0.5)\nhold(0.3)\npat('right', target='top_of_head', times=3, cm=5)\nhold(0.5)"
+  },
+  {
+   "id": "flap_arms",
+   "program": "with parallel():\n    arm('both', 'out', extend=0.95, palm='down', shape='flat', dur=0.6)\n    expression('big_smile', 0.6)\n    look_at('camera', dur=0.4)\nwith parallel():\n    oscillate('left_hand', 'y', 15, cycles=4, dur=3.2)\n    oscillate('right_hand', 'y', 15, cycles=4, dur=3.2)\n    oscillate('torso', 'lean_fwd', 4, cycles=4, dur=3.2)\n    bounce(times=4, cm=4, speed=1)\nhold(0.5)"
+  },
+  {
+   "id": "swim",
+   "program": "with parallel():\n    lean(direction='forward', deg=25, dur=0.7)\n    arm('both', 'forward', extend=0.95, palm='out', shape='flat', dur=0.7)\n    expression('determined', 0.6)\n    look_at('forward', dur=0.5)\nwith parallel():\n    sequence_hint = hold(0.1)\nfor i in range(3):\n    with parallel():\n        arm('left', 'side', extend=0.95, palm='back', shape='flat', dur=0.6)\n        arm('right', 'forward', extend=0.95, palm='down', shape='flat', dur=0.6)\n        twist(direction='left', deg=15, dur=0.6)\n        rotate('head', yaw=0, pitch=20, roll=0, dur=0.4)\n    with parallel():\n        arm('right', 'side', extend=0.95, palm='back', shape='flat', dur=0.6)\n        arm('left', 'forward', extend=0.95, palm='down', shape='flat', dur=0.6)\n        twist(direction='right', deg=15, dur=0.6)\n        rotate('head', yaw=0, pitch=20, roll=0, dur=0.4)\nhold(0.4)"
+  },
+  {
+   "id": "air_guitar",
+   "program": "with parallel():\n    arm('left', 'forward', extend=0.7, palm='up', shape='fist', dur=0.6)\n    reach('right', 'navel', part='palm', palm='body', shape='relaxed', offset_cm=dict(forward=15, right=5), dur=0.6)\n    expression('determined', 0.8)\n    lean('back', deg=10, dur=0.6)\n    look_at('down', dur=0.5)\nwith parallel():\n    for i in range(6):\n        move_hand('right', up=8, dur=0.15)\n        move_hand('right', up=-8, dur=0.15)\n    with sequence():\n        oscillate('torso', 'lean_fwd', 8, cycles=3, dur=1.8)\n    oscillate('head', 'pitch', 12, cycles=3, dur=1.8)\nwith parallel():\n    arm('right', 'up', extend=0.95, shape='fist', dur=0.5)\n    rotate('torso', pitch=15, dur=0.5)\n    expression('big_smile')\n    look_at('camera', dur=0.4)\n    rotate('head', pitch=15, dur=0.5)\nhold(0.8)"
+  },
+  {
+   "id": "punch",
+   "program": "with parallel():\n    arm('both', 'forward', extend=0.3, shape='fist', palm='in', elbow='down', dur=0.5)\n    lean('forward', deg=8, dur=0.5)\n    expression('determined', 0.8)\n    look_at('camera', dur=0.4)\nhold(0.3)\nfor i in range(2):\n    with parallel():\n        arm('right', 'forward', extend=1.0, shape='fist', palm='down', dur=0.2)\n        arm('left', 'forward', extend=0.3, shape='fist', palm='in', dur=0.2)\n        twist('left', deg=15, dur=0.2)\n    hold(0.15)\n    with parallel():\n        arm('right', 'forward', extend=0.3, shape='fist', palm='in', dur=0.2)\n        arm('left', 'forward', extend=1.0, shape='fist', palm='down', dur=0.2)\n        twist('right', deg=15, dur=0.2)\n    hold(0.15)\nwith parallel():\n    arm('right', 'forward', extend=1.0, shape='fist', palm='down', dur=0.2)\n    arm('left', 'forward', extend=1.0, shape='fist', palm='down', dur=0.2)\n    twist('left', deg=0, dur=0.2)\nhold(0.6)"
+  },
+  {
+   "id": "robot_dance",
+   "program": "with parallel():\n    expression('determined', 0.6)\n    look_at('camera', dur=0.4)\n    arm('left', 'out', extend=0.6, palm='down', shape='flat', elbow='out', dur=0.5)\n    arm('right', 'out', extend=0.6, palm='down', shape='flat', elbow='out', dur=0.5)\nhold(0.2)\nwith parallel():\n    twist('left', deg=30, dur=0.4)\n    rotate('head', yaw=-25, dur=0.4)\n    arm('left', 'up', extend=0.5, palm='in', shape='flat', elbow='out', dur=0.4)\n    arm('right', 'forward', extend=0.5, palm='down', shape='flat', elbow='out', dur=0.4)\nhold(0.4)\nwith parallel():\n    twist('right', deg=30, dur=0.4)\n    rotate('head', yaw=25, dur=0.4)\n    arm('right', 'up', extend=0.5, palm='in', shape='flat', elbow='out', dur=0.4)\n    arm('left', 'forward', extend=0.5, palm='down', shape='flat', elbow='out', dur=0.4)\nhold(0.4)\nwith parallel():\n    twist('left', deg=30, dur=0.4)\n    rotate('head', yaw=-25, dur=0.4)\n    arm('left', 'up', extend=0.5, palm='in', shape='flat', elbow='out', dur=0.4)\n    arm('right', 'forward', extend=0.5, palm='down', shape='flat', elbow='out', dur=0.4)\nhold(0.4)\nwith parallel():\n    twist('right', deg=0, dur=0.4)\n    rotate('head', yaw=0, pitch=-15, dur=0.4)\n    arm('both', 'forward', extend=0.6, palm='down', shape='flat', elbow='out', dur=0.4)\nhold(0.3)\nwith parallel():\n    rotate('head', yaw=0, pitch=10, dur=0.3)\n    arm('both', 'up', extend=0.5, palm='in', shape='flat', elbow='out', dur=0.4)\n    bounce(times=3, cm=4, speed=1.5)\nhold(0.5)"
+  },
+  {
+   "id": "wiggle_fingers",
+   "program": "with parallel():\n    arm('both', 'forward', extend=0.6, palm='down', shape='spread', dur=0.7)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.6)\nhold(0.3)\nfor i in range(4):\n    hand('both', 'claw', amount=1.0, dur=0.2)\n    hand('both', 'spread', amount=1.0, dur=0.2)\nwith parallel():\n    oscillate('left_hand', 'y', 2, cycles=3, dur=1.2)\n    oscillate('right_hand', 'y', 2, cycles=3, dur=1.2, phase_deg=180)\n    expression('big_smile', 0.7)\nhold(0.5)"
+  },
+  {
+   "id": "open_hands",
+   "program": "with parallel():\n    arm('both', 'forward', extend=0.7, palm='camera', shape='spread', dur=0.8)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.5)\nhold(1.5)\nwith parallel():\n    rotate_wrist('both', flex=0, side=0, twist=0, dur=0.3)\n    hand('both', 'spread', amount=1.0, dur=0.3)\nhold(0.8)"
+  },
+  {
+   "id": "pretend_sleep",
+   "program": "with parallel():\n    tilt_head('left', deg=22, dur=0.9)\n    close_eyes(amount=1, dur=0.8)\n    expression('sleepy', 0.8, dur=0.8)\n    lean('forward', deg=8, dur=0.9)\nhold(0.5)\nwith parallel():\n    oscillate('torso', 'lean_fwd', 3, cycles=2, dur=2.4)\n    oscillate('head', 'pitch', 5, cycles=2, dur=2.4)\n    open_mouth(amount=0.15)\nhold(0.5)\nkeep_pose()"
+  },
+  {
+   "id": "binoculars",
+   "program": "with parallel():\n    reach('left', 'left_eye', part='fingertips', palm='body', shape='cup', offset_cm=dict(forward=6, left=1), elbow='out', dur=0.8)\n    reach('right', 'right_eye', part='fingertips', palm='body', shape='cup', offset_cm=dict(forward=6, right=1), elbow='out', dur=0.8)\n    look_at('camera', dur=0.5)\nhold(0.4)\nwith parallel():\n    rotate('head', yaw=25, pitch=5, dur=0.9)\n    twist('left', deg=15, dur=0.9)\n    squint(0.4)\nhold(0.8)\nwith parallel():\n    rotate('head', yaw=-25, pitch=5, dur=1.2)\n    twist('right', deg=15, dur=1.2)\nhold(0.8)\nwith parallel():\n    rotate('head', yaw=0, pitch=0, dur=0.5)\n    expression('surprise', 0.5)\n    raise_brow(amount=0.7)\nhold(0.6)"
+  },
+  {
+   "id": "muscles",
+   "program": "with parallel():\n    arm('both', 'out', extend=0.8, shape='fist', elbow='up', dur=0.7)\n    look_at('camera', dur=0.5)\n    expression('determined', 0.9)\nwith parallel():\n    arm('both', 'up_out', extend=0.45, shape='fist', elbow='out', dur=0.6)\n    rotate('torso', pitch=-5, dur=0.6)\n    shoulders('both', amount=0.4, dur=0.5)\n    expression('determined', 1.0)\n    furrow(amount=0.7)\nhold(1.0)\nwith parallel():\n    oscillate('left_hand', 'y', 3, cycles=2, dur=1.0)\n    oscillate('right_hand', 'y', 3, cycles=2, dur=1.0)\n    oscillate('torso', 'lean_fwd', 3, cycles=2, dur=1.0)\nhold(0.8)"
+  },
+  {
+   "id": "hug_self",
+   "program": "with parallel():\n    reach('left', 'right_shoulder', part='palm', palm='body', elbow='down', dur=0.9)\n    reach('right', 'left_shoulder', part='palm', palm='body', elbow='down', dur=0.9)\n    lean('forward', deg=10, dur=0.9)\n    rotate('head', pitch=-10, roll=8, dur=0.8)\n    expression('smile', 0.8, dur=0.6)\n    close_eyes(amount=0.7, dur=0.6)\nhold(0.8)\nwith parallel():\n    oscillate('torso', 'lean_side', 6, cycles=2, dur=1.6)\n    expression('big_smile', 0.7, dur=0.5)\nhold(0.4)"
+  },
+  {
+   "id": "wipe_brow",
+   "program": "with parallel():\n    reach('right', 'forehead', part='back_of_hand', palm='body', dur=0.7, elbow='out')\n    expression('wince', 0.5)\n    look_at('down', dur=0.5)\nhold(0.2)\nfor i in range(2):\n    move_hand('right', left=-6, dur=0.3)\n    move_hand('right', left=6, dur=0.3)\nwith parallel():\n    rest_arm('right', dur=0.6)\n    lean('back', deg=8, dur=0.6)\n    rotate('head', pitch=8, dur=0.6)\n    expression('smile', 0.6)\n    look_at('camera', dur=0.5)\nwith parallel():\n    shoulders('both', amount=-0.5, dur=0.5)\n    close_eyes(amount=0.8, dur=0.4)\nhold(0.7)"
+  },
+  {
+   "id": "rub_hands",
+   "program": "with parallel():\n    hands_together(where='chest', fingers='forward')\n    expression('smirk', 0.9)\n    furrow(amount=0.5)\n    look_at('camera', dur=0.6)\n    lean(direction='forward', deg=10, dur=0.7)\nhold(0.3)\nwith parallel():\n    oscillate('left_hand', 'z', 5, cycles=4, dur=2.4)\n    oscillate('right_hand', 'z', 5, cycles=4, dur=2.4, phase_deg=180)\n    oscillate('head', 'roll', 4, cycles=2, dur=2.4)\n    expression('evil_grin' if False else 'smirk', 1.0)\nhold(0.6)"
+  },
+  {
+   "id": "pray_hands",
+   "program": "with parallel():\n    hands_together(where='chest', fingers='up')\n    rotate('head', pitch=-12, dur=0.7)\n    close_eyes(amount=0.8, dur=0.5)\n    expression('smile', 0.3)\n    lean(direction='forward', deg=6, dur=0.7)\nhold(1.5)"
+  },
+  {
+   "id": "stretch",
+   "program": "with parallel():\n    arm('both', 'overhead', extend=1.0, palm='forward', shape='open', dur=1.2)\n    rotate('torso', pitch=12, dur=1.2)\n    rotate('head', pitch=15, dur=1.2)\n    shoulders(amount=0.5, dur=0.8)\n    expression('yawn', 0.6, dur=0.8)\n    close_eyes(amount=0.7, dur=0.6)\nhold(1.0)\nwith parallel():\n    lean('forward', deg=10, dur=0.8)\n    arm('both', 'forward', extend=1.0, palm='down', shape='open', dur=0.8)\n    rotate('head', pitch=0, dur=0.8)\n    expression('smile', 0.6, dur=0.6)\n    open_eyes()\nhold(0.5)"
+  },
+  {
+   "id": "cover_eyes_look_up",
+   "program": "cover('eyes', hand='both', dur=0.7)\nhold(0.5)\nwith parallel():\n    rotate('head', pitch=30, dur=0.7)\n    gaze(pitch=25, dur=0.5)\nhold(1.2)"
+  },
+  {
+   "id": "nod_then_thumbs",
+   "program": "look_at('camera', dur=0.4)\nnod(times=2, deg=14)\nhold(0.2)\nwith parallel():\n    thumbs_up('right')\n    expression('smile', 0.8)\n    look_at('camera', dur=0.3)\nhold(1.0)"
+  },
+  {
+   "id": "look_lr_nod",
+   "program": "look_at('left', dur=0.6)\nhold(0.7)\nlook_at('right', dur=0.8)\nhold(0.7)\nwith parallel():\n    look_at('camera', dur=0.5)\n    rotate('head', yaw=0, pitch=0, roll=0, dur=0.5)\nnod(times=2, deg=14)\nhold(0.4)"
+  },
+  {
+   "id": "wink_smile",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('smile', 0.8, dur=0.4)\nhold(0.4)\nwith parallel():\n    wink(side='left', hold_s=0.6)\n    expression('big_smile', 0.7, dur=0.3)\n    tilt_head('right', deg=8, dur=0.4)\nhold(0.8)"
+  },
+  {
+   "id": "arms_up_down",
+   "program": "with parallel():\n    arm('both', 'up', extend=0.95, palm='forward', shape='open', dur=0.9)\n    look_at('camera', dur=0.5)\n    expression('smile', 0.6)\nhold(1.0)\nrest_arm('both', dur=0.9)\nhold(0.3)"
+  },
+  {
+   "id": "cross_arms_roll",
+   "program": "cross_arms()\nhold(0.5)\nwith parallel():\n    roll_eyes(dur=1.2)\n    tilt_head('left', deg=8, dur=0.6)\n    expression('skeptical', 0.5)\nhold(0.8)"
+  },
+  {
+   "id": "jump_then_spin",
+   "program": "with parallel():\n    jump(height_cm=30)\n    expression('big_smile', dur=0.4)\n    arm('both', 'up_out', extend=0.8, shape='open', dur=0.5)\nhold(0.4)\nwith parallel():\n    spin(deg=360, direction='left', dur=1.5)\n    expression('smile', dur=0.4)\nhold(0.5)\nlook_at('camera', dur=0.4)"
+  },
+  {
+   "id": "toes_sky_hips",
+   "program": "# Touch toes: bend forward, hands down to the floor\nwith parallel():\n    lean(direction='forward', deg=50, dur=1.0)\n    arm('both', 'down', extend=1.0, palm='back', shape='relaxed', dur=1.0)\n    look_at('floor', dur=0.8)\nhold(0.8)\n\n# Reach for the sky\nwith parallel():\n    lean(direction='back', deg=10, dur=0.9)\n    arm('both', 'up', extend=1.0, palm='forward', shape='open', dur=0.9)\n    look_at('sky', dur=0.8)\n    expression('smile', 0.6)\nhold(1.0)\n\n# Hands on hips\nwith parallel():\n    rotate('torso', yaw=0, pitch=0, roll=0, dur=0.6)\n    hands_on_hips()\n    look_at('camera', dur=0.5)\n    expression('determined', 0.6)\nhold(0.8)"
+  },
+  {
+   "id": "smile_then_frown",
+   "program": "with parallel():\n    look_at('camera', dur=0.4)\n    expression('big_smile', 0.9, dur=0.5)\nhold(1.2)\nwith parallel():\n    expression('frown', 1.0, dur=0.5)\n    lean('forward', deg=5, dur=0.6)\n    rotate('head', pitch=-8, dur=0.6)\nhold(1.2)"
+  },
+  {
+   "id": "look_up_close_eyes",
+   "program": "look_at('sky', dur=0.7)\nrotate('head', pitch=25, dur=0.5)\nhold(1.0)\nclose_eyes(amount=1, dur=0.4)\nhold(1.0)"
+  },
+  {
+   "id": "bow_then_wave",
+   "program": "with parallel():\n    bow(deg=30, hold_s=0.7, dur=0.8)\n    expression('smile', 0.7)\n    look_at('floor', dur=0.6)\nhold(0.2)\nwith parallel():\n    look_at('camera', dur=0.4)\n    expression('big_smile', 0.8)\n    raise_hand('right', height='head', palm='camera', shape='open', dur=0.5)\nwave(hand='right', cycles=4, size_cm=14, speed=1.0)\nhold(0.4)"
+  },
+  {
+   "id": "cover_mouth_surprised",
+   "program": "with parallel():\n    expression('shock', 1.0, dur=0.3)\n    raise_brow(amount=1.0)\n    lean(direction='back', deg=10, dur=0.4)\n    look_at('camera', dur=0.4)\nhold(0.4)\nwith parallel():\n    cover('mouth', hand='both', dur=0.5)\n    expression('shock', 0.9, dur=0.3)\nhold(1.2)"
+  },
+  {
+   "id": "turn_left_wave",
+   "program": "with parallel():\n    turn('left', deg=60, dur=0.8)\n    look_at('left', dur=0.6)\nhold(0.2)\nwith parallel():\n    wave('right', cycles=3, size_cm=14)\n    expression('smile', 0.8)\nhold(0.5)"
+  }
+ ]
+}

@@ -128,6 +128,16 @@
     KF_EV[own + '_let_go'] = {type: 'release', side: s}; KF_EV[own + '_toss_up'] = {type: 'release', side: s, toss: true};
     KF_EV[own + '_catch'] = {type: 'catch', side: s}; KF_EV[own + '_grab'] = {type: 'grab', side: s};
   }
+  // (docs/SEMANTIC.md §4, requests/rig-channels.md): a `space:'rig'` keyframe job (the semantic API planner's
+  // dense rig-space track) is keyed by RIG param names directly — no KF_ALIAS. Accepted: the rig dials except the renderer's
+  // lip columns and the legacy arm columns, + counting fingers, + the root group (root / squash: the same floor-contact /
+  // seated composition as every keyframe job). Anything else is dropped and counted in kfState().unknown.
+  // the renderer's wire limit for the hand heights — a rig-space job may use it on a character whose rig_ranges do not
+  // widen it (Juno: her face is above 1.2); every other layer keeps RANGE / the character's ranges
+  const RIG_WIRE = {hand_l_y: [-1, 1.4], hand_r_y: [-1, 1.4]};
+  const rigRange = (c, r) => { const w = RIG_WIRE[c]; return w ? (r ? [Math.min(r[0], w[0]), Math.max(r[1], w[1])] : w) : r; };
+  const KF_RIG = new Set(RIG_PARAMS.filter(p => !LIPSYNC.has(p) && !LEGACY.has(p))
+    .concat(['fingers_l', 'fingers_r', 'root_x', 'root_y', 'root_z', 'root_yaw', 'root_pitch', 'root_roll', 'squash']));
   // planner contract §3: the channel groups a learned listener may drive through motion.setListener(fn) — docs/LISTENER-INTERFACE.md
   const LISTENER_GROUPS = {
     face: ['smile', 'squint', 'eye_wide', 'blink_l', 'blink_r', 'brow_l', 'brow_r', 'brow_knit', 'mouth_open', 'nostril', 'nose_wiggle',
@@ -1464,6 +1474,7 @@
     }
     function applyGestures(o) {
       S.thinkD = null;
+      const D = S.dbg;   // rig probe: what each gesture laid over the frame
       S.gestures.sort((a, b) => priorityOf(a) - priorityOf(b) || a.id - b.id);
       const keep = [];
       for (const G of S.gestures) {
@@ -1480,6 +1491,7 @@
         if (r.add) for (const k in r.add) if (k in o) o[k] += wa * ki * K.gest * r.add[k];
         if (th) { S.thinkD = S.thinkD || {}; for (const k in th) S.thinkD[k] = (S.thinkD[k] || 0) + o[k] - th[k]; }
         if (S.gRec) S.gRec.push({G, w, ki, r});
+        if (D) D.g.push([G, w, wa, ki, r.set || null, r.add || null]);
       }
       S.gestures = keep;
     }
@@ -1747,6 +1759,7 @@
         case 'release': {
           release(cmd.parts ?? 'all', cmd.ease_ms); if (engineOn) engine.release(cmd.parts === undefined || cmd.parts === 'all' ? 'all' : expandParts(cmd.parts));
           if (cmd.parts === undefined || cmd.parts === 'all') kfInterruptAll('relaxed');   // "relax" ends a keyframe job too
+          else for (const J of S.kf) if (J.phase === 'holding') kfEnd(J, 'end', 'released');   // any release lets a kept pose go
           return true;
         }
         case 'hold': {
@@ -1918,6 +1931,7 @@
     // w·(1 − speech), so speech keeps the mouth while voiced.
     const KF = {HEAD: 0.35, TAU_UP: 0.15, FOOT_IN: 0.25, FOOT_OUT: 0.35, FOOT_GAP: 1.0, PLAN_MAX: 18, BUF_N: 2, BUF_H: 1.0,
       W_IN: 0.15, W_OUT: 0.4, TIMEOUT: 45, AUTO_RELEASE: 4,
+      RIG_BUF: 0.4, RIG_IN: 0.2, RIG_IN_MAX: 0.6, RIG_IN_FAST: 0.05, RIG_GAP: 0.02, RIG_OUT: 0.4, RIG_CAM: 0.6,   // space:'rig' jobs (kfComposeRig)
       DO_OUT: 0.35, DO_IN: 0.45, DO_MAX: 25, G: 12, HELD_XYZ: 0.4, CATCH_WIN: 0.6};   // "do" steps, held things, tosses
     const KF_PERIODIC = /^root_(yaw|pitch|roll)$|^%held_[lr]_(spin|tilt|roll)$/, KF_ROOTCOL = /^root_|^squash$/;
     const KF_PAWCOL = /^(hand|thumb|point|fingers)_[lr](_|$)/;   // absolute in a plan with things (J.absW)
@@ -1952,7 +1966,28 @@
         return [v, dv];
       };
       const rangeClamp = (c, v) => { const R = RANGE[isFoot(c) ? c.slice(1) : c]; return (R && !KF_PERIODIC.test(c) && !isFoot(c)) ? clamp(v, R[0], R[1]) : v; };
+      // a rig-space pose (dense track, rig names). A column's keys start at its first listed pose (no rest history: the
+      // job crossfades it in from the live value, kfComposeRig); a column absent from a later pose is RELEASED at its last
+      // listed time (its touch window closes: it blends back to the live layers); listed again later = a new touch.
+      function addRig(p) {
+        const touched = new Set();
+        for (const [c, v] of Object.entries(p.set)) {
+          const C = cols[c] || (cols[c] = {keys: [], seg: null, listed: [], act: [], tch: []});
+          const W = C.tch[C.tch.length - 1];
+          if (!W || W.rel !== null) C.tch.push({s: p.t, rel: null, inS: null});
+          const rw = RIG_WIRE[c] && rigRange(c, RANGE[c]);
+          C.keys.push([p.t, rw ? clamp(v, rw[0], rw[1]) : rangeClamp(c, v)]); C.listed.push(p.t); touched.add(c);
+        }
+        for (const [c, C] of Object.entries(cols)) if (!touched.has(c)) { const W = C.tch[C.tch.length - 1]; if (W && W.rel === null) W.rel = C.listed[C.listed.length - 1]; }
+        for (const [ctl, v] of Object.entries(p.set)) {
+          if (ctl === 'root_x' || ctl === 'root_z') st.ext = Math.max(st.ext, Math.abs(v));
+          else if (ctl === 'root_y') st.ext = Math.max(st.ext, 1.2 * Math.max(0, v));
+          else if ((ctl === 'root_pitch' || ctl === 'root_roll') && Math.abs(v) > 0.06) st.ext = Math.max(st.ext, 0.5);
+        }
+        P.push(p);
+      }
       function addPose(p) {
+        if (J.rig) { addRig(p); return; }
         const touched = new Set();
         for (const [ctl, v] of Object.entries(p.set)) for (const c of KF_ALIAS[ctl] || KF_OBJ[ctl]) {
           if (isFoot(c) && !J.legs) continue;            // no legs: foot controls are ignored
@@ -1986,6 +2021,7 @@
         if (st.complete) return;
         st.complete = true;
         const tN = P.length ? P[P.length - 1].t : 0;
+        if (J.rig) { st.tEnd = tN; return; }   // the interpreter wrote its own return to rest; the job then blends back
         for (const [c, C] of Object.entries(cols)) {
           if (isFoot(c)) { const a = C.act[C.act.length - 1]; if (a && a.out0 === null) a.out0 = Math.max(C.listed[C.listed.length - 1], st.tau); continue; }
           if (c === 'root_x' || c === 'root_z') continue;
@@ -2021,7 +2057,8 @@
         return herm(s, x);
       }
       const footW = (C, x) => Math.max(0, ...C.act.map(a => Math.min(ksstep((x - a.in0) / Math.max(1e-3, a.in1 - a.in0)), a.out0 === null ? 1 : 1 - ksstep((x - a.out0) / KF.FOOT_OUT))));
-      const ready = () => P.length >= 1 && ((P.length >= KF.BUF_N && P[P.length - 1].t >= KF.BUF_H) || st.complete);
+      const ready = J.rig ? () => P.length >= 1 && (st.complete || P[P.length - 1].t >= Math.max(0, P[0].t) + KF.RIG_BUF - 1e-6)   // dense
+        : () => P.length >= 1 && ((P.length >= KF.BUF_N && P[P.length - 1].t >= KF.BUF_H) || st.complete);
       function advance(dt, run) {   // one display frame: start rule, playback clock, every column at the clock
         st.Tknown = st.complete ? Infinity : (P.length ? P[P.length - 1].t : 0);
         let first = false;
@@ -2056,7 +2093,33 @@
     // a pose as the planner wrote it ({t, ctl: v} | [t, {ctl: v}] | {t, set: {...}}) -> {t (plan s, shifted), set} or null
     // (parseStream's take(): unknown controls dropped, an early first key shifts the whole program 0.3 s so it eases in from
     // rest, times strictly increasing, the last pose at most PLAN_MAX)
+    // a rig-space pose {t, <rig param>: value} -> {t, set} or null: KF_RIG names only (others counted in unknown), no
+    // "do" steps / paw events / held controls, no 0.3 s shift (the job crossfades in from the live value), times increasing
+    function kfNormRig(J, raw) {
+      let o = raw;
+      if (typeof o === 'string') { try { o = JSON.parse(o); } catch (e) { J.dropped++; return null; } }
+      let t, set;
+      if (Array.isArray(o)) { t = +o[0]; set = o[1]; }
+      else if (o && typeof o === 'object') { t = +(o.t ?? o.time); set = o.set && typeof o.set === 'object' ? o.set : o; }
+      if (!Number.isFinite(t) || !set || typeof set !== 'object') { J.dropped++; return null; }
+      const clean = {};
+      let n = 0, bad = 0;
+      for (const k in set) {
+        if (k === 't' || k === 'time' || k === 'ms') continue;
+        n++;
+        if (!KF_RIG.has(k)) { bad++; if (J.unknown.length < 20 && !J.unknown.includes(k)) J.unknown.push(k); continue; }
+        const v = set[k], x = typeof v === 'number' ? v : (v !== null && v !== '' && v !== true && v !== false ? +v : NaN);
+        if (Number.isFinite(x)) clean[k] = x; else bad++;
+      }
+      if (n && bad === n) { J.dropped++; return null; }   // nothing playable in it: not a "release everything" pose
+      if (J.shift === null) J.shift = 0;
+      t = Math.max(0, t);
+      if (t <= J.lastT + 1e-6 || t > KF.PLAN_MAX + 1e-6) { J.dropped++; return null; }
+      J.lastT = t;
+      return {t, set: clean};
+    }
     function kfNorm(J, raw) {
+      if (J.rig) return kfNormRig(J, raw);
       let o = raw;
       if (typeof o === 'string') { try { o = JSON.parse(o); } catch (e) { J.dropped++; return null; } }
       let t, set;
@@ -2119,7 +2182,9 @@
       return {id: J.id, description: J.description, phase: J.phase, interrupted: J.term === 'interrupted', reason: J.reason || undefined,
         poses: J.pl.P.length, planned_s: +kfPlanned(J).toFixed(2), played_s: +J.pl.st.tau.toFixed(2), complete: J.pl.st.complete,
         released: J.released, w: +J.w.toFixed(3), stalls: J.pl.st.stalls, dropped: J.dropped, unknown: J.unknown.slice(),
-        steps: J.steps.slice(), doing: J.doing ? J.doing.d.verb : null, paw_events: J.events.slice()};
+        steps: J.steps.slice(), doing: J.doing ? J.doing.d.verb : null, paw_events: J.events.slice(),
+        ...(J.rig ? {space: 'rig', hz: J.hz, keep_pose: !!J.keepPose, channels: Object.keys(J.pl.cols),
+          owned: Object.keys(J.pl.cols).filter(c => { const W = J.pl.cols[c].tch; return W.length && W[W.length - 1].rel === null; })} : {})};
     }
     function kfNew(cmd, src) {
       const id = cmd.id !== undefined && cmd.id !== null && cmd.id !== '' ? String(cmd.id) : 'kf' + (++S.cmdN);
@@ -2133,6 +2198,7 @@
         rest: snap, shift: null, lastT: -1, dropped: 0, unknown: [], w: 0, wIn: null, wOut: null, fr: null, T: null, wc: null,
         ext: 0, ride: {l: 0, r: 0}, base: {x: 0, y: 0, z: 0, yaw: 0}, seated: false,
         evI: 0, doing: null, doW: null, steps: [], events: []};   // next pose to fire, the running "do" step, its weight
+      if (cmd.space === 'rig') { J.rig = true; J.hz = Number.isFinite(+cmd.hz) && +cmd.hz > 0 ? +cmd.hz : null; J.keepPose = cmd.keep_pose === true; }
       J.restOf = c => c.charCodeAt(0) === 64 || KF_ROOTCOL.test(c) ? 0 : (Number.isFinite(J.rest[c]) ? J.rest[c] : 0);
       J.pl = kfPlayer(J);
       return J;
@@ -2142,7 +2208,7 @@
     // live unheld value — it used to start from the held pose and ease back INTO it, so the hold outlived every later request
     // for that part ("lower your head" played and returned to head-up; eyes stayed shut; "back to normal" changed nothing).
     function kfOwn(J, p) {
-      for (const ctl of Object.keys(p.set)) for (const c of KF_ALIAS[ctl] || []) {
+      for (const ctl of Object.keys(p.set)) for (const c of J.rig ? [ctl] : KF_ALIAS[ctl] || []) {   // rig names direct
         if (c.charCodeAt(0) === 64 || !heldBy(c) || (J.freed && J.freed.has(c))) continue;
         (J.freed || (J.freed = new Set())).add(c);
         if (S.react && Number.isFinite(S.react[c])) J.rest[c] = S.react[c];
@@ -2157,6 +2223,8 @@
     }
     function kfFeedJ(J, poses, done, info) {
       if (J.term) return {ok: false, id: J.id, reason: 'that move already ended', phase: J.phase};
+      if (J.rig && info && info.keep_pose === true) J.keepPose = true;   // the final batch says the program keeps its pose
+      if (J.rig && info && info.extent && (info.extent.arms_leave_closeup || info.extent.whole_body)) J.wideHint = true;   // core's framing hint
       let n = 0;
       for (const raw of Array.isArray(poses) ? poses : poses ? [poses] : []) {
         const p = kfNorm(J, raw);
@@ -2181,7 +2249,7 @@
         return r.ok ? {ok: true, id: ex.id, did: `getting ready to ${ex.description}`, phase: ex.phase} : {ok: false, id: ex.id, reason: r.reason};
       }
       // a newer request replaces one still being written / waiting; one already playing goes on until this one starts
-      for (const J of S.kf) if (!J.term && J.phase !== 'playing') kfEnd(J, 'interrupted', 'replaced by a newer request');
+      for (const J of S.kf) if (!J.term && J.phase !== 'playing' && J.phase !== 'holding') kfEnd(J, 'interrupted', 'replaced by a newer request');   // a kept pose stays until the new one starts
       const J = kfNew(cmd, src);
       S.kf.push(J);
       S.idleT = 0; S.bored = Math.max(0, S.bored - 0.4);   // a command is interaction (as command0)
@@ -2217,6 +2285,11 @@
     }
     function kfEnd(J, phase, reason) {   // phase 'end' | 'interrupted' | 'fail'; the weight eases out from here (blend back)
       if (J.term) return;
+      if (J.phase === 'holding') {   // a kept pose let go — its end was already reported: blend back, no event
+        J.term = 'end'; J.reason = reason || null; J.phase = 'ended'; J.endT = S.t; J.wOut = {t0: S.t, from: J.w};
+        S.kfHist.set(J.id, kfSummary(J)); if (S.kfHist.size > 40) S.kfHist.delete(S.kfHist.keys().next().value);
+        return;
+      }
       const was = J.phase, played = J.pl.st.tau, planned = kfPlanned(J);
       if (J.doing) {   // cut short while a "do" step ran (the engine's own job goes on unless it is stopped too)
         const d = J.doing.d; J.steps.push({t: +J.doing.planT.toFixed(2), verb: d.verb, what: d.verb.replace(/_/g, ' '), ok: false, reason: 'cut short: ' + (reason || phase)}); J.doing = null;
@@ -2227,7 +2300,7 @@
       if (was === 'playing' && J.legs && engineOn && engine && J.T) {
         const E = engine.E, x = J.T.root_x, z = J.T.root_z;
         if (!E.move && Number.isFinite(x) && Number.isFinite(z)) { E.base.x = x; E.base.z = z; if (E.cur) { E.cur.x = x; E.cur.z = z; } E.feet = null; }
-        if (E.cam && J.cz) Object.assign(E.cam, {zoom: J.cz.x, zv: J.cz.v, x: J.cx.x, xv: J.cx.v, y: J.cy.x, yv: J.cy.v});
+        if (E.cam && J.cz && !J.camClose) Object.assign(E.cam, {zoom: J.cz.x, zv: J.cz.v, x: J.cx.x, xv: J.cx.v, y: J.cy.x, yv: J.cy.v});   // a rig job without root never drove the camera
       }
       // the object steps' outcomes, truthfully (a failed step did not stop the plan)
       const bad = J.steps.filter(x => !x.ok), good = J.steps.filter(x => x.ok);
@@ -2317,6 +2390,99 @@
       }
       J.T = T; J.wc = wc;
     }
+    // ---------------------------------------------------------------- space:'rig' jobs (the semantic API planner)
+    // A rig job's values are ABSOLUTE rig values. Per channel, final = lerp(live, V, w · a · speech): a = the channel's
+    // authority over its touch windows (plan time): min-jerk 0 -> 1 over KF.RIG_IN (longer for a far live value: the holds' natural
+    // top speed, at most KF.RIG_IN_MAX) from its first listed pose (KF.RIG_IN_FAST
+    // when the live value already matches: a wink stays crisp), 1 -> 0 over KF.RIG_OUT from its last listed pose once a later
+    // pose leaves it out (released: the live layers have it back). Channels never listed are never touched. The root group
+    // (root_* / squash) composes like every keyframe job (floor contact + automatic feet + camera on a character with legs,
+    // the seated body channels otherwise) with the group's authority, and only when the program drives the root.
+    function kfRigA(C, x) {
+      let a = 0;
+      for (const W of C.tch) {
+        if (x < W.s - 1e-6) continue;
+        const i = W.inS === null ? KF.RIG_IN : W.inS, up = i <= 0 ? 1 : mj((x - W.s) / i);
+        const dn = W.rel === null ? 1 : 1 - mj((x - W.rel) / KF.RIG_OUT);
+        a = Math.max(a, Math.min(up, dn));
+      }
+      return a;
+    }
+    function kfComposeRig(J, o, fr, dt) {
+      const V = fr.vals, cols = J.pl.cols, tau = J.pl.st.tau, T = {}, A = {};
+      let rootA = 0, anyRoot = false;
+      for (const c in V) {
+        const C = cols[c]; if (!C) continue;
+        const per = KF_PERIODIC.test(c), r = rigRange(c, (S.rng && S.rng[c]) || RANGE[c]);   // hand heights up to the wire limit
+        for (const W of C.tch) if (W.inS === null && tau >= W.s - 1e-6) {   // first frame of a touch: how far the live value is
+          const cur = Number.isFinite(+o[c]) ? +o[c] : 0, gap = Math.abs(per ? kwrap(V[c] - cur) : V[c] - cur);
+          W.inS = gap <= KF.RIG_GAP * (per ? 1 : r ? Math.max(1e-6, r[1] - r[0]) : 2) ? KF.RIG_IN_FAST : Math.min(KF.RIG_IN_MAX, Math.max(KF.RIG_IN, minEase(c, gap)));   // natural top speed (as holds)
+        }
+        const a = kfRigA(C, tau);
+        if (KF_ROOTCOL.test(c)) { anyRoot = true; if (a > rootA) rootA = a; continue; }
+        if (!(c in o) && !r) continue;
+        T[c] = r ? clamp(V[c], r[0], r[1]) : V[c]; A[c] = a;
+      }
+      if (J.legs && engineOn && engine) {
+        // (eval r1 c2): the camera follows a rig job exactly as every keyframe job (kfComposeLegs: zoom out to at least
+        // 0.3 while it plays, more with the root extent, then back) — reaching / pointing stays in frame on muse / juno.
+        // Root, feet and gaze_free only when the program drives the root.
+        const L = kfComposeLegs(J, o, fr, dt);
+        // (eval r2 c1'): a job that starts from a CLOSE-UP (Juno's station view, cam_zoom < 0) widens the shot only when
+        // the program needs the frame (kfRigWide), eased in (min-jerk, KF.RIG_CAM s) from that moment and back out the same way at
+        // the end of the motion — never for a face ask with a small lean. Other starts (Muse's wide home shot): as round 1.
+        if (J.camClose === undefined) J.camClose = (+o.cam_zoom || 0) < -0.05;
+        const e = J.camClose ? kfRigCam(J, fr) : 1;
+        for (const k in L) if (!(k in T) && (/^cam_/.test(k) || (anyRoot && (KF_ROOTCOL.test(k) || /^foot_/.test(k) || k === 'gaze_free')))) {
+          if (/^cam_/.test(k) && J.camClose) { if (!(e > 0)) continue; T[k] = k === 'cam_zoom' ? clamp(0.3 + 0.8 * Math.max(J.ext, J.pl.st.ext), 0.3, 0.85) : L[k]; A[k] = e; continue; }
+          T[k] = L[k]; A[k] = /^cam_/.test(k) ? 1 : rootA;
+        }
+      } else if (anyRoot) {
+        {
+          const add = (c, d) => { const rr = RANGE[c]; T[c] = clamp((c in T ? T[c] : +o[c] || 0) + d, rr[0], rr[1]); A[c] = Math.max(A[c] || 0, rootA); };
+          if ('root_y' in V || 'squash' in V) add('body_bounce', clamp(2 * (V.root_y || 0) - 2 * (V.squash || 0), -1, 1));
+          if ('root_yaw' in V) add('body_yaw', kswivel(V.root_yaw));
+          if ('root_pitch' in V) add('body_pitch', clamp(2.5 * kswivel(V.root_pitch), -1, 1));
+          if ('root_roll' in V) add('body_lean', clamp(2.5 * kswivel(V.root_roll), -1, 1));
+        }
+      }
+      return {T, A};
+    }
+    // does the program need more than the close-up? latched from the poses parsed so far (and the hub's extent hint):
+    // root moving (> 0.02), a hand out wide (|hand_x| > 0.55, core's arms_leave_closeup) or above the head (hand_y > 1.38),
+    // the torso pitched / leaning past ~10 deg (|body_pitch| / |body_lean| > 0.22)
+    function kfRigWide(J) {
+      if (J.wideAt != null) return true;
+      const P = J.pl.P; let wide = !!J.wideHint;
+      for (let i = J.wideI || 0; i < P.length && !wide; i++) {
+        const q = P[i].set;
+        for (const c in q) {
+          const v = q[c], a = Math.abs(v);
+          if ((KF_ROOTCOL.test(c) && a > 0.02) || ((c === 'hand_l_x' || c === 'hand_r_x') && a > 0.55) || ((c === 'hand_l_y' || c === 'hand_r_y') && v > 1.38) ||
+            ((c === 'body_pitch' || c === 'body_lean') && a > 0.22)) { wide = true; break; }
+        }
+      }
+      J.wideI = P.length;
+      if (wide) J.wideAt = S.t;
+      return wide;
+    }
+    function kfRigCam(J, fr) {   // the close-up -> wide ease (0..1)
+      kfRigWide(J);
+      if (J.wideAt == null) return 0;
+      if (J.narrowAt == null && (fr.ended || J.term)) J.narrowAt = S.t;
+      const up = mj((S.t - J.wideAt) / KF.RIG_CAM);
+      return J.narrowAt == null ? up : Math.min(up, 1 - mj((S.t - J.narrowAt) / KF.RIG_CAM));
+    }
+    function kfBlendRig(J, o, R) {
+      const T = R.T, A = R.A, wc = {}, sv = S.kfSv;
+      for (const c in T) {
+        const w = J.w * A[c] * (SPEECH_SET.has(c) ? 1 - sv : 1); wc[c] = w;
+        if (!(w > 0)) continue;
+        if (KF_PERIODIC.test(c)) o[c] = w >= 1 ? T[c] : kwrapH((+o[c] || 0) + kwrap(T[c] - (+o[c] || 0)) * w);
+        else o[c] = w >= 1 ? T[c] : lerp(+o[c] || 0, T[c], w);
+      }
+      J.T = T; J.wc = wc; J.A = A;
+    }
     // every frame, after the rules / engine / gestures / clamps: advance the jobs and lay their channels over the frame
     function kfFrame(o, dt) {
       const spk = S.av.speaking ? 1 : 0;
@@ -2337,13 +2503,19 @@
           if (!was && fr.started) kfStart(J);
           J.fr = fr;
           if (fr.started && !J.term) kfFire(J);             // paw events / do steps the clock has reached
-          if (fr.done && J.phase === 'playing' && !J.doing) kfEnd(J, 'end');
+          if (fr.done && J.phase === 'playing' && !J.doing) {
+            kfEnd(J, 'end');
+            // keep_pose: the move has ended (its end event went out) but the job stays on at its last pose — every
+            // channel it drives, root and mouth too — until released / relaxed / stopped or a newer move starts (silent end)
+            if (J.rig && J.keepPose && J.term === 'end') { J.term = null; J.phase = 'holding'; J.wOut = null; J.reason = null; }
+          }
         }
         if (J.objMode !== undefined && J.objMode !== false) J.absW = J.pl.st.started ? Math.min(1, (J.absW || 0) + dt / 0.3) : 1;
         if (J.phase === 'playing') J.w = (J.wIn === null ? 1 : mj((S.t - J.wIn) / KF.W_IN)) * kfDoFactor(J);
+        else if (J.phase === 'holding') { /* keep_pose: the weight stays where the move left it */ }
         else if (J.wOut) J.w = J.wOut.from * (1 - mj((S.t - J.wOut.t0) / KF.W_OUT));
         else J.w = 0;
-        if (J.fr && J.fr.started && J.w > 0) kfBlend(J, o, J.legs && engineOn && engine ? kfComposeLegs(J, o, J.fr, dt) : kfComposeSeated(J, o, J.fr));
+        if (J.fr && J.fr.started && J.w > 0) { if (J.rig) kfBlendRig(J, o, kfComposeRig(J, o, J.fr, dt)); else kfBlend(J, o, J.legs && engineOn && engine ? kfComposeLegs(J, o, J.fr, dt) : kfComposeSeated(J, o, J.fr)); }
         else { J.T = null; J.wc = null; }
         if (J.term && !(J.w > 1e-4)) { S.kfHist.set(J.id, kfSummary(J)); S.kf.splice(S.kf.indexOf(J), 1); }
       }
@@ -2557,7 +2729,7 @@
           kf: kfSummary(S.kf.find(J => !J.term) || null), character: S.charName || null}});
       } catch (e) { S.listenerErr = String(e && e.message || e).slice(0, 120); out = null; }
       if (!out || typeof out !== 'object') return;
-      const sv = S.kfSv;
+      const sv = S.kfSv, D = S.dbg;
       for (const p of LISTEN_LIST) {
         if (!(p in out)) continue;
         const x = +out[p]; if (!Number.isFinite(x)) continue;
@@ -2566,6 +2738,7 @@
         if (SPEECH_SET.has(p) && sv > 0) v = lerp(v, rules[p], sv);   // voiced: the mouth is speech's
         const r = (S.rng && S.rng[p]) || RANGE[p]; if (r) v = clamp(v, r[0], r[1]);
         o[p] = v;
+        if (D) D.lis.push([p, q[0] * (SPEECH_SET.has(p) ? 1 - sv : 1), SPEECH_SET.has(p) ? sv : 0]);   // [param, listener weight, speech's share]
       }
     }
     // ---------------------------------------------------------------- the PROGRAM layer (app/behavior.js)
@@ -2585,7 +2758,7 @@
           owned: ownedNow, state: stateOut});
       } catch (e) { S.programErr = String(e && e.message || e).slice(0, 120); out = null; }
       if (!out || typeof out !== 'object') return;
-      const L = S.lp, sv = S.kfSv;
+      const L = S.lp, sv = S.kfSv, D = S.dbg;
       for (const p in out) {
         if (!(p in RANGE) || LIPSYNC.has(p)) continue;
         const a = out[p]; if (!a) continue;
@@ -2595,6 +2768,7 @@
         const r = (S.rng && S.rng[p]) || RANGE[p]; v = clamp(v, r[0], r[1]);
         const q = L ? (L.ab[p] || [1, 0]) : [1, 0];
         o[p] = clamp(lerp(o[p], q[0] * v + q[1], w), r[0], r[1]);
+        if (D) D.prog.push([p, w, q[0]]);   // [param, program weight, what survives of it under the commanded map]
         if (L) L.ab[p] = [q[0] * (1 - w), q[0] * w * v + q[1]];
       }
     }
@@ -2711,9 +2885,315 @@
     function affectSet(j) { if (!AFF) return false; const ok = AFF.set(j, S.t); if (ok) { S.log.push({t: +S.t.toFixed(2), affect: String(j.label || j.feel || ''), v: j.v, a: j.a, d: j.d, k: j.intensity}); if (S.log.length > 400) S.log.splice(0, 200); } return ok; }
 
     // ---------------------------------------------------------------- the frame
+    // ---------------------------------------------------------------- the rig probe ("who is driving" each dial)
+    // setProbe(on) / probe() / meta() for the rig debug panel (docs/RIG-DEBUG.md §2). READ-ONLY and deterministic:
+    // while on, step() records per-frame facts ONLY into S.dbg (never rnd(), no other state written, evaluation order and
+    // every value unchanged); off = S.dbg null and each capture point in step() is one falsy check. probe() composes the
+    // records into an influence 0..1 per layer per param, in step()'s order:
+    //   - the rules base (one additive sum per param, step()'s formulas): each layer's term of that formula (dbgBase mirrors
+    //     them term by term; Σ terms = the base value, tests/rigprobe_test.cjs checks it) -> share |term| / max(Σ|terms|,
+    //     2 % of the param's range). Springs / clamps on a base param scale its terms (shares unchanged).
+    //   - a SET / lerp with weight w (feeling face, gesture 'set', hold, engine setW, a job's absolute columns): every layer
+    //     below keeps (1 - w) of its influence (exactly what survives of it in the value), the layer gets w
+    //   - an ADD (gesture 'add' at its envelope x intensity, feeling offsets at the feeling's weight, engine adds at the move
+    //     weight, a keyframe job's pose - rest offset at its channel weight): that weight; the layers below keep theirs
+    //   - the listener / the hub's learned reaction / the program layer replace (lerp toward) the rules value UNDER the
+    //     commanded map (learnedPass): unmapped layers drop to 0 (listener, learned) or keep (1 - w) (program); the mapped
+    //     ones (feeling, reflex, cmd, hold, move, planner; the gaze source on gaze / head while the page owns the gaze) stay
+    //   by = the highest layer (PROBE_LAYERS order) with influence > 0.02, 'life' when none; also = the other layers > 0.02.
+    //   LIPSYNC params are always 'lips' (the renderer's lipstream owns them).
+    const PROBE_LAYERS = ['life', 'gaze', 'mirror', 'prior', 'listen', 'speech', 'fidget', 'think', 'cospeech', 'learned', 'program',
+      'feeling', 'reflex', 'look', 'cmd', 'hold', 'move', 'planner', 'lips'];
+    const PL = {}; PROBE_LAYERS.forEach((l, i) => { PL[l] = i; });
+    const PROBE_TH = 0.02, NPL = PROBE_LAYERS.length;
+    const PIDX = new Map(ALL_PARAMS.map((p, i) => [p, i])), NAP = ALL_PARAMS.length;
+    const HEADR = new Uint8Array(NAP); for (const p of ['head_yaw', 'head_pitch', 'head_roll']) HEADR[PIDX.get(p)] = 1;
+    const snapTo = (a, o) => { for (let i = 0; i < NAP; i++) a[i] = o[ALL_PARAMS[i]]; return a; };   // (Object.assign on the 289-key frame costs ~150 µs)
+    // survive the commanded map (learnedPass / listenerPass / programPass): the reflexes and everything commanded
+    const PROBE_KEEP = new Uint8Array(NPL); for (const l of ['feeling', 'reflex', 'cmd', 'hold', 'move', 'planner', 'lips']) PROBE_KEEP[PL[l]] = 1;
+    const PROBE_KEEP_LRN = PROBE_KEEP.slice(); PROBE_KEEP_LRN[PL.program] = 1;   // the hub's learned value sits under the program (it is in beta)
+    const GAZE4 = new Set(['gaze_x', 'gaze_y', 'head_yaw', 'head_pitch']);
+    const G_LAYER = {life: 'life', fidget: 'fidget', listen: 'listen', speech: 'speech', think: 'think', cospeech: 'cospeech', reflex: 'reflex', cmd: 'cmd'};
+    const gestLayer = G => G.cospeech ? 'cospeech' : G_LAYER[G.src] || 'cmd';   // (priorityOf: an unknown src ranks as a command)
+    const PROBE_RANGE = {};   // every ALL_PARAMS param: RANGE, else renderer/anim/schema.py's (lips 0..1, lip_width -1..1, legacy 0..1, wrapped turns ±0.5)
+    for (const p of ALL_PARAMS) PROBE_RANGE[p] = RANGE[p] ? RANGE[p].slice() : p === 'lip_width' ? [-1, 1] : PERIODIC.has(p) ? [-0.5, 0.5] : [0, 1];
+    const pspan = p => { const r = (S.rng && S.rng[p]) || PROBE_RANGE[p]; return Math.max(1e-6, r[1] - r[0]); };
+
+    function setProbe(on) {
+      if (on) {
+        if (!S.dbg) S.dbg = {frame: -1, bt: new Float64Array(NAP * NPL), bh: new Uint8Array(NAP), o0: new Float64Array(NAP), fitK: new Uint8Array(NAP), fitRaw: new Float64Array(NAP),
+          preE: new Float64Array(NAP), postE: new Float64Array(NAP), buf: new Float64Array(NAP * NPL)};
+      } else S.dbg = null;
+      return !!S.dbg;
+    }
+    function dbgBegin(D) {
+      D.frame = -1; D.base = false; D.gsrc = 'gaze'; D.gtgt = 'user'; D.aff = null; D.engB = null; D.holds = null;
+      D.hasPreE = false; D.hasPostE = false; D.erec = null; D.ew = null; D.g = []; D.lis = []; D.prog = []; D.kf = null; D.affPost = null; D.gest = null;
+      D.wf = 0; D.lab = null;
+    }
+    // the gaze system's source this frame (chooseTarget's branch, read from the state it left; never re-run): [layer, target]
+    function gazeSrcNow() {
+      const t = S.t, u = S.user;
+      if (S.cmdLook) { const g = S.cmdLook.target; return ['look', Array.isArray(g) ? 'xy' : String(g)]; }
+      if (S.around) return [S.around.kind === 'cmd' ? 'look' : S.around.kind === 'bored' ? 'life' : 'gaze', 'around'];   // bored = idle look-around (life); wander = nobody there
+      const fo = S.focus;
+      if (fo && t <= fo.until && (fo.kind !== 'user' || u.present))   // reflex focus (wave back, startle, perk, look back, point, object); a commanded point has no `then`; a hand glance is attention
+        return [fo.kind === 'hand' ? 'gaze' : fo.kind === 'point' && !fo.then ? 'cmd' : 'reflex', fo.kind];
+      if (S.avert && t <= S.avert.until) return [S.avert.gain >= 0.6 ? 'gaze' : S.av.speaking ? 'speech' : S.uv.speaking ? 'listen' : 'gaze', 'away'];   // 0.7 = joint attention
+      return ['gaze', u.present ? 'user' : u.absentT > 1.5 ? 'around' : 'user'];
+    }
+    // the rules base, term by term (the same locals step() summed; S read only)
+    function dbgBase(D, o, L) {
+      snapTo(D.o0, o);
+      const g = gazeSrcNow(), gs = D.gsrc = g[0]; D.gtgt = g[1];
+      const BT = D.bt, BH = D.bh, t = S.t, u = S.user, av = S.av, uv = S.uv, ex = L.ex, pw = L.pw, pr = L.pr;
+      BT.fill(0); BH.fill(0); D.fitK.fill(0); D.base = true;
+      // T(param, layer, term): this layer's term of the param's base formula (BT[param * NPL + layer], summed)
+      const T = (p, l, v) => { if (!v) return; const i = PIDX.get(p); BH[i] = 1; BT[i * NPL + PL[l]] += v; };
+      const B = p => { const i = PIDX.get(p), r = {}; if (BH[i]) for (let l = 0; l < NPL; l++) if (BT[i * NPL + l]) r[PROBE_LAYERS[l]] = BT[i * NPL + l]; return r; };
+      const fit = (p, v, kind) => {   // a clamped / filtered base param: scale its terms to the value actually written
+        const i = PIDX.get(p), b = i * NPL; let s = 0; for (let l = 0; l < NPL; l++) s += BT[b + l];
+        D.fitK[i] = kind === 'clamp' ? 1 : 2; D.fitRaw[i] = s; BH[i] = 1;
+        if (Math.abs(s) > 1e-9 && Number.isFinite(v / s)) { const k = v / s; for (let l = 0; l < NPL; l++) BT[b + l] *= k; } else BT[b + PL.life] += v - s;
+      };
+      const sgn = u.ax >= 0 ? 1 : -1, flp = Math.max(0, L.fl);
+      // the greeting smile pulse: a reflex (wave back / greet nod / thumbs-up set it with their event) or the listener's
+      let greetL = 'listen';
+      if (L.greetEnv) for (let i = S.events.length - 1; i >= 0 && S.events[i].t >= S.greet.t0 - 1e-9; i--) if (S.events[i].t === S.greet.t0) { greetL = 'reflex'; break; }
+      const tiltL = uv.speaking ? 'listen' : av.speaking || av.silentT < 1.2 ? 'speech' : 'life';   // S.tilt.target's setter, by activity (approximate)
+      const ph = pw * cfg.priorHead;
+      const prY = pr && S.prY ? ph * S.prY.x : 0, prP = pr && S.prP ? ph * S.prP.x : 0, prR = pr && S.prR ? ph * S.prR.x : 0;
+      // head
+      T('head_yaw', gs, L.gz.head[0]); T('head_yaw', 'life', (1 - pw) * L.nzY); T('head_yaw', 'speech', (1 - pw) * (L.sway + L.ppy)); T('head_yaw', 'prior', prY);
+      T('head_pitch', gs, -L.gz.head[1]); T('head_pitch', 'life', (1 - pw) * L.nzP); T('head_pitch', 'speech', (1 - pw) * (L.nod + L.ppp));
+      T('head_pitch', 'mirror', 0.09 * ex.sad - 0.05 * ex.surprise + 0.03 * ex.anger); T('head_pitch', 'prior', prP); T('head_pitch', 'reflex', -0.13 * L.fl);
+      T('head_roll', tiltL, L.tilt); T('head_roll', 'life', (1 - pw) * L.nzR); T('head_roll', 'speech', (1 - pw) * L.ppr); T('head_roll', gs, 0.22 * L.gz.head[0] * 0.5);
+      T('head_roll', 'mirror', 0.35 * (u.present ? (u.rollM || 0) : 0) + 0.06 * ex.browUp * sgn); T('head_roll', 'prior', prR); T('head_roll', 'reflex', 0.12 * L.curious * sgn);
+      { const hy = B('head_yaw'), hp = B('head_pitch'); for (const l in hy) T('head_x', l, 0.16 * hy[l]); for (const l in hp) T('head_y', l, -0.08 * hp[l]); }
+      T('head_x', 'life', o.head_x - 0.16 * L.hYaw);
+      T('head_z', 'mirror', -0.025 * ex.fear - 0.015 * ex.surprise); T('head_z', 'reflex', -0.055 * L.fl + 0.02 * L.curious + 0.015 * L.perkEnv);
+      T('head_z', 'listen', 0.02 * L.lis); T('head_z', 'speech', 0.015 * L.spk * av.lvl);
+      // eyes
+      const pgx = pr ? 0.3 * pw * (+pr.gaze_x || 0) : 0, pgy = pr ? 0.3 * pw * (+pr.gaze_y || 0) : 0;
+      T('gaze_x', gs, o.gaze_x - pgx); T('gaze_x', 'prior', pgx); T('gaze_y', gs, o.gaze_y - pgy); T('gaze_y', 'prior', pgy);
+      const blinkL = S.blink.rx ? 'reflex' : priorBlinks() ? 'prior' : 'life';
+      for (const p of ['blink_l', 'blink_r']) {
+        if (L.blink >= L.lid) T(p, blinkL, L.blink);
+        else { T(p, 'life', 0.03 + 0.02 * S.bored); T(p, 'mirror', 0.06 * clamp(ex.sad, 0, 1)); }
+      }
+      T('eye_wide', 'mirror', 0.6 * ex.surprise + 0.5 * ex.fear + ex.eyeWide); T('eye_wide', 'reflex', 0.9 * L.ewStart + 0.3 * L.perkEnv + 0.12 * L.curious + 0.2 * L.flashEnv);
+      T('eye_wide', 'listen', 0.15 * (S.uLoud || 0)); T('eye_wide', 'prior', pr ? 0.5 * pw * (+pr.eye_wide || 0) : 0); fit('eye_wide', o.eye_wide, 'clamp');
+      T('squint', 'mirror', 0.4 * ex.smile + ex.squint * 0.8 + 0.1 * S.mood.val); T('squint', 'prior', pr ? 0.5 * pw * (+pr.squint || 0) : 0); fit('squint', o.squint, 'clamp');
+      // brows (the skew scales both sides' terms)
+      for (const [p, k] of [['brow_l', 1 + L.skew], ['brow_r', 1 - L.skew]]) {
+        T(p, 'mirror', k * (0.6 * ex.surprise + 0.25 * ex.fear - 0.45 * ex.anger + ex.browUp * 0.9 - ex.browDown * 0.9)); T(p, 'life', k * L.browNoise);
+        T(p, 'speech', k * (1 - pw) * L.bk); T(p, 'reflex', k * (0.6 * L.flashEnv + 0.7 * L.ewStart + 0.25 * L.perkEnv + 0.3 * L.curious));
+        T(p, 'listen', k * 0.12 * L.lis); T(p, greetL, k * 0.25 * L.greetEnv); T(p, 'prior', pr ? k * pw * 0.5 * ((+pr.brow_l || 0) + (+pr.brow_r || 0)) : 0);
+      }
+      T('brow_knit', 'mirror', ex.browDown * 0.6 + ex.sad * 0.6 + 0.5 * ex.fear + 0.5 * ex.anger);
+      T('brow_knit', uv.speaking ? 'listen' : 'gaze', S.avert && av.silentT > 0.4 && !av.speaking ? 0.12 : 0); fit('brow_knit', o.brow_knit, 'clamp');
+      // mouth
+      T('smile', 'life', (0.12 + L.smNoise) * (1 - 0.8 * L.neg)); T('smile', 'mirror', ex.smile + 0.12 * S.mood.val); T('smile', greetL, 0.25 * L.greetEnv);
+      T('smile', 'reflex', 0.1 * L.perkEnv); T('smile', 'prior', pr ? 0.6 * pw * (+pr.smile_dev || 0) : 0); fit('smile', o.smile, 'clamp');
+      T('mouth_open', 'mirror', (ex.jawOpen * 0.6 + 0.2 * ex.surprise) * (av.speaking ? 0 : 1)); fit('mouth_open', o.mouth_open, 'clamp');
+      // breath (one source: a sigh / the startle's "phew", speech breathing, else the idle cycle)
+      const Bq = S.breath, sg = t - Bq.sigh;
+      const breathL = sg >= 0 && sg < 2.4 ? (S.gestures.some(G => G.name === 'sigh' && G.src === 'fidget') ? 'fidget' : 'reflex')
+        : av.speaking || (Bq.inhaleAt !== undefined && t - Bq.inhaleAt < 0.45) ? 'speech' : 'life';
+      T('breath', breathL, o.breath); T('nostril', 'life', o.nostril);
+      // paws: rest + drift, prosody beats (speech), the startle flinch (recomputed exactly as the paw loop)
+      const sp = S.speech, PR = S.pawRest, hn = S.nz.hand.sm.x;
+      let torso = 0; const bws = {};
+      for (const sd of ['l', 'r']) {
+        const isBeat = sd === sp.beatSide || sp.beatBoth;
+        const stroke = isBeat && sp.beatHit ? pulse(t - sp.beatHit, 0, 0.1, 0.14, 0.45) : 0;
+        const bw = isBeat ? S.beatW * (1 - S.kfPaw[sd]) : 0, rest = PR[sd];
+        bws[sd] = [bw, stroke];
+        const k = s => 'hand_' + sd + '_' + s;
+        T(k('x'), 'life', rest.x + 0.02 * hn * (sd === 'l' ? 1 : -1)); T(k('x'), 'speech', bw * (0.12 + 0.04 * stroke));
+        T(k('y'), 'life', rest.y + 0.01 * hn); T(k('y'), 'speech', bw * (0.34 - 0.1 * stroke)); T(k('y'), 'reflex', 0.2 * flp);
+        T(k('z'), 'life', rest.z); T(k('z'), 'speech', bw * (0.3 + 0.05 * stroke)); T(k('z'), 'reflex', 0.12 * flp);
+        T(k('open'), 'life', rest.open); T(k('open'), 'speech', bw * (0.45 + 0.15 * stroke)); T(k('open'), 'reflex', 0.3 * flp);
+        T(k('turn'), 'speech', bw * (0.45 - 0.15 * stroke));
+        if (!sp.beatBoth) torso += (sd === 'l' ? 1 : -1) * 0.1 * bw;
+      }
+      for (const sd of ['l', 'r']) {
+        const p = 'shoulder_' + sd, [bw, stroke] = bws[sd];
+        T(p, breathL, 0.05 * Math.max(0, o.breath)); T(p, 'reflex', 0.5 * flp); T(p, 'mirror', 0.3 * ex.fear);
+        fit(p, clamp(0.05 * Math.max(0, o.breath) + 0.5 * flp + 0.3 * ex.fear, 0, 1), 'clamp');
+        T(p, 'speech', 0.14 * bw + 0.1 * stroke * bw);
+      }
+      // ears: the springs' target terms, scaled to the spring output; the head-roll inertia on top
+      const earT = (p, nz) => {
+        T(p, 'mirror', 0.5 * ex.surprise - 0.5 * ex.fear - 0.35 * ex.anger - 0.15 * ex.sad + 0.3 * ex.smile - 0.55 * ex.sad);
+        T(p, 'life', 0.12 + 0.2 * (S.mood.arousal - 0.3) - 0.35 * S.bored + 0.12 * nz);
+        T(p, 'listen', 0.15 * (S.uLoud || 0) + 0.15 * L.lis); T(p, 'reflex', 0.35 * L.pk + 0.45 * L.perkEnv - 0.6 * flp + 0.2 * L.curious);
+      };
+      earT('ear_l', S.nz.earL.sm.x); fit('ear_l', L.eL, 'spring'); T('ear_l', 'life', -0.08 * S.headVel[2]);
+      earT('ear_r', S.nz.earR.sm.x); fit('ear_r', L.eR, 'spring'); T('ear_r', 'life', 0.08 * S.headVel[2]);
+      for (const [p, k, ang] of [['ear_l_turn', -1, t * 0.23], ['ear_r_turn', 1, t * 0.19 + 2]]) {
+        T(p, 'listen', -0.25 * L.lis); T(p, 'reflex', -0.2 * L.curious + k * 0.3 * L.ep);
+        T(p, 'life', 0.15 * S.bored + 0.15 * Math.sin(ang) * (u.present ? 0.3 : 1));
+      }
+      // body
+      const sh = S.shift;
+      T('body_yaw', 'life', sh.yaw + 0.08 * K.sway * S.nz.byaw.sm.x); T('body_yaw', gs, S.bodyFollow); T('body_yaw', 'speech', torso);
+      T('body_lean', 'life', o.body_lean);
+      T('body_pitch', 'mirror', -0.25 * ex.fear - 0.1 * ex.surprise - 0.06 * ex.sad); T('body_pitch', 'listen', 0.1 * L.lis); T('body_pitch', 'speech', 0.08 * L.spk * av.lvl);
+      T('body_pitch', 'reflex', 0.12 * L.curious - 0.5 * L.fl + 0.05 * L.perkEnv); T('body_pitch', 'life', -0.1 * S.bored); T('body_pitch', 'gaze', S.space);   // personal space = attention to him
+      T('body_bounce', 'speech', o.body_bounce);
+      // tail: happiness = his smile (mirror) + the greeting / perk pulses
+      const hr = [['mirror', 1.3 * ex.smile], [greetL, 0.6 * L.greetEnv], ['reflex', 0.4 * L.perkEnv]], hs = hr[0][1] + hr[1][1] + hr[2][1], hk = hs > 0 ? L.happy / hs : 0;
+      const sinT = Math.sin(S.tailPh);
+      T('tail_wag', 'life', 0.1 * K.amp * sinT + 0.12 * S.nz.tail.sm.x); for (const [l, v] of hr) T('tail_wag', l, 0.5 * v * hk * K.amp * sinT);
+      fit('tail_wag', o.tail_wag, 'spring');
+      T('tail_raise', 'life', 0.3 + 0.35 * S.mood.arousal - 0.3 * S.bored); for (const [l, v] of hr) T('tail_raise', l, 0.3 * v * hk); T('tail_raise', 'mirror', -0.3 * ex.sad);
+      fit('tail_raise', o.tail_raise, 'clamp');
+      T('tail_curl', 'life', o.tail_curl);
+    }
+    // the feeling (affectPass), the engine's carry pose (engine.base), the holds (applyHolds); the frame before the engine
+    function dbgMid(D, o) {
+      const r = S.affOut;
+      if (r && S.affRec) D.aff = {rec: S.affRec, s: r.arms ? clamp(+r.arms.s || 0, 0, 1.15) : 0, w: clamp(+r.w || 0, 0, 1)};
+      if (engineOn && engine && engine.E && engine.E.P && engine.E.P.length) { const pw = engine.E.paw; D.engB = {l: clamp(+pw.l.carryW || 0, 0, 1), r: clamp(+pw.r.carryW || 0, 0, 1)}; }
+      const H = D.holds = [];
+      for (const p in S.holds) { const h = S.holds[p]; H.push([p, h.out ? 1 - mj((S.t - h.out.t0) / h.out.ease) : 1]); }
+      if (engineOn) { snapTo(D.preE, o); D.hasPreE = true; }
+    }
+    // after the frame: the engine's record, keyframe weights, the feeling's squash / stomp, the map
+    function dbgEnd(D) {
+      if (D.hasPostE && D.hasPreE && engine && engine.E) { const E = engine.E; D.erec = Array.isArray(E.lp) ? E.lp : []; D.ew = {w: clamp(+E.w || 0, 0, 1), head: clamp(+E.wHead || 0, 0, 1)}; }   // (E.lp: a fresh array every apply)
+      else D.hasPreE = D.hasPostE = false;
+      if (S.kf.length) {
+        D.kf = [];
+        for (const J of S.kf) if (J.wc && J.T) D.kf.push({wc: Object.assign({}, J.wc), abs: J.absW || 0, legs: !!(J.legs && engineOn && engine), rig: !!J.rig});   // rig = absolute
+      }
+      const q = S.affPost; if (q && !q.busy) D.affPost = {squash: !!q.squash, foot: q.foot ? {l: q.foot.l > 0, r: q.foot.r > 0} : null, w: S.affOut ? clamp(+S.affOut.w || 0, 0, 1) : 1};
+      D.wf = clamp(S.wf || 0, 0, 1);
+      if (learned && S.lp) D.lab = S.lp.ab;   // (a new map every frame: learnedPass builds it, programPass replaces its entries)
+      D.frame = S.frame;
+    }
+    // probe() -> who drives each param now (see above); read-only: never rnd(), writes only S.dbg's scratch buffer
+    function probe() {
+      const D = S.dbg; if (!D) return null;
+      const NP = NAP, buf = D.buf;
+      buf.fill(0);
+      const cap = D.frame === S.frame;
+      const at = p => { const i = PIDX.get(p); return i === undefined ? -1 : i * NPL; };
+      const over = (p, L, own, surv) => { const b = at(p); if (b < 0 || !(own > 0)) return; own = Math.min(1, own); if (surv === undefined) surv = 1 - own; surv = clamp(surv, 0, 1);
+        for (let l = 0; l < NPL; l++) buf[b + l] *= surv; buf[b + L] = Math.min(1, buf[b + L] + own); };
+      const add = (p, L, w) => { const b = at(p); if (b < 0 || !(w > 0)) return; w = Math.min(1, w); if (buf[b + L] < w) buf[b + L] = w; };
+      const gsL = PL[D.gsrc] ?? PL.gaze;
+      // the listener / learned network (replace) and the program layer (lerp) under the commanded map
+      const mapOp = (p, L, own, keep, surviveRest) => {
+        const b = at(p); if (b < 0) return;
+        const wfK = GAZE4.has(p) && D.wf > PROBE_TH ? D.wf : 0;   // the page's attention keeps wf of gaze / head (learnedPass)
+        for (let l = 0; l < NPL; l++) if (!keep[l]) buf[b + l] *= l === gsL && wfK ? Math.max(wfK, surviveRest) : surviveRest;
+        own = clamp(own, 0, 1); if (buf[b + L] < own) buf[b + L] = own;
+      };
+      if (cap) {
+        // 1. the rules base
+        if (D.base) for (let i = 0; i < NP; i++) {
+          if (!D.bh[i]) continue; const b = i * NPL, BT = D.bt;
+          let s = 0; for (let l = 0; l < NPL; l++) s += Math.abs(BT[b + l]);
+          const den = Math.max(s, PROBE_TH * pspan(ALL_PARAMS[i]));
+          for (let l = 0; l < NPL; l++) if (BT[b + l]) buf[b + l] = Math.min(1, Math.abs(BT[b + l]) / den);
+        }
+        // 2. the feeling (affectPass)
+        if (D.aff) {
+          const A = D.aff, s = A.s, s1 = Math.min(1, s);
+          for (const [p, kind, v, w] of A.rec) {
+            if (kind === 'set') { const ww = clamp(w / 0.8, 0, 1), keep = 0.2; over(p, PL.feeling, ww, 1 - ww * (1 - keep)); }
+            else if (/^hand_[lr]_(x|y|z|open)$/.test(p) && s > 1e-4) over(p, PL.feeling, s1, 1 - 0.7 * (/_open$/.test(p) ? s1 : s));
+            else if (/^hand_[lr]_turn$/.test(p) && s > 1e-4) over(p, PL.feeling, s1);
+            else if ((p === 'blink_l' || p === 'blink_r' || p === 'mouth_open' || p === 'tongue_out') && v > 0) over(p, PL.feeling, 1);   // the max took the feeling's lid / mouth
+            else add(p, PL.feeling, A.w);
+          }
+          if (s > 1e-4) for (const sd of ['l', 'r']) { over('thumb_' + sd, PL.feeling, s1); over('point_' + sd, PL.feeling, s1); }
+        }
+        // 3. the engine's carry pose (a paw holding a thing)
+        if (D.engB) for (const sd of ['l', 'r']) if (D.engB[sd] > 1e-4) for (const a of ['x', 'y', 'z', 'open', 'turn']) over('hand_' + sd + '_' + a, PL.move, D.engB[sd], 1 - (/open|turn/.test(a) ? 1 : 0.7) * D.engB[sd]);
+        // 4. gestures (applyGestures' order: priority, then id)
+        for (const [G, w, wa, ki, set, ad] of D.g) {
+          const L = PL[gestLayer(G)], kw = w * Math.min(1, ki), ka = clamp(wa * ki, 0, 1);
+          if (set) for (const k in set) over(k, L, kw);
+          if (ad) for (const k in ad) add(k, L, ka);
+        }
+        // 5. holds
+        if (D.holds) for (const [p, w] of D.holds) over(p, PL.hold, w);
+        // 6. the whole-body engine (setW / addW record, the head's attention suppression, absolute writes)
+        if (D.hasPreE && D.hasPostE && D.erec) {
+          const ew = D.ew, seen = new Set(), pre = D.preE, post = D.postE;
+          if (ew.head > 1e-3) { over('head_yaw', PL.move, 0.85 * ew.head); over('head_pitch', PL.move, 0.6 * ew.head); over('head_roll', PL.move, 0.4 * ew.head); }
+          for (const [p, w, , a] of D.erec) { seen.add(p); if (w > 0) over(p, PL.move, w); else if (a) add(p, PL.move, ew.w); }
+          for (let i = 0; i < NP; i++) if (!HEADR[i] && !(post[i] === pre[i]) && Math.abs((post[i] || 0) - (pre[i] || 0)) > 1e-12 && !seen.has(ALL_PARAMS[i])) {   // absolute writes (root, feet, things)
+            const p = ALL_PARAMS[i]; if (p === 'body_pitch') add(p, PL.move, ew.w); else over(p, PL.move, 1);
+          }
+        }
+        // 7. the feeling's squash / stomp (affectPost, over the engine's root and feet)
+        if (D.affPost) { if (D.affPost.squash) add('squash', PL.feeling, D.affPost.w); if (D.affPost.foot) for (const sd of ['l', 'r']) if (D.affPost.foot[sd]) add('foot_' + sd + '_y', PL.feeling, D.affPost.w); }
+        // 8. keyframe jobs (the planner): pose - rest offsets on the frame (additive), absolute root / feet / camera, a plan with things owns its paws
+        if (D.kf) for (const J of D.kf) for (const c in J.wc) {
+          const w = J.wc[c]; if (!(w > 0)) continue;
+          if (J.rig) over(c, PL.planner, w);   // a rig-space job writes absolute values (lerp by its per-channel weight)
+          else if (J.legs && (KF_ROOTCOL.test(c) || /^(foot_|cam_)/.test(c) || c === 'gaze_free')) over(c, PL.planner, w);
+          else if (J.abs > 0 && KF_PAWCOL.test(c)) over(c, PL.planner, w, 1 - w * J.abs);
+          else add(c, PL.planner, w);
+        }
+        // 9. the listener network (replaces the rules on its groups), 10. the program layer (lerps, under the map)
+        for (const [p, w, sv] of D.lis) mapOp(p, PL.listen, w, PROBE_KEEP, sv);
+        for (const [p, w, a] of D.prog) mapOp(p, PL.program, w * a, PROBE_KEEP, 1 - w);
+        // 11. the hub's learned reaction (learned / unified mode): final = alpha * learned + beta on the channels it retargets
+        //     (the page does not know the hub's list: LISTENER_GROUPS face / gaze / posture is assumed)
+        if (learned && D.lab) for (const p of LISTEN_LIST) { const q = D.lab[p]; mapOp(p, PL.learned, q ? clamp(q[0], 0, 1) : 1, PROBE_KEEP_LRN, 0); }
+        // 12. the legacy arm columns (an old renderer): copies of the hand columns
+        if (cfg.legacyArms) {
+          const cp = (dst, src) => { const a = at(dst), b = at(src); if (a >= 0 && b >= 0) for (let l = 0; l < NPL; l++) buf[a + l] = Math.max(buf[a + l], buf[b + l]); };
+          for (const sd of ['l', 'r']) { cp('arm_' + sd, 'hand_' + sd + '_y'); cp('paw_open_' + sd, 'hand_' + sd + '_open'); cp('thumbs_up', 'thumb_' + sd); }
+        }
+      }
+      // owners: every RIG_PARAMS param, plus every other ALL_PARAMS param that is nonzero or owned
+      const out = S.lastOut || {}, owners = {};
+      for (let i = 0; i < NP; i++) {
+        const p = ALL_PARAMS[i];
+        if (LIPSYNC.has(p)) { owners[p] = {by: 'lips', w: 1, also: []}; continue; }
+        const b = i * NPL, v = +out[p] || 0;
+        let top = -1;
+        for (let l = NPL - 1; l >= 0; l--) if (buf[b + l] > PROBE_TH) { top = l; break; }
+        if (top < 0 && v !== 0 && /^prop\d+_/.test(p) && engineOn) { buf[b + PL.move] = 1; top = PL.move; }   // a thing in the scene: the engine's
+        if (top < 0 && v === 0 && i >= RIG_PARAMS.length) continue;
+        const also = [];
+        for (let l = NPL - 1; l >= 0; l--) if (l !== top && buf[b + l] > PROBE_TH) also.push([PROBE_LAYERS[l], Math.round(buf[b + l] * 1000) / 1000]);
+        owners[p] = top < 0 ? {by: 'life', w: Math.round(buf[b] * 1000) / 1000, also} : {by: PROBE_LAYERS[top], w: Math.round(buf[b + top] * 1000) / 1000, also};
+      }
+      // the rest of the picture
+      const g = cap ? [D.gsrc, D.gtgt] : gazeSrcNow(), u = S.user;
+      const E = engineOn && engine ? engine.E : null, P = E && E.move;
+      let aff = null;
+      if (AFF && S.affOut) { try { const st = AFF.state(); aff = {label: st.label || null, k: st.k, w: st.w, phase: st.phase}; } catch (e) { aff = null; } }
+      return {t: S.t, frame: S.frame, captured: cap, mode: S.mode || 'user', speaking: !!S.av.speaking, listening: !!S.uv.speaking, learned, listenerOn: !!listener, programOn: !!programLayer,
+        owners,
+        gaze: {mode: S.mode || 'user', target: g[1], src: g[0], focus: S.focus ? S.focus.kind : null, W: S.eye.W.slice(),
+          user: {present: !!u.present, ax: u.ax, ay: u.ay, attending: !!u.attending}},
+        gestures: S.gestures.map(G => ({name: G.name, src: G.src, layer: gestLayer(G), w: +weightOf(G).toFixed(3), params: (G.params || []).slice(), rel: !!G.rel, t0: +G.t0.toFixed(3), id: G.id})),
+        holds: Object.keys(S.holds).map(p => { const h = S.holds[p]; return {p, w: +(h.out ? 1 - mj((S.t - h.out.t0) / h.out.ease) : 1).toFixed(3), to: h.to, out: !!h.out}; }),
+        kf: S.kf.map(J => ({id: J.id, description: J.description, phase: J.phase, w: +(+J.w || 0).toFixed(3)})),
+        move: P ? {name: P.name || null, w: +clamp(+E.w || 0, 0, 1).toFixed(3), silent: !!P.silent} : E && E.chain ? {name: E.chain.verb || null, w: +clamp(+E.w || 0, 0, 1).toFixed(3), object: true} : null,
+        look: S.cmdLook ? (Array.isArray(S.cmdLook.target) ? S.cmdLook.target.slice() : S.cmdLook.target) : null,
+        affect: aff, expr: Object.assign({}, S.expr.m), mirror: true};
+    }
+    function meta() {
+      const ranges = {}; for (const p of ALL_PARAMS) ranges[p] = PROBE_RANGE[p].slice();
+      const rng = {}; if (S.rng) for (const p in S.rng) rng[p] = S.rng[p].slice();
+      return {params: RIG_PARAMS.slice(), allParams: ALL_PARAMS.slice(), ranges, charRanges: rng, lipsync: [...LIPSYNC], legacy: [...LEGACY], periodic: [...PERIODIC],
+        emo: [], gest: [], pri: Object.assign({}, PRI), layers: PROBE_LAYERS.slice(), threshold: PROBE_TH};
+    }
+
     function step(dt, inputs = {}) {
       dt = clamp(+dt || 0, 0, 0.1);
       S.t += dt; S.frame++;
+      const dbg = S.dbg;   // rig probe: per-frame records (only while setProbe(true); writes S.dbg and nothing else)
+      if (dbg) dbgBegin(dbg);
       // the page's PLAYBACK (audio tap) time for this frame → the offset between the two clocks (playGesture at)
       if (Number.isFinite(+inputs.playT) && inputs.playT !== null) S.playOff = S.t - +inputs.playT;
       const t = S.t;
@@ -2918,6 +3398,8 @@
       }
       o.body_yaw += torso;
       o.body_bounce += 0.04 * (sp.beatHit ? pulse(t - sp.beatHit, 0, 0.1, 0.14, 0.4) : 0) * S.beatW;
+      if (dbg) dbgBase(dbg, o, {gz, nzY, nzP, nzR, nod, sway, tilt, ppy, ppp, ppr, pw, pr: usePrior ? pr : null, fl, ewStart, pk, perkEnv,
+        greetEnv, flashEnv, curious, ex, lis, spk, blink, lid, browNoise, bk, skew, smNoise, neg, ep, hYaw, hPitch, eL, eR, happy});
       affectPass(o, dt);   // affect: the feeling, under gestures / co-speech / commands / the engine
       if (engineOn) engine.base(o, dt);
 
@@ -2928,8 +3410,10 @@
       applyGestures(o);
       S.react = Object.assign({}, o);   // the live (unheld) values: release eases toward these
       applyHolds(o);
+      if (dbg) dbgMid(dbg, o);   // the feeling / engine-base / hold records, the frame before the engine
       // ---- whole-body moves + object actions (top priority; nothing happens here unless one ran)
       const eng = engineOn ? engine.apply(o, dt, true) : null, pins = eng && eng.pins;   // (its channel record feeds owned())
+      if (dbg && eng) { snapTo(dbg.postE, o); dbg.hasPostE = true; }
 
       // ---- arm follow-through (light 2nd order on the hand targets; gestures already ease)
       for (const p of RIG_PARAMS) if (p.startsWith('hand_') && !p.endsWith('_open') && !p.endsWith('_turn')) {
@@ -2954,6 +3438,7 @@
       if (lpOn) learnedPass(dt, preG, {fl, ewStart, perkEnv, pk, greetEnv, flashEnv, curious, ep, ax: S.user.ax});
       if (listener) listenerPass(o, dt);   // planner contract §3: the listener's face / gaze / posture under the commanded layers
       if (programLayer) programPass(o, dt, inputs);   // standing-behaviour programs over the listener, under commands
+      if (dbg) dbgEnd(dbg);   // the keyframe / feeling-post / map records; this frame's records are complete
       S.lastOut = o; S.mode = gz.mode;
       return o;
     }
@@ -3028,7 +3513,10 @@
         prior = p && typeof p.step === 'function' ? p : null; S.priorOut = null; return !!prior;
       }, gestures: Object.keys(GEST).concat(Object.keys(GEST_ALIAS)), expressions: Object.keys(EXPR), config: cfg,
       // affect: the feeling state (app/affect.js): affect(verdict) sets it, affectState() reads it, affectReset() drops it
-      affect: j => affectSet(j), affectState: () => AFF ? AFF.state() : null, affectReset: () => { if (AFF) AFF.reset(); S.affE = 0; return !!AFF; }};
+      affect: j => affectSet(j), affectState: () => AFF ? AFF.state() : null, affectReset: () => { if (AFF) AFF.reset(); S.affE = 0; return !!AFF; },
+      // rig debug panel: setProbe(on) turns the per-frame capture on / off (S.dbg), probe() -> who drives each param now,
+      // meta() -> the param lists, ranges and layer order (copies). Read-only; with the probe off nothing is captured.
+      setProbe, probe, meta};
   }
 
   return {createMotion, RIG_PARAMS, SCHEMA_PARAMS, NEW_PARAMS, LIPSYNC: [...LIPSYNC], LEGACY: [...LEGACY], RANGE, DEFAULTS,

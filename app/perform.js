@@ -28,6 +28,9 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   const CUE_MAX_MS = 700;          // a ready job waits at most this long for its cue's first audio
+  const CUE_MAX_SEM_MS = 250;      // semantic mode: the move starts this soon after ready; the cue is spoken over it
+  const SEM_ARMS_MS = 2500;        // semantic mode: the thinking paw only when the plan is expected to take this long
+  const SEM_EST0_MS = 1600;        // ... the first estimate (eval round 1: fresh semantic plans ~1.6 s to the first pose)
   const CUE_STALE_MS = 1200;       // a cue not yet asked for by then is dropped (the motion has started)
   const CHECKIN_STALE_MS = 4000;   // the check-in may wait this long for a reply in progress to finish
   const PLAN_SILENCE_MS = 20000;   // no word from the server for this long = the plan failed
@@ -55,7 +58,13 @@
     const motion = () => (d.motion ? d.motion() : null);
     const userSpeaking = () => { try { return !!(d.userSpeaking && d.userSpeaking()); } catch (e) { return false; } };
     const lastUserSpeech = () => { try { const v = d.lastUserSpeech ? +d.lastUserSpeech() : -1e12; return Number.isFinite(v) ? v : -1e12; } catch (e) { return -1e12; } };
-    const P = {n: 0, jobs: new Map(), order: [], cache: new Map(), engine: new Map(), deferred: [], late: 0, prompts: 0};
+    const P = {n: 0, jobs: new Map(), order: [], cache: new Map(), engine: new Map(), deferred: [], late: 0, prompts: 0, semOrphan: null};
+    // (docs/SEMANTIC.md §4): which planner writes the move — read at every call (the switch applies to the next
+    // command). 'current' (default, and whenever d.planner is absent) = the messages byte for byte.
+    function mode() { try { return d.planner && d.planner() === 'semantic' ? 'semantic' : 'current'; } catch (e) { return 'current'; } }
+    function semState() { try { const v = d.semState ? d.semState() : null; return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } }
+    P.semEst = SEM_EST0_MS;   // running estimate of a fresh semantic plan's wait (call -> first pose), EMA
+    const LIVE_TARGET = /\b(user|user_face|viewer|viewer_face|user_left|user_right)\b/;   // a program aimed at his live face
 
     function prompt(text, opt) {
       P.prompts++;
@@ -104,10 +113,11 @@
       return st.things.map(t => [t.id, t.held || '', t.worn ? 'w' : '', t.where || '', t.on || '', t.inside || t.in || '', Array.isArray(t.pos) ? t.pos.map(q05).join(',') : ''].join(':')).join(';');
     }
     // ---- the page-side cache (the server keeps the real one): a repeat of a finished plan plays at once ('starting')
-    const ckey = J => J.character + '|' + norm(J.description) + (J.sig ? '|' + J.sig : '');   // + where the things are
+    const ckey = J => (J.mode === 'semantic' ? 'sem|' : '') + J.character + '|' + norm(J.description) + (J.sig ? '|' + J.sig : '');   // + where the things are; + the planner
     function cacheGet(J) { if (d.cache === false) return null; const k = ckey(J), v = P.cache.get(k); if (!v) return null; P.cache.delete(k); P.cache.set(k, v); return v; }
     function cachePut(J, v) {
       if (d.cache === false || !J.description) return;
+      if (J.mode === 'semantic' && J.sem && LIVE_TARGET.test(String(J.sem.program || ''))) return;   // the hub re-runs it with the fresh face
       P.cache.set(ckey(J), v);
       while (P.cache.size > 60) P.cache.delete(P.cache.keys().next().value);
     }
@@ -133,7 +143,7 @@
       const t = now(), id = 'p' + (++P.n);
       const J = {id, description: desc, character: d.character ? String(d.character() || '') : '', t, info,
         marks: {call_ms: t}, phase: 'planning', status: 'preparing', source: null, poses: [], done: false, ok: null,
-        error: null, cmd: false, playing: false, closed: false, waitFor: new Set(), engineIds: new Set(), timers: {},
+        error: null, cmd: false, playing: false, closed: false, mode: mode(), space: null, sem: null, waitFor: new Set(), engineIds: new Set(), timers: {},
         outcome: null, cue: null, alogged: false, talk: talkOf(info.talk),
         words: info.words ? String(info.words).replace(/\s+/g, ' ').trim().slice(0, 400) : ''};   // his words (library 2nd try)
       if (Number.isFinite(info.start_ms) && Number.isFinite(info.start_lat_ms)) J.marks.user_end_ms = info.start_ms - info.start_lat_ms;
@@ -151,11 +161,15 @@
         J.source = 'cache'; J.cacheHit = 'page'; J.marks.plan_first_pose_ms = t; J.done = true; J.ok = true;
         if (!J.waitFor.size) J.status = 'starting';
         if (hit.engine) runLibrary(J, hit.engine);
-        else { J.poses = hit.poses.slice(); feed(J, J.poses, true); }
+        else { J.poses = hit.poses.slice(); if (hit.space === 'rig') { J.space = 'rig'; J.hz = hit.hz; J.keepPose = !!hit.keep_pose; } feed(J, J.poses, true); }
       } else {
-        sendCtl(Object.assign({type: 'plan', id, character: J.character, description: desc, state: st0}, J.words ? {words: J.words} : {}));
+        if (J.mode === 'semantic') {   // the semantic API planner (his face etc. for the live targets)
+          st0.sem = semState();
+          sendCtl(Object.assign({type: 'plan', id, character: J.character, description: desc, state: st0}, J.words ? {words: J.words} : {}, {planner: 'semantic'}));
+        } else sendCtl(Object.assign({type: 'plan', id, character: J.character, description: desc, state: st0}, J.words ? {words: J.words} : {}));
+        J.planSentAt = now();
         armWatch(J);
-        if (!J.waitFor.size) { const k = TH(); if (k) { try { J.think = k.begin(id, {description: desc}); } catch (e) {} } }
+        if (!J.waitFor.size) { const k = TH(); if (k) { try { J.think = k.begin(id, J.mode === 'semantic' && P.semEst < SEM_ARMS_MS ? {description: desc, arms: false} : {description: desc}); } catch (e) {} } }   // a short semantic wait = no paw
       }
       log({perform: id, description: desc, status: J.status, after: [...J.waitFor], t: Math.round(t)});
       if (J.closed && J.outcome === 'failed') return {ok: false, id, reason: J.error || 'it could not be done'};
@@ -175,10 +189,15 @@
       const J = jobOf(m.id);
       if (!J || J.closed) { P.late++; return false; }               // replaced / finished / another page's plan
       if (m.source) J.source = m.source;
+      if (m.space === 'rig') { J.space = 'rig'; if (Number.isFinite(+m.hz) && +m.hz > 0) J.hz = +m.hz; }   // a dense rig-space track
+      if (m.keep_pose === true) J.keepPose = true;
+      if (m.extent && typeof m.extent === 'object') J.extent = m.extent;   // core's framing hint (rig jobs)
+      if (m.sem_unavailable) J.semUnavailable = true;
       if (m.source === 'cache' || m.source === 'library' || (Array.isArray(m.poses) && m.poses.length)) { const k = TH(); if (k) { try { k.known(J.id); } catch (e) {} } }
       if (m.done) {
         J.hub = {source: m.source || null, ms_first_pose: m.ms_first_pose ?? null, ms_done: m.ms_done ?? null, usd: m.usd ?? null,
           summary: m.summary ? String(m.summary).slice(0, 200) : undefined};
+        if (J.mode === 'semantic') { J.hub.planner = m.planner || null; J.hub.channels = Array.isArray(m.channels) ? m.channels.slice(0, 80) : undefined; J.hub.engine_name = typeof m.engine === 'string' ? m.engine : undefined; }
         T.clear(J.timers.watch);
       } else armWatch(J);
       if (m.source === 'library' && m.ok !== false && Array.isArray(m.engine) && m.engine.length) {
@@ -188,10 +207,16 @@
         return true;
       }
       const poses = (Array.isArray(m.poses) ? m.poses : []).filter(validPose);
-      if (poses.length) { if (J.marks.plan_first_pose_ms == null) J.marks.plan_first_pose_ms = now(); J.poses.push(...poses); }
+      if (poses.length) {
+        if (J.marks.plan_first_pose_ms == null) {
+          J.marks.plan_first_pose_ms = now();
+          if (J.mode === 'semantic' && m.source !== 'cache' && !J.cacheHit) P.semEst = 0.7 * P.semEst + 0.3 * Math.min(8000, J.marks.plan_first_pose_ms - J.t);
+        }
+        J.poses.push(...poses);
+      }
       if (m.done) { J.done = true; J.ok = m.ok !== false; J.error = m.error ? String(m.error).slice(0, 160) : null; }
       if (m.done && !J.poses.length) { fail(J, J.error || 'nothing could be planned'); return true; }
-      if (m.done && J.ok) cachePut(J, {poses: J.poses.slice()});
+      if (m.done && J.ok) cachePut(J, J.space === 'rig' ? {poses: J.poses.slice(), space: 'rig', hz: J.hz, keep_pose: !!J.keepPose} : {poses: J.poses.slice()});
       feed(J, poses, !!m.done);
       return true;
     }
@@ -205,13 +230,15 @@
         alogPending(J);
         J.cmd = true; J.phase = 'buffering';
         let r = null;
-        try { r = m.command({action: 'keyframes', id: J.id, description: J.description, poses: J.poses.slice(), done: J.done, hold: true}, {src: 'voice'}); }
+        const kc = {action: 'keyframes', id: J.id, description: J.description, poses: J.poses.slice(), done: J.done, hold: true};
+        if (J.space === 'rig') { kc.space = 'rig'; kc.hz = J.hz || 20; if (J.keepPose) kc.keep_pose = true; if (J.extent) kc.extent = J.extent; }
+        try { r = m.command(kc, {src: 'voice'}); }
         catch (e) { r = {ok: false, reason: 'error: ' + String(e && e.message || e).slice(0, 80)}; }
         if (!r || r.ok === false) { fail(J, (r && r.reason) || 'the body could not play it'); return; }
         if (r.id != null && String(r.id) !== J.id) P.jobs.set(String(r.id), J);   // the contract says the same id
         return;
       }
-      if ((newPoses.length || done) && m && typeof m.kfFeed === 'function') { try { m.kfFeed(J.id, newPoses, !!done); } catch (e) {} }
+      if ((newPoses.length || done) && m && typeof m.kfFeed === 'function') { try { if (J.space === 'rig' && (J.extent || (done && J.keepPose))) m.kfFeed(J.id, newPoses, !!done, Object.assign(done && J.keepPose ? {keep_pose: true} : {}, J.extent ? {extent: J.extent} : {})); else m.kfFeed(J.id, newPoses, !!done); } catch (e) {} }
     }
     function proceed(J) {           // the step before it ended: go
       if (J.closed) return;
@@ -255,7 +282,7 @@
           '. Give him one brief natural cue now, in your own words. It has not happened yet: never say it is done or finished (a later note tells you when it is); if he asked you to talk during it, do that through the motion.',
           {respond: true, maxWaitMs: CUE_STALE_MS, onAudio: () => release(J, 'cue audio')});
       }
-      J.timers.cue = T.set(() => release(J, 'cue timeout'), CUE_MAX_MS);
+      J.timers.cue = T.set(() => release(J, 'cue timeout'), J.mode === 'semantic' ? CUE_MAX_SEM_MS : CUE_MAX_MS);
     }
     function release(J, why) {
       if (J.closed || J.phase !== 'ready') return;
@@ -314,7 +341,8 @@
         character: J.character, outcome: J.outcome, status: J.status, cue: J.cue || null, release: J.releaseWhy || null,
         cache: J.cacheHit || undefined, error: J.error || undefined, hub: J.hub || undefined, checkin: J.checkin || undefined,
         talk: J.talk === 'usual' ? undefined : J.talk,
-        after_wait: J.waitTimedOut ? 'timed out' : undefined});
+        after_wait: J.waitTimedOut ? 'timed out' : undefined,
+        ...(J.mode === 'semantic' ? {planner: 'semantic', space: J.space || undefined, sem_unavailable: J.semUnavailable || undefined} : {})});
       log({perform: J.id, outcome: J.outcome, t: Math.round(now())});
       wake(J.id);
     }
@@ -410,6 +438,37 @@
       if (moving) { const m = motion(); if (m && typeof m.command === 'function') { try { m.command({action: 'stop'}, {src: 'voice'}); } catch (e) {} } }
       return moving;
     }
+    // ---------------------------------------------------------------- the hub's {type:'sem'} progress (program, timings)
+    function onSem(m) {
+      if (!m || m.id == null) return false;
+      const J = jobOf(m.id);
+      const rec = {phase: m.phase || null, program: typeof m.program === 'string' ? m.program.slice(0, 8000) : '', source: m.source || null, model: m.model || null,
+        cached: !!m.cached, ms: m.ms && typeof m.ms === 'object' ? Object.assign({}, m.ms) : {}, exec_ms: Array.isArray(m.exec_ms) ? m.exec_ms.slice(0, 60) : [],
+        warnings: Array.isArray(m.warnings) ? m.warnings.slice(0, 20).map(String) : [], errors: Array.isArray(m.errors) ? m.errors.slice(0, 20).map(String) : [],
+        targets: m.targets && typeof m.targets === 'object' ? m.targets : {}, at: now()};
+      if (!J) { P.semOrphan = Object.assign({id: String(m.id)}, rec); return false; }
+      const prev = J.sem; J.sem = rec;
+      if (m.extent && typeof m.extent === 'object' && !J.closed) {   // core's framing hint, as early as the hub has it
+        J.extent = m.extent;
+        const mo = motion(); if (J.cmd && J.space === 'rig' && mo && typeof mo.kfFeed === 'function') { try { mo.kfFeed(J.id, [], false, {extent: m.extent}); } catch (e) {} }
+      }
+      if (prev && !rec.program && prev.program) rec.program = prev.program;
+      if (rec.phase === 'done' && LIVE_TARGET.test(rec.program) && d.cache !== false) P.cache.delete(ckey(J));   // stale face: not from the page cache
+      return true;
+    }
+    function semOf(J) {
+      if (!J) return null;
+      const mk = J.marks, s = J.sem || {}, ms = {};
+      const put = (k, v) => { if (Number.isFinite(v)) ms[k] = Math.round(v); };
+      put('heard', mk.user_end_ms); put('call', mk.call_ms); put('plan_sent', J.planSentAt); put('first_pose', mk.plan_first_pose_ms);
+      put('ready', mk.ready_ms); put('first_motion', mk.first_motion_ms); put('end', mk.end_ms);
+      return {mode: J.mode, id: J.id, description: J.description, character: J.character, phase: J.phase, outcome: J.outcome, source: s.source || J.source || null,
+        model: s.model || null, cached: !!s.cached || J.cacheHit === 'page', page_cache: J.cacheHit === 'page', program: s.program || '', sem_phase: s.phase || null,
+        warnings: s.warnings || [], errors: s.errors || [], targets: s.targets || {}, exec_ms: s.exec_ms || [], hub_ms: s.ms || {}, page_ms: ms,
+        hub: J.hub || null, motion_s: J.poses.length ? plannedS(J) : null, space: J.space, summary: J.hub && J.hub.summary || null,
+        sem_unavailable: !!J.semUnavailable, error: J.error || null};
+    }
+    function semLast() { return semOf(P.order[P.order.length - 1] || null); }
     function list() {
       return P.order.map(J => ({id: J.id, description: J.description, character: J.character, phase: J.phase, status: J.status,
         source: J.source, outcome: J.outcome, closed: J.closed, cue: J.cue, release: J.releaseWhy || null, poses: J.poses.length,
@@ -418,10 +477,10 @@
     function stats() {
       const L = list();
       return {jobs: L.length, active: L.filter(x => !x.closed).length, late_kf: P.late, cache: P.cache.size, deferred: P.deferred.length,
-        prompts: P.prompts, last: L.slice(-8)};
+        prompts: P.prompts, last: L.slice(-8), ...(mode() === 'semantic' ? {sem_est_ms: Math.round(P.semEst)} : {})};
     }
     function reset() { stop('reset'); P.jobs.clear(); P.order = []; P.engine.clear(); }
-    return {call, onKf, onAction, avatarAudio, engineCall, stop, list, stats, reset, active: () => active().length,
+    return {call, onKf, onAction, avatarAudio, engineCall, stop, list, stats, reset, active: () => active().length, onSem, semLast, mode,
       busy: () => active().some(J => J.cmd || J.playing)};
   }
   return {createPerformer, norm, CUE_MAX_MS, CUE_STALE_MS, CHECKIN_STALE_MS};

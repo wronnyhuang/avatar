@@ -7,7 +7,8 @@ character out, each tagged with the timeline instant it depicts.
 
 ENDPOINTS  ws://host:port/render?key=<RENDER_KEY> (one session at a time; a new connection replaces the old one) and
 GET /health -> {"ok":true,"gpu":"...","busy":bool,...}.  Wire format: AVATAR.md ('A' audio in, 'V' video out, JSON
-start/character/stop/ping/keyframe in, status/ready/stats/pong/error out); deviations in avatar/PROTOCOL-NOTES.txt.
+start/character/stop/ping/keyframe/rigdbg in, status/ready/stats/pong/error/rigdbg out); deviations in
+avatar/PROTOCOL-NOTES.txt ("rigdbg" = opt-in rendered lip / hand values for the page's rig debug panel: note 14).
 
 PIPELINE  'A' (contiguous int16 PCM on the 24 kHz timeline, may run ahead of real time) -> animator thread:
 live.core.LiveCore (anim.lipstream.StreamingLipAnimator, lookahead from start, causal 30 -> fps "hold" resampler) ->
@@ -55,7 +56,7 @@ if ROOT not in sys.path:
 
 from anim.lipstream import StreamingLipAnimator      # noqa: E402
 from anim.schema import FPS as ROW_FPS, SAMPLE_RATE as SR, IDX  # noqa: E402
-from anim.rig import RigMixer, RIG_PARAMS            # noqa: E402
+from anim.rig import RigMixer, RIG_PARAMS, LIP_OWNED  # noqa: E402
 from live.core import LiveCore                       # noqa: E402
 
 mono = time.monotonic
@@ -65,6 +66,13 @@ CHARACTERS = ["fox", "bear", "rabbit", "hippo", "monkey", "orb", "cube", "drop",
 A_HDR = struct.Struct("<B3xQ")          # 'A', pad, uint64 first sample
 V_HDR = struct.Struct("<BBHId")         # 'V', flags, pad, uint32 frame number, float64 t
 SPFS = {20: 1200, 24: 1000, 30: 800}    # timeline samples per output frame
+# rigdbg (note 14): the FINAL rendered values the page's rig debug panel shows, opt-in per session
+RIGDBG_COLS = list(LIP_OWNED) + ["smile", "mouth_open", "hand_l_x", "hand_l_y", "hand_l_z", "hand_r_x", "hand_r_y",
+                                 "hand_r_z", "hand_l_open", "hand_r_open"]
+RIGDBG_IDX = np.array([IDX[c] for c in RIGDBG_COLS], np.intp)
+RIGDBG_EVERY_S = 0.1                     # at most one message per 100 ms
+RIGDBG_MAX_ROWS = 40                     # rows per message (oldest dropped)
+RIGDBG_COLS_EVERY_S = 2.0                # "cols" rides the first message after each "on", then at most every 2 s
 
 
 def log(*a):
@@ -272,6 +280,9 @@ class Session:
         self.totals = collections.Counter()
         self.sent_frames = {}
         self.rig = RigMixer()           # page rig vectors + the old pose dicts, smoothed (anim/rig.py)
+        self.rigdbg = None              # rigdbg: None = off (the default); on = deque of (F, final values) rows
+        self.rigdbg_task = None         # rigdbg: the 100 ms poster (an asyncio task, only while on)
+        self.rigdbg_cols_at = None      # rigdbg: when "cols" last went out (None = due: the next message carries it)
         from avatar.surfaces_rx import SurfaceMirror      # the app server's live surfaces ('S' messages)
         self.surf = SurfaceMirror()
         self.rig_lock = threading.Lock()
@@ -430,6 +441,58 @@ class Session:
             self.rig.push_rig(msg.get("t"), a, mono(), names=names if isinstance(names, list) else None)
         self.totals["rig_msgs"] += 1
 
+    # ---------------------------------------------------------------- rigdbg: rendered values for the debug panel
+    def set_rigdbg(self, msg):
+        """{"type":"rigdbg","on":bool}: while on, every dispatched frame's FINAL lip / hand columns (after lipstream,
+        combine()) are kept and posted at most every 100 ms (note 14).  Off drops them at once."""
+        if msg.get("on"):
+            self.rigdbg_cols_at = None   # every "on" (the hub re-sends it after each ready): the next message has cols
+            if self.rigdbg is None:
+                self.rigdbg = collections.deque(maxlen=RIGDBG_MAX_ROWS)
+            if self.rigdbg_task is None or self.rigdbg_task.done():
+                self.rigdbg_task = self.loop.create_task(self._rigdbg_poster())
+        else:
+            self.rigdbg = None
+            t, self.rigdbg_task = self.rigdbg_task, None
+            if t is not None:
+                t.cancel()
+
+    def rigdbg_json(self):
+        """-> the next rigdbg message (every row since the last one, oldest dropped beyond 40), or None (no rows).
+        "cols" only on the first message after an "on" and then at most every RIGDBG_COLS_EVERY_S (the page keeps the
+        last list it saw)."""
+        dbg, cfg = self.rigdbg, self.cfg
+        if not dbg or cfg is None:
+            return None
+        fps = cfg["fps"]
+        got = []
+        while dbg:
+            try:
+                got.append(dbg.popleft())
+            except IndexError:
+                break
+        if not got:
+            return None
+        vals = (np.round(np.nan_to_num(np.stack([v for _, v in got]).astype(np.float64)), 3) + 0.0).tolist()  # no -0.0
+        rows = [[int(F), F / fps] + v for (F, _), v in zip(got, vals)]     # t = F / fps: the 'V' header's t exactly
+        m = {"type": "rigdbg", "fps": fps}
+        now = mono()
+        if self.rigdbg_cols_at is None or now - self.rigdbg_cols_at >= RIGDBG_COLS_EVERY_S:
+            m["cols"] = RIGDBG_COLS
+            self.rigdbg_cols_at = now
+        m["rows"] = rows
+        return m
+
+    async def _rigdbg_poster(self):
+        try:
+            while self.running and self.rigdbg is not None:
+                await asyncio.sleep(RIGDBG_EVERY_S)
+                m = self.rigdbg_json()
+                if m is not None:
+                    self.post(json.dumps(m, separators=(",", ":")))
+        except asyncio.CancelledError:
+            pass
+
     def _anim_loop(self):
         core = None
         a0 = 0
@@ -535,6 +598,9 @@ class Session:
                 eng, gen = self.engine, self.gen
                 with self.rig_lock:
                     params = self.rig.apply(jb.params, jb.t, now)
+                dbg = self.rigdbg
+                if dbg is not None:     # rigdbg: a copy of the final columns; off = this one check
+                    dbg.append((jb.F, params[RIGDBG_IDX]))
                 self.sent_frames[jb.F] = (now, t0 + jb.horizon / SR, gen)
             # surface updates due at this frame's timeline instant go up before the job (bounded bytes)
             self.surf.advance(jb.t)
@@ -604,6 +670,9 @@ class Session:
     def close(self):
         self.running = False
         self.audio_q.put(None)
+        self.rigdbg = None                  # rigdbg
+        if self.rigdbg_task is not None:
+            self.rigdbg_task.cancel()
         with self.cond:
             self.gen += 1
             self.cond.notify_all()
@@ -711,6 +780,8 @@ class Server:
                         sess.set_pose(msg)
                     elif typ == "rig":
                         sess.set_rig(msg)
+                    elif typ == "rigdbg":                 # rendered lip / hand values for the rig debug panel
+                        sess.set_rigdbg(msg)
                     elif typ == "stop":
                         break
                     else:

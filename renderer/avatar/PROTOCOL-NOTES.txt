@@ -40,3 +40,21 @@ PRECISIONS
     sessions (released after --idle-release-s, default 600 s, without a session).
 13. Wrong or missing key -> HTTP 403 on the upgrade; any other path -> 404.  RENDER_KEY is read from the environment
     only (never a flag, never logged); without it the server refuses to start unless --insecure-no-key.
+14. hub->render {"type":"rigdbg","on":true|false}: opt-in rendered values for the page's rig debug panel.  Off is
+   the default (and the state of every new connection): the dispatcher does one None check per frame and nothing else;
+   frames are byte-identical either way.  While on, right after RigMixer.apply() for each DISPATCHED frame the server
+   keeps a copy of these FINAL columns (after lipstream and combine() = exactly what the backend gets):
+     cols = LIP_OWNED (anim/rig.py, 19, in order) + smile, mouth_open, hand_l_x, hand_l_y, hand_l_z, hand_r_x, hand_r_y,
+            hand_r_z, hand_l_open, hand_r_open   (29)
+   and, at most every 100 ms (only when there are rows), posts
+     {"type":"rigdbg","fps":<fps>,"cols":[...29 names...],"rows":[[F, t, v1, ... v29], ...]}
+   "cols" rides only the FIRST message after each "on" (also an "on" re-sent while already on, e.g. after a "ready")
+   and then at most every 2 s; every other message omits it -- read its rows with the most recent cols list seen.
+   F = the frame number of the 'V' that carries it, t = F / fps (the same float64 as that 'V' header's t, unrounded),
+   values rounded to 3 decimals; every row since the previous message, at most 40 (the oldest dropped).  Dropped
+   (never rendered) frames have no row.  The setting survives start / character switch on the same connection
+   (the hub re-sends "on" after every "ready" anyway); "on" twice = once; "off" drops the rows not yet posted.
+   Cost while on (avatar/test_rigdbg.py cost / session): the dispatcher's 29-float copy ~0.4 us per frame; the poster
+   (an asyncio task only while on: rounding + compact JSON) ~90 us per message on the event loop, ~10 messages/s;
+   ~4.0 kB/s at 24 fps (~24 rows/s, ~170 B per row; with cols on every message it was ~7.1 kB/s).  Off: ~10 ns per frame.
+   An older server answers {"type":"error","message":"unknown message type 'rigdbg'"}: the hub swallows it.

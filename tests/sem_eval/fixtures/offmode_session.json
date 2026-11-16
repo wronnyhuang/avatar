@@ -1,0 +1,220 @@
+{
+"note": "off-mode equivalence: hub kf answers recorded from the current planner (val1 run), replayed with their arrival ms (pt)",
+"steps": [
+{
+"description": "Point at the board behind you",
+"from": "muse/fresh/sp01_point_board",
+"kf": [
+{
+"pt": 5449,
+"type": "kf",
+"id": "p1",
+"poses": [
+{
+"t": 0.3,
+"body_yaw": -0.3,
+"head_yaw": -0.3,
+"right_paw_x": 0.5,
+"right_paw_y": 0.3,
+"right_paw_z": -0.2
+}
+],
+"done": false
+},
+{
+"pt": 6061,
+"type": "kf",
+"id": "p1",
+"poses": [
+{
+"t": 0.9,
+"body_yaw": -0.7,
+"head_yaw": -0.6,
+"head_pitch": -0.05,
+"right_paw_x": 0.9,
+"right_paw_y": 0.6,
+"right_paw_z": -0.8,
+"right_fingers": 1,
+"right_paw_open": 0.5,
+"eye_wide": 0.4,
+"smile": 0.4
+}
+],
+"done": false
+},
+{
+"pt": 6288,
+"type": "kf",
+"id": "p1",
+"poses": [
+{
+"t": 2,
+"head_roll": -0.1,
+"right_paw_y": 0.7,
+"right_paw_z": -0.9
+}
+],
+"done": false
+},
+{
+"pt": 6519,
+"type": "kf",
+"id": "p1",
+"poses": [
+{
+"t": 3.2,
+"head_roll": 0.05,
+"right_paw_y": 0.6,
+"right_paw_z": -0.8
+}
+],
+"done": false
+},
+{
+"pt": 7020,
+"type": "kf",
+"id": "p1",
+"poses": [
+{
+"t": 3.8,
+"body_yaw": 0,
+"head_yaw": 0,
+"head_pitch": 0,
+"head_roll": 0,
+"right_paw_x": 0,
+"right_paw_y": 0,
+"right_paw_z": 0,
+"right_fingers": 0,
+"right_paw_open": 0.2,
+"eye_wide": 0,
+"smile": 0.1
+}
+],
+"done": false
+},
+{
+"pt": 7055,
+"type": "kf",
+"id": "p1",
+"poses": [],
+"done": true,
+"ok": true,
+"source": "planner",
+"engine": null,
+"summary": "Look over shoulder and point back at the board",
+"ms_first_pose": 5415,
+"ms_done": 7021,
+"usd": 0.001965
+}
+]
+},
+{
+"description": "Give me a wink",
+"from": "muse/fresh/fa01_wink",
+"kf": [
+{
+"pt": 72,
+"type": "kf",
+"id": "p2",
+"poses": [],
+"done": true,
+"ok": true,
+"source": "library",
+"engine": [
+{
+"action": "gesture",
+"name": "wink",
+"side": "l",
+"parts": [
+"eyes"
+],
+"repeat": 1,
+"duration_ms": 600,
+"own": "right"
+}
+],
+"summary": "",
+"ms_first_pose": null,
+"ms_done": 8,
+"usd": 0
+}
+]
+},
+{
+"description": "Point at the TV and look over there",
+"from": "muse/cached/co01_point_look_tv",
+"kf": [
+{
+"pt": 64,
+"type": "kf",
+"id": "p3",
+"poses": [
+{
+"t": 0.3,
+"do": {
+"verb": "go_to",
+"object": "tv",
+"target": "tv"
+}
+},
+{
+"t": 0.9,
+"right_paw_x": 0.1,
+"right_paw_y": 0.55,
+"right_paw_z": 0.85,
+"right_point": 1,
+"head_pitch": -0.1,
+"body_yaw": -0.15,
+"right_brow": 0.5,
+"left_brow": 0.5,
+"eye_wide": 0.5
+},
+{
+"t": 2.5,
+"head_pitch": -0.15,
+"right_paw_y": 0.6
+},
+{
+"t": 3.5,
+"head_pitch": -0.1,
+"right_paw_y": 0.55
+}
+],
+"done": true,
+"ok": true,
+"source": "cache",
+"engine": null,
+"summary": "Walk to the TV, point at it and look",
+"ms_first_pose": 4,
+"ms_done": 4,
+"usd": 0
+}
+]
+},
+{
+"description": "Can you do a backflip?",
+"from": "muse/fresh/wb01_backflip",
+"kf": [
+{
+"pt": 69,
+"type": "kf",
+"id": "p4",
+"poses": [],
+"done": true,
+"ok": true,
+"source": "library",
+"engine": [
+{
+"action": "move",
+"name": "backflip"
+}
+],
+"summary": "",
+"ms_first_pose": null,
+"ms_done": 5,
+"usd": 0
+}
+]
+}
+]
+}

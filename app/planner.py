@@ -813,6 +813,8 @@ def kf_message(pid: str, ev: dict) -> dict:
                     "ms_done": ev.get("ms_done"), "usd": round(float(ev.get("usd") or 0.0), 6)})
         if ev.get("error"):
             msg["error"] = str(ev["error"])[:300]
+        if ev.get("sem_unavailable"):          # a semantic plan for a character without the semantic API
+            msg["sem_unavailable"] = True
     return msg
 
 
@@ -1287,11 +1289,32 @@ def _door_takes_effort(d) -> bool:
         return False
 
 
-async def door_stream(spec: dict, system: str, user: str, deadline: float, info: dict, tag: str = "planner"):
+def sem_door(effort=None):
+    """the semantic planner's OWN claude_door instance per effort (its own warm pool and MAX_TOTAL budget). Shared
+    with the keyframe planner's door (same model + effort "none"), the keyframe prompts' warm processes (2 per
+    character, warmed at every session open) filled the budget and the semantic prewarm spawned nothing."""
+    try:
+        import claude_door
+    except ImportError as e:
+        raise PlanError(f"claude_door unavailable: {e}") from None
+    eff = effort or None
+    k = ("semantic", eff)
+    d = _DOORS.get(k)
+    if d is None:
+        d = _DOORS[k] = claude_door.ClaudeDoor()
+        if eff == DOOR_NO_THINK:
+            d.effort, d.thinking = "low", False
+        elif eff is not None:
+            d.effort = eff
+    return d
+
+
+async def door_stream(spec: dict, system: str, user: str, deadline: float, info: dict, tag: str = "planner",
+                      door=None):
     """one planner call through the door: yields text deltas; the door's done event -> info["door"] (ms_first, ms_done,
     warm, API-equivalent cost) and info["usage"]; a failed answer raises PlanError (a timeout is transient). Closing this
     generator (a cancel, the plan's timeout) closes the door's stream, which kills its process."""
-    d = door_for(spec.get("effort"))
+    d = door if door is not None else door_for(spec.get("effort"))
     left = deadline - time.monotonic()
     if left <= 0:
         raise PlanError("timeout", transient=True)
@@ -1363,7 +1386,697 @@ class _Attempt:
                    if self.info.get("door") else {})}
 
 
-class Planner:
+# --------------------------------------------------------------------------------------- semantic-API planner
+# {type:'plan', ..., planner:'semantic'} (docs/SEMANTIC.md section 3): library (unchanged) -> semantic cache
+# (AVATAR_HOME/cache/semplans, its own namespace) -> Claude writes a short program in the semantic motion API
+# (app/semantic, the core package), streamed into semantic.Stream OFF the event loop; every complete top-level
+# statement becomes a batch of dense rig-space poses -> {type:'kf', space:'rig'} + {type:'sem'} info messages.
+# Claude models only: the `claude` CLI door (no key) or the Anthropic Messages API (ANTHROPIC_API_KEY); route "auto" =
+# the CLI when it is on PATH, else the API key. No other provider and no fallback to the keyframe planner; one retry on
+# the same model when it fails before its first pose with >= retry_min_s left. Config planner.semantic over SEM_DEFAULTS
+# (env AVATAR_SEM_MODEL / AVATAR_SEM_EFFORT / AVATAR_SEM_ROUTE override it).
+# Defaults by measurement (24 fresh commands per run through the door): Sonnet 5.5 with thinking
+# off is as fast to the first pose as Haiku (its first token is earlier; Haiku writes faster) and clearly better (blind
+# Sonnet judge 3.9-4.0 vs 3.1-3.4 of 5; 0 interpreter errors vs 1-2 per 24); thinking "low" is slower and no better.
+# SEM_SUFFIX (the first line a single body call, not a `with` block) cuts first token -> first pose from 762 to 399 ms
+# median with the same judge score. A hedge (2nd identical call) gained nothing: the two calls' first tokens move together.
+SEM_SUFFIX = """## Streaming (important)
+The avatar starts moving the moment your FIRST statement is complete, so put the opening move first and keep the
+first statement short. If the action is ONE movement, open with that single call on its own line (the reach, raise,
+turn, lean or arm move that begins it — never hold(), wait() or a face-only change). If things happen AT THE SAME
+TIME (point and look, wave and smile, a move with its expression), open with ONE `with parallel():` block of 2-4
+lines with the main body move as its first line — never split a simultaneous ask into a solo call followed by a
+block. No comments, no blank lines."""
+SEM_DEFAULTS = {"model": "claude-sonnet-5-5", "effort": "none", "route": "auto", "hedge": None, "timeout_s": 20.0, "retry_min_s": 8.0,
+                "cache": True, "hz": 20, "suffix": "auto", "warm_n": 2, "prime": True, "prime_ttl_s": 240.0}
+SEM_PRIME_USER = 'Warm-up call, not a command: reply with exactly\n```python\nhold(0.1)\n```'
+_SEM_LAST_USE: dict = {}       # (model, effort, sha(system)) -> monotonic time of the last door request with that prompt
+SEM_TAG = "semantic"
+_SEM_STATE: dict = {"mod": None, "tried": False, "err": None}
+_SEM_POOL = None
+_SEM_END = object()
+
+
+def sem_module():
+    """the core package `semantic` (app/semantic), imported once; None when it is not installed (or fails to import)"""
+    if not _SEM_STATE["tried"]:
+        try:
+            import semantic                      # app/semantic
+            _SEM_STATE["mod"] = semantic
+        except Exception as e:  # noqa: BLE001
+            _SEM_STATE["err"] = f"{type(e).__name__}: {str(e)[:200]}"
+        _SEM_STATE["tried"] = True
+    return _SEM_STATE["mod"]
+
+
+def set_sem_module(mod) -> None:
+    """tests: use this module as `semantic` (None = not installed)"""
+    _SEM_STATE.update({"mod": mod, "tried": True, "err": None if mod is not None else "not installed"})
+
+
+def _sem_pool():
+    global _SEM_POOL
+    if _SEM_POOL is None:
+        from concurrent.futures import ThreadPoolExecutor
+        _SEM_POOL = ThreadPoolExecutor(max_workers=4, thread_name_prefix="semantic")
+    return _SEM_POOL
+
+
+async def _off(fn, *a):
+    """run fn(*a) on the semantic thread pool (never on the event loop)"""
+    return await asyncio.get_running_loop().run_in_executor(_sem_pool(), fn, *a)
+
+
+def sem_code(text: str) -> str:
+    """the program text so far: the fenced python block's body (open or closed); the raw text when no fence yet"""
+    t = text or ""
+    i = t.find("```")
+    if i < 0:
+        return t.strip()
+    j = t.find("\n", i)
+    if j < 0:
+        return ""
+    body = t[j + 1:]
+    k = body.find("```")
+    return (body[:k] if k >= 0 else body).rstrip()
+
+
+_SEM_STR = re.compile(r"""['"]([A-Za-z_][A-Za-z0-9_]*)['"]""")
+
+
+def _sem_names_used(program: str) -> set:
+    return set(_SEM_STR.findall(program or ""))
+
+
+def _xyz(v) -> list | None:
+    try:
+        return [round(float(v[0]), 1), round(float(v[1]), 1), round(float(v[2]), 1)]
+    except (TypeError, ValueError, IndexError):
+        return None
+
+
+def sem_targets_wire(targets) -> dict:
+    return {str(k): x for k, v in (targets or {}).items() if (x := _xyz(v)) is not None}
+
+
+def sem_warm_key(spec: dict, system: str) -> tuple:
+    """what a warm door process is keyed by (model + the door instance's effort) + the exact prompt bytes"""
+    return (spec["model"], spec.get("effort"), hashlib.sha256(system.encode("utf-8")).hexdigest())
+
+
+def sem_message(pid: str, ev: dict) -> dict:
+    """a {type:'sem'} info message (contract section 3)"""
+    msg = {"type": "sem", "id": pid}
+    for k in ("phase", "program", "source", "model", "cached", "ms", "exec_ms", "warnings", "errors", "targets"):
+        if k in ev:
+            msg[k] = ev[k]
+    for k in ("n_statements", "error", "duration_s"):
+        if ev.get(k) is not None:
+            msg[k] = ev[k]
+    return msg
+
+
+def sem_kf_message(pid: str, ev: dict) -> dict:
+    """the rig-space kf message of a semantic plan event (library hits: today's kf message + planner:'semantic')"""
+    if ev.get("space") != "rig":
+        msg = kf_message(pid, ev)
+        msg["planner"] = "semantic"
+        return msg
+    msg = {"type": "kf", "id": pid, "space": "rig", "hz": ev.get("hz"), "poses": ev.get("poses") or [],
+           "done": bool(ev.get("done"))}
+    if msg["done"]:
+        msg.update({"ok": bool(ev.get("ok")), "source": ev.get("source") or "planner", "planner": "semantic",
+                    "engine": ev.get("engine"), "summary": ev.get("summary") or "", "ms_first_pose": ev.get("ms_first_pose"),
+                    "ms_done": ev.get("ms_done"), "usd": round(float(ev.get("usd") or 0.0), 6)})
+        if ev.get("error"):
+            msg["error"] = str(ev["error"])[:300]
+        if ev.get("keep_pose"):
+            msg["keep_pose"] = True
+        if ev.get("channels"):
+            msg["channels"] = list(ev["channels"])
+    return msg
+
+
+async def _sem_door_stream(spec, system, user, deadline, info, tag):
+    async for d in door_stream(spec, system, user, deadline, info, tag, door=sem_door(spec.get("effort"))):
+        yield d
+
+
+class _SemAttempt:
+    """one door call of a semantic plan: its stream, its semantic.Stream (fed off the loop), its timings"""
+
+    def __init__(self, role: str, spec: dict, ms_start: int):
+        self.role, self.spec = role, spec
+        self.info: dict = {"spec": spec}
+        self.text = ""
+        self.stream = None
+        self.report: dict = {}
+        self.err, self.transient = None, False
+        self.ms_start, self.ms_end, self.ms_door_done = ms_start, None, None
+        self.ms_first_token = self.ms_first_stmt = None
+        self.n_poses, self.n_batches = 0, 0
+        self.task = None
+        self.ended = self.cancelled = False
+        self.t_start = time.monotonic()
+
+    def failure(self) -> str:
+        if self.err:
+            return self.err
+        errs = self.report.get("errors") or []
+        if errs:
+            e = errs[-1]
+            return "no valid statements: " + str(e.get("error") if isinstance(e, dict) else e)[:200]
+        return "no valid statements" if self.text else "empty answer"
+
+    def record(self) -> dict:
+        return {"model": self.spec["model"], "route": self.spec["route"], "effort": self.spec.get("effort"),
+                "role": self.role, "ms_start": self.ms_start, "ms_first_token": self.ms_first_token,
+                "ms_first_stmt": self.ms_first_stmt, "ms_door_done": self.ms_door_done, "ms_end": self.ms_end,
+                "error": self.err, "cancelled": self.cancelled, "chars": len(self.text), "poses": self.n_poses,
+                "usage": self.info.get("usage") or None,
+                **({"door": self.info["door"]} if self.info.get("door") else {})}
+
+
+class _SemanticPlanner:
+    """Planner's semantic-API path (mixed into Planner; uses its cfg / library / log)"""
+
+    sem_stream_fn = None                          # tests: fn(spec, system, user, deadline, info) yielding text
+
+    def sem_cfg(self) -> dict:
+        c = self.cfg.get("semantic")
+        return {**SEM_DEFAULTS, **c} if isinstance(c, dict) else dict(SEM_DEFAULTS)
+
+    @staticmethod
+    def sem_route(route=None) -> str:
+        """the semantic planner's route: "claude_door" (the `claude` CLI) or "anthropic" (ANTHROPIC_API_KEY); "auto" =
+        the CLI when it is on PATH, else the API (whose calls then name the missing key)"""
+        r = str(os.environ.get("AVATAR_SEM_ROUTE", "").strip() or route or "auto").lower()
+        if r in ("claude_door", "anthropic"):
+            return r
+        return "claude_door" if claude_cli() else "anthropic"
+
+    @staticmethod
+    def _sem_spec(part, route=None) -> dict | None:
+        """{"model", "effort"} -> a spec on the semantic route; None when the model is not a Claude model"""
+        if isinstance(part, str):
+            part = {"model": part}
+        if not isinstance(part, dict) or not part.get("model"):
+            return None
+        s = _spec({"model": part["model"], "route": _SemanticPlanner.sem_route(part.get("route") or route),
+                   "effort": part.get("effort", "none")})
+        if not str(s["model"]).startswith("claude-"):
+            return None
+        if part.get("after_s") is not None:
+            try:
+                s["after_s"] = max(0.0, float(part["after_s"]))
+            except (TypeError, ValueError):
+                s["after_s"] = 1.5
+        return s
+
+    def sem_specs(self) -> tuple[dict | None, dict | None]:
+        c = self.sem_cfg()
+        env = os.environ.get("AVATAR_SEM_MODEL", "").strip()
+        p = self._sem_spec({"model": env or c["model"], "effort": os.environ.get("AVATAR_SEM_EFFORT", "").strip()
+                            or c.get("effort", "none")}, c.get("route"))
+        h = self._sem_spec(c.get("hedge"), c.get("route")) if c.get("hedge") else None
+        if h is not None and "after_s" not in h:
+            h["after_s"] = 1.5
+        return p, h
+
+    def _sem_system(self, sem, character: str, targets) -> str:
+        names = tuple(sorted(str(k) for k in (targets or {})))
+        suffix = self.sem_cfg().get("suffix")
+        suffix = SEM_SUFFIX if suffix == "auto" else (suffix or "")      # "auto" = the measured latency note; null = none
+        memo = self.__dict__.setdefault("_sem_sys_memo", {})
+        k = (character, names, suffix)
+        if k not in memo:
+            s = sem.system_prompt(character, list(names))
+            memo[k] = (s.rstrip("\n") + "\n\n" + suffix.strip() + "\n") if suffix.strip() else s
+        return memo[k]
+
+    def _sem_stats(self) -> dict:
+        return self.__dict__.setdefault("sem_stats", {"plans": 0, "library": 0, "cache": 0, "planner": 0, "failed": 0,
+                                                      "retries": 0, "hedged": 0, "unavailable": 0})
+
+    # -- warm the door for the semantic system prompt (the page's {type:'semwarm', character})
+    def prewarm_semantic(self, character: str, n: int | None = None) -> list[dict]:
+        """-> the specs warmed ([] = semantic not installed / character without a retarget / planner off). Call after
+        sem_module() has been imported off the loop (prewarm_semantic_async does both)."""
+        sem = _SEM_STATE["mod"] if _SEM_STATE["tried"] else sem_module()
+        if not self.enabled or sem is None or character not in getattr(sem, "CHARACTERS", ()):
+            return []
+        try:
+            system = self._sem_system(sem, character, sem.resolve_targets(character, None))
+        except Exception as e:  # noqa: BLE001
+            self.log(f"planner: semantic prewarm prompt failed: {type(e).__name__}: {str(e)[:120]}")
+            return []
+        if n is None:
+            n = self.sem_cfg().get("warm_n")
+            n = 2 if n is None else int(n)
+        out = []
+        for sp in self.sem_specs():
+            if sp:
+                try:
+                    if sp["route"] == "claude_door":     # the API route has no processes to warm
+                        sem_door(sp.get("effort")).prewarm(sp["model"], system, n)
+                    out.append(sp)
+                except Exception as e:  # noqa: BLE001
+                    self.log(f"planner: semantic door prewarm failed: {type(e).__name__}: {str(e)[:120]}")
+        return out
+
+    async def prewarm_semantic_async(self, character: str, n: int | None = None, prime: bool | None = None) -> list[dict]:
+        """warm the door's processes for the semantic prompt AND (cfg prime, default on) prime the API's prompt cache with
+        one tiny request on that exact (model, system) when it has not been used for prime_ttl_s (the provider's prompt
+        cache lapses after ~5 min idle: the first real plan then pays the cache write)"""
+        if not _SEM_STATE["tried"]:
+            await _off(sem_module)
+        specs = self.prewarm_semantic(character, n)
+        c = self.sem_cfg()
+        # the prime is one tiny request through the CLI door; on the API route it would be a paid call at page load,
+        # so there semwarm only reports availability (the prompt cache fills with the first real plan)
+        if specs and specs[0]["route"] == "claude_door" and (c.get("prime", True) if prime is None else prime):
+            sem = _SEM_STATE["mod"]
+            try:
+                system = self._sem_system(sem, character, sem.resolve_targets(character, None))
+            except Exception:  # noqa: BLE001
+                return specs
+            sp = specs[0]
+            k = sem_warm_key(sp, system)
+            if time.monotonic() - _SEM_LAST_USE.get(k, -1e9) >= float(c.get("prime_ttl_s") or 240.0):
+                _SEM_LAST_USE[k] = time.monotonic()
+                t = asyncio.ensure_future(self._sem_prime(sp, system))
+                self.__dict__.setdefault("_sem_prime_tasks", set()).add(t)
+                t.add_done_callback(self._sem_prime_tasks.discard)
+        return specs
+
+    async def _sem_prime(self, sp: dict, system: str) -> None:
+        info: dict = {"spec": sp}
+        fn = self.sem_stream_fn or _sem_door_stream
+        try:
+            async for _ in fn(sp, system, SEM_PRIME_USER, time.monotonic() + 20.0, info, SEM_TAG + "-prime"):
+                pass
+        except Exception as e:  # noqa: BLE001
+            self.log(f"planner: semantic prime failed: {type(e).__name__}: {str(e)[:120]}")
+        self.__dict__.setdefault("sem_primes", []).append({"model": sp["model"], "door": info.get("door"),
+                                                           "usage": info.get("usage")})
+
+    # -- cache (own namespace: AVATAR_HOME/cache/semplans)
+    def _sem_cache_path(self, key: str) -> str | None:
+        d = getattr(self, "sem_cache_dir", None)
+        if d is None and self.cache_dir:
+            d = os.path.join(os.path.dirname(os.path.abspath(self.cache_dir)), "semplans")
+        return os.path.join(d, key + ".json") if d else None
+
+    def sem_cache_get(self, key: str, prompt_sha: str, models) -> dict | None:
+        p = self._sem_cache_path(key)
+        if not p or not self.sem_cfg().get("cache", True):
+            return None
+        try:
+            with open(p, encoding="utf-8") as f:
+                ent = json.load(f)
+        except (OSError, ValueError):
+            return None
+        if (ent.get("prompt_sha") != prompt_sha or ent.get("model") not in set(models) or not ent.get("poses")
+                or not ent.get("program")):
+            return None
+        return ent
+
+    def sem_cache_put(self, key: str, ent: dict) -> None:
+        p = self._sem_cache_path(key)
+        if not p or not self.sem_cfg().get("cache", True):
+            return
+        try:
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            tmp = p + f".{os.getpid()}.tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(ent, f, separators=(",", ":"))
+            os.replace(tmp, p)
+        except OSError as e:
+            self.log(f"planner: semantic cache write failed: {type(e).__name__}")
+
+    @staticmethod
+    def _sem_live_moved(ent: dict, targets: dict, tol_cm: float = 2.0) -> list[str]:
+        """the targets the cached program names whose position now differs from when it was planned"""
+        used = _sem_names_used(ent.get("program") or "")
+        old = ent.get("targets") or {}
+        moved = []
+        for name in sorted(used & set(targets or {})):
+            a, b = _xyz(targets[name]), old.get(name)
+            if a is None:
+                continue
+            if not isinstance(b, list) or len(b) < 3 or max(abs(a[i] - float(b[i])) for i in range(3)) > tol_cm:
+                moved.append(name)
+        return moved
+
+    def _sem_library(self, character: str, description: str, state, words):
+        """the library step exactly as Planner.plan runs it (things naming, his own words second)"""
+        scfg, _things = scene_for(character, state, self.scene_dir)
+        named = scfg is not None and names_thing(description, scfg)
+
+        def lib(text):
+            c, w = self.library(character, text)
+            if c and named and not any(isinstance(x, dict) and x.get("action") == "object" for x in c):
+                return None, "names a thing: planned with it"
+            return c, w
+        cmds, why = lib(description)
+        if not cmds and words and str(words).strip():
+            cw, why_w = lib(str(words).strip()[:400])
+            if cw:
+                cmds, why = cw, "his words: " + why_w
+        return cmds, why
+
+    # -- one attempt: door text -> Stream.feed (off loop) -> ("batches", a, [batch, ...], report) / ("end", a, None, None)
+    async def _sem_attempt(self, a: _SemAttempt, sem, character, targets, hz, system, user, deadline, q, ms) -> None:
+        feed_q: asyncio.Queue = asyncio.Queue()
+
+        def emit(res):
+            bs, rep = res
+            a.report = rep or a.report
+            bs = [b for b in (bs or []) if isinstance(b, dict) and b.get("poses")]
+            if bs:
+                if a.ms_first_stmt is None:
+                    a.ms_first_stmt = ms()
+                a.n_batches += len(bs)
+                a.n_poses += sum(len(b["poses"]) for b in bs)
+            q.put_nowait(("batches", a, bs, a.report))
+
+        def fed(text):
+            return a.stream.feed(text), a.stream.report()
+
+        def finished():
+            return a.stream.finish(), a.stream.report()
+
+        async def feeder():
+            a.stream = await _off(lambda: sem.Stream(character, targets=targets, seed=0, hz=hz, t_origin=0.0))
+            while True:
+                parts = [await feed_q.get()]
+                while not feed_q.empty():
+                    parts.append(feed_q.get_nowait())
+                end = parts[-1] is _SEM_END
+                text = "".join(p for p in parts if p is not _SEM_END)
+                if text:
+                    emit(await _off(fed, text))
+                if end:
+                    emit(await _off(finished))
+                    return
+
+        ft = asyncio.ensure_future(feeder())
+        fn = self.sem_stream_fn or self._sem_stream(getattr(a, "http", None))
+        try:
+            try:
+                async for d in fn(a.spec, system, user, deadline, a.info, SEM_TAG):
+                    if not d:
+                        continue
+                    if a.ms_first_token is None:
+                        a.ms_first_token = ms()
+                    a.text += d
+                    feed_q.put_nowait(d)
+            except PlanError as e:
+                a.err, a.transient = str(e), e.transient
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:  # noqa: BLE001
+                a.err = f"{type(e).__name__}: {str(e)[:200]}"
+            a.ms_door_done = ms()
+            feed_q.put_nowait(_SEM_END)          # finish even after a door error: the complete statements + the tail
+            try:
+                await ft
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:  # noqa: BLE001
+                a.err = a.err or f"semantic {type(e).__name__}: {str(e)[:200]}"
+        finally:
+            if not ft.done():
+                ft.cancel()
+        a.ms_end = ms()
+        q.put_nowait(("end", a, None, None))
+
+    def _sem_stream(self, http):
+        """the text stream of one semantic call on its spec's route: the `claude` CLI door, or the Anthropic Messages API
+        (the keyframe planner's own SSE client, Planner._route_stream)"""
+        async def stream(spec, system, user, deadline, info, tag=SEM_TAG):
+            if spec["route"] == "claude_door":
+                async for d in _sem_door_stream(spec, system, user, deadline, info, tag):
+                    yield d
+                return
+            if http is None:
+                raise PlanError("the Anthropic route needs the server's HTTP session")
+            info["spec"] = spec
+            async for d in self._route_stream(http, system, user, deadline, info):
+                yield d
+        return stream
+
+    async def plan_semantic(self, character: str, description: str, state=None, http=None, on_usd=None, words=None,
+                            t_recv=None):
+        t0 = t_recv if t_recv is not None else time.monotonic()
+        ms = lambda: round((time.monotonic() - t0) * 1000)   # noqa: E731
+        st = self._sem_stats()
+        st["plans"] += 1
+        description = str(description or "").strip()
+        if not self.enabled:
+            yield dict(refusal("planner off"), planner="semantic")
+            return
+        if not description:
+            yield dict(refusal("empty description"), planner="semantic")
+            return
+        sem = _SEM_STATE["mod"] if _SEM_STATE["tried"] else await _off(sem_module)
+        if sem is None:
+            st["failed"] += 1
+            yield dict(refusal("semantic planner not installed"), planner="semantic")
+            return
+        if character not in getattr(sem, "CHARACTERS", ()):
+            st["unavailable"] += 1                 # today's path; the done message says so
+            async for ev in self.plan(character, description, state, http=http, on_usd=on_usd, words=words):
+                yield dict(ev, sem_unavailable=True) if ev.get("done") else ev
+            return
+        c = self.sem_cfg()
+        hz = int(c.get("hz") or 20)
+        spec, hedge = self.sem_specs()
+        ms_recv = ms()
+
+        def sem_ev(phase, **kw):
+            return {"sem": True, "phase": phase, **kw}
+        # 1. library (unchanged)
+        cmds, why = self._sem_library(character, description, state, words)
+        if cmds:
+            st["library"] += 1
+            d = ms()
+            yield {"done": True, "ok": True, "source": "library", "planner": "semantic", "poses": [], "all_poses": [],
+                   "engine": cmds, "summary": "", "ms_first_pose": None, "ms_done": d, "usd": 0.0, "error": None,
+                   "library": why, "sem_ms": {"recv": ms_recv, "done": d}}
+            yield sem_ev("done", program="", source="library", model=None, cached=False,
+                         ms={"recv": ms_recv, "first_token": None, "first_stmt": None, "first_pose": None, "done": d},
+                         exec_ms=[], warnings=[], errors=[], targets={})
+            return
+        if spec is None:
+            st["failed"] += 1
+            yield dict(refusal("semantic planner: the model must be a Claude model"), planner="semantic")
+            return
+        # 2. cache / 3. planner
+        try:
+            targets = await _off(sem.resolve_targets, character, state)
+            system = self._sem_system(sem, character, targets)
+            user = sem.user_prompt(description, state)
+        except Exception as e:  # noqa: BLE001
+            st["failed"] += 1
+            yield dict(refusal(f"semantic prompt error: {type(e).__name__}: {str(e)[:160]}"), planner="semantic")
+            return
+        twire = sem_targets_wire(targets)
+        prompt_sha = hashlib.sha256(system.encode("utf-8")).hexdigest()
+        norm = normalize(description)
+        key = cache_key("semantic\n" + character, norm)
+        models = [spec["model"]] + ([hedge["model"]] if hedge else [])
+        ent = self.sem_cache_get(key, prompt_sha, models)
+        if ent is not None:
+            st["cache"] += 1
+            yield sem_ev("start", program=ent["program"], source="cache", model=ent.get("model"), cached=True,
+                         ms={"recv": ms_recv}, targets=twire)
+            poses, rep, replayed = ent["poses"], ent.get("report") or {}, []
+            moved = self._sem_live_moved(ent, targets)
+            if moved:
+                try:
+                    poses, rep = await _off(sem.replay, character, ent["program"], targets, 0, hz)
+                    replayed = moved
+                except Exception as e:  # noqa: BLE001
+                    self.log(f"planner: semantic cache replay failed ({type(e).__name__}); stale poses served")
+            d = ms()
+            yield {"done": True, "ok": True, "source": "cache", "planner": "semantic", "space": "rig", "hz": hz,
+                   "poses": poses, "all_poses": poses, "engine": None, "summary": ent.get("summary") or "",
+                   "ms_first_pose": d, "ms_done": d, "usd": 0.0, "error": None, "keep_pose": bool(rep.get("keep_pose")),
+                   "channels": rep.get("channels") or [], "program": ent["program"], "report": rep,
+                   "model": ent.get("model"), "route": spec["route"], "cache_key": key, "prompt_sha": prompt_sha,
+                   "replayed": replayed, "library": why,
+                   "sem_ms": {"recv": ms_recv, "first_token": None, "first_stmt": None, "first_pose": d, "done": d}}
+            yield sem_ev("done", program=ent["program"], source="cache", model=ent.get("model"), cached=True,
+                         ms={"recv": ms_recv, "first_token": None, "first_stmt": None, "first_pose": d, "done": d},
+                         exec_ms=rep.get("exec_ms") or [], warnings=rep.get("warnings") or [],
+                         errors=rep.get("errors") or [], targets=twire, n_statements=rep.get("n_statements"),
+                         duration_s=rep.get("duration_s"))
+            return
+        yield sem_ev("start", program="", source="planner", model=spec["model"], cached=False, ms={"recv": ms_recv},
+                     targets=twire)
+        deadline = t0 + float(c.get("timeout_s") or 20.0)
+        hard_end = deadline + 0.25
+        atts: list[_SemAttempt] = []
+        q: asyncio.Queue = asyncio.Queue()
+        winner = None
+        hedge_started = retried = False
+        all_poses: list = []
+        ms_first_pose = None
+
+        def start(sp, role):
+            a = _SemAttempt(role, sp, ms())
+            a.http = http
+            atts.append(a)
+            a.task = _start_task(self._sem_attempt(a, sem, character, targets, hz, system, user, deadline, q, ms))
+            return a
+
+        def cancel(a, why):
+            if a.ended:
+                return
+            a.ended = a.cancelled = True
+            a.task.cancel()
+            a.ms_end = ms()
+            a.err = a.err or why
+
+        def timings(a):
+            return {"recv": ms_recv, "first_token": a.ms_first_token if a else None,
+                    "first_stmt": a.ms_first_stmt if a else None, "first_pose": ms_first_pose, "done": None}
+
+        try:
+            _SEM_LAST_USE[sem_warm_key(spec, system)] = time.monotonic()
+            primary = start(spec, "primary")
+            warm_n = c.get("warm_n")
+            for sp in (spec, hedge):              # later plans with these targets find warm processes
+                if sp and warm_n != 0 and sp["route"] == "claude_door":
+                    try:
+                        sem_door(sp.get("effort")).prewarm(sp["model"], system, int(warm_n or 2))
+                    except Exception:  # noqa: BLE001
+                        pass
+            hedge_at = primary.t_start + hedge["after_s"] if hedge else None
+            while True:
+                now = time.monotonic()
+                wait = hard_end - now
+                if hedge and not hedge_started and winner is None:
+                    wait = min(wait, hedge_at - now)
+                ev = None
+                if wait > 0:
+                    try:
+                        ev = await asyncio.wait_for(q.get(), wait)
+                    except asyncio.TimeoutError:
+                        ev = None
+                elif not q.empty():
+                    ev = q.get_nowait()
+                if ev is None:
+                    now = time.monotonic()
+                    if hedge and not hedge_started and winner is None and now >= hedge_at - 1e-4:
+                        hedge_started = True
+                        st["hedged"] += 1
+                        start(hedge, "hedge")
+                        continue
+                    if now >= hard_end:
+                        for a in atts:
+                            cancel(a, "timeout")
+                        break
+                    continue
+                kind, a, bs, rep = ev
+                if kind == "batches":
+                    if a.cancelled or not bs:
+                        continue
+                    if winner is None:
+                        winner = a
+                        for o in atts:
+                            if o is not a:
+                                cancel(o, f"cancelled: {a.spec['model']} ({a.role}) streamed first")
+                    if a is not winner:
+                        continue
+                    poses = [p for b in bs for p in b["poses"]]
+                    all_poses.extend(poses)
+                    if ms_first_pose is None:
+                        ms_first_pose = ms()
+                    yield {"done": False, "space": "rig", "hz": hz, "poses": poses}
+                    yield sem_ev("stmt", program=sem_code(a.text), source="planner", model=a.spec["model"],
+                                 cached=False, ms=timings(a), exec_ms=(rep or {}).get("exec_ms") or [],
+                                 warnings=(rep or {}).get("warnings") or [], errors=(rep or {}).get("errors") or [],
+                                 n_statements=(rep or {}).get("n_statements"))
+                    continue
+                if a.cancelled:
+                    continue
+                a.ended = True
+                if a is winner:
+                    break
+                if winner is not None:
+                    continue
+                # it ended without a pose
+                if hedge and not hedge_started:
+                    hedge_started = True
+                    st["hedged"] += 1
+                    self.log(f"planner: semantic hedge {hedge['model']} after {a.failure()[:120]}")
+                    start(hedge, "hedge")
+                    continue
+                if not retried and deadline - time.monotonic() >= float(c.get("retry_min_s") or 8.0):
+                    retried = True
+                    st["retries"] += 1
+                    self.log(f"planner: semantic retry after {a.failure()[:120]}")
+                    start(a.spec, "retry")
+                    continue
+                if all(o.ended for o in atts):
+                    break
+            d = ms()
+            w = winner
+            last = w or (atts[-1] if atts else None)
+            rep = (last.report if last else {}) or {}
+            ok = w is not None and bool(all_poses)
+            if w is not None:
+                err = w.err
+            elif len(atts) > 1:
+                err = "; ".join(f"{o.role} {o.spec['model']}: {o.failure()}" for o in atts)[:600]
+            else:
+                err = last.failure() if last else "no attempt"
+            program = rep.get("program") or sem_code(last.text if last else "")
+            tm = dict(timings(last), done=d)
+            n_st = rep.get("n_statements")
+            summary = f"semantic program: {n_st} statements, {rep.get('duration_s')} s" if ok else ""
+            usd = 0.0                              # the API route bills per call (the door: 0, the CLI's plan)
+            for o in atts:
+                if o.spec["route"] != "claude_door" and (o.text or o.info.get("usage")):
+                    usd += self.usd_of(o.spec["model"], o.info.get("usage"), system, user, o.text, o.spec["route"],
+                                       o.cancelled)[0]
+            if usd and on_usd is not None:
+                try:
+                    on_usd(usd)
+                except Exception:  # noqa: BLE001
+                    pass
+            res = {"done": True, "ok": ok, "source": "planner", "planner": "semantic", "space": "rig", "hz": hz,
+                   "poses": [], "all_poses": all_poses if ok else [], "engine": None, "summary": summary,
+                   "ms_first_pose": ms_first_pose, "ms_done": d, "usd": round(usd, 6), "error": err,
+                   "keep_pose": bool(rep.get("keep_pose")) if ok else False, "channels": rep.get("channels") or [],
+                   "program": program, "report": rep, "model": (last.spec["model"] if last else spec["model"]),
+                   "route": (last.spec["route"] if last else spec["route"]),
+                   "effort": (last.spec.get("effort") if last else spec.get("effort")),
+                   "attempts": [o.record() for o in atts], "cache_key": key, "prompt_sha": prompt_sha, "library": why,
+                   "retried": retried, "hedge_started": hedge_started, "sem_ms": tm, "targets": twire}
+            if ok:
+                st["planner"] += 1
+                if err is None and not rep.get("errors"):
+                    self.sem_cache_put(key, {"key": key, "character": character, "description": description,
+                                             "normalized": norm, "program": program, "poses": all_poses, "report": rep,
+                                             "summary": summary, "model": w.spec["model"], "effort": w.spec.get("effort"),
+                                             "prompt_sha": prompt_sha, "targets": twire, "ts": time.time(),
+                                             "ms_first_pose": ms_first_pose, "ms_done": d})
+            else:
+                st["failed"] += 1
+            yield res
+            yield sem_ev("done", program=program, source="planner", model=res["model"], cached=False, ms=tm,
+                         exec_ms=rep.get("exec_ms") or [], warnings=rep.get("warnings") or [],
+                         errors=rep.get("errors") or [], targets=twire, n_statements=n_st,
+                         duration_s=rep.get("duration_s"), error=None if ok else err)
+        finally:
+            for a in atts:
+                cancel(a, "cancelled")
+
+
+class Planner(_SemanticPlanner):
     def __init__(self, cfg=None, log=print, cache_dir: str | None = None, prompt_dir: str = PROMPT_DIR,
                  scene_dir: str | None = None):
         c = dict(DEFAULTS)
@@ -1599,9 +2312,16 @@ class Planner:
         q.put_nowait(("end", a, None))
 
     # -- the plan
-    async def plan(self, character: str, description: str, state=None, http=None, on_usd=None, model=None, words=None):
+    async def plan(self, character: str, description: str, state=None, http=None, on_usd=None, model=None, words=None,
+                   planner=None, t_recv=None):
         """model: None = the configured primary (+ fallback); a preset / id / {"model", "route", "effort"} = that model
-        alone (no fallback; the cache serves only its own plans) — Planner.fill's quality pass"""
+        alone (no fallback; the cache serves only its own plans) — Planner.fill's quality pass.
+        planner='semantic' = the semantic-API planner (plan_semantic); None = exactly the path above."""
+        if planner == "semantic":
+            async for ev in self.plan_semantic(character, description, state, http=http, on_usd=on_usd, words=words,
+                                               t_recv=t_recv):
+                yield ev
+            return
         t0 = time.monotonic()
         ms = lambda: round((time.monotonic() - t0) * 1000)   # noqa: E731
         self.stats["plans"] += 1
@@ -1846,8 +2566,11 @@ def _attempt_brief(a: dict) -> dict:
 
 
 async def run_plan(planner: Planner, pid: str, character: str, description: str, state, send, http=None, on_usd=None,
-                   record=None, words=None) -> dict:
-    """Drive one plan and send its kf messages (contract section 2) through send(msg); -> the plan record."""
+                   record=None, words=None, mode=None, t_recv=None) -> dict:
+    """Drive one plan and send its kf messages (contract section 2) through send(msg); -> the plan record.
+    mode='semantic' = the semantic-API planner (kf space:'rig' + sem messages); None = today's path."""
+    if mode == "semantic":
+        return await _run_sem_plan(planner, pid, character, description, state, send, http, on_usd, record, words, t_recv)
     rec = {"id": pid, "character": character, "description": description[:200], "t0": time.time()}
     last = None
     n_msgs = 0
@@ -1880,6 +2603,63 @@ async def run_plan(planner: Planner, pid: str, character: str, description: str,
             rec["attempts"] = [_attempt_brief(a) for a in last["attempts"]]
         if last.get("unknown"):
             rec["unknown"] = last["unknown"]
+    if record is not None:
+        record(rec)
+    return rec
+
+
+async def _run_sem_plan(planner: Planner, pid, character, description, state, send, http, on_usd, record, words,
+                        t_recv) -> dict:
+    """run_plan for planner:'semantic' : kf (space:'rig') + sem messages; the record gains planner:'semantic',
+    the program and the timings"""
+    rec = {"id": pid, "character": character, "description": description[:200], "t0": time.time(), "planner": "semantic"}
+    last = None
+    n_msgs = 0
+    try:
+        async for ev in planner.plan(character, description, state, http=http, on_usd=on_usd, words=words,
+                                     planner="semantic", t_recv=t_recv):
+            if ev.get("sem"):
+                send(sem_message(pid, ev))
+                continue
+            send(sem_kf_message(pid, ev) if ev.get("planner") == "semantic" or ev.get("space") == "rig"
+                 else kf_message(pid, ev))
+            n_msgs += 1
+            if ev.get("done"):
+                last = ev
+    except asyncio.CancelledError:
+        rec.update({"ok": False, "error": "cancelled"})
+        if record is not None:
+            record(rec)
+        raise
+    except Exception as e:  # noqa: BLE001
+        last = dict(refusal(f"planner error: {type(e).__name__}: {str(e)[:160]}"), planner="semantic")
+        send(sem_kf_message(pid, last))
+        n_msgs += 1
+    if last is not None:
+        rec.update({k: last.get(k) for k in ("ok", "source", "summary", "ms_first_pose", "ms_done", "usd", "error")})
+        rec["n_poses"] = len(last.get("all_poses") or [])
+        rec["engine"] = last.get("engine")
+        rec["msgs"] = n_msgs
+        for k in ("model", "route", "effort", "program", "retried", "hedge_started", "replayed", "keep_pose"):
+            if last.get(k) is not None:
+                rec[k] = last[k]
+        if last.get("sem_unavailable"):
+            rec["sem_unavailable"] = True
+        if last.get("sem_ms"):
+            rec["ms"] = last["sem_ms"]
+        r = last.get("report") or {}
+        if r:
+            rec["n_statements"] = r.get("n_statements")
+            rec["duration_s"] = r.get("duration_s")
+            rec["warnings"] = (r.get("warnings") or [])[:20]
+            rec["errors"] = (r.get("errors") or [])[:20]
+        if last.get("attempts") is not None:
+            rec["attempts"] = [dict({k: a.get(k) for k in ("model", "effort", "role", "ms_start", "ms_first_token",
+                                                          "ms_first_stmt", "ms_end", "error")},
+                                    warm=(a.get("door") or {}).get("warm"),
+                                    cache_read=(a.get("usage") or {}).get("cache_read_input_tokens"),
+                                    out_tokens=(a.get("usage") or {}).get("output_tokens"))
+                               for a in last["attempts"]]
     if record is not None:
         record(rec)
     return rec

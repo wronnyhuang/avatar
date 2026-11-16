@@ -276,6 +276,13 @@ class Spend:
 
 
 # ---------------------------------------------------------------------------------------------------------- down queue
+def rigdbg_unsupported_error(m: dict) -> bool:
+    """rigdbg: a renderer built before the 'rigdbg' handler answers {"type":"error","message":"unknown message type
+    'rigdbg'"} -- the hub swallows it and tells the page once that this renderer doesn't report its values."""
+    msg = str(m.get("message", ""))
+    return m.get("type") == "error" and "rigdbg" in msg and "unknown" in msg
+
+
 class DownQueue:
     """Long-poll batches. A poll carries after=<highest contiguous seq the page holds>; batches up to it are acked.
     A batch handed out but not acked within RESEND_S is presumed lost and handed out again (the page dedups by seq)."""
@@ -537,8 +544,8 @@ class RenderLink:
                         continue
                     elif t == "stats":
                         self.last_stats = m
-                    elif t == "error":
-                        self.err = str(m.get("message", "render error"))[:300]
+                    elif t == "error" and not rigdbg_unsupported_error(m):   # an old renderer's answer to
+                        self.err = str(m.get("message", "render error"))[:300]   # 'rigdbg' is not a link error
                     self.hub.on_render_json(self, m)
                 elif msg.type in (aiohttp.WSMsgType.ERROR, aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSE):
                     break
@@ -599,6 +606,9 @@ class Session:
         self.page_calls: list[dict] = []
         self.page_usd = 0.0
         self.suppressed_render_errors = 0
+        self.rigdbg_on = False                       # rigdbg: the page's rig debug panel is open
+        self.rigdbg_unsup: RenderLink | None = None  # rigdbg: the link whose renderer has no 'rigdbg' handler
+        self.rigdbg_told = False                     # rigdbg: the page was told "unsupported" for this open
         self.character = character
         self.quality = quality
         self.codec = codec
@@ -736,6 +746,7 @@ class Session:
             self.status("warming", f"loading {CHARACTERS[self.character][0]}", hub.char_eta())
             self.link = await hub.attach_render(self, ep)
             self.video_ok = True
+            self.rigdbg_push()                           # the panel opened before the renderer was ready
             self.w = int((self.link.ready_info or {}).get("width", self.w))
             self.h = int((self.link.ready_info or {}).get("height", self.h))
             self.render_ready.append({**(self.link.ready_info or {}), "box_wait_ms": round((time.monotonic() - box_t0) * 1000)})
@@ -857,6 +868,8 @@ class Session:
         if self.tv is not None:
             await self.tv.close()
         if self.link and self.link.alive():
+            if self.rigdbg_on and self.link is not self.rigdbg_unsup:   # a reused connection (the stub) starts
+                self.link.send_json({"type": "rigdbg", "on": False})      # the next session off
             self.link.send_json({"type": "stop"})
         self.stage = "ended"
         self.send({"type": "status", "stage": "ended", "detail": self.end_reason})
@@ -1005,6 +1018,31 @@ class Session:
             pass
         if self.link and self.video_ok:
             self.link.send_json({"type": "rig", "t": m.get("t"), "a": a})
+
+    # -- rigdbg: the renderer's FINAL lip / hand values for the page's rig debug panel (renderer PROTOCOL-NOTES 15).
+    # Off (the default): nothing is sent anywhere.  Nothing of it is recorded: the rows go to the page only.
+    def on_rigdbg(self, m: dict) -> None:
+        on = m.get("on") is True
+        self.rigdbg_on = on
+        self.rigdbg_told = False
+        if on:
+            self.rigdbg_push()
+        elif self.link and self.video_ok and self.link is not self.rigdbg_unsup:
+            self.link.send_json({"type": "rigdbg", "on": False})
+
+    def rigdbg_push(self) -> None:
+        """(re)send "on" to the render link -- the page asked, or a renderer "ready" (start, switch, encoder change)."""
+        if not self.rigdbg_on or not (self.link and self.video_ok):
+            return
+        if self.link is self.rigdbg_unsup:              # this renderer said it has no handler: don't ask it again
+            self.rigdbg_unsupported()
+            return
+        self.link.send_json({"type": "rigdbg", "on": True})
+
+    def rigdbg_unsupported(self) -> None:
+        if self.rigdbg_on and not self.rigdbg_told:
+            self.rigdbg_told = True
+            self.send({"type": "rigdbg", "unsupported": True})
 
     def on_page_usage(self, m: dict) -> None:
         """Usage the page saw on its data channel. Billed only when the hub's own sideband is not metering."""
@@ -1232,6 +1270,8 @@ class Session:
                 self.affect.cue(str(m.get("user") or "")[:400], str(m.get("reply") or "")[:400], str(m.get("stage") or "reply"))   # 'pre' = the user's words alone
         elif t in ("tv_show", "tv_clear"):                         # the voice model's TV tools
             self.on_tv(m)
+        elif t == "rigdbg":                                        # the rig debug panel opened / closed
+            self.on_rigdbg(m)
         elif t == "keyframe":
             self.m["keyframe_requests"] += 1
             if self.link and self.video_ok:
@@ -1284,6 +1324,8 @@ class Session:
                 self.rx.add_sync(m.get("seq"), m.get("t"))
         elif t == "plan":                                          # (contract section 2)
             self.on_plan(m)
+        elif t == "semwarm":                                       # the page's semantic-API switch is on
+            self.on_semwarm(m)
         elif t == "behavior_code":                                 # program layer: the coder model
             self.on_behavior_code(m)
         elif t in ("gesture_save", "gesture_forget", "gesture_list"):
@@ -1332,6 +1374,7 @@ class Session:
 
     # -- : {type:'plan'} -> library / cache / streamed keyframes as {type:'kf'} messages
     def on_plan(self, m: dict) -> None:
+        t_recv = time.monotonic()
         pid = str(m.get("id") or "")[:40] or f"h{len(self.plans) + 1}"
         ch = m.get("character") if m.get("character") in CHARACTERS else self.character
         desc = str(m.get("description") or "").strip()[:600]
@@ -1340,16 +1383,26 @@ class Session:
         why = ("planner off" if not pl.enabled else "empty description" if not desc
                else "daily spend cap reached" if self.hub.spend.today() + self.unbilled() >= self.hub.spend.cap
                else "busy" if len(self.plan_running) >= int(pl.cfg.get("max_concurrent") or 3) else "")
+        sem = m.get("planner") == "semantic"                       # the semantic-API planner (opt-in)
         if why:
             ev = kfplanner.refusal(why)
-            self.send(kfplanner.kf_message(pid, ev))
-            self._plan_record({"id": pid, "character": ch, "description": desc[:200], "ok": False, "source": "planner",
-                               "error": why, "ms_done": 0, "usd": 0.0, "n_poses": 0})
+            if sem:
+                ev["planner"] = "semantic"
+            self.send(kfplanner.sem_kf_message(pid, ev) if sem else kfplanner.kf_message(pid, ev))
+            self._plan_record(dict({"id": pid, "character": ch, "description": desc[:200], "ok": False,
+                                    "source": "planner", "error": why, "ms_done": 0, "usd": 0.0, "n_poses": 0},
+                                   **({"planner": "semantic"} if sem else {})))
             return
         words = str(m.get("words") or "").strip()[:400] or None      # the user's own words (library second try)
-        task = asyncio.create_task(kfplanner.run_plan(pl, pid, ch, desc, state, self.send, http=self.hub.http,
-                                                      on_usd=lambda u: self._usd("planner", u), record=self._plan_record,
-                                                      words=words))
+        if sem:
+            task = asyncio.create_task(kfplanner.run_plan(pl, pid, ch, desc, state, self.send, http=self.hub.http,
+                                                          on_usd=lambda u: self._usd("planner", u),
+                                                          record=self._plan_record, words=words, mode="semantic",
+                                                          t_recv=t_recv))
+        else:
+            task = asyncio.create_task(kfplanner.run_plan(pl, pid, ch, desc, state, self.send, http=self.hub.http,
+                                                          on_usd=lambda u: self._usd("planner", u),
+                                                          record=self._plan_record, words=words))
         self.plan_running.add(task)
         self.tasks.append(task)
 
@@ -1358,6 +1411,40 @@ class Session:
             if t in self.tasks:
                 self.tasks.remove(t)
         task.add_done_callback(_done)
+
+    # -- {type:'semwarm', character} — the page turned the semantic-API planner on (or changed character): warm
+    # the Claude door for the semantic system prompt (never at session open: zero cost while the switch is off)
+    def on_semwarm(self, m: dict) -> None:
+        ch = m.get("character") if m.get("character") in CHARACTERS else self.character
+        pl = self.hub.planner
+        if not pl.enabled or not self.planner:
+            self.send({"type": "semwarm", "character": ch, "ok": False, "available": False, "error": "planner off"})
+            return
+
+        self.sem_on = True                                         # a later character switch re-warms (_switch)
+
+        async def warm(ch=ch):
+            try:
+                specs = await pl.prewarm_semantic_async(ch)
+            except Exception as e:  # noqa: BLE001
+                log(f"semantic prewarm: {type(e).__name__}: {str(e)[:120]}")
+                specs = []
+            avail = kfplanner.sem_module() is not None and ch in getattr(kfplanner.sem_module(), "CHARACTERS", ())
+            self.send({"type": "semwarm", "character": ch, "ok": bool(specs), "available": avail,
+                       "model": specs[0]["model"] if specs else None,
+                       **({} if kfplanner.sem_module() is not None else {"error": "semantic planner not installed"})})
+        task = asyncio.create_task(warm())
+        self.tasks.append(task)
+        task.add_done_callback(lambda t, self=self: self.tasks.remove(t) if t in self.tasks else None)
+
+    def _sem_rewarm(self, ch: str) -> None:
+        """after a character switch in a semantic session (the page sends semwarm once per (session, character)
+        at session start / when the switch turns on; a switch inside the session is warmed here)"""
+        if ch not in CHARACTERS or not self.hub.planner.enabled or not self.planner:
+            return
+        task = asyncio.create_task(self.hub.planner.prewarm_semantic_async(ch))
+        self.tasks.append(task)
+        task.add_done_callback(lambda t, self=self: self.tasks.remove(t) if t in self.tasks else None)
 
     # -- program layer: {type:'behavior_code'} -> coder model -> static check + dry run -> {type:'behavior_code'}
     def on_behavior_code(self, m: dict) -> None:
@@ -1394,7 +1481,8 @@ class Session:
         self.plans.append(rec)
         if len(self.plans) > 300:
             del self.plans[:100]
-        log(f"session {self.sid[:6]} plan {rec.get('id')} {rec.get('character')} {rec.get('source')} "
+        log(f"session {self.sid[:6]} plan {rec.get('id')} {rec.get('character')} {rec.get('source')}"
+            f"{' semantic' if rec.get('planner') == 'semantic' else ''} "
             f"ok={rec.get('ok')} poses={rec.get('n_poses')} first={rec.get('ms_first_pose')} done={rec.get('ms_done')} ms "
             f"${float(rec.get('usd') or 0):.4f}{' err=' + str(rec.get('error'))[:80] if rec.get('error') else ''}")
 
@@ -1484,6 +1572,8 @@ class Session:
                 self.hub.planner.prewarm(ch)
             except Exception:  # noqa: BLE001
                 pass
+        if getattr(self, "sem_on", False):                         # the semantic switch is on -> its door too
+            self._sem_rewarm(ch)
         old, self.vendor = self.vendor, None
         self.vendor_ready = False
         try:
@@ -1605,6 +1695,7 @@ class Hub:
                      "voicetools.js",                  # the eight voice tools + events -> silent notes
                      "quiet.js",                       # talkativeness + quiet mode (controller; gate in voice.js)
                      "teach.js",                       # the chalkboard / TV performance (window.AvatarTeach)
+                     "rigdebug.js",                    # the live rig debug panel (window.AvatarRigDebug; nothing runs until opened)
                      "recorder.js"):                   # session recording (stage + both voices) -> the hub
             fp = os.path.join(HERE, name)
             if os.path.isfile(fp):
@@ -1770,7 +1861,8 @@ class Hub:
 
     def on_render_json(self, link: RenderLink, m: dict) -> None:
         s = self.session
-        if link is self.link and m.get("type") in ("status", "ready", "error") and not (s and not s.ended.is_set()):
+        if link is self.link and m.get("type") in ("status", "ready", "error") and not (s and not s.ended.is_set()) \
+                and not rigdbg_unsupported_error(m):      # an old renderer's late 'rigdbg' answer is no warm state
             p = link.params or {}
             self.warm_info = {"character": p.get("character"), "ready": m.get("type") == "ready",
                               "stage": m.get("stage") or m.get("type"), "detail": str(m.get("detail") or m.get("message") or "")[:120],
@@ -1778,6 +1870,17 @@ class Hub:
         if not s or link is not s.link or s.ended.is_set():
             return
         t = m.get("type")
+        if t == "rigdbg":                        # rendered values for the rig debug panel -- only while it is open
+            if s.rigdbg_on:
+                s.send(m)
+            return
+        if rigdbg_unsupported_error(m):          # a renderer without the 'rigdbg' handler (an older image)
+            s.suppressed_render_errors += 1
+            s.rigdbg_unsup = link
+            s.rigdbg_unsupported()
+            return
+        if t == "ready" and not isinstance(m.get("rate"), dict):
+            s.rigdbg_push()                      # start / switch / encoder change: the panel's values again
         if t == "error" and "unknown message type 'rig'" in str(m.get("message", "")):
             s.suppressed_render_errors += 1      # renderer without the rig handler yet (rig agent's branch)
             return
