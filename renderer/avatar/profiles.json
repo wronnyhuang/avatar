@@ -225,6 +225,21 @@
       }
      }
     }
+   },
+   "junor": {
+    "width": 480,
+    "height": 270,
+    "backend": "rt",
+    "opts": {
+     "preset": "auto"
+    },
+    "source": "provisional: 270p/360p on a small GPU or CPU, 1080p (ladder alts below) on a big GPU",
+    "alts": {
+     "360": {
+      "width": 640,
+      "height": 360
+     }
+    }
    }
   },
   "big_gpu": {

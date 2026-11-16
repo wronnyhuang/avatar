@@ -1,0 +1,218 @@
+{
+ "version": 1,
+ "shots": [
+  {
+   "id": "neutral",
+   "group": "neutral",
+   "desc": "relaxed neutral, mouth closed",
+   "params": {
+    "blendshapes": {},
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "soft_smile",
+   "group": "expression",
+   "desc": "soft closed smile",
+   "params": {
+    "blendshapes": {
+     "mouthSmileLeft": 0.5,
+     "mouthSmileRight": 0.5,
+     "cheekSquintLeft": 0.3,
+     "cheekSquintRight": 0.3,
+     "eyeSquintLeft": 0.2,
+     "eyeSquintRight": 0.2
+    },
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "teeth_smile",
+   "group": "expression",
+   "desc": "open smile showing teeth",
+   "params": {
+    "blendshapes": {
+     "mouthSmileLeft": 0.7,
+     "mouthSmileRight": 0.7,
+     "jawOpen": 0.2,
+     "mouthUpperUpLeft": 0.3,
+     "mouthUpperUpRight": 0.3,
+     "cheekSquintLeft": 0.3,
+     "cheekSquintRight": 0.3,
+     "eyeSquintLeft": 0.2,
+     "eyeSquintRight": 0.2
+    },
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "brows_up",
+   "group": "expression",
+   "desc": "brows raised, surprised",
+   "params": {
+    "blendshapes": {
+     "browInnerUp": 0.7,
+     "browOuterUpLeft": 0.6,
+     "browOuterUpRight": 0.6,
+     "eyeWideLeft": 0.4,
+     "eyeWideRight": 0.4
+    },
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 2,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "blink_half",
+   "group": "expression",
+   "desc": "half blink",
+   "params": {
+    "blendshapes": {
+     "eyeBlinkLeft": 0.55,
+     "eyeBlinkRight": 0.55
+    },
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "look_aside",
+   "group": "expression",
+   "desc": "eyes look aside",
+   "params": {
+    "blendshapes": {},
+    "head_deg": {
+     "yaw": -5,
+     "pitch": 0,
+     "roll": 1
+    },
+    "gaze_deg": {
+     "yaw": -14,
+     "pitch": 6
+    }
+   }
+  },
+  {
+   "id": "head_turn_25",
+   "group": "expression",
+   "desc": "head turned 25 degrees",
+   "params": {
+    "blendshapes": {},
+    "head_deg": {
+     "yaw": 25,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "ah",
+   "group": "talking",
+   "desc": "viseme ah, mid open",
+   "params": {
+    "blendshapes": {
+     "jawOpen": 0.45,
+     "mouthStretchLeft": 0.1,
+     "mouthStretchRight": 0.1,
+     "browInnerUp": 0.15
+    },
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "oo",
+   "group": "talking",
+   "desc": "viseme oo",
+   "params": {
+    "blendshapes": {
+     "jawOpen": 0.25,
+     "mouthFunnel": 0.55,
+     "mouthPucker": 0.3
+    },
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  },
+  {
+   "id": "mm",
+   "group": "talking",
+   "desc": "viseme mm, lips pressed",
+   "params": {
+    "blendshapes": {
+     "mouthClose": 0.8,
+     "mouthPressLeft": 0.4,
+     "mouthPressRight": 0.4
+    },
+    "head_deg": {
+     "yaw": 0,
+     "pitch": 0,
+     "roll": 0
+    },
+    "gaze_deg": {
+     "yaw": 0,
+     "pitch": 0
+    }
+   }
+  }
+ ],
+ "cams": {
+  "closeup": "face",
+  "bust": "bust3"
+ }
+}

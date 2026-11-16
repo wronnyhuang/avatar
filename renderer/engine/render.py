@@ -91,6 +91,7 @@ class Shaders:
             "pyramid": ((.66,.30,.20),(.86,.51,.36),(.70,.37,.27),0),
             "blob": ((.43,.30,.67),(.67,.51,.83),(.52,.36,.71),0),
             "muse": ((.86,.82,.74),(.88,.84,.77),(.90,.86,.80),1),     # body: cream plush (fuzzy)
+            "junor": ((.5,.5,.5),(.5,.5,.5),(.5,.5,.5),0),     # unused (Juno is the mesh, renderer/mesh)
         }
         arm, paw, chest, fur = rig_colors[cfg["name"]]
         self.head += f"#define RIG_ARM {glsl_literal(arm)}\n#define RIG_PAW {glsl_literal(paw)}\n#define RIG_CHEST {glsl_literal(chest)}\n#define RIG_FUR {fur}\n"

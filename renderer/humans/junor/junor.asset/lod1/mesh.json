@@ -1,0 +1,934 @@
+{
+ "vertex_count": 34116,
+ "index_count": 169884,
+ "buffers": {
+  "position": {
+   "offset": 0,
+   "dtype": "f4",
+   "comps": 3
+  },
+  "normal": {
+   "offset": 409392,
+   "dtype": "f4",
+   "comps": 3
+  },
+  "tangent": {
+   "offset": 818784,
+   "dtype": "f4",
+   "comps": 4
+  },
+  "uv0": {
+   "offset": 1364640,
+   "dtype": "f4",
+   "comps": 2
+  },
+  "joints": {
+   "offset": 1637568,
+   "dtype": "u2",
+   "comps": 4
+  },
+  "weights": {
+   "offset": 1910496,
+   "dtype": "f4",
+   "comps": 4
+  },
+  "index": {
+   "offset": 2456352,
+   "dtype": "u4",
+   "comps": 1
+  }
+ },
+ "submeshes": [
+  {
+   "name": "head",
+   "material": "skin_head",
+   "first_index": 0,
+   "index_count": 39540,
+   "first_vertex": 0,
+   "vertex_count": 7225,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "body",
+   "material": "skin_body",
+   "first_index": 39540,
+   "index_count": 14916,
+   "first_vertex": 7225,
+   "vertex_count": 3442,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "neck_bridge",
+   "material": "skin_body",
+   "first_index": 54456,
+   "index_count": 318,
+   "first_vertex": 10667,
+   "vertex_count": 106,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "eye_l",
+   "material": "eye_l",
+   "first_index": 54774,
+   "index_count": 4896,
+   "first_vertex": 10773,
+   "vertex_count": 925,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "cornea_l",
+   "material": "cornea",
+   "first_index": 59670,
+   "index_count": 2664,
+   "first_vertex": 11698,
+   "vertex_count": 500,
+   "blend": "alpha",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "eye_occl_l",
+   "material": "eye_occlusion",
+   "first_index": 62334,
+   "index_count": 3456,
+   "first_vertex": 12198,
+   "vertex_count": 679,
+   "blend": "alpha",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "tearline_l",
+   "material": "tearline",
+   "first_index": 65790,
+   "index_count": 1896,
+   "first_vertex": 12877,
+   "vertex_count": 400,
+   "blend": "alpha",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "caruncle_l",
+   "material": "caruncle",
+   "first_index": 67686,
+   "index_count": 1080,
+   "first_vertex": 13277,
+   "vertex_count": 210,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "eye_r",
+   "material": "eye_r",
+   "first_index": 68766,
+   "index_count": 4896,
+   "first_vertex": 13487,
+   "vertex_count": 925,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "cornea_r",
+   "material": "cornea",
+   "first_index": 73662,
+   "index_count": 2664,
+   "first_vertex": 14412,
+   "vertex_count": 500,
+   "blend": "alpha",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "eye_occl_r",
+   "material": "eye_occlusion",
+   "first_index": 76326,
+   "index_count": 3456,
+   "first_vertex": 14912,
+   "vertex_count": 679,
+   "blend": "alpha",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "tearline_r",
+   "material": "tearline",
+   "first_index": 79782,
+   "index_count": 1896,
+   "first_vertex": 15591,
+   "vertex_count": 400,
+   "blend": "alpha",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "caruncle_r",
+   "material": "caruncle",
+   "first_index": 81678,
+   "index_count": 1080,
+   "first_vertex": 15991,
+   "vertex_count": 210,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "lashes_l",
+   "material": "lashes",
+   "first_index": 82758,
+   "index_count": 3240,
+   "first_vertex": 16201,
+   "vertex_count": 684,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": true
+  },
+  {
+   "name": "lashes_r",
+   "material": "lashes",
+   "first_index": 85998,
+   "index_count": 3240,
+   "first_vertex": 16885,
+   "vertex_count": 684,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": true
+  },
+  {
+   "name": "mouth_interior",
+   "material": "mouth_interior",
+   "first_index": 89238,
+   "index_count": 6156,
+   "first_vertex": 17569,
+   "vertex_count": 1088,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "teeth_upper",
+   "material": "teeth",
+   "first_index": 95394,
+   "index_count": 4566,
+   "first_vertex": 18657,
+   "vertex_count": 1303,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "teeth_lower",
+   "material": "teeth",
+   "first_index": 99960,
+   "index_count": 4560,
+   "first_vertex": 19960,
+   "vertex_count": 1222,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "gums_upper",
+   "material": "gums",
+   "first_index": 104520,
+   "index_count": 3336,
+   "first_vertex": 21182,
+   "vertex_count": 780,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "gums_lower",
+   "material": "gums",
+   "first_index": 107856,
+   "index_count": 3210,
+   "first_vertex": 21962,
+   "vertex_count": 752,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "tongue",
+   "material": "tongue",
+   "first_index": 111066,
+   "index_count": 2622,
+   "first_vertex": 22714,
+   "vertex_count": 499,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": true
+  },
+  {
+   "name": "cloth_cardigan",
+   "material": "cloth_knit",
+   "first_index": 113688,
+   "index_count": 7806,
+   "first_vertex": 23213,
+   "vertex_count": 1575,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": false
+  },
+  {
+   "name": "cloth_cardigan_rib",
+   "material": "cloth_rib",
+   "first_index": 121494,
+   "index_count": 13902,
+   "first_vertex": 24788,
+   "vertex_count": 2779,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": false
+  },
+  {
+   "name": "cloth_buttons",
+   "material": "cloth_buttons",
+   "first_index": 135396,
+   "index_count": 1770,
+   "first_vertex": 27567,
+   "vertex_count": 355,
+   "blend": "opaque",
+   "double_sided": false,
+   "shapes": false
+  },
+  {
+   "name": "cloth_blouse",
+   "material": "cloth_blouse",
+   "first_index": 137166,
+   "index_count": 13860,
+   "first_vertex": 27922,
+   "vertex_count": 2483,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": false
+  },
+  {
+   "name": "cloth_trousers",
+   "material": "cloth_trousers",
+   "first_index": 151026,
+   "index_count": 9180,
+   "first_vertex": 30405,
+   "vertex_count": 1846,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": false
+  },
+  {
+   "name": "shoes",
+   "material": "shoes",
+   "first_index": 160206,
+   "index_count": 6738,
+   "first_vertex": 32251,
+   "vertex_count": 1347,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": false
+  },
+  {
+   "name": "shoes_sole",
+   "material": "shoes",
+   "first_index": 166944,
+   "index_count": 2940,
+   "first_vertex": 33598,
+   "vertex_count": 518,
+   "blend": "opaque",
+   "double_sided": true,
+   "shapes": false
+  }
+ ],
+ "shapes": [
+  {
+   "name": "eyeBlinkLeft",
+   "count": 7181,
+   "index_offset": 0,
+   "dpos_offset": 28724,
+   "dnrm_offset": 114896
+  },
+  {
+   "name": "eyeLookDownLeft",
+   "count": 5503,
+   "index_offset": 201068,
+   "dpos_offset": 223080,
+   "dnrm_offset": 289116
+  },
+  {
+   "name": "eyeLookInLeft",
+   "count": 5288,
+   "index_offset": 355152,
+   "dpos_offset": 376304,
+   "dnrm_offset": 439760
+  },
+  {
+   "name": "eyeLookOutLeft",
+   "count": 5297,
+   "index_offset": 503216,
+   "dpos_offset": 524404,
+   "dnrm_offset": 587968
+  },
+  {
+   "name": "eyeLookUpLeft",
+   "count": 5261,
+   "index_offset": 651532,
+   "dpos_offset": 672576,
+   "dnrm_offset": 735708
+  },
+  {
+   "name": "eyeSquintLeft",
+   "count": 5885,
+   "index_offset": 798840,
+   "dpos_offset": 822380,
+   "dnrm_offset": 893000
+  },
+  {
+   "name": "eyeWideLeft",
+   "count": 5216,
+   "index_offset": 963620,
+   "dpos_offset": 984484,
+   "dnrm_offset": 1047076
+  },
+  {
+   "name": "eyeBlinkRight",
+   "count": 7170,
+   "index_offset": 1109668,
+   "dpos_offset": 1138348,
+   "dnrm_offset": 1224388
+  },
+  {
+   "name": "eyeLookDownRight",
+   "count": 5546,
+   "index_offset": 1310428,
+   "dpos_offset": 1332612,
+   "dnrm_offset": 1399164
+  },
+  {
+   "name": "eyeLookInRight",
+   "count": 5332,
+   "index_offset": 1465716,
+   "dpos_offset": 1487044,
+   "dnrm_offset": 1551028
+  },
+  {
+   "name": "eyeLookOutRight",
+   "count": 5340,
+   "index_offset": 1615012,
+   "dpos_offset": 1636372,
+   "dnrm_offset": 1700452
+  },
+  {
+   "name": "eyeLookUpRight",
+   "count": 5304,
+   "index_offset": 1764532,
+   "dpos_offset": 1785748,
+   "dnrm_offset": 1849396
+  },
+  {
+   "name": "eyeSquintRight",
+   "count": 5945,
+   "index_offset": 1913044,
+   "dpos_offset": 1936824,
+   "dnrm_offset": 2008164
+  },
+  {
+   "name": "eyeWideRight",
+   "count": 5258,
+   "index_offset": 2079504,
+   "dpos_offset": 2100536,
+   "dnrm_offset": 2163632
+  },
+  {
+   "name": "jawForward",
+   "count": 7889,
+   "index_offset": 2226728,
+   "dpos_offset": 2258284,
+   "dnrm_offset": 2352952
+  },
+  {
+   "name": "jawLeft",
+   "count": 10028,
+   "index_offset": 2447620,
+   "dpos_offset": 2487732,
+   "dnrm_offset": 2608068
+  },
+  {
+   "name": "jawRight",
+   "count": 10073,
+   "index_offset": 2728404,
+   "dpos_offset": 2768696,
+   "dnrm_offset": 2889572
+  },
+  {
+   "name": "jawOpen",
+   "count": 12486,
+   "index_offset": 3010448,
+   "dpos_offset": 3060392,
+   "dnrm_offset": 3210224
+  },
+  {
+   "name": "mouthClose",
+   "count": 4672,
+   "index_offset": 3360056,
+   "dpos_offset": 3378744,
+   "dnrm_offset": 3434808
+  },
+  {
+   "name": "mouthFunnel",
+   "count": 9961,
+   "index_offset": 3490872,
+   "dpos_offset": 3530716,
+   "dnrm_offset": 3650248
+  },
+  {
+   "name": "mouthPucker",
+   "count": 11227,
+   "index_offset": 3769780,
+   "dpos_offset": 3814688,
+   "dnrm_offset": 3949412
+  },
+  {
+   "name": "mouthLeft",
+   "count": 8468,
+   "index_offset": 4084136,
+   "dpos_offset": 4118008,
+   "dnrm_offset": 4219624
+  },
+  {
+   "name": "mouthRight",
+   "count": 8156,
+   "index_offset": 4321240,
+   "dpos_offset": 4353864,
+   "dnrm_offset": 4451736
+  },
+  {
+   "name": "mouthSmileLeft",
+   "count": 7824,
+   "index_offset": 4549608,
+   "dpos_offset": 4580904,
+   "dnrm_offset": 4674792
+  },
+  {
+   "name": "mouthSmileRight",
+   "count": 7838,
+   "index_offset": 4768680,
+   "dpos_offset": 4800032,
+   "dnrm_offset": 4894088
+  },
+  {
+   "name": "mouthFrownLeft",
+   "count": 7338,
+   "index_offset": 4988144,
+   "dpos_offset": 5017496,
+   "dnrm_offset": 5105552
+  },
+  {
+   "name": "mouthFrownRight",
+   "count": 7376,
+   "index_offset": 5193608,
+   "dpos_offset": 5223112,
+   "dnrm_offset": 5311624
+  },
+  {
+   "name": "mouthDimpleLeft",
+   "count": 5289,
+   "index_offset": 5400136,
+   "dpos_offset": 5421292,
+   "dnrm_offset": 5484760
+  },
+  {
+   "name": "mouthDimpleRight",
+   "count": 5276,
+   "index_offset": 5548228,
+   "dpos_offset": 5569332,
+   "dnrm_offset": 5632644
+  },
+  {
+   "name": "mouthStretchLeft",
+   "count": 8220,
+   "index_offset": 5695956,
+   "dpos_offset": 5728836,
+   "dnrm_offset": 5827476
+  },
+  {
+   "name": "mouthStretchRight",
+   "count": 8369,
+   "index_offset": 5926116,
+   "dpos_offset": 5959592,
+   "dnrm_offset": 6060020
+  },
+  {
+   "name": "mouthRollLower",
+   "count": 6013,
+   "index_offset": 6160448,
+   "dpos_offset": 6184500,
+   "dnrm_offset": 6256656
+  },
+  {
+   "name": "mouthRollUpper",
+   "count": 6339,
+   "index_offset": 6328812,
+   "dpos_offset": 6354168,
+   "dnrm_offset": 6430236
+  },
+  {
+   "name": "mouthShrugLower",
+   "count": 6224,
+   "index_offset": 6506304,
+   "dpos_offset": 6531200,
+   "dnrm_offset": 6605888
+  },
+  {
+   "name": "mouthShrugUpper",
+   "count": 7440,
+   "index_offset": 6680576,
+   "dpos_offset": 6710336,
+   "dnrm_offset": 6799616
+  },
+  {
+   "name": "mouthPressLeft",
+   "count": 6934,
+   "index_offset": 6888896,
+   "dpos_offset": 6916632,
+   "dnrm_offset": 6999840
+  },
+  {
+   "name": "mouthPressRight",
+   "count": 6946,
+   "index_offset": 7083048,
+   "dpos_offset": 7110832,
+   "dnrm_offset": 7194184
+  },
+  {
+   "name": "mouthLowerDownLeft",
+   "count": 5349,
+   "index_offset": 7277536,
+   "dpos_offset": 7298932,
+   "dnrm_offset": 7363120
+  },
+  {
+   "name": "mouthLowerDownRight",
+   "count": 5392,
+   "index_offset": 7427308,
+   "dpos_offset": 7448876,
+   "dnrm_offset": 7513580
+  },
+  {
+   "name": "mouthUpperUpLeft",
+   "count": 9624,
+   "index_offset": 7578284,
+   "dpos_offset": 7616780,
+   "dnrm_offset": 7732268
+  },
+  {
+   "name": "mouthUpperUpRight",
+   "count": 9715,
+   "index_offset": 7847756,
+   "dpos_offset": 7886616,
+   "dnrm_offset": 8003196
+  },
+  {
+   "name": "browDownLeft",
+   "count": 5636,
+   "index_offset": 8119776,
+   "dpos_offset": 8142320,
+   "dnrm_offset": 8209952
+  },
+  {
+   "name": "browDownRight",
+   "count": 5675,
+   "index_offset": 8277584,
+   "dpos_offset": 8300284,
+   "dnrm_offset": 8368384
+  },
+  {
+   "name": "browInnerUp",
+   "count": 11384,
+   "index_offset": 8436484,
+   "dpos_offset": 8482020,
+   "dnrm_offset": 8618628
+  },
+  {
+   "name": "browOuterUpLeft",
+   "count": 6878,
+   "index_offset": 8755236,
+   "dpos_offset": 8782748,
+   "dnrm_offset": 8865284
+  },
+  {
+   "name": "browOuterUpRight",
+   "count": 6873,
+   "index_offset": 8947820,
+   "dpos_offset": 8975312,
+   "dnrm_offset": 9057788
+  },
+  {
+   "name": "cheekPuff",
+   "count": 11253,
+   "index_offset": 9140264,
+   "dpos_offset": 9185276,
+   "dnrm_offset": 9320312
+  },
+  {
+   "name": "cheekSquintLeft",
+   "count": 7795,
+   "index_offset": 9455348,
+   "dpos_offset": 9486528,
+   "dnrm_offset": 9580068
+  },
+  {
+   "name": "cheekSquintRight",
+   "count": 7797,
+   "index_offset": 9673608,
+   "dpos_offset": 9704796,
+   "dnrm_offset": 9798360
+  },
+  {
+   "name": "noseSneerLeft",
+   "count": 7785,
+   "index_offset": 9891924,
+   "dpos_offset": 9923064,
+   "dnrm_offset": 10016484
+  },
+  {
+   "name": "noseSneerRight",
+   "count": 7782,
+   "index_offset": 10109904,
+   "dpos_offset": 10141032,
+   "dnrm_offset": 10234416
+  },
+  {
+   "name": "tongueOut",
+   "count": 357,
+   "index_offset": 10327800,
+   "dpos_offset": 10329228,
+   "dnrm_offset": 10333512
+  },
+  {
+   "name": "labioDental",
+   "count": 11137,
+   "index_offset": 10337796,
+   "dpos_offset": 10382344,
+   "dnrm_offset": 10515988
+  },
+  {
+   "name": "lipTuckLower",
+   "count": 6013,
+   "index_offset": 10649632,
+   "dpos_offset": 10673684,
+   "dnrm_offset": 10745840
+  },
+  {
+   "name": "lipTuckUpper",
+   "count": 6339,
+   "index_offset": 10817996,
+   "dpos_offset": 10843352,
+   "dnrm_offset": 10919420
+  },
+  {
+   "name": "tongueTipUp",
+   "count": 335,
+   "index_offset": 10995488,
+   "dpos_offset": 10996828,
+   "dnrm_offset": 11000848
+  },
+  {
+   "name": "tongueDental",
+   "count": 331,
+   "index_offset": 11004868,
+   "dpos_offset": 11006192,
+   "dnrm_offset": 11010164
+  },
+  {
+   "name": "tongueBack",
+   "count": 527,
+   "index_offset": 11014136,
+   "dpos_offset": 11016244,
+   "dnrm_offset": 11022568
+  },
+  {
+   "name": "lipsTogether",
+   "count": 9128,
+   "index_offset": 11028892,
+   "dpos_offset": 11065404,
+   "dnrm_offset": 11174940
+  },
+  {
+   "name": "eyeHappyLeft",
+   "count": 7701,
+   "index_offset": 11284476,
+   "dpos_offset": 11315280,
+   "dnrm_offset": 11407692
+  },
+  {
+   "name": "eyeHappyRight",
+   "count": 7752,
+   "index_offset": 11500104,
+   "dpos_offset": 11531112,
+   "dnrm_offset": 11624136
+  },
+  {
+   "name": "browTiltLeft",
+   "count": 7129,
+   "index_offset": 11717160,
+   "dpos_offset": 11745676,
+   "dnrm_offset": 11831224
+  },
+  {
+   "name": "browTiltRight",
+   "count": 7130,
+   "index_offset": 11916772,
+   "dpos_offset": 11945292,
+   "dnrm_offset": 12030852
+  },
+  {
+   "name": "corr_eyeBlinkLeft_eyeBlinkLeft",
+   "count": 2957,
+   "index_offset": 12116412,
+   "dpos_offset": 12128240,
+   "dnrm_offset": 12163724,
+   "corrective": {
+    "of": [
+     "eyeBlinkLeft",
+     "eyeBlinkLeft"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_eyeBlinkRight_eyeBlinkRight",
+   "count": 2952,
+   "index_offset": 12199208,
+   "dpos_offset": 12211016,
+   "dnrm_offset": 12246440,
+   "corrective": {
+    "of": [
+     "eyeBlinkRight",
+     "eyeBlinkRight"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_jawOpen_jawOpen",
+   "count": 10764,
+   "index_offset": 12281864,
+   "dpos_offset": 12324920,
+   "dnrm_offset": 12454088,
+   "corrective": {
+    "of": [
+     "jawOpen",
+     "jawOpen"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_jawOpen_lipsTogether",
+   "count": 6123,
+   "index_offset": 12583256,
+   "dpos_offset": 12607748,
+   "dnrm_offset": 12681224,
+   "corrective": {
+    "of": [
+     "jawOpen",
+     "lipsTogether"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_jawOpen_mouthPressLeft",
+   "count": 5466,
+   "index_offset": 12754700,
+   "dpos_offset": 12776564,
+   "dnrm_offset": 12842156,
+   "corrective": {
+    "of": [
+     "jawOpen",
+     "mouthPressLeft"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_jawOpen_mouthPressRight",
+   "count": 5478,
+   "index_offset": 12907748,
+   "dpos_offset": 12929660,
+   "dnrm_offset": 12995396,
+   "corrective": {
+    "of": [
+     "jawOpen",
+     "mouthPressRight"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_jawOpen_mouthSmileLeft",
+   "count": 9515,
+   "index_offset": 13061132,
+   "dpos_offset": 13099192,
+   "dnrm_offset": 13213372,
+   "corrective": {
+    "of": [
+     "jawOpen",
+     "mouthSmileLeft"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_jawOpen_mouthSmileRight",
+   "count": 9641,
+   "index_offset": 13327552,
+   "dpos_offset": 13366116,
+   "dnrm_offset": 13481808,
+   "corrective": {
+    "of": [
+     "jawOpen",
+     "mouthSmileRight"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_mouthSmileLeft_mouthSmileLeft",
+   "count": 8783,
+   "index_offset": 13597500,
+   "dpos_offset": 13632632,
+   "dnrm_offset": 13738028,
+   "corrective": {
+    "of": [
+     "mouthSmileLeft",
+     "mouthSmileLeft"
+    ],
+    "rule": "product"
+   }
+  },
+  {
+   "name": "corr_mouthSmileRight_mouthSmileRight",
+   "count": 8852,
+   "index_offset": 13843424,
+   "dpos_offset": 13878832,
+   "dnrm_offset": 13985056,
+   "corrective": {
+    "of": [
+     "mouthSmileRight",
+     "mouthSmileRight"
+    ],
+    "rule": "product"
+   }
+  }
+ ]
+}

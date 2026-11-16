@@ -88,6 +88,7 @@ CHARACTERS = {  # name -> (background BGR, face BGR)
     "star": ((0, 170, 200), (180, 245, 255)),
     "pyramid": ((40, 120, 170), (175, 220, 240)),
     "blob": ((130, 30, 120), (230, 190, 235)),
+    "junor": ((120, 150, 175), (180, 205, 225)),   # the teacher, realistic
     "muse": ((150, 170, 200), (205, 225, 235)),   # body: cream plush on a warm studio
 }
 

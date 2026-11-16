@@ -1,0 +1,113 @@
+{
+ "set": "studio",
+ "camera": {
+  "pos": [
+   0.0,
+   2.1,
+   7.7
+  ],
+  "target": [
+   0.0,
+   1.15,
+   0.0
+  ],
+  "fov": 22.0,
+  "focus": 7.62,
+  "dofk": 40.0,
+  "cam_in": 4.6
+ },
+ "sun": {
+  "dir": [
+   -0.55,
+   0.5,
+   0.67
+  ],
+  "color": [
+   1.0,
+   0.86,
+   0.7
+  ],
+  "power": 1.35
+ },
+ "rim": {
+  "dir": [
+   0.6,
+   0.35,
+   -0.72
+  ],
+  "color": [
+   1.0,
+   0.8,
+   0.62
+  ]
+ },
+ "dapple_floor": 0.8,
+ "char_key": 0.55,
+ "vol_gain": 0.45,
+ "bg_spp": 8,
+ "bg_sun": [
+  0.85,
+  0.3
+ ],
+ "motion_layers": true,
+ "point_finger_only": true,
+ "char_defines": {
+  "CHAR_ROOT": 1,
+  "CHAR_MARKS": 1,
+  "CHAR_MESH": 1
+ },
+ "set_params": {
+  "ground_y": 0.0
+ },
+ "grade": {
+  "exposure": 1.0,
+  "saturation": 1.05,
+  "vignette": 0.22,
+  "grain": 2.5
+ },
+ "motes": {
+  "min": [
+   -3.5,
+   0.0,
+   -3.0
+  ],
+  "size": [
+   7.0,
+   3.5,
+   7.0
+  ],
+  "count": 40,
+  "gain": 0.4,
+  "leaves": 0
+ },
+ "look": {
+  "v3": 1,
+  "v3fill": 0.8,
+  "key": 1.02,
+  "wide": 3.2,
+  "velvet": 0.35,
+  "rim": 3.4,
+  "rim_pow": 2.6,
+  "rim_col": [
+   1.0,
+   0.95,
+   0.86
+  ],
+  "gloss": 0.3,
+  "floor": 1.4
+ },
+ "quality": {
+  "CHAR_T_NEAR": 5.0,
+  "CHAR_T_FAR": 10.5,
+  "CHAR_FINE_STEPS": 36,
+  "CHAR_SHADOW_STEPS": 18,
+  "CHAR_AO_STEPS": 3
+ },
+ "mesh": {
+  "asset": "humans/junor/junor.asset",
+  "rig": "humans/rig.py",
+  "lod_cloud": "lod0",
+  "lod_hub": "lod1"
+ },
+ "note": " rig: Muse's set and lights (the SAME teacher scene); camera = animals/juno.json's (rig3: at her eye level); Juno is ~0.9 of Muse's height, so the rest framing keeps Muse's camera (room above her head for jumps)"
+}

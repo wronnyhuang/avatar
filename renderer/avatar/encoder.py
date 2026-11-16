@@ -84,6 +84,8 @@ class H264Encoder:
         ctx.gop_size = self.gop
         ctx.max_b_frames = 0
         common = {"maxrate": str(self.bitrate), "bufsize": str(self.bitrate // 2), "forced-idr": "1"}
+        if self.w*self.h > 1280*720:    # above 720p (Juno 1080p) a VBV of a few frames, not half a second: no multi-frame bursts
+            common["bufsize"] = str(int(self.bitrate*float(os.environ.get("AVATAR_VBV_FRAMES", "2"))/max(1, self.fps)))
         if name == "libx264":
             ctx.options = dict(common, preset="ultrafast", tune="zerolatency", profile="baseline",
                                **{"x264-params": f"keyint={self.gop}:min-keyint={self.gop}:scenecut=0:repeat-headers=1:"

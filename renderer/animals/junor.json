@@ -1,0 +1,489 @@
+{
+ "set": "studio",
+ "backend": "mesh",
+ "_doc_camera_t4430_rig3": "Juno's own camera: Muse's x/z/fov/target, raised from y 1.3 to her eye level + 6 cm (eyes 2.036 su) so her close-up is level like the reference bust, not looking up at her chin; focus +0.06 = the longer distance. The background bakes per camera (cache key), station views re-derived in juno.props.override.json",
+ "camera": {
+  "pos": [
+   0.0,
+   2.1,
+   7.7
+  ],
+  "target": [
+   0.0,
+   1.15,
+   0.0
+  ],
+  "fov": 22.0,
+  "focus": 7.68,
+  "dofk": 40.0,
+  "cam_in": 4.6
+ },
+ "sun": {
+  "dir": [
+   -0.55,
+   0.5,
+   0.67
+  ],
+  "color": [
+   1.0,
+   0.86,
+   0.7
+  ],
+  "power": 1.35
+ },
+ "rim": {
+  "dir": [
+   0.6,
+   0.35,
+   -0.72
+  ],
+  "color": [
+   1.0,
+   0.8,
+   0.62
+  ]
+ },
+ "dapple_floor": 0.8,
+ "char_key": 0.55,
+ "vol_gain": 0.45,
+ "bg_spp": 8,
+ "bg_sun": [
+  0.85,
+  0.3
+ ],
+ "motion_layers": true,
+ "point_finger_only": true,
+ "set_params": {
+  "ground_y": 0.0,
+  "jr_dress": 6,
+  "jr_bulb": 1.8
+ },
+ "grade": {
+  "exposure": 1.08,
+  "saturation": 0.94,
+  "vignette": 0.22,
+  "grain": 2.5,
+  "gain": [
+   0.99,
+   1.0,
+   1.03
+  ],
+  "lift": [
+   0.003,
+   0.005,
+   0.007
+  ]
+ },
+ "motes": {
+  "min": [
+   -3.5,
+   0.0,
+   -3.0
+  ],
+  "size": [
+   7.0,
+   3.5,
+   7.0
+  ],
+  "count": 40,
+  "gain": 0.4,
+  "leaves": 0
+ },
+ "look": {
+  "key": 1.02,
+  "wide": 3.2,
+  "velvet": 0.35,
+  "rim": 3.4,
+  "rim_pow": 2.6,
+  "rim_col": [
+   1.0,
+   0.95,
+   0.86
+  ],
+  "gloss": 0.3,
+  "floor": 1.4
+ },
+ "_doc_quality_t4430_integ": "CHAR_T_NEAR 5.0 -> 1.2 (+4 coarse steps): the RIG2 home close-up camera sits inside 5 units, so held/worn props (chalk, headphones) were never marched live",
+ "quality": {
+  "CHAR_T_NEAR": 1.2,
+  "CHAR_T_FAR": 10.5,
+  "CHAR_FINE_STEPS": 8,
+  "CHAR_COARSE_STEPS": 12,
+  "CHAR_SHADOW_STEPS": 18,
+  "CHAR_AO_STEPS": 3,
+  "CHAR_ESCAPE_STEPS": 2
+ },
+ "props_renderer": {
+  "grasp_fn": "junoGrasp",
+  "head_fn": "junoHeadFrame",
+  "grasp_offset": 0.022
+ },
+ "mesh": {
+  "_doc": " render (renderer/mesh, docs/CONTRACT--render.md section 4). key = sun, rim = rim above.",
+  "_doc_render9": " render9: defaults = the 20ebb3a look (round 5). RENDER8's knobs (face.smooth_form/detail_k/warm_k/eye_k3, sss.rgb_scale, bg_grade, bg_zoom.taps/hl, hair.color_mul, key 2.5/rim 4.5/key_dir) stay in the code, absent = off; the blind harness ablation (T/judge/ablation-r8.md, rounds 61-68) found none of them beats this look: RENDER8 hair alone face 6/20, bg_grade costs ~3-5/20, skin+grade+light neutral-to-negative, bust 0-1/20 in every variant. RENDER8 full look = T/scratch/render/ld9/var/B.json (JUNO_MESH_CFG).",
+  "H_scene": 2.1,
+  "key_gain": 3.0,
+  "rim_gain": 6.0,
+  "amb_gain": 0.19,
+  "fill": {
+   "dir": [
+    0.7,
+    0.15,
+    0.7
+   ],
+   "color": [
+    0.62,
+    0.64,
+    0.7
+   ],
+   "gain": 0.13
+  },
+  "shadow_res": 2048,
+  "msaa": 4,
+  "lod": "lod0",
+  "cloth": {
+   "_doc": " render-cloth (renderer/mesh/cloth.py): quality 0 maps+sheen | 1 relief+cavity | 2 +2 parallax steps +1 shadow tap | 3 +4 steps +2 taps; fold_ao 0..2 curvature fold occlusion; fuzz_mul scales every cloth's grazing fuzz. Env JUNO_CLOTH_Q overrides quality.",
+   "quality": 3,
+   "fold_ao": 1.0,
+   "fuzz_mul": 1.0
+  },
+  "key_tint": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "amb_tint": [
+   1.0,
+   0.96,
+   0.9
+  ],
+  "key_dir": [
+   -0.78,
+   0.48,
+   0.4
+  ],
+  "face": {
+   "_doc": " render2 look-dev: ao = landmark crease AO over the baked maps, iris_grade = iris toward a layered brown, liner = upper lash-line darkening",
+   "ao": 0.2,
+   "iris_grade": 1.0,
+   "liner": 0.35,
+   "mouth_k2": [
+    0.75,
+    0.45,
+    0.35,
+    0.0
+   ],
+   "rim_k": [
+    1.0,
+    0.75,
+    0.45,
+    0.0
+   ],
+   "_doc_rim_k": " render7: the skin rim only on the head's outer silhouette (|radial from the skull centre. view| < .45 keep, > .75 off): the nostril-wing outline and the lip-corner orange specks were the edge rim on inner creases (ld7/rim.png [k0 | k1] x2)",
+   "_doc_mouth_k2": " render7: teeth exposure .75, shade toward the corners .45, upper-lip shade on the upper row .35 (the v7 full row read as stark white pegs: ld7/teeth.png [old | this | stronger])",
+   "skin_k": [
+    0.5,
+    0.3,
+    0.0,
+    0.4
+   ],
+   "skin_spec": 0.5,
+   "mouth_k": [
+    1.0,
+    6.0,
+    1.0,
+    2.0
+   ],
+   "skin_k2": [
+    0.0,
+    250,
+    1.0,
+    0.0
+   ],
+   "eye_k": [
+    0.2,
+    1.0,
+    0.8,
+    0.5
+   ],
+   "cloth_k": [
+    0.75,
+    1.2,
+    0.82,
+    0.5
+   ],
+   "sss_k": [
+    0.31,
+    0.45,
+    1.0,
+    0.0
+   ],
+   "skin_k3": [
+    0.15,
+    2.0,
+    0.0,
+    0.5
+   ],
+   "skin_k4": [
+    0.85,
+    0.65,
+    0.85,
+    0.0
+   ],
+   "eye_k2": [
+    1.0,
+    1.0,
+    0.25,
+    1.0
+   ]
+  },
+  "light": {
+   "key_tan": 0.35,
+   "pen_max": 64
+  },
+  "_doc_render2": "key_dir = her own key (film cheat; the set keeps the scene sun): a little more off-axis than the sun so the face has a shadow side; fill/amb lowered for ~1:3",
+  "sss": {
+   "wrap": 0.4,
+   "trans_rim": 0.3,
+   "scale": 1.0,
+   "strength": [
+    0.8,
+    0.65,
+    0.5
+   ]
+  },
+  "hair": {
+   "width_k": {
+    "lashes": 2.2
+   },
+   "len_k": {
+    "lashes": 0.85
+   },
+   "cap": {
+    "lashes_alpha": 0.35
+   },
+   "mass_ao": [
+    0.6,
+    0.015
+   ],
+   "shade_k3": [
+    0.6,
+    0.5,
+    0.5,
+    0.5
+   ],
+   "_doc_render7": "render7 (v7 bob + EYES4 lashes at real size): lashes width 2.2 / len .85 / cap .35 (soft dark fringe, not a dotted lid edge), mass_ao .6 (lock-on-lock shade), shade_k3 tips toward the root colour .6 + tip coverage .5 + root shade floor .5 (the part no longer a near-black seam) + flyaways fade .5, silhouette sheen 1.2 -> .4 (the tucked side read pale beige: ld7/r.png)",
+   "shade_k": [
+    0.9,
+    1.6,
+    0.6,
+    0.8
+   ],
+   "shade_k2": [
+    0.3,
+    0.75,
+    0.15,
+    0.4
+   ],
+   "_doc_render5": "render5: R .9 / sheen .6 / clump shadow .8, R hue share .75, silhouette 1.2: the key's R band read SILVER-GREY on the crown in side / mid views (ld5/h_mid.png [old | .. | this]); sonnet picks this"
+  },
+  "_doc_render3": "render3 look-dev r1 (judge r1 tells: flat frontal light, waxy orange skin, red blotches, stark sclera): key more lateral/higher + lower ambient (form modelling ~ the reference's 2:1 forehead falloff), cooler room bounce on her, terminator glow/coloured penumbra/wrap down (no red glow in shadow), freckle lift on luminance only, muted layered iris, shaded sclera, softer lash fringe",
+  "_doc_render4": "render4: soft PCSS key (key_tan .25, pen_max 48) a little lateral, fill .34 / amb .4 (soft 2:1 turnover); skin_k warmer terminator glow .5, shadow desat .4 (was grey-pink); skin_k2 = pore micro-detail .8 @250/uv (spec only, footprint-faded) + wet tight lobes lower lip/nose tip/inner corner; liner .9 (softer lash line). Sonnet: ld4/jL.json, jS.json (more micro = worse), jC.json (this = 1st of 5)",
+  "dof_k": 0.35,
+  "_doc_dof_k": " render7: the mesh layer's own lens blur x .35 -- under the card's shallow DoF her ears / hair edge / knit went soft (ld7/d1.png); live (focus 7.7) it is < .3 px either way",
+  "bg_zoom": {
+   "_doc": " render7: the live close-up is a ZOOM of the rest camera (kz = fl/fl0: ~1 wide, ~1.4 board view, 3.4 home close-up; focus stays ~7.7): weight smoothstep(z0, z1, kz) switches on the close-view haze (x haze) and a longer lens's room blur: radius r * (1 - focus/t) output px at 1080p (max px), from a half-res mipmapped copy of the room (lod_bias)",
+   "z0": 1.6,
+   "z1": 3.0,
+   "haze": 1.0,
+   "r": 150.0,
+   "max": 34.0,
+   "lod_bias": 0.0,
+   "taps": 32,
+   "hl": 3.0,
+   "hl_th": 0.9,
+   "card": 1.0
+  },
+  "bg": {
+   "_doc": " render5: close-view room haze (FS_COMP): k strength, full at camera focus <= near, off >= far (wide set shot); start/ramp behind the focus plane; col linear HDR lift; replace = share of the room replaced (0 = pure lift)",
+   "k": 0.05,
+   "start": 0.8,
+   "ramp": 3.0,
+   "col": [
+    0.3,
+    0.33,
+    0.33
+   ],
+   "replace": 0.05,
+   "near": 3.5,
+   "far": 5.5
+  },
+  "post": {
+   "_doc": " render5: Juno's own final grade renderer/mesh/post_juno.glsl (absent / JUNO_POST=0 = the shared post)",
+   "bloom": 0.5,
+   "ca": 0.6,
+   "contrast": 0.15,
+   "shoulder": 0.5,
+   "hue_keep": 0.3,
+   "grain_mids": 0.7,
+   "threshold": 0.9,
+   "veil": 0.015
+  },
+  "_doc_render5": "render5 (judge r4 bust 0/20): skin_k3 [de-blotch .15, warm bounce below-front 2, tan 0, broad sheen .5], skin_k4 [neck shade under the jaw .85, form falloff to the silhouette .65, freckle/detail lift eased .85], pores off (sonnet: 'speckle = photoreal skin shader'), eye_k2 [window catchlight 1.5, 2nd catchlight 1, sclera lift .25, lash line warmth 1], lashline alpha .35, liner .4, crease AO .2; key 2.3 / amb .28 / fill .22; wrap .4, rim transmission .3. Sonnet ld5/j2..j5.json (v12 = 1st)",
+  "_doc_t4557_shade": " SHADE: the realistic look. pbr = the gated PBR face path (renderer/mesh/pbr.py: skin/eye/cornea/mouth PBR materials, head shadow cascade, post_pbr). Light ratio for a portrait: key 2.6, amb .20, fill .12 (scratch/shade/v1/c_lit.png)",
+  "pbr": {
+   "skin": {
+    "micro": 0.9,
+    "nrm_diffuse": 0.45,
+    "spec": 1.6,
+    "rough": 0.62,
+    "toksvig": 0.15,
+    "rim": 1.5,
+    "ao": 1.3,
+    "trans": 1.0
+   },
+   "eye": {
+    "limbus": 2.0,
+    "lid_shadow": 1.6,
+    "occl": 0.35,
+    "corner": 1.3,
+    "iris_coll": [
+     0.13,
+     0.07,
+     0.035
+    ],
+    "iris_mid": [
+     0.068,
+     0.04,
+     0.024
+    ],
+    "iris_rim": [
+     0.03,
+     0.019,
+     0.014
+    ],
+    "iris_fibre": 1.8,
+    "pupil": 1.0,
+    "iris_grade": 1.0,
+    "iris_gain": 1.1,
+    "sclera": 0.47,
+    "tear": 8.0
+   },
+   "cornea": {
+    "box": 1.0,
+    "key_size": 1.1,
+    "key": 0.7,
+    "key_pull": 0.0,
+    "box_aspect": 1.15,
+    "box_round": 0.75,
+    "place": [
+     -0.48,
+     0.5
+    ],
+    "fill": 2.5,
+    "fill_size": 0.18,
+    "rough": 0.12
+   },
+   "mouth": {
+    "floor": 0.14,
+    "inner": 1.5,
+    "teeth_rough": 0.26,
+    "aperture": 1,
+    "lower": 0.75,
+    "interprox": 0.8,
+    "incisal": 0.8,
+    "gumline": 1.0,
+    "buccal": 0.7,
+    "bounce": 1.4,
+    "room": 6,
+    "throat": 0.03,
+    "key_bounce": 0.1,
+    "ap_soft": 0.5,
+    "tongue_sat": 0.55,
+    "teeth_level": 0.82,
+    "caruncle": 1.0,
+    "caruncle_wet": 1.0,
+    "gum_level": 0.6,
+    "gum_sat": 0.7
+   },
+   "light": {
+    "face_shadow": {},
+    "spot": {
+     "r0": 0.19,
+     "r1": 0.5,
+     "floor": 0.5,
+     "amb": 0.9
+    }
+   },
+   "post": {
+    "sat": 1.0,
+    "exposure": 0.3
+   },
+   "ao": {
+    "radius": 0.065,
+    "strength": 2.0,
+    "amount": 1.0,
+    "floor": 0.45
+   },
+   "cloth": {
+    "knit_tint": [
+     0.8,
+     0.77,
+     0.7
+    ],
+    "bright_expo": 0.7,
+    "rim": 1.2
+   },
+   "taa": {
+    "classes": {
+     "eye": {
+      "react": 0.7,
+      "gamma": 0.75
+     },
+     "teeth": {
+      "react": 0.6,
+      "gamma": 0.75
+     },
+     "lashes": {
+      "react": 0.5,
+      "gamma": 0.75
+     },
+     "knit": {
+      "react": 0.35,
+      "sharpen": 1.5
+     },
+     "cloth": {
+      "react": 0.25,
+      "sharpen": 1.3
+     },
+     "skin": {
+      "react": 0.15
+     }
+    },
+    "sharpen": 0.45
+   }
+  },
+  "_doc_t4557_shade_r3": "r3 (lead feedback 03:30): soft frontal-ish key 30 deg off axis / 27 up (key_dir), key_tan .35 pen_max 64, fill .30 + amb .30 (shadow side ~30% of the lit side), toksvig .15 (sheen reads), spec 1.3 rough .75, cornea softbox catchlight, lid shadow 1.6, knit_tint 1 (v6 panels)",
+  "_doc_t4557_shade_r5": "r5 (lead 05:20): catchlight placed at 10-11 o'clock (cornea.place [-.48,.5], small rounded softbox) + faint fill reflection lower-right, pupil = map (~.4 of iris), iris palette darker reddish-brown with stronger fibres (eye.iris_coll/mid/rim/fibre), limbus 1.5; mouth floor .14 (low flat floor, depth falloff) -> tongue form, no red slab",
+  "_doc_t4557_shade2_eyes": "shade2 r6 eyes: warmer red-brown iris palette + gain 1.3, eye_occlusion .35, tear 5, sclera .47; catchlight soft (cornea rough .12, key .7, size 1.1), fill 2.5. Cat-eye liner = HAIR strand lashes (request in logs/shade.md)",
+  "_doc_t4557_shade2_r7": "shade2 r7 bust light: pbr.light.spot = key x .5 / room x .7 feathered from 14 cm to 45 cm below the eyes (the face stays the brightest; bust3 cardigan/face lum 1.49 -> .69, blouse/face 3.0 -> 2.0), knit_tint .8/.77/.7 (mustard, not yellow), white cloth bright_expo .7, post sat 1.0 (less orange)",
+  "_doc_t4557_shade2_mouth": "shade2-mouth m1: mouth.aperture = light reaches the mouth only through the lip opening (analytic ellipse test per light + cosine room share + warm bounce gone with depth: throat m); tongue_sat desaturates the mucosa; teeth: interprox (map AO on direct light), gumline (upper-lip shadow band on the upper teeth), incisal (greyer bluish biting edge), lower (lower-row level), teeth_level; caruncle/caruncle_wet = the inner eye corner as pink wet tissue",
+  "_doc_t4557_shade2_r9": "shade2 r9 (lead integ1 tells: flat frontal light, pasted on gradient, matte skin, orange iris): key 44 deg lateral (key_dir -.62,.45,.64) key 2.6, fill .22, amb .26, rim 4; contact AO r .065 str 2 amount 1 floor .45, skin rim 1.5 ao 1.3, cloth rim 1.2; spot r0 .19 r1 .5 amb .9; skin spec 1.6 rough .62 micro .9, sss scale 1.0, trans 1.0; iris less saturated/darker (gain 1.1, limbus 2), tear 8; closer DOF (bg_zoom r 60 max 16, haze k/replace .15); TAA ON with per-class react floors + sharpen .45 (shade2-taa v4: bust err 4.01->3.28, flicker 2.48->2.16, every region <= off).",
+  "bg_grade": {
+   "level": 0.72,
+   "grad": 0.3,
+   "w": 1.0,
+   "cool": [
+    0.0,
+    0.002,
+    0.004
+   ]
+  },
+  "_doc_t4557_shade3": "shade3 r10: junor-gated set dressing behind the home close-up (set_params jr_dress/jr_bulb -> engine/sets/studio.glsl //-dress blocks: oak bookcase between board and TV, fairy-light garland + kids' drawings above the board; bake-only, 0 live cost); longer-lens room blur (bg_zoom r 150 max 34, highlight-weighted bokeh hl 3), haze .15 -> .05, bg_grade .72 (room ~half a stop down, lighter toward the key side); key 66 deg lateral from the window side (key_dir -.78,.48,.40) key 3.0, fill .13, amb .19, rim 6."
+ },
+ "char_defines": {
+  "CHAR_ROOT": 1
+ },
+ "marks_head_r": 0.145,
+ "_doc_grade_render3": "render3: Juno's own grade (character json): sat .94, a hair cooler gain, lower teal lift (the grade's black floor read navy in the mouth), exposure 1.08 -- sonnet A/B ld3/j4.json picks it"
+}

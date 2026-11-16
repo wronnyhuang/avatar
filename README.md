@@ -388,6 +388,44 @@ Judges and evals call text models through the `claude` CLI (`claude -p`). The No
 model needs `torch`, `onnxruntime`, `safetensors`, `soundfile`, `mediapipe` and `transformers`, plus the datasets
 (see `motion-model/README.md`).
 
+## Juno · realistic
+
+A photoreal mesh-rendered character (ICT-FaceKit head, photo-projected skin, PBR shading with subsurface scattering, strand hair,
+a procedural life layer) that uses the same rig, voice and planner as the other characters. Details, rebuild steps and the blind
+judge harness: [`docs/JUNO-REALISTIC.md`](docs/JUNO-REALISTIC.md).
+
+**Select her** in the character menu ("Juno · realistic") or open the page with `&char=junor`. Her asset is committed at
+`renderer/humans/junor/junor.asset` (about 130 MB). The first switch takes tens of seconds while the background bakes.
+
+**Hardware.** She needs a real GPU: the mesh pass is about 12 ms at 1080p on an RTX A4500-class card and about 22 ms on an
+A4000-class card, where lip-sync latency and adaptive quality suffer. A 2 GB card renders her at 270p only.
+
+**A second instance in parallel.** The README has no dedicated mechanism; the repo's scripts allow it through environment
+variables. `scripts/run_local.sh` reads `PORT` (default 10250) and `AVATAR_HOME` (default `./.avatar-home`):
+
+```bash
+PORT=10251 AVATAR_HOME=$PWD/.avatar-home-2 scripts/run_local.sh   # run scripts/setup.sh once and copy .avatar-home to .avatar-home-2 first
+```
+
+`tools/devinst.sh <name> <port> [checkout] [cpu|gpu]` starts an isolated instance (own state directory, secret and render cache,
+daily spend cap $1) and prints its URL; stop it with `kill -TERM -- -$(cat <instances-root>/inst/<name>/server.pid)`. The renderer
+picks the first GPU (EGL device index 0); the repo has no per-instance GPU selector, so two instances share one card and each
+slows the other.
+
+**Known gaps.** She is not yet at shipped-game quality: in the repo's blind judge she scored about 5/10 against about 7 for game
+references and was never picked over them. Hair, eyes, mouth and key-light terminator are the main tells; the live stream softens
+detail. See "Known gaps" in `docs/JUNO-REALISTIC.md`.
+
+**Attribution.** The head is built on ICT-FaceKit (MIT), the body on MPFB2/MakeHuman assets (CC0), and skin detail on the "Infinite,
+3D Head Scan" by Lee Perry-Smith (CC BY 3.0, modified). The face colour is projected from AI-generated photographs of an invented
+person. No MetaHuman or game assets are used, and the judge reference captures are not included. Full notices: see
+[Third-party notices](THIRD_PARTY.md).
+
+### Third-party notices
+
+ICT-FaceKit (MIT), MPFB2/MakeHuman assets (CC0), Infinite 3D Head Scan by Lee Perry-Smith (CC BY 3.0), and tool credits for
+TRELLIS.2 and MediaPipe are listed with their full text in [`THIRD_PARTY.md`](THIRD_PARTY.md).
+
 ## Known limitations
 
 - New, never-seen move commands work about half the time with the default keyframe planner (some come out wrong or
@@ -406,3 +444,6 @@ The motion models are trained on datasets released under non-commercial research
 Interaction, CANDOR, Learning to Listen, ViCo and CMU Panoptic. YouTube clips listed in `docs/CORPUS.md` were used
 only for aggregate statistics and are not redistributed. MediaPipe assets under `app/vision/` are Google's
 (Apache-2.0). Not for commercial use.
+
+The mesh character Juno · realistic ships its own third-party assets (ICT-FaceKit, MPFB2, a CC BY head-scan detail map): see
+[THIRD_PARTY.md](THIRD_PARTY.md).

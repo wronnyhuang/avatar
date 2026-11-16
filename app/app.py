@@ -35,11 +35,39 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _SCENE_CACHE: dict = {}
 
 
+MESH_CHARS = ("junor",)      # characters drawn by the mesh renderer (renderer/mesh, assets in renderer/humans/<c>/)
+
+
+def _mesh_files(renderer_root: str, character: str) -> dict:
+    """config.body / config.props of a mesh character: renderer/humans/charfiles.py (body json from humans/<c>/, props = the
+    shared muse.props.json deep-merged with humans/<c>/<c>.props.override.json, never a copy)."""
+    hdir = os.path.join(renderer_root, "humans")
+    if not os.path.isdir(os.path.join(hdir, character)):
+        return {}
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("charfiles", os.path.join(hdir, "charfiles.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    out = {}
+    for kind, fn in (("body", mod.body_for), ("props", mod.props_for)):
+        try:
+            v = fn(character)
+        except (OSError, ValueError) as e:
+            print(f"config.{kind}: {character} unreadable: {type(e).__name__}: {e}", flush=True)
+            continue
+        if v is not None:
+            out[kind] = v
+    return out
+
+
 def char_scene(character: str) -> dict:
     if character in _SCENE_CACHE:
         return _SCENE_CACHE[character]
     out: dict = {}
     base = os.path.join(os.path.dirname(HERE), "renderer", "animals")
+    if character in MESH_CHARS:
+        _SCENE_CACHE[character] = out = _mesh_files(os.path.join(os.path.dirname(HERE), "renderer"), character)
+        return out
     for key in ("body", "props"):
         fp = os.path.join(base, f"{character}.{key}.json")
         if os.path.isfile(fp):
@@ -90,6 +118,7 @@ CHARACTERS = {  # key: (name, what, voice)
     "pyramid": ("Pip", "pyramid", "cedar"),
     "blob": ("Bloop", "jelly blob", "coral"),
     "muse": ("Muse", "plush companion", "shimmer"),   # the new character (personality: rtc.PERSONALITY)
+    "junor": ("Juno", "teacher", "marin"),            # the mesh-rendered realistic teacher (renderer/humans/junor)
 }
 
 DEFAULTS = {
@@ -160,6 +189,8 @@ def load_char_files(cfg: dict, character: str) -> dict:
     roots = [(cfg.get("local") or {}).get("render_root") or "", os.path.join(os.path.dirname(HERE), "renderer")]
     for root in roots:
         d = os.path.join(root, "animals") if root else ""
+        if character in MESH_CHARS and root and os.path.isdir(os.path.join(root, "humans", character)):
+            return _mesh_files(root, character)
         if not d or not os.path.isfile(os.path.join(d, character + ".glsl")):
             continue
         out = {}

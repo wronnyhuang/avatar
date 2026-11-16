@@ -1,0 +1,559 @@
+{
+"human": {
+"_doc": "per column [gain if >= 0, gain if < 0]; every fx mark column not in marks_keep -> 0",
+"gain": {
+"eye_scale": [
+0.0,
+0.0
+],
+"eye_ring": [
+0.25,
+0.25
+],
+"eye_wide": [
+1.0,
+1.0
+],
+"eye_shake": [
+0.3,
+0.3
+],
+"brow_l": [
+1.0,
+0.75
+],
+"brow_r": [
+1.0,
+0.75
+],
+"brow_thick": [
+0.3,
+0.3
+],
+"brow_tilt": [
+1.0,
+0.9
+],
+"mouth_pout": [
+0.2,
+1.0
+],
+"mouth_wide": [
+0.5,
+0.2
+],
+"mouth_curve": [
+1.0,
+0.6
+],
+"mouth_teeth": [
+0.1,
+1.0
+],
+"lid_happy": [
+0.9,
+1.0
+],
+"squint": [
+0.6,
+1.0
+],
+"gaze_x": [
+0.6,
+0.6
+],
+"gaze_y": [
+0.6,
+0.6
+],
+"head_pitch": [
+1.0,
+0.7
+],
+"mouth_skew": [
+0.35,
+0.35
+],
+"mouth_wobble": [
+0.6,
+0.6
+],
+"fx_sweat": [
+0.0,
+0.0
+],
+"fx_vein": [
+0.0,
+0.0
+],
+"fx_green": [
+0.3,
+0.3
+],
+"fx_tear": [
+0.8,
+0.8
+],
+"fx_blush": [
+0.5,
+0.5
+],
+"lid_asym": [
+0.15,
+0.15
+],
+"nostril": [
+0.4,
+0.4
+],
+"lid_droop": [
+0.3,
+1.0
+]
+},
+"marks_keep": []
+},
+"rules": [
+{
+"p": "blink_l",
+"s": "eyeBlinkRight"
+},
+{
+"p": "blink_r",
+"s": "eyeBlinkLeft"
+},
+{
+"p": "eye_wide",
+"s": "eyeWideLeft"
+},
+{
+"p": "eye_wide",
+"s": "eyeWideRight"
+},
+{
+"p": "squint",
+"s": "eyeSquintLeft"
+},
+{
+"p": "squint",
+"s": "eyeSquintRight"
+},
+{
+"p": "squint",
+"s": "cheekSquintLeft",
+"g": 0.4
+},
+{
+"p": "squint",
+"s": "cheekSquintRight",
+"g": 0.4
+},
+{
+"p": "lid_droop",
+"s": "eyeBlinkLeft",
+"g": 0.4
+},
+{
+"p": "lid_droop",
+"s": "eyeBlinkRight",
+"g": 0.4
+},
+{
+"p": "lid_slant",
+"s": "eyeBlinkLeft",
+"g": 0.25
+},
+{
+"p": "lid_slant",
+"s": "eyeBlinkRight",
+"g": 0.25
+},
+{
+"p": "lid_slant",
+"s": "eyeSquintLeft",
+"g": 0.5
+},
+{
+"p": "lid_slant",
+"s": "eyeSquintRight",
+"g": 0.5
+},
+{
+"p": "lid_slant",
+"s": "browDownLeft",
+"g": 0.4
+},
+{
+"p": "lid_slant",
+"s": "browDownRight",
+"g": 0.4
+},
+{
+"p": "lid_happy",
+"s": "eyeHappyLeft"
+},
+{
+"p": "lid_happy",
+"s": "eyeHappyRight"
+},
+{
+"p": "lid_happy",
+"s": "cheekSquintLeft",
+"g": 0.6
+},
+{
+"p": "lid_happy",
+"s": "cheekSquintRight",
+"g": 0.6
+},
+{
+"p": "lid_asym",
+"s": "eyeSquintLeft",
+"f": "pos",
+"g": 0.8
+},
+{
+"p": "lid_asym",
+"s": "eyeSquintRight",
+"f": "neg",
+"g": 0.8
+},
+{
+"p": "eye_scale",
+"s": "eyeWideLeft",
+"f": "pos",
+"g": 0.5
+},
+{
+"p": "eye_scale",
+"s": "eyeWideRight",
+"f": "pos",
+"g": 0.5
+},
+{
+"p": "eye_scale",
+"s": "eyeSquintLeft",
+"f": "neg",
+"g": 0.5
+},
+{
+"p": "eye_scale",
+"s": "eyeSquintRight",
+"f": "neg",
+"g": 0.5
+},
+{
+"p": "eye_ring",
+"s": "eyeWideLeft"
+},
+{
+"p": "eye_ring",
+"s": "eyeWideRight"
+},
+{
+"p": "brow_l",
+"s": "browOuterUpRight",
+"f": "pos",
+"g": 0.6
+},
+{
+"p": "brow_r",
+"s": "browOuterUpLeft",
+"f": "pos",
+"g": 0.6
+},
+{
+"p": "brow_l",
+"s": "browInnerUp",
+"f": "pos",
+"g": 0.3
+},
+{
+"p": "brow_r",
+"s": "browInnerUp",
+"f": "pos",
+"g": 0.3
+},
+{
+"p": "brow_l",
+"s": "browDownRight",
+"f": "neg"
+},
+{
+"p": "brow_r",
+"s": "browDownLeft",
+"f": "neg"
+},
+{
+"p": "brow_knit",
+"s": "browDownLeft",
+"g": 0.55
+},
+{
+"p": "brow_knit",
+"s": "browDownRight",
+"g": 0.55
+},
+{
+"p": "brow_tilt",
+"s": "browInnerUp",
+"f": "pos"
+},
+{
+"p": "brow_tilt",
+"s": "browTiltLeft",
+"f": "neg"
+},
+{
+"p": "brow_tilt",
+"s": "browTiltRight",
+"f": "neg"
+},
+{
+"p": "smile",
+"s": "mouthSmileLeft",
+"f": "pos"
+},
+{
+"p": "smile",
+"s": "mouthSmileRight",
+"f": "pos",
+"g": 0.9
+},
+{
+"p": "mouth_curve",
+"s": "mouthSmileLeft",
+"f": "pos",
+"g": 0.8
+},
+{
+"p": "mouth_curve",
+"s": "mouthSmileRight",
+"f": "pos",
+"g": 0.8
+},
+{
+"p": "mouth_curve",
+"s": "mouthFrownLeft",
+"f": "neg"
+},
+{
+"p": "mouth_curve",
+"s": "mouthFrownRight",
+"f": "neg"
+},
+{
+"p": "mouth_wide",
+"s": "mouthStretchLeft",
+"f": "pos",
+"g": 0.6
+},
+{
+"p": "mouth_wide",
+"s": "mouthStretchRight",
+"f": "pos",
+"g": 0.6
+},
+{
+"p": "mouth_wide",
+"s": "mouthPucker",
+"f": "neg",
+"g": 0.6
+},
+{
+"p": "mouth_skew",
+"s": "mouthSmileLeft",
+"f": "pos",
+"g": 0.6
+},
+{
+"p": "mouth_skew",
+"s": "mouthFrownRight",
+"f": "pos",
+"g": 0.4
+},
+{
+"p": "mouth_skew",
+"s": "mouthSmileRight",
+"f": "neg",
+"g": 0.6
+},
+{
+"p": "mouth_skew",
+"s": "mouthFrownLeft",
+"f": "neg",
+"g": 0.4
+},
+{
+"p": "mouth_skew",
+"s": "mouthLeft",
+"f": "pos",
+"g": 0.2
+},
+{
+"p": "mouth_skew",
+"s": "mouthRight",
+"f": "neg",
+"g": 0.2
+},
+{
+"p": "mouth_pout",
+"s": "mouthShrugLower",
+"g": 0.8
+},
+{
+"p": "mouth_pout",
+"s": "mouthPucker",
+"g": 0.3
+},
+{
+"p": "mouth_teeth",
+"s": "mouthUpperUpLeft",
+"g": 0.3
+},
+{
+"p": "mouth_teeth",
+"s": "mouthUpperUpRight",
+"g": 0.3
+},
+{
+"p": "cheek",
+"s": "cheekSquintLeft",
+"g": 0.3
+},
+{
+"p": "cheek",
+"s": "cheekSquintRight",
+"g": 0.3
+},
+{
+"p": "cheek",
+"s": "cheekPuff",
+"g": 0.15
+},
+{
+"p": "nostril",
+"s": "noseSneerLeft",
+"g": 0.3
+},
+{
+"p": "nostril",
+"s": "noseSneerRight",
+"g": 0.3
+},
+{
+"p": "nose_wiggle",
+"s": "noseSneerLeft",
+"f": "pos",
+"g": 0.25
+},
+{
+"p": "nose_wiggle",
+"s": "noseSneerRight",
+"f": "pos",
+"g": 0.25
+},
+{
+"p": "nose_wiggle",
+"s": "mouthShrugUpper",
+"f": "neg",
+"g": 0.25
+}
+],
+"human_face": {
+"_doc": " rig4: the human expression governor (renderer/humans/human_face.py): head chin-up/roll soft caps, closed smile cap + open teeth smile, L/R symmetry, inner brow under a smile, lid aperture floor; false = off",
+"head": {
+"pitch_up_knee_deg": 3.0,
+"pitch_up_cap_deg": 6.5,
+"roll_knee_deg": 2.0,
+"roll_cap_deg": 5.5,
+"body_pitch_rad": 0.28,
+"body_lean_rad": 0.2
+},
+"smile": {
+"closed_max": 0.6,
+"open_from": 0.6,
+"open_full": 1.0,
+"open_extra": 0.3,
+"open_jaw": 0.2,
+"open_upper": 0.34,
+"jaw_x_smile_max": 0.45,
+"cheek_max": 0.45,
+"unpout": [
+"mouthPucker",
+"mouthShrugLower",
+"mouthShrugUpper",
+"mouthFunnel"
+],
+"unpout_from": 0.25,
+"unpout_full": 0.5
+},
+"sym": {
+"asym_max": 0.1,
+"skew_max": 0.15,
+"pairs": [
+"mouthSmile",
+"mouthFrown",
+"mouthStretch",
+"mouthUpperUp",
+"mouthLowerDown",
+"mouthPress",
+"mouthDimple",
+"cheekSquint",
+"eyeSquint",
+"eyeHappy",
+"eyeWide",
+"noseSneer"
+]
+},
+"brows": {
+"inner_under_smile": 0.5,
+"smile_from": 0.25,
+"smile_full": 0.6,
+"opposed_keep": 0.2,
+"raise_pair": 0.55
+},
+"lids": {
+"open_min": 0.6,
+"open_min_smile": 0.85,
+"smile_from": 0.25,
+"smile_full": 0.55,
+"blink_rise_s": 0.35,
+"governed": [
+"eyeBlink",
+"eyeSquint",
+"eyeHappy",
+"cheekSquint",
+"eyeLookDown"
+]
+}
+},
+"_doc": " junor (Juno, realistic): juno's face table + the living-person layer 'life' (renderer/humans/human_life.py; each section key switches one behaviour on) + 'rig_tuning' over rig.py DEFAULT_TUNING",
+"life": {
+"_doc": " motion: sections eyes, lids, blink, speech, body, tone, expr ({} = the defaults in human_life.DEFAULTS; false or absent = off; env JUNO_LIFE=0 = all off)",
+"eyes": {},
+"lids": {"down": {"eyeBlink": 0.12, "eyeSquint": 0.0}},
+"_doc_body_t4557": " BODY owns life.lids/life.tone + the rig_tuning elbow/forearm/face_palm keys (HEAD2 owns mouth/smile keys). Live home read sleepy (cloud2): lid-follow eyeBlink .30 on the page resting gaze_y -.26 + tone eyeSquint .10 -> lids .12/0, tone squint .04 + eyeWide .35 (upper lid at the top of the iris). If a HEAD asset bakes rest eyeWide .35, DROP tone.eyeWide here.",
+"blink": {},
+"speech": {},
+"body": {},
+"expr": {},
+"tone": {"eyeSquint": 0.04},
+"_doc_tone_integ2": " integ2: HEAD v11 bakes rest eyeWide .35 into the asset -> tone.eyeWide dropped (BODY note: else double)"
+},
+"rig_tuning": {
+"_doc": " motion: ICT scan shapes move real distances at weight 1 (brows 6-9 mm, smile 16 mm): juno's stylised-asset boosts scaled back",
+"brow_amp": 1.15,
+"brow_max": 1.3,
+"brow_amp_down": 1.3,
+"brow_max_down": 1.5,
+"teeth_smile": 0.05,
+"_doc_teeth_smile": ": HEAD2 v10 smile shapes carry the upper-lip raise themselves; rig teeth_smile .28 -> .05 (gums over-driven)",
+"elbow_pole_hi": [0.9, -0.1, -0.35],
+"elbow_pole_face": [0.45, -1.0, 0.15],
+"forearm_roll_share": 0.5,
+"face_palm": 1.0,
+"face_tip": [0.25, 0.5, 0.95],
+"_doc_body": " BODY: adult-arm elbow pole (high targets: elbow out, not up); a hand at the face hangs its elbow below it (was thrown over the shoulder: think / chin rest / cover eyes, live cloud2); half the forearm roll in the lowerarm (the asset has no twist bones); palms turn to the face"
+}
+}

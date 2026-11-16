@@ -95,5 +95,6 @@
     "ear_gain": 0.9, "ear_flick_rate": 4.0, "ear_onset_flick": 0.08,
     "brow_gain": 0.9, "smile_base": 0.28, "cheek_gain": 1.1, "nostril_gain": 0.5,
     "nostril_twitch_rate": 1.0, "breath_rate": 0.24, "breath_gain": 1.0, "listen_tilt": 0.05
-  }
+  },
+  "junor": {"_note": "Juno, realistic (human teacher): blinks 6-12/min (+ phrase/gaze nudges), mostly eye contact with small saccades, head +-7 deg drift + emphasis nods, brows as the main carrier, a light resting smile, visible breathing at the medium close-up; no ears", "seed": 4430, "jaw_gain": 0.9, "round_gain": 0.95, "spread_gain": 0.95, "head_gain": 1.0, "head_speed": 6.0, "nod_gain": 0.8, "nod_hz": 1.8, "nod_chance": 0.55, "gaze_gain": 0.55, "fixation": 1.5, "blink_rate": 9.0, "double_blink": 0.1, "ear_gain": 0.0, "ear_flick_rate": 0.0, "ear_onset_flick": 0.0, "brow_gain": 1.1, "smile_base": 0.26, "cheek_gain": 1.0, "nostril_gain": 0.25, "nostril_twitch_rate": 0.6, "breath_rate": 0.25, "breath_gain": 1.25, "listen_tilt": 0.04}
 }

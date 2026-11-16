@@ -24,6 +24,7 @@ recordings/avatar-sessions/
 *.mov
 *.jpg
 *.jpeg
+!renderer/humans/junor/junor.asset/tex/*.jpg
 frames/
 data/
 cache/

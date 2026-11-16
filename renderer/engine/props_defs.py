@@ -88,8 +88,30 @@ def props_path(character):
     return os.path.join(ROOT, "animals", f"{character}.props.json")
 
 
+def _char_json(character):      # the character's own json (its "props_renderer" block), or {}
+    try:
+        return json.load(open(os.path.join(ROOT, "animals", f"{character}.json")))
+    except (OSError, ValueError):
+        return {}
+
+
+MESH_CHARS = ("junor",)      # the mesh characters (renderer/humans/<c>/)
+
+
+def _charfiles():      # the load-time merge (renderer/humans/charfiles.py) for the mesh characters
+    import sys
+    if ROOT not in sys.path:
+        sys.path.append(ROOT)
+    from humans import charfiles
+    return charfiles
+
+
 def units(character):
     """(H scene units per body height, base_y scene y of the H frame's origin, source)."""
+    if character in MESH_CHARS:
+        b = _charfiles().body_for(character)
+        if b and "H" in b:
+            return float(b["H"]), float(b.get("base_y", 0.0)), "body"
     bp = os.path.join(ROOT, "animals", f"{character}.body.json")
     if os.path.exists(bp):
         try:
@@ -106,6 +128,8 @@ def units(character):
 
 
 def load(character):
+    if character in MESH_CHARS and not os.environ.get("AVATAR_PROPS_JSON"):     # the mesh character's props file + override
+        return _charfiles().props_for(character)
     pp = props_path(character)
     return json.load(open(pp)) if os.path.exists(pp) else None
 
@@ -165,6 +189,8 @@ def defines(character):
     # sees them in config.props.  Slot = list index, as before, for every entry that names none.)
     props = [p for i, p in enumerate(cfg.get("props", [])) if int(p.get("slot", i)) == i][:PROPS_MAX]
     rnd = cfg.get("renderer", {})
+    if character in MESH_CHARS:         # the mesh character's own grasp/head functions over the shared props file
+        rnd = dict(rnd); rnd.pop("char_bound", None); rnd.update(_char_json(character).get("props_renderer", {}))
     out = [f"#define PROPS_N {len(props)}", f"#define PROPS_H {_lit(H)}"]
     if rnd.get("grasp_fn"):
         out.append(f"#define PROPS_GRASP_FN {rnd['grasp_fn']}")

@@ -42,6 +42,21 @@ def default_preset(character, width, height, target_fps=24):
     return json.loads(p) if isinstance(p, str) and p.startswith("{") else p
 
 
+def engine_class(character):
+    """a character whose renderer/animals/<c>.json says "backend": "mesh" (Juno, realistic) draws through
+    mesh.engine.MeshEngine (RTEngine's interface: scene SDF pass + the skinned mesh composited on it, same process and GL
+    context); every other character is RTEngine, untouched."""
+    try:
+        with open(os.path.join(ROOT, "animals", f"{character}.json"), encoding="utf-8") as f:
+            mesh = json.load(f).get("backend") == "mesh"
+    except (OSError, ValueError):
+        mesh = False
+    if not mesh:
+        return rt_engine.RTEngine
+    from mesh.engine import MeshEngine
+    return MeshEngine
+
+
 class RTBackend(Backend):
     name = "rt"
 
@@ -65,7 +80,7 @@ class RTBackend(Backend):
         adaptive = tier == "auto" and P["taa"] and backend == "gpu"
         if adaptive or isinstance(tier, int):
             P["tiers"] = True
-        self.eng = rt_engine.RTEngine(character, width, height, P, backend=backend, threads=threads)
+        self.eng = engine_class(character)(character, width, height, P, backend=backend, threads=threads)
         if os.environ.get("AVATAR_PREWARM", "1") != "0":
             self.eng.prewarm()
         self.tier_names = ["q%d" % round(100*sc) for sc in self.eng.tiers]

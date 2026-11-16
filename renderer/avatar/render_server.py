@@ -62,7 +62,7 @@ from live.core import LiveCore                       # noqa: E402
 mono = time.monotonic
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROFILES = os.path.join(HERE, "profiles.json")
-CHARACTERS = ["fox", "bear", "rabbit", "hippo", "monkey", "orb", "cube", "drop", "star", "pyramid", "blob", "muse"]   # + muse
+CHARACTERS = ["fox", "bear", "rabbit", "hippo", "monkey", "orb", "cube", "drop", "star", "pyramid", "blob", "muse", "junor"]   # + muse
 A_HDR = struct.Struct("<B3xQ")          # 'A', pad, uint64 first sample
 V_HDR = struct.Struct("<BBHId")         # 'V', flags, pad, uint32 frame number, float64 t
 SPFS = {20: 1200, 24: 1000, 30: 800}    # timeline samples per output frame

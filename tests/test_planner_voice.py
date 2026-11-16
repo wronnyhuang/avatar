@@ -58,7 +58,7 @@ def timing_sentences(text: str) -> list[str]:
 
 class Sessions(unittest.TestCase):
     def test_realtime_all_characters(self):
-        self.assertEqual(len(CHARS), 12)
+        self.assertEqual(len(CHARS), 13)
         for key, (name, what, voice) in CHARS.items():
             for style in ("callfirst", "parallel"):
                 with self.subTest(character=key, style=style):

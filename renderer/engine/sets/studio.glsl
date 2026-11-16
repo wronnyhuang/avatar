@@ -82,6 +82,9 @@ const float BM_Z0 = -1.60, BM_P = 2.80, BM_W = 0.13, BM_D = 0.20;      // oak be
 #define M_SHADE  20.0     // lamp shades: they glow
 #define M_METAL  21.0
 #define M_BEAM   22.0
+//-dress{ junor only (set_params jr_dress): set dressing behind her home close-up; left out of the bake key of every other character
+#define M_BULB   23.0     // fairy-light bulbs: they glow
+//-dress}
 
 vec2  gWind;
 float gAmbMul = 1.0;     // PASS_BG: see the header
@@ -491,6 +494,76 @@ vec2 artX(vec3 r, vec4 a, float x, float id){
   return cv < fr ? vec2(cv, M_ART) : vec2(fr, M_FRAME);
 }
 
+//-dress{ junor only (set_params jr_dress): set dressing behind her home close-up; left out of the bake key of every other character
+#ifdef SP_JR_DRESS
+// a tall oak bookcase against the back wall, between the board and the TV, open to the room (+z)
+const vec3 JB_LO = vec3(0.30, 0.0, ZB), JB_HI = vec3(1.56, 2.72, ZB + 0.40);
+vec2 jrCase(vec3 r){
+  vec3 c = 0.5*(JB_LO + JB_HI), b = 0.5*(JB_HI - JB_LO);
+  vec3 q = r - c;
+  float outer = sdBox3(q, b);
+  const float SP = 0.645, Y0 = 0.12, TH = 0.035;
+  float lv = clamp(floor((r.y - Y0)/SP), 0.0, 3.0);
+  vec3 iq = vec3(q.x, r.y - (Y0 + lv*SP + 0.5*SP + 0.5*TH), q.z - TH);
+  float inner = sdBox3(iq, vec3(b.x - TH, 0.5*SP - 0.5*TH, b.z));
+  vec2 res = vec2(max(outer, -inner), M_WOOD);
+  gTmpQ = q; gTmpId = 2.0; gNearQ = q; gNearId = 2.0;     // the frame is the first candidate (not through opUn)
+  // books along x on this shelf, some leaning gaps; bay 2 (her shoulder height) holds a pot on the right
+  const float BP = 0.072;
+  float fx = (q.x + b.x - TH)/BP;
+  float ii = clamp(floor(fx), 0.0, 15.0);
+  vec3 h = hash31(ii*3.13 + lv*19.0 + 7.0);
+  float gap = step(0.88, h.z) + step(abs(lv - 2.0), 0.5)*step(10.5, ii) + step(abs(lv - 0.0), 0.5)*step(ii, 4.5);
+  float bw = BP*mix(0.34, 0.46, h.x), bh = mix(0.19, 0.27, h.y), bd = mix(0.11, 0.15, h.z);
+  vec3 bq = vec3(q.x + b.x - TH - (ii + 0.5)*BP, r.y - (Y0 + lv*SP + 0.5*TH + bh), q.z + b.z - TH - bd + 0.02);
+  float bk = sdBox3(bq, vec3(bw, bh, bd)) - 0.004;
+  bk = mix(bk, 1.0, min(gap, 1.0));
+  bk = max(bk, abs(q.x + b.x - TH - (ii + 0.5)*BP) - BP*0.5);
+  gTmpQ = vec3(bq.y/bh, bq.x/bw, 0.0); gTmpId = ii + lv*20.0;
+  res = opUn(res, vec2(bk, M_BOOK));
+  // a woven basket on the bottom shelf, left
+  vec3 kq = vec3(q.x + b.x - 0.25, r.y - (Y0 + 0.5*TH + 0.19), q.z + 0.02);
+  float bas = max(sdBox3(kq, vec3(0.20, 0.19, 0.15)) - 0.03, -sdBox3(kq - vec3(0.0, 0.08, 0.0), vec3(0.17, 0.19, 0.12)));
+  gTmpQ = kq; gTmpId = 0.0;
+  res = opUn(res, vec2(bas, M_CUSH));
+  // bay 2, right: a stoneware pot with a round mound of leaves
+  vec3 pq = vec3(q.x - b.x + 0.22, r.y - (Y0 + 2.0*SP + 0.5*TH), q.z + 0.02);
+  res = opU(res, pot(pq, 0.20, 0.10));
+  float n = vnoise3(r*14.0)*0.05 + vnoise3(r*31.0)*0.02;
+  float ld = (length((pq - vec3(0.0, 0.31, 0.0))*vec3(1.0, 1.2, 1.0)) - 0.15 + n)*0.6;
+  float tr = sdTaper(pq, vec3(0.06, 0.24, 0.07), vec3(0.12, -0.30, 0.16), 0.032, 0.016) + n*0.6;
+  ld = min(ld, tr*0.8);
+  gTmpQ = pq; gTmpId = 0.7;
+  res = opUn(res, vec2(ld, M_LEAF));
+  // on top: a trailing plant and a jar
+  vec3 tq = vec3(q.x + b.x - 0.30, r.y - JB_HI.y, q.z);
+  res = opU(res, pot(tq, 0.22, 0.12));
+  float ld2 = (length((tq - vec3(0.0, 0.34, 0.0))*vec3(1.0, 1.3, 1.0)) - 0.17 + n)*0.6;
+  float tr2 = min(sdTaper(tq, vec3(0.08, 0.25, 0.10), vec3(0.20, -0.55, 0.30), 0.035, 0.016),
+                  sdTaper(tq, vec3(-0.07, 0.25, 0.09), vec3(-0.16, -0.40, 0.26), 0.032, 0.015)) + n*0.6;
+  ld2 = min(ld2, tr2*0.8);
+  gTmpQ = tq; gTmpId = 0.3;
+  res = opUn(res, vec2(ld2, M_LEAF));
+  return res;
+}
+// a string of warm fairy lights in two swags along the wall above the board, ending on the bookcase
+float jrBulbs(vec3 r){
+  vec3 q = vec3(r.x, r.y, r.z - (ZB + 0.04));
+  float d = 1e3;
+  for(int i=0;i<2;i++){
+    float x0 = i == 0 ? -2.60 : -1.40, x1 = i == 0 ? -1.40 : -0.50;
+    float xm = 0.5*(x0 + x1), hw = 0.5*(x1 - x0);
+    float sag = i == 0 ? 0.28 : 0.20;
+    const float PB = 0.105;
+    float cx = clamp(floor((q.x - x0)/PB + 0.5), 1.0, floor((x1 - x0)/PB) - 1.0)*PB + x0;
+    float u = (cx - xm)/hw;
+    vec3 c = vec3(cx, 2.42 - sag*(1.0 - u*u), 0.0);
+    d = min(d, length(q - c) - 0.020);
+  }
+  return d;
+}
+#endif
+//-dress}
 vec2 nearMap(vec3 pw, bool shadow){
   const float G = 0.14;
   vec3 p = toRoom(pw);
@@ -530,6 +603,23 @@ vec2 nearMap(vec3 pw, bool shadow){
   for(int i=0;i<1 && bN < G;i++){
     res = opU(res, bench(p));
   }
+//-dress{ junor only (set_params jr_dress): set dressing behind her home close-up; left out of the bake key of every other character
+#ifdef SP_JR_DRESS
+  float bJ = sdBox3(p - 0.5*(JB_LO + JB_HI) - vec3(0.0, 0.25, 0.10), 0.5*(JB_HI - JB_LO) + vec3(0.10, 0.35, 0.25));
+  res.x = min(res.x, max(bJ, G));
+  for(int i=0;i<1 && bJ < G;i++){
+    res = opU(res, jrCase(p));
+  }
+  if(!shadow){
+    float bF = sdBox3(p - vec3(-1.55, 2.25, ZB + 0.04), vec3(1.15, 0.25, 0.08));
+    res.x = min(res.x, max(bF, G));
+    for(int i=0;i<1 && bF < G;i++){
+      gTmpQ = p; gTmpId = 0.0;
+      res = opUn(res, vec2(jrBulbs(p), M_BULB));
+    }
+  }
+#endif
+//-dress}
   float bP = sdBox3(p - PD_P - vec3(0.0, 0.40, 0.0), vec3(0.36, 0.50, 0.36));
   res.x = min(res.x, max(bP, G));
   for(int i=0;i<1 && bP < G;i++){
@@ -660,6 +750,21 @@ void setSurface(vec3 pw, vec3 rd, float t, float m, vec3 n, inout Surf s){
     float Fr = 0.025 + 0.40*pow(1.0 - nv, 5.0);
     vec3 env = roomEnv(pw + vec3(0.0, 0.003, 0.0), d2, 0.3);
     gAdd = env*Fr*0.50;
+// rq-light{  LOOK_V3: per-plank varnish (some boards glossier, worn joints dull), the room's reflection streaked
+// along the grain (the micro-normal spreads along the plank, not across), the window a little crisper in it
+#ifdef LOOK_V3
+    {
+      const float PW = 0.31, PL = 2.70;
+      float cI = floor(r.x/PW), uI = r.x/PW - cI;
+      float rI = floor((r.z + hash11(cI*7.13 + 0.3)*PL)/PL);
+      vec3 hp = hash33(vec3(cI, rI, 3.0));
+      float gl = (0.65 + 0.70*hp.z)*smoothstep(0.0, 0.06, min(uI, 1.0 - uI));
+      vec3 nA = normalize(vec3(0.0, 1.0, 0.0) + vec3((jit - 0.5)*0.010, 0.0, (jit2 - 0.5)*0.11));
+      vec3 envA = roomEnv(pw + vec3(0.0, 0.003, 0.0), reflect(rd, nA), 0.50);
+      gAdd = envA*(0.03 + 0.45*pow(1.0 - nv, 5.0))*0.55*gl;
+    }
+#endif
+// rq-light}
   }
   for(int i=0;i<1 && m == M_RUG;i++){
     vec2 q = r.xz - vec2(-0.25, 0.15);
@@ -672,6 +777,18 @@ void setSurface(vec3 pw, vec3 rd, float t, float m, vec3 n, inout Surf s){
     c = mix(c, c*1.25 + 0.02, 0.35*exp(-dot(q, q)/2.5));
     s.alb = c;
     s.wrap = 0.25; s.sheen = 0.25;
+// rq-light{  LOOK_V3: a woven wool: warp and weft rows (band-limited to the footprint) and a stronger pile sheen
+#ifdef LOOK_V3
+    {
+      float wk = smoothstep(0.016, 0.005, fw);
+      vec2 wq = q/0.011;
+      float warp = 0.5 + 0.5*sin(wq.x*6.2832), weft = 0.5 + 0.5*sin(wq.y*6.2832 + 3.1416*step(0.5, fract(wq.x*0.5)));
+      s.alb *= 1.0 + wk*(0.10*(warp*weft - 0.25) - 0.03);
+      s.alb *= 0.96 + 0.08*vnoise2(q*9.0);               // the wool's tone wanders, a little
+      s.sheen = 0.40;
+    }
+#endif
+// rq-light}
     s.occ *= 0.80 + 0.20*smoothstep(0.0, 0.10, e);
     s.n = normalize(vec3(0.0, 1.0, 0.0) + 0.05*(vec3(vnoise2(q*60.0), 0.0, vnoise2(q*60.0 + 7.0)) - 0.5)*nk);
   }
@@ -692,6 +809,27 @@ void setSurface(vec3 pw, vec3 rd, float t, float m, vec3 n, inout Surf s){
     // the reveals of the windows are a touch darker inside
     if(r.x < XL + 0.01) s.occ *= 0.85;
     s.wrap = 0.05;
+//-dress{ junor only (set_params jr_dress): set dressing behind her home close-up; left out of the bake key of every other character
+#ifdef SP_JR_DRESS
+    if(m == M_PLASTER && r.z < ZB + 0.02 && r.x > -2.7 && r.x < 0.3 && r.y > 1.95 && r.y < 3.0){
+      for(int k=0;k<6;k++){
+        vec3 hk = hash31(float(k)*5.31 + 1.7);
+        vec2 cc = vec2(-2.45 + float(k)*0.43 + 0.08*(hk.x - 0.5), 2.62 + 0.10*(hk.y - 0.5));
+        vec2 dq = r.xy - cc; dq = rot(0.10*(hk.z - 0.5))*dq;
+        vec2 hb = vec2(0.15, 0.20);
+        if(abs(dq.x) < hb.x && abs(dq.y) < hb.y){
+          vec3 paper = vec3(0.86,0.83,0.76);
+          vec3 ink = hk.x < 0.33 ? vec3(0.75,0.25,0.12) : (hk.x < 0.66 ? vec3(0.15,0.35,0.65) : vec3(0.25,0.55,0.18));
+          float blob = smoothstep(0.02, -0.02, length((dq - vec2(0.03*(hk.y - 0.5), 0.04))*vec2(1.0, 1.3)) - 0.08);
+          float scr = smoothstep(0.012, 0.0, abs(dq.y + 0.10 + 0.03*sin(dq.x*40.0 + hk.z*9.0)));
+          vec3 c2 = mix(paper, ink, max(blob*0.85, scr*0.7));
+          c2 = mix(c2, vec3(0.95,0.75,0.20), smoothstep(0.02, -0.02, length(dq - vec2(-0.08, 0.12)) - 0.035)*step(0.5, hk.y));
+          s.alb = c2; s.occ *= 1.0; s.wrap = 0.1;
+        }
+      }
+    }
+#endif
+//-dress}
   }
   if(m == M_BEAM){
     s.alb = vec3(0.24,0.145,0.080)*(0.80 + 0.30*vnoise3(pw*vec3(14.0,3.0,2.0)) + 0.10*vnoise3(pw*vec3(40.0,9.0,5.0)));
@@ -743,6 +881,15 @@ void setSurface(vec3 pw, vec3 rd, float t, float m, vec3 n, inout Surf s){
       s.alb = mix(vec3(0.66,0.52,0.38), vec3(0.80,0.74,0.62), gl);
       s.spec = 0.8*gl; s.shin = 90.0; s.wrap = 0.08; s.occ *= 1.3;
     } else if(m == M_WOOD){
+//-dress{ junor only (set_params jr_dress): set dressing behind her home close-up; left out of the bake key of every other character
+#ifdef SP_JR_DRESS
+      if(gNearId > 1.5){
+        s.alb = vec3(0.40,0.245,0.13)*(0.82 + 0.30*vnoise3(pw*vec3(22.0,2.0,3.0)));
+        s.occ *= 0.50 + 0.50*smoothstep(JB_LO.z + 0.06, JB_HI.z - 0.02, r.z);
+        s.spec = 0.10; s.shin = 30.0;
+      } else
+#endif
+//-dress}
       if(gNearId < 0.5){
         // the bookcase: oak, darker inside the bays
         s.alb = vec3(0.40,0.245,0.13)*(0.82 + 0.30*vnoise3(pw*vec3(2.0,22.0,3.0)));
@@ -786,6 +933,13 @@ void setSurface(vec3 pw, vec3 rd, float t, float m, vec3 n, inout Surf s){
       vec3 toC = normalize(lc - r);
       float inner = smoothstep(-0.1, 0.3, dot(n, toC));
       gAdd = vec3(1.45,0.98,0.56)*mix(0.55, 2.4, inner);
+//-dress{ junor only (set_params jr_dress): set dressing behind her home close-up; left out of the bake key of every other character
+#ifdef SP_JR_DRESS
+    } else if(m == M_BULB){
+      s.alb = vec3(1.0,0.78,0.50);
+      gAdd = vec3(1.0,0.72,0.40)*SP_JR_BULB;
+#endif
+//-dress}
     } else if(m == M_METAL){
       s.alb = vec3(0.075,0.060,0.045); s.spec = 0.6; s.shin = 60.0;
     }
@@ -888,6 +1042,11 @@ void setSurface(vec3 pw, vec3 rd, float t, float m, vec3 n, inout Surf s){
   gGI = gi/16.0;
   // the light goes through s.alb, see the header
   float M = beamMask(r);
+//-dress{ junor: the window pool on the bookcase blew the cream books to white: a soft third of it
+#ifdef SP_JR_DRESS
+  if(r.x > JB_LO.x - 0.05 && r.x < JB_HI.x + 0.05 && r.z < JB_HI.z + 0.05 && r.y < JB_HI.y + 0.6) M *= 0.6;
+#endif
+//-dress}
   float k = max(M, 0.003);
   gAmbMul = 1.0/k;
   float kk = k;

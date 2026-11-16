@@ -1,0 +1,73 @@
+{
+ "log": [
+  "graft: concept neutral renderer/humans/junor/build/neutral_concept.npy",
+  "graft: ICT offset [0.0, 1.5546, 0.0353] loop rms 8.6 mm",
+  "graft: MH loop 52 / ICT loop 54 verts, 106 bridge tris, 4502 MH faces cut, jaw 26.0 deg hinge [0.0, 1.5407, 0.0562], eyes R 15.75 mm, height 1.705",
+  "shape_prune lod0: entries 1047604 -> 649243, shapes.bin 29.3 -> 18.2 MB",
+  "shape_prune lod1: entries 678956 -> 503260, shapes.bin 19.0 -> 14.1 MB",
+  "tex_pack: tex 112.0 MB -> 60.1 MB"
+ ],
+ "eyes": {
+  "l": {
+   "side": "l",
+   "R_mm": 15.75,
+   "lid_clear_over_R": {
+    "rest": 0.889,
+    "eyeBlinkLeft@0.5": 0.898,
+    "eyeBlinkLeft@1.0": 0.888,
+    "eyeSquintLeft@1.0": 0.889,
+    "eyeLookDownLeft@1.0": 0.87
+   },
+   "vis_w_mm": 23.8,
+   "vis_h_mm": 11.1,
+   "iris_top_cover": 0.201,
+   "lid_up_now_mm": 4.9,
+   "lid_up_want_mm": 6.2,
+   "theta_up": 18.0,
+   "theta_down": 22.5,
+   "theta_iris": 22.0,
+   "bulge_mm": 0.32,
+   "lid_shapes": 59,
+   "ict_iris_r_mm": 14.72
+  },
+  "r": {
+   "side": "r",
+   "R_mm": 15.75,
+   "lid_clear_over_R": {
+    "rest": 0.888,
+    "eyeBlinkRight@0.5": 0.884,
+    "eyeBlinkRight@1.0": 0.879,
+    "eyeSquintRight@1.0": 0.883,
+    "eyeLookDownRight@1.0": 0.868
+   },
+   "vis_w_mm": 23.7,
+   "vis_h_mm": 10.9,
+   "iris_top_cover": 0.208,
+   "lid_up_now_mm": 4.7,
+   "lid_up_want_mm": 6.2,
+   "theta_up": 17.5,
+   "theta_down": 22.2,
+   "theta_iris": 22.0,
+   "bulge_mm": 0.32,
+   "lid_shapes": 60,
+   "ict_iris_r_mm": 14.72
+  }
+ },
+ "wardrobe_module": "wardrobe_r",
+ "lod1": [
+  "lod1 head: tris 23964 -> 13180, verts 12617 -> 7225, locked 4642, poses 9",
+  "lod1 body: tris 9944 -> 4972, verts 5928 -> 3442, locked 1890, poses 1",
+  "lod1 mouth_interior: tris 4104 -> 2052, verts 2114 -> 1088, locked 122, poses 9",
+  "lod1 teeth_upper: tris 4352 -> 1522, verts 2718 -> 1303, locked 1052, poses 1",
+  "lod1 teeth_lower: tris 4344 -> 1520, verts 2634 -> 1222, locked 892, poses 1",
+  "lod1 gums_upper: tris 2470 -> 1112, verts 1459 -> 780, locked 434, poses 1",
+  "lod1 gums_lower: tris 2380 -> 1070, verts 1407 -> 752, locked 420, poses 9",
+  "lod1 cloth_cardigan: tris 4336 -> 2602, verts 2442 -> 1575, locked 707, poses 1",
+  "lod1 cloth_cardigan_rib: tris 6264 -> 4634, verts 3594 -> 2779, locked 1556, poses 1",
+  "lod1 cloth_buttons: tris 960 -> 590, verts 540 -> 355, locked 219, poses 1",
+  "lod1 cloth_blouse: tris 10268 -> 4620, verts 5307 -> 2483, locked 1316, poses 1",
+  "lod1 cloth_trousers: tris 5060 -> 3060, verts 2846 -> 1846, locked 685, poses 1",
+  "lod1 shoes: tris 3188 -> 2246, verts 1818 -> 1347, locked 873, poses 1",
+  "lod1 shoes_sole: tris 1176 -> 980, verts 616 -> 518, locked 378, poses 1"
+ ]
+}
