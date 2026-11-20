@@ -1,7 +1,7 @@
 """rig4: the HUMAN expression governor for Juno (table-driven; juno.face.json "human_face" over DEFAULTS).
 
 The shared control vector was built for the plush (cartoon head throws, squeezed ^^ eyes, smirks, floating marks).
-RIG3's `human_params` rescales columns; this layer adds the constraints a Pixar HUMAN face needs, applied to the
+RIG3's `human_params` rescales columns; this layer adds the constraints an animated-film HUMAN face needs, applied to the
 rig's own outputs so every feeling (and every blend nobody designed) obeys them — no per-feeling or per-phrase rules:
 
   head   (on the vector, before the solve)  the head's chin-up pitch and its roll, counted together with the

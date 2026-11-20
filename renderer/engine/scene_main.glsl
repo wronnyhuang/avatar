@@ -223,7 +223,11 @@ float HG(float mu, float g){ float g2=g*g; return (1.0-g2)/pow(1.0+g2-2.0*g*mu, 
 // the three distances the engine marches, derived from the animal's charEval()
 float charCoarse(vec3 p){ charEval(p); return min(gcBare, gcBase - gcLen); }
 float charFine(vec3 p){ charEval(p); return min(gcBare, gcBase - gcLen*charTuft()); }
+#ifdef MR_AO_ARM_PAD
+float charAO(vec3 p){ gMAOPass = true; charEval(p); gMAOPass = false; return min(gcBare, gcBase); }   // gekkie
+#else
 float charAO(vec3 p){ charEval(p); return min(gcBare, gcBase); }
+#endif
 
 // ===========================================================================
 #ifdef PASS_BG

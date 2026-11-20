@@ -536,7 +536,7 @@ def build(base, texdir):
     ridge = sstep(-10.0, -120.0, curv) * ear_m
     col = mix(col, col * np.array([0.62, 0.52, 0.50]), 0.55 * fold)
     col *= (1 + 0.08 * ridge)[..., None]
-    # gentle AO in the albedo (crevices read in a soft Pixar way, not dirty)
+    # gentle AO in the albedo (crevices read in a soft animated-film way, not dirty)
     col *= (0.82 + 0.18 * mix(ao[..., None], np.ones_like(ao[..., None]), 0.85 * und)[..., 0])[..., None]
     albedo = l2s(col)
     if REF_BLEND:

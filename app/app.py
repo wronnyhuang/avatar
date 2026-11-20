@@ -120,6 +120,17 @@ CHARACTERS = {  # key: (name, what, voice)
     "muse": ("Muse", "plush companion", "shimmer"),   # the new character (personality: rtc.PERSONALITY)
     "junor": ("Juno", "teacher", "marin"),            # the mesh-rendered realistic teacher (renderer/humans/junor)
 }
+import mascots  # noqa: E402  the extra mascot characters (gekkie, hooty ...)
+for _k, _m in mascots.MASCOTS.items():
+    CHARACTERS[_k] = (_m["name"], _m["what"], _m["voice"])
+def _mascot_on(k, cfg=None):
+    """a mascot is offered when the hub is not told otherwise (env AVATAR_MASCOTS=0 / config "mascots": false — the
+    visitors' demo) and its shader exists in the render tree this hub serves (local render_root, else ../renderer)."""
+    if os.environ.get("AVATAR_MASCOTS", "1") == "0" or (cfg or {}).get("mascots") is False:
+        return False
+    roots = [((cfg or {}).get("local") or {}).get("render_root") or "", (cfg or {}).get("cloud_root") or "", os.path.join(os.path.dirname(HERE), "renderer")]
+    return any(r and os.path.isfile(os.path.join(r, "animals", k + ".glsl")) for r in roots)
+
 
 DEFAULTS = {
     "idle_stop_s": 900,              # stop the local render server after this long without activity (0 = never)
@@ -307,6 +318,14 @@ class Spend:
 
 
 # ---------------------------------------------------------------------------------------------------------- down queue
+def m2_error(m: dict) -> bool:
+    """motion2: a renderer's answer to a 'clip' / 'motion2' message (an unknown clip, an older renderer) is never a
+    link error (the page only sends them when the renderer's ready advertised "motion2")."""
+    msg = str(m.get("message", ""))
+    return m.get("type") == "error" and (msg.startswith(("clip:", "motion2:")) or "unknown message type 'clip'" in msg
+                                         or "unknown message type 'motion2'" in msg)
+
+
 def rigdbg_unsupported_error(m: dict) -> bool:
     """rigdbg: a renderer built before the 'rigdbg' handler answers {"type":"error","message":"unknown message type
     'rigdbg'"} -- the hub swallows it and tells the page once that this renderer doesn't report its values."""
@@ -575,7 +594,7 @@ class RenderLink:
                         continue
                     elif t == "stats":
                         self.last_stats = m
-                    elif t == "error" and not rigdbg_unsupported_error(m):   # an old renderer's answer to
+                    elif t == "error" and not rigdbg_unsupported_error(m) and not m2_error(m):   # / : answers to
                         self.err = str(m.get("message", "render error"))[:300]   # 'rigdbg' is not a link error
                     self.hub.on_render_json(self, m)
                 elif msg.type in (aiohttp.WSMsgType.ERROR, aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSE):
@@ -730,6 +749,7 @@ class Session:
                 # the voice (beyond it the late-frame rule drops them); delay_max_ms is what absorbs a slow link.
                 "video_lag_max_ms": int(self.cfg.get("video_lag_max_ms", 120)),
                 "react_mode": (self.cfg.get("react") or {}).get("mode", "rules"),
+                "motion2": r.get("motion2") if self.m2_allowed() else None,   # the renderer's real-human body layer (juno / junor) + its clip list; config "motion2": false = kill switch
                 "planner": bool(self.planner) and bool(getattr(getattr(self.hub, "planner", None), "enabled", True)),  # page switch AND hub planner
                 **char_scene(self.character)}   # config.body / config.props (the muse only)
 
@@ -1061,6 +1081,37 @@ class Session:
         elif self.link and self.video_ok and self.link is not self.rigdbg_unsup:
             self.link.send_json({"type": "rigdbg", "on": False})
 
+    def m2_allowed(self) -> bool:
+        """motion2 kill switch: state/config.json "motion2": false -> every session classic (no redeploy; restart the hub)."""
+        return self.cfg.get("motion2", True) is not False
+
+    def m2_push_off(self) -> None:
+        """with the kill switch set, a renderer that has the layer is told off at every ready (its default is on)."""
+        link = self.link
+        if not self.m2_allowed() and link and self.video_ok and (link.ready_info or {}).get("motion2"):
+            link.send_json({"type": "motion2", "on": False})
+
+    def on_motion2(self, m: dict) -> None:
+        """motion2: forwarded only to a renderer whose ready advertised "motion2" (an older one would answer with an
+        error); fields whitelisted."""
+        link = self.link
+        if not (link and self.video_ok and (link.ready_info or {}).get("motion2")):
+            return
+        if not self.m2_allowed():
+            return
+        if m.get("type") == "clip":
+            slug = str(m.get("slug") or "")[:60]
+            if slug:
+                link.send_json({"type": "clip", "slug": slug, "mirror": bool(m.get("mirror"))})
+                self.actions.append({"t": round(time.monotonic() - self.t_mono, 2), "name": "clip:" + slug[:40],
+                                     "args": {"mirror": bool(m.get("mirror"))}})
+            return
+        out = {"type": "motion2"}
+        for k in ("on", "partner_speaking", "body_busy"):
+            if k in m:
+                out[k] = bool(m[k])
+        link.send_json(out)
+
     def rigdbg_push(self) -> None:
         """(re)send "on" to the render link -- the page asked, or a renderer "ready" (start, switch, encoder change)."""
         if not self.rigdbg_on or not (self.link and self.video_ok):
@@ -1303,6 +1354,8 @@ class Session:
             self.on_tv(m)
         elif t == "rigdbg":                                        # the rig debug panel opened / closed
             self.on_rigdbg(m)
+        elif t in ("motion2", "clip"):                             # body layer on/off + state, a library clip
+            self.on_motion2(m)
         elif t == "keyframe":
             self.m["keyframe_requests"] += 1
             if self.link and self.video_ok:
@@ -1836,6 +1889,8 @@ class Hub:
              "lookahead_ms": c["lookahead_ms"], "backend": c["backend"], "opts": {}}
         if "nvenc" in c:
             p["nvenc"] = bool(c["nvenc"])
+        if c.get("motion2_src") in ("mm", "flow", "hybrid"):     # the body layer's source (config switch, no rebuild)
+            p["motion2_src"] = c["motion2_src"]
         if w and h:
             p["width"], p["height"] = w, h
         return p
@@ -1853,6 +1908,8 @@ class Hub:
         async with self.link_lock:
             link = await self._link_for(ep)
             want = self.render_params(s.character, s.w, s.h, s.codec)
+            if getattr(s, "m2src", None):                 # per-session body source (?m2src=mm|flow|hybrid)
+                want = dict(want, motion2_src=s.m2src)
             if link.params == want and link.ready_info and not link.used:
                 return link
             t0 = time.monotonic()
@@ -1905,6 +1962,10 @@ class Hub:
             if s.rigdbg_on:
                 s.send(m)
             return
+        if m2_error(m):                          # motion2: a clip the renderer could not play: tell the page, no error
+            s.suppressed_render_errors += 1
+            s.send({"type": "motion2_error", "message": str(m.get("message", ""))[:200]})
+            return
         if rigdbg_unsupported_error(m):          # a renderer without the 'rigdbg' handler (an older image)
             s.suppressed_render_errors += 1
             s.rigdbg_unsup = link
@@ -1912,6 +1973,7 @@ class Hub:
             return
         if t == "ready" and not isinstance(m.get("rate"), dict):
             s.rigdbg_push()                      # start / switch / encoder change: the panel's values again
+            s.m2_push_off()                      # config kill switch
         if t == "error" and "unknown message type 'rig'" in str(m.get("message", "")):
             s.suppressed_render_errors += 1      # renderer without the rig handler yet (rig agent's branch)
             return
@@ -1923,7 +1985,8 @@ class Hub:
         if t == "status" and s.stage in ("warming", "switching"):
             s.status(s.stage, f"{m.get('stage', '')}: {m.get('detail', '')}"[:160], m.get("eta_s") or self.char_eta())
         elif t == "stats":
-            s.send({"type": "metrics", "render": {k: m.get(k) for k in ("fps", "render_ms", "render_p95", "encode_ms", "late", "queue")}})
+            s.send({"type": "metrics", "render": {k: m.get(k) for k in ("fps", "render_ms", "render_p95", "encode_ms", "late", "queue", "motion2")
+                                                 if k != "motion2" or "motion2" in m}})   # + the body layer's stats
         elif t == "error":
             s.errors.append("render: " + str(m.get("message", ""))[:200])
             s.send({"type": "metrics", "render_error": str(m.get("message", ""))[:200]})
@@ -2047,7 +2110,8 @@ def make_app(hub: Hub) -> web.Application:
         live = s if s and not s.ended.is_set() else None
         return {"box": hub.box.status(), "usd_today": round(hub.spend.today(), 4), "cap_usd": hub.spend.cap,
                 "session": {"stage": live.stage, "character": live.character} if live else None,
-                "characters": [{"key": k, "name": v[0], "what": v[1], "voice": v[2]} for k, v in CHARACTERS.items()],
+                "characters": [{"key": k, "name": v[0], "what": v[1], "voice": v[2]} for k, v in CHARACTERS.items()
+                               if not (k in mascots.MASCOTS and not _mascot_on(k, hub.cfg))],
                 "delay_ms": hub.delay_ms(), "quality_auto": hub.cfg["quality_auto"], "warm": hub.warm_info,
                 "setup_pending": str(hub.cfg.get("setup_pending") or ""),
                 "limits": {"session_max_s": hub.cfg["session_max_s"], "no_speech_s": hub.cfg["no_speech_s"],
@@ -2105,6 +2169,7 @@ def make_app(hub: Hub) -> web.Application:
                 pass
         voice = d.get("voice") if d.get("voice") in ("direct", "hub") else hub.cfg.get("voice_default", "direct")
         s = await hub.new_session(ch, str(d.get("quality", "auto")), "jpeg" if d.get("codec") == "jpeg" else "h264", voice)
+        s.m2src = d.get("m2src") if d.get("m2src") in ("mm", "flow", "hybrid") else None   # per-session body source
         if d.get("planner") is False:                            # page ?planner=0
             s.planner = False
         elif s.planner:                                          # a claude_door planner warms the door

@@ -1,0 +1,26 @@
+{
+ "_version": "v4 ( mm, 2026-11-20 05:50): velocity-continuous inertialization (v3 added the old velocity twice at every jump), slower blends while listening/idle (halflife_quiet 0.2), critically damped arm-gain changes, seed_pose(pose, prev_pose)",
+ "lookahead_s": 0.1,
+ "switch_bias": 0.3,
+ "audio_w": 1.5,
+ "onset_trig": 1.3,
+ "search_every": 20,
+ "hand_ymax": 0.33,
+ "hand_spread_max": 0.7,
+ "hand_guard_s": 0.5,
+ "hand_soft_y": 0.24,
+ "hand_soft_w": 0.5,
+ "speak_still_w": 0.3,
+ "rest_poses": "db",
+ "rest_init_random": true,
+ "arm_gain": 1.4,
+ "arm_gain_listen": 1.2,
+ "trig_aw": 2.0,
+ "rest_speak_ok": [
+  1,
+  0,
+  0,
+  0
+ ],
+ "halflife_quiet": 0.2
+}

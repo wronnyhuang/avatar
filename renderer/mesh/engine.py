@@ -72,6 +72,7 @@ class MeshEngine(RTEngine):
         self.mc = MeshCharacter(self.ctx, self.asset, w, h, self.sh.head, lib, self.mcfg, msaa=msaa, log=log)
         self.rig = rig or self._make_rig()
         self.rig_override = None          # a RigFrame for the next frames (stills / tests)
+        self.canon_pose = None            # (canon (189), canon_w dict, modes dict) for the next frames, or None
         self.rf = None
         fill = self.mcfg.get("fill", {})
         fd = np.array(fill.get("dir", [0.7, 0.15, 0.7]), float)
@@ -158,14 +159,21 @@ class MeshEngine(RTEngine):
                     print(f"[mesh] RIG's JunoRig unavailable ({type(e).__name__}: {e}); using the stand-in TestRig", flush=True)
         return TestRig(self.asset, H_scene=float(self.mcfg.get("H_scene", 2.10)))
 
-    def rig_frame(self, P):
+    def rig_frame(self, P, canon=None, canon_w=None, modes=None):
+        """canon / canon_w / modes = JunoRig.solve's FROZEN canon interface.  When canon is None the engine's
+        per-frame slot self.canon_pose = (canon, canon_w, modes) | None is used (set it before render(); None = the dial
+        rig, bit-identical to before)."""
         if self.rig_override is not None:
             return self.rig_override
         if hasattr(self.rig, "solve"):        # RIG's renderer/humans/rig.py JunoRig: the engine's root is passed in
             bp = self.body_prev
             root = (bp["A"], bp["o"], bp["R"]) if bp is not None else None
             cam = bp["cam"][0] if bp is not None else self.cam_pos
-            return self.rig.solve(P, t=self._t_now, cam_pos=cam, root=root)
+            if canon is None and getattr(self, "canon_pose", None) is not None:
+                canon, canon_w, modes = (tuple(self.canon_pose) + (None, None))[:3]
+            if canon is None:
+                return self.rig.solve(P, t=self._t_now, cam_pos=cam, root=root)
+            return self.rig.solve(P, t=self._t_now, cam_pos=cam, root=root, canon=canon, canon_w=canon_w, modes=modes)
         # stand-in mapping of a few columns (RIG replaces this with the full control vector)
         g = lambda n: float(P[IDX[n]]) if n in IDX else 0.0
         wts = {"jawOpen": max(g("jaw"), g("mouth_open")*0.8),

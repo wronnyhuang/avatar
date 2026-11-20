@@ -55,7 +55,12 @@ class Style:
 def load_style(name: str) -> Style:
     table = json.loads(STYLES_PATH.read_text())
     known = {f.name for f in fields(Style)}
-    return Style(name=name, **{k: v for k, v in table[name].items() if k in known})
+    if name not in table:          # a mascot without its own row moves like the muse
+        from .mascots import base
+        row = table[base(name)]
+    else:
+        row = table[name]
+    return Style(name=name, **{k: v for k, v in row.items() if k in known})
 
 
 @dataclass(slots=True)

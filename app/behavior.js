@@ -89,6 +89,18 @@
     pyramid: T({name: 'Pip', what: 'pyramid', shape: true}),
     blob: T({name: 'Bloop', what: 'jelly blob', shape: true}),
     muse: T({name: 'Muse', what: 'plush companion', ears: true, fingers: true, legs: true, leaves_seat: true}),
+    // the mascots on the muse's skeleton (app/mascots.py): hands, legs, a room; the gekkie has a tail
+    gekkie: T({name: 'Gekkie', what: 'gekkie', tail: true, nose: true, fingers: true, legs: true, leaves_seat: true}),
+    hooty: T({name: 'Hooty', what: 'green owl', ears: true, nose: true, fingers: true, legs: true, leaves_seat: true}),
+    doughlad: T({name: 'Doughlad', what: 'dough lad', fingers: true, legs: true, leaves_seat: true}),
+    bonbon: T({name: 'Bonbon', what: 'red candy', fingers: true, legs: true, leaves_seat: true}),
+    pneu: T({name: 'Pneu', what: 'ring man', fingers: true, legs: true, leaves_seat: true}),
+    goober: T({name: 'Sir Goober', what: 'goober gentleman', fingers: true, legs: true, leaves_seat: true}),
+    // original characters on the same skeleton
+    jade: T({name: 'Jade', what: 'lizard girl', tail: true, nose: true, fingers: true, legs: true, leaves_seat: true}),
+    ruby: T({name: 'Ruby', what: 'jellybean girl', fingers: true, legs: true, leaves_seat: true}),
+    // Flurry
+    flurry: T({name: 'Flurry', what: 'snowman', nose: true, fingers: true, legs: true, leaves_seat: true}),
   };
   const traitsOf = c => TRAITS[c] || TRAITS.fox;
 

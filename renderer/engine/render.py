@@ -75,6 +75,8 @@ class Shaders:
             "props": os.path.join(HERE, "props.glsl"),            # props (models, attach, painter)
             "props_hold": os.path.join(HERE, "props_hold.glsl"),  # props (what each paw holds; before the animal)
             "places": os.path.join(HERE, "places.glsl"),          # props (the stump / rock / table props rest on)
+            "mascot_rig": os.path.join(HERE, "mascot_rig.glsl"),    # the muse skeleton for other mascots (gekkie, hooty ...)
+            "mascot_body": os.path.join(HERE, "mascot_body.glsl"),
         }
         q = dict(DEFAULT_QUALITY); q.update(cfg.get("quality", {}))
         self.head = "#version 330\n" + param_defines()
@@ -93,7 +95,7 @@ class Shaders:
             "muse": ((.86,.82,.74),(.88,.84,.77),(.90,.86,.80),1),     # body: cream plush (fuzzy)
             "junor": ((.5,.5,.5),(.5,.5,.5),(.5,.5,.5),0),     # unused (Juno is the mesh, renderer/mesh)
         }
-        arm, paw, chest, fur = rig_colors[cfg["name"]]
+        arm, paw, chest, fur = rig_colors.get(cfg["name"], ((.5,.5,.5),(.5,.5,.5),(.5,.5,.5),0))     # the mascots carry their own colours (unused defines)
         self.head += f"#define RIG_ARM {glsl_literal(arm)}\n#define RIG_PAW {glsl_literal(paw)}\n#define RIG_CHEST {glsl_literal(chest)}\n#define RIG_FUR {fur}\n"
         # the five animals carry their own arms, paws, body and tail inside the character SDF (round 3 + the full-body rig);
         # the generic composite-pass rig (body_rig.glsl) is only for characters that do not

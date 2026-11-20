@@ -7,6 +7,8 @@ WebSocket process is never held by a GL readback.
 parent -> child (multiprocessing Connection):
   ("encoder", {codec, width, height, fps, bitrate, gop_s, nvenc, threads, quality})   (re)open: next frame is a key
   ("job", j, index, params, force_key, t_sent)        render 30 fps row `index` with `params` as output frame j
+  ("job", j, index, params, force_key, t_sent, m2)    motion2: + (canon (189), canon_w, modes) for Juno's rig
+                                                      (JunoRig.solve(..., canon=, canon_w=, modes=); see _motion2_hook)
   ("keyframe",)                                       next encoded frame is an IDR
   ("quit",)
 child -> parent:
@@ -112,6 +114,43 @@ def bg_cached(character, w, h):
         return True
 
 
+def _motion2_hook(be):
+    """motion2: -> box (a 1-item list) whose content (canon, canon_w, modes) the NEXT render passes to the mesh
+    engine's JunoRig.solve as keyword arguments, or None when this backend has no such rig (the job's m2 is then ignored).
+    The rig's solve is wrapped on the instance: rig_override, the light probe and every other caller are unchanged and a
+    job without m2 calls the original solve with the original arguments (bit-identical)."""
+    import inspect
+    eng = getattr(be, "eng", be)
+    rig = getattr(eng, "rig", None)
+    orig = getattr(rig, "solve", None)
+    if orig is None:
+        return None
+    try:
+        ps = inspect.signature(orig).parameters
+    except (TypeError, ValueError):
+        return None
+    if "canon" not in ps:
+        print("[motion2] this rig's solve has no canon input: motion2 frames are ignored", file=sys.stderr, flush=True)
+        return None
+    box = [None]
+    broken = []
+
+    def solve(P, *a, **k):
+        m = box[0]
+        if m is None or broken or "canon" in k:
+            return orig(P, *a, **k)
+        try:
+            return orig(P, *a, canon=m[0], canon_w=m[1], modes=m[2], **k)
+        except Exception as ex:          # a canon bug never costs a frame: this session's rig goes back to the dials
+            broken.append(1)
+            print(f"[motion2] canon solve failed, motion2 off for this engine: {type(ex).__name__}: {ex}",
+                  file=sys.stderr, flush=True)
+            return orig(P, *a, **k)
+
+    rig.solve = solve
+    return box
+
+
 def main(conn, character, width, height, backend, opts, rt_tree=None, warmup=3):
     send_lock = threading.Lock()
 
@@ -151,6 +190,8 @@ def main(conn, character, width, height, backend, opts, rt_tree=None, warmup=3):
         return
 
     note_frame = getattr(be, "note_frame", None)
+    m2box = None                                            # motion2: built on the first job that carries m2
+    m2tried = False
     enc_box = {"enc": None, "cfg": None, "times": []}
     encq: queue.Queue = queue.Queue(maxsize=2)
     # with a cheap CPU encoder (libx264 / jpeg at <= 640x360, ~1-2 ms a frame) encode each frame BEFORE
@@ -249,11 +290,23 @@ def main(conn, character, width, height, backend, opts, rt_tree=None, warmup=3):
                 if fn is not None:
                     fn(*msg[1:])
             elif k == "job":
-                _, j, index, params, force_key, _t_sent = msg
+                _, j, index, params, force_key, _t_sent = msg[:6]
+                m2 = msg[6] if len(msg) > 6 else None           # motion2
+                if m2 is not None and not m2tried:
+                    m2tried = True
+                    try:
+                        m2box = _motion2_hook(be)
+                    except Exception as ex:                      # never stop rendering for it
+                        send("error", f"motion2 hook: {ex}")
+                        m2box = None
+                if m2box is not None:
+                    m2box[0] = m2
                 t = mono()
                 try:
                     img = be.render(int(index), params)
                 finally:
+                    if m2box is not None:
+                        m2box[0] = None
                     rms = 1000 * (mono() - t)
                     send("rendered", j, rms)
                 sync = enc_sync()

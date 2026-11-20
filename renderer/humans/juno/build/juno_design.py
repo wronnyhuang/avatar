@@ -37,17 +37,17 @@ DESIGN = {
         ("neck/neck-scale-vert-incr.target.gz", 0.45), ("neck/neck-scale-horiz-decr.target.gz", 0.45),
         ("ears/l-ear-scale-decr.target.gz", 0.3), ("ears/r-ear-scale-decr.target.gz", 0.3),
     ],
-    "head_scale": 1.27,      # whole head about the head joint (Pixar head/body ratio)
+    "head_scale": 1.27,      # whole head about the head joint (animated-film head/body ratio)
     "eye_scale": 1.0,       # eyeball + lids about each eye centre
     "eye_sink": 0.55,        # push the grown eye back by this fraction of the radius growth (no bug eyes)
-    "eye_spread_m": 0.0,  # move each eye region outward (Pixar wide-set big eyes)
+    "eye_spread_m": 0.0,  # move each eye region outward (animated-film wide-set big eyes)
     "philtrum_lift_m": 0.0, "lower_face_k": 1.0, "chin_narrow": 1.0,
     "cheek_pad_m": 0.0, "rbf_sculpt": True, "face_smooth_iters": 80,
     "cranium_wide": 0.06, "cranium_low": 0.05,
     "finger_len": 1.08, "finger_slim": 0.90, "wrist_slim": 0.90,
     "shoulder_in_m": 0.0065,   # ASSET3 v7: was 0.016 -> ~5 % broader shoulders (judge r4: thin build)
     "leg_scale": 1.05,
-    "eye_open_up_deg": 0.0,  # upper lid rotated up about the eye centre (rounder, bigger Pixar aperture)
+    "eye_open_up_deg": 0.0,  # upper lid rotated up about the eye centre (rounder, bigger animated-film aperture)
     "eye_open_dn_deg": 0.0,  # lower lid rotated down
     # ASSET2 v5 proportions (applied after the fit, juno_design._proportions): ~6.3 heads tall, wider neck, bigger hands
     "head_post_scale": 1.14, "neck_shorten_m": 0.008, "neck_widen": 0.75, "hand_scale": 1.06,
@@ -431,7 +431,7 @@ def _mouth_rest(base, V, d):
 
 
 def _proportions(base, V, d):
-    """ASSET2 v5: Pixar proportions AFTER the fit (the fitted head shape is kept, only its size changes).
+    """ASSET2 v5: animated-film proportions AFTER the fit (the fitted head shape is kept, only its size changes).
     head_post_scale: whole head (+ eyes, teeth, lash/eye helpers, joint cubes) uniformly about the skull base (joint-head),
     the neck blends; neck_shorten_m moves the head down (neck compresses); neck_widen: radial xz widening of the neck about
     its axis; hand_scale: hand + fingers about the wrist. base.design_fit (eye centres / R / iris_r) is transformed too."""

@@ -221,6 +221,10 @@ html.rd-sheet .rd-logbox{flex:1 1 auto}
 .rd-plan.fold .rd-phead .rd-gname::before{transform:rotate(-45deg)}
 .rd-plan.fold .rd-pbody{display:none}
 .rd-seg{display:inline-flex;flex:none}
+.rd-m2{display:inline-flex;flex:none;margin-left:6px}.rd-m2[hidden]{display:none}
+#rigpanel .rd-m2 button{min-height:32px;padding:0 11px;border-radius:0;font-size:12.5px;color:var(--dim,#93a0b0)}
+#rigpanel .rd-m2 button:first-child{border-radius:9px 0 0 9px}#rigpanel .rd-m2 button:last-child{border-radius:0 9px 9px 0;border-left:0}
+#rigpanel .rd-m2 button[aria-pressed=true]{color:#06210f;background:#4cc38a;border-color:#4cc38a}
 #rigpanel .rd-seg button{min-height:32px;padding:0 11px;border-radius:0;font-size:12.5px;color:var(--dim,#93a0b0)}
 #rigpanel .rd-seg button:first-child{border-radius:9px 0 0 9px}
 #rigpanel .rd-seg button:last-child{border-radius:0 9px 9px 0;border-left:0}
@@ -282,6 +286,7 @@ html.rd-wide .rd-chip{font-size:11.5px;padding:1px 7px}html.rd-wide .rd-strip{ga
     // taps in the meters: a dial -> its sparkline; a group header -> fold; More
     ui.main.addEventListener('click', e => {
       if (!P) return;
+      const mb = e.target.closest('.rd-m2 button'); if (mb) { const c = m2ctl(); if (c) { c.set(mb.dataset.m2); addLog('planner', 'body motion → ' + mb.dataset.m2, 'planner'); } paintM2(); return; }   // t4693motion
       const pb = e.target.closest('.rd-seg button'); if (pb) { setPlannerMode(pb.dataset.v); return; }
       if (e.target.closest('.rd-phead .rd-gname')) { keep.planFold = !keep.planFold; if (ui.plan) ui.plan.classList.toggle('fold', keep.planFold); return; }
       if (e.target.closest('.rd-plan')) return;
@@ -1114,11 +1119,22 @@ html.rd-wide .rd-chip{font-size:11.5px;padding:1px 7px}html.rd-wide .rd-strip{ga
     el.innerHTML = '<div class="rd-phead"><span class="rd-gname" title="Tap to fold / unfold">Planner</span>' +
       '<span class="rd-seg" role="group" aria-label="Which planner writes commanded moves (the next command)">' +
       '<button type="button" data-v="current" aria-pressed="false">current</button><button type="button" data-v="semantic" aria-pressed="false">semantic API</button></span>' +
+      '<span class="rd-m2" role="group" aria-label="Juno body motion: new (real-human layer) or classic" hidden>' +   // t4693motion
+      '<button type="button" data-m2="new" aria-pressed="false">motion new</button><button type="button" data-m2="classic" aria-pressed="false">classic</button></span>' +
       '<span id="rd-psum"></span></div><div class="rd-pbody"><div class="rd-pcmd"></div><dl class="rd-pkv"></dl><pre class="rd-prog" hidden></pre><div class="rd-pnote"></div></div>';
     main.appendChild(el);
     ui.plan = el; ui.psum = el.querySelector('#rd-psum'); ui.pseg = [...el.querySelectorAll('.rd-seg button')];
+    ui.m2 = el.querySelector('.rd-m2'); paintM2();   // t4693motion
     ui.pcmd = el.querySelector('.rd-pcmd'); ui.pkv = el.querySelector('.rd-pkv'); ui.pprog = el.querySelector('.rd-prog'); ui.pnote = el.querySelector('.rd-pnote');
     P.planSig = null;
+  }
+  // t4693motion: Juno's body layer switch (page AvatarMotion2.ctl: get() -> 'new' | 'classic' | null = not available)
+  const m2ctl = () => (C && C.motion2) || (window.AvatarMotion2 && window.AvatarMotion2.ctl) || null;
+  function paintM2() {
+    if (!ui.m2) return;
+    const c = m2ctl(), v = c ? call(() => c.get(), null) : null;
+    ui.m2.hidden = !v;
+    for (const b of ui.m2.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.m2 === v));
   }
   function setPlannerMode(v) {
     const pl = C && C.planner; if (!pl || typeof pl.set !== 'function') return;
@@ -1144,6 +1160,7 @@ html.rd-wide .rd-chip{font-size:11.5px;padding:1px 7px}html.rd-wide .rd-strip{ga
   }
   function paintPlanner() {
     if (!P || !ui.plan) return;
+    paintM2();   // t4693motion
     const d = plannerData(); if (!d) { ui.plan.hidden = true; return; }
     const sig = JSON.stringify([d.mode, d.id, d.phase, d.outcome, d.source, d.model, d.program.length, d.ms, d.warnings.length, d.errors.length, d.sem_unavailable, d.warm && d.warm.available]);
     if (sig === P.planSig) return;

@@ -156,8 +156,13 @@
       while (P.order.length > 60 && P.order[0].closed) { const g = P.order.shift(); for (const [k, v] of P.jobs) if (v === g) P.jobs.delete(k); }
       if (J.waitFor.size) J.timers.wait = T.set(() => { if (!J.closed && J.waitFor.size) { J.waitFor.clear(); J.waitTimedOut = true; proceed(J); } }, WAIT_MAX_MS);
       const st0 = safeState(); J.sig = thingsSig(st0);
-      const hit = cacheGet(J);
-      if (hit) {
+      // motion2: a request that IS one of the renderer's library actions (Juno, motion2 on) plays the real clip at once
+      const clip = !J.waitFor.size && typeof window !== 'undefined' && window.AvatarMotion2 && window.AvatarMotion2.planClip ? (() => { try { return window.AvatarMotion2.planClip(desc); } catch (e) { return null; } })() : null;
+      const hit = clip ? null : cacheGet(J);
+      if (clip) {
+        J.source = 'clip'; J.marks.plan_first_pose_ms = t; J.done = true; J.ok = true; J.status = 'starting';
+        runLibrary(J, [Object.assign({action: 'gesture', name: clip.slug}, clip.side ? {side: clip.side} : {})]);
+      } else if (hit) {
         J.source = 'cache'; J.cacheHit = 'page'; J.marks.plan_first_pose_ms = t; J.done = true; J.ok = true;
         if (!J.waitFor.size) J.status = 'starting';
         if (hit.engine) runLibrary(J, hit.engine);

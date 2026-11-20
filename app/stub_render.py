@@ -91,6 +91,12 @@ CHARACTERS = {  # name -> (background BGR, face BGR)
     "junor": ((120, 150, 175), (180, 205, 225)),   # the teacher, realistic
     "muse": ((150, 170, 200), (205, 225, 235)),   # body: cream plush on a warm studio
 }
+try:      # the mascots (app/mascots.py)
+    import mascots as _mascots
+    for _k, _m in _mascots.MASCOTS.items():
+        CHARACTERS[_k] = _m["stub"]
+except ImportError:
+    pass
 
 
 def log(*a):

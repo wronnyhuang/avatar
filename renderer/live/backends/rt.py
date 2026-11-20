@@ -34,6 +34,9 @@ def default_preset(character, width, height, target_fps=24):
     except (OSError, ValueError):
         return "q50"
     per = table.get(character, {})
+    if not per:        # a mascot without its own measurements runs the muse's presets
+        from anim.mascots import base
+        per = table.get(base(character), {})
     if not per:
         return table.get("_default", "q50")
     hs = sorted(int(k) for k in per if k.isdigit())

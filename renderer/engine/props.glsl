@@ -619,6 +619,9 @@ void propsBoundInit(){
     PB_(gMSh[i], 0.22) PB_(gMEl[i], 0.22) PB_(gMWr[i], 0.22) PB_(gMBC[i], gMBR[i] + 0.07)
     PB_(gMHipJ[i], 0.23) PB_(gMKn[i], 0.23) PB_(gMAnk[i], 0.40)
   }
+#ifdef MR_BOUND_EXTRA
+  MR_BOUND_EXTRA                 // a mascot's extras outside the muse's joint box (a tail): PB_(centre, radius) ...
+#endif
 #undef PB_
   gPbLo = lo; gPbHi = hi;
 }

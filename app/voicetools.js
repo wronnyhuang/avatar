@@ -208,7 +208,13 @@
         let lr = null;
         try { lr = d.runLibrary(desc, move && typeof move === 'object' && move.name ? move : null, info) || null; } catch (e) { lr = null; }
         if (lr && (lr.ran || lr.dup)) { log({vt: 'library', ran: lr.ran, dup: lr.dup, description: desc.slice(0, 120)}); return {ok: true, status: 'starting', already: lr.ran ? undefined : true, did: lr.did || (lr.ran ? 'doing it now' : 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)'), next: 'It starts right away: give him a brief natural cue now.'}; }
-        if (lr && lr.reason) return {ok: false, reason: String(lr.reason).slice(0, 160)};
+        if (lr && lr.reason) {
+          // the voice model sometimes names a `move` the body-move library does not have (e.g. "wave", which is a gesture).
+          // The description still says what he asked for: let the performer plan it instead of answering "I don't know the move".
+          const unknownMove = move && typeof move === 'object' && move.name && /^I don't know the move/.test(String(lr.reason));
+          if (!unknownMove) return {ok: false, reason: String(lr.reason).slice(0, 160)};
+          log({vt: 'unknown_move_to_plan', move: String(move.name).slice(0, 40), description: desc.slice(0, 120)});
+        }
       }
       if (coveredNow()) {                                   // a fast matcher started this request already (same utterance) (scene chars: sceneRoute)
         log({vt: 'covered', description: desc.slice(0, 120)});

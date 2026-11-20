@@ -1,4 +1,4 @@
-"""asset — procedural eye textures (painted Pixar amber iris + sclera), occlusion and tearline strips.
+"""asset — procedural eye textures (painted animated-film amber iris + sclera), occlusion and tearline strips.
 
 UV layout of the eyeball: polar, centre (0.5, 0.5) = front pole, uv radius = 0.5 * theta / pi (see eyes_geo.eye_uv).
 """

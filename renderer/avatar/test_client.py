@@ -119,6 +119,8 @@ async def run(a):
         T0 = mono() + 0.05
         ahead = a.ahead_ms / 1000.0
         wav_lo, wav_hi = lead, lead + wav.size
+        sched = sorted([(float(x[0]), x[1]) for x in json.loads(a.msgs)], key=lambda x: x[0]) if a.msgs else []
+        pose, pose_next = (json.loads(a.pose) if a.pose else None), 0.0
         c = 0
         while c < n_chunks:
             now = mono()
@@ -130,6 +132,11 @@ async def run(a):
                 if tick - early > now:
                     break
                 pcm = timeline[s0:s0 + chunk]
+                while sched and sched[0][0] <= s0 / SR:          # scheduled JSON messages on the timeline (--msgs)
+                    await ws.send(json.dumps(sched.pop(0)[1]))
+                if pose and s0 / SR >= pose_next:                # a held reactive pose (--pose), refreshed every 1 s
+                    await ws.send(json.dumps({"type": "pose", "pose": pose}))
+                    pose_next = s0 / SR + 1.0
                 await ws.send(struct.pack("<B3xQ", 0x41, s0) + pcm.astype("<i2").tobytes())
                 sent_at[c] = mono()
                 c += 1
@@ -314,6 +321,13 @@ def analyze(a, r):
     srv["late_total"] = int(sum(s.get("late", 0) for s in r["stats"]))
     srv["dropped_total"] = int(sum(s.get("dropped", 0) for s in r["stats"]))
     srv["late_sent_total"] = int(sum(s.get("late_sent", 0) for s in r["stats"]))
+    m2 = [s["motion2"] for s in st if isinstance(s.get("motion2"), dict)]          # the body layer's own cost
+    if m2:
+        srv["motion2"] = {k: summ([x.get(k) for x in m2 if x.get(k) is not None]) for k in ("sample_ms", "push_ms_per_frame", "frame_ms")}
+        srv["motion2"]["errors"] = sorted({x.get("error") for x in m2 if x.get("error")})
+    g = [s["gesture"] for s in st if isinstance(s.get("gesture"), dict)]
+    if g:
+        srv["gesture_ms_per_frame"] = summ([x.get("ms_per_frame") for x in g if x.get("ms_per_frame") is not None])
     arr = np.array([frames[F][0] for F in Fs])
     span = arr[-1] - arr[0] if len(arr) > 1 else 0
     res = {"character": a.character, "ready": r["ready"], "ready_s": round(r["t_ready"], 2),
@@ -363,6 +377,8 @@ def main(argv=None):
     ap.add_argument("--out", default="", help="MP4 of the decoded frames + audio")
     ap.add_argument("--json", default="", help="write the measurements here")
     ap.add_argument("--no-decode", action="store_true")
+    ap.add_argument("--msgs", default="", help=': JSON [[timeline_s, {msg}], ...] sent at those timeline instants')
+    ap.add_argument("--pose", default="", help=': JSON {param: value} held as a reactive pose (e.g. a camera framing)')
     ap.add_argument("--no-sync", action="store_true")
     ap.add_argument("--verbose", action="store_true")
     a = ap.parse_args(argv)

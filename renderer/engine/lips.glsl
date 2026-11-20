@@ -59,6 +59,7 @@
 #ifndef LIP_TOOTH_Z
 #define LIP_TOOTH_Z (-0.040*LIPU)        // front of the teeth, in the mouth frame.  Behind the lips, inside the host
 #endif
+float gEmTeeth = 0.0, gEmSkew = 0.0;      // the emotion columns that bare the teeth / skew the mouth are not in this tree
 #ifndef LIP_TEETH_H
 #define LIP_TEETH_H (0.070*LIPU)         // how long the teeth are, from the gum to the biting edge
 #endif
@@ -210,6 +211,9 @@ void lipsInit(){
   float press = clamp(uP[P_LIP_PRESS], 0.0, 1.0)*(1.0 - max(mo, to));
   float keep  = 1.0 - press;
   float open  = max(clamp(uP[P_LIP_OPEN], 0.0, 1.0)*keep, max(mo, 0.42*to));     // commanded opening; the tongue parts the lips
+#ifdef LIP_REST_OPEN
+  open = max(open, (LIP_REST_OPEN)*keep);              // a character whose resting mouth is an open smirk (a press still shuts it)
+#endif
   float up    = clamp(uP[P_LIP_UPPER], 0.0, 1.0)*keep;
   float lo    = clamp(uP[P_LIP_LOWER], 0.0, 1.0)*keep;
   float wid   = clamp(uP[P_LIP_WIDTH], -1.0, 1.0);
@@ -428,6 +432,9 @@ float lipsEval(vec3 q, float host){
   float ring = k0*(k0 - 1.0)/max(k1, 1e-4);
   // the corner: a small soft pad where the lips meet, so the end is round and never a knife point
   vec3 pr = vec3(0.034, 0.021, 0.017)*LIPU*gLPad*(1.0 - 0.62*gLPress) + 0.001;   // a press squeezes it too, or the corners grow knobs
+#ifdef LIP_PAD_K
+  pr = (pr - 0.001)*LIP_PAD_K + 0.001;                    // a character whose lip corners carry less (or no) pad
+#endif
   float pad = sdEllipsoid(vec3(ax - gLW + 0.008*LIPU, v, dd - 0.5*(gLDU + gLDL)), pr);
   ring = smin(ring, pad, 0.014*LIPU);
   ring = max(ring, -(m.z + LIP_DEPTH));                   // the far side of the host carries no lips
@@ -539,8 +546,14 @@ void lipsPaint(vec3 n, inout Surf s){
   // ---- lips
   vec3 lipC = mix(LIP_COL_L, LIP_COL_U, gLUpper);
   float wet = smoothstep(0.28, -0.02, e/max(gLH, 1e-3));   // the inner edge deepens into the mouth
+#ifdef LIP_NO_BANDS
+  wet *= 0.35;
+#endif
   lipC = mix(lipC, lipC*vec3(0.72,0.54,0.54), 0.50*wet);
   float under = smoothstep(0.0, -0.9, gLDepthS)*smoothstep(0.30, -0.10, e/max(gLH, 1e-3));
+#ifdef LIP_NO_BANDS
+  under *= 0.15;                                     // one soft roll, no dark bands on the lip
+#endif
   lipC = mix(lipC, mix(LIP_COL_CAVE, LIP_COL_DEEP, 0.4), under);
   // pressed lips lose their colour where they are squeezed, and fold darkly into the seam
   lipC = mix(lipC, lipC*vec3(1.10,0.86,0.86) + 0.05, 0.55*gLPress*smoothstep(0.75, 0.10, abs(e/max(gLH, 1e-3) - 0.45)));
@@ -558,7 +571,11 @@ void lipsPaint(vec3 n, inout Surf s){
   }
 
   // ---- the line: at rest one fine crease; opening, the same paint is the inner edge
+#ifdef LIP_NO_BANDS
+  float line = smoothstep((0.0048 + 0.0030*gLPress)*LIPU*LIP_LINE, 0.0008*LIPU, e)*smoothstep(1.02, 0.94, gLU);   // no tail past the corners
+#else
   float line = smoothstep((0.0048 + 0.0030*gLPress)*LIPU*LIP_LINE, 0.0008*LIPU, e)*max(smoothstep(1.08, 0.97, gLU), gLCornT);
+#endif
   s.alb = mix(s.alb, LIP_COL_LINE, 0.92*line);
   s.spec *= 1.0 - line; s.mirror *= 1.0 - line;
   gPLine = line;

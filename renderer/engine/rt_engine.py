@@ -321,7 +321,12 @@ class RTEngine(render.Engine):
                 f.clear(0, 0, 0, 0)
         self.roi_box = (0, 0, 0, 0)
         if self.roi > 0:
-            box = json.load(open(os.path.join(HERE, "rt_mouth_boxes.json")))[animal]     # top-down, normalized
+            _boxes = json.load(open(os.path.join(HERE, "rt_mouth_boxes.json")))
+            if animal not in _boxes:        # a mascot without its own box uses the muse's
+                from anim.mascots import base as _mbase
+                box = _boxes[_mbase(animal)]
+            else:
+                box = _boxes[animal]     # top-down, normalized
             X0, X1 = int(np.floor(box[0]*w)), int(np.ceil(box[2]*w))
             Y0, Y1 = int(np.floor((1.0 - box[3])*h)), int(np.ceil((1.0 - box[1])*h))
             self.roi_box = (X0, Y0, X1, Y1)

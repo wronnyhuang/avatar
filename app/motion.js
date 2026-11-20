@@ -1420,6 +1420,25 @@
       if (side === 'right' || side === 'own_right') return 'l';
       return dflt;
     }
+    // motion2: a COMMANDED gesture that the renderer's action library has (juno / junor, motion2 on) plays as a real
+    // mocap clip there; the gesture object stays (ownership of params, release, reports, durations) but its function no
+    // longer writes the clip's arms / head / torso (the face parts of the gesture stay), and the speech-gesture arbitration
+    // ignores it (the renderer blends the clip over its own conversational arms). S.clipHook(name, G) -> {slug, dur, owns} | null.
+    const CLIP_GROUP_RX = {arm_r: /^(hand|thumb|point|fingers|shoulder|arm|wave|paw|elbow|wrist)_l(_|$)/,
+      arm_l: /^(hand|thumb|point|fingers|shoulder|arm|wave|paw|elbow|wrist)_r(_|$)/, head: /^head_/, torso: /^(body_|root_(yaw|pitch|roll)$)/};
+    const CLIP_DEF = {dur: 2.5, attack: 0.2, release: 0.3, fn: () => ({})};   // motion2: a clip with no page gesture of its own
+    function clipTake(G, g) {
+      let c = null;
+      try { c = S.clipHook(G.name, G); } catch (e) { c = null; }
+      if (!c) return;
+      const rx = (c.owns || []).map(k => CLIP_GROUP_RX[k]).filter(Boolean);
+      if ((c.owns || []).some(k => k === 'arm_l' || k === 'arm_r')) rx.push(/^(clap|thumbs_up)$/);
+      const strip = o => { const r = {}; for (const k in (o || {})) if (!rx.some(x => x.test(k))) r[k] = o[k]; return r; };
+      const f0 = G.fn;
+      G.fn = (u, gg) => { const r = typeof f0 === 'function' ? f0(u, gg) || {} : {}; return Object.assign({}, r, {set: strip(r.set), add: strip(r.add)}); };
+      if (!g.hold && !g.duration_s && +c.dur > 0) G.dur = +c.dur;
+      G.clip = c; G.clipRx = rx;
+    }
     function startGesture(name, g = {}) {
       let def = GEST[name], extra = {};
       if (!def && GEST_ALIAS[name] !== undefined) {
@@ -1427,6 +1446,7 @@
         if (Array.isArray(a)) { name = a[0]; extra = a[1]; } else name = a;
         def = GEST[name];
       }
+      if (!def && S.clipHas && (g.src || 'cmd') === 'cmd') { try { if (S.clipHas(name)) def = CLIP_DEF; } catch (e) {} }   // motion2: a library-only action
       if (!def) return null;
       g = Object.assign({}, extra, g);
       // per-character tuning from the body file (muse.body.json gesture_tuning.<name>): its defaults (cycles) unless the
@@ -1439,8 +1459,10 @@
       const G = {name, g, side: g.side, t0: S.t, dur: g.hold ? Infinity : (g.duration_s || dur), attack: def.attack, release: def.release,
         fn: def.fn, src: g.src || 'cmd', rel: null, params: null, id: ++S.gid};
       G.params = gestParams(name, g);
+      if (S.clipHook && G.src === 'cmd') clipTake(G, g);   // motion2: a library clip plays it on Juno (renderer)
       // a new gesture on the same params replaces older ones softly (they release)
       for (const o of S.gestures) if (!o.rel && o.params.some(p => G.params.includes(p)) && priorityOf(o) <= priorityOf(G)) o.rel = {t0: S.t, w: weightOf(o)};
+      if (G.clipRx) G.params = G.params.filter(p => !G.clipRx.some(x => x.test(p)));   // motion2: the clip's arms are not "busy" for the page
       S.gestures.push(G);
       if (REPORT_SRC.has(G.src)) { G.rep = true; emit({kind: 'gesture', name, src: G.src, phase: 'start', args: {side: G.side, via: g.via}, did: gestDid(name, G, 0)}); }
       if (G.src !== 'life') { S.log.push({t: +S.t.toFixed(2), gesture: name, side: G.side, src: G.src}); if (S.log.length > 400) S.log.splice(0, 200); }
@@ -3494,6 +3516,7 @@
         return {props: 0, places: 0, off: true};
       },
       events(sinceS) { const t0 = sinceS === undefined ? -Infinity : S.t - +sinceS; return S.actions.filter(e => e.t >= t0); },
+      setClipHook(fn, has) { S.clipHook = typeof fn === 'function' ? fn : null; S.clipHas = S.clipHook && typeof has === 'function' ? has : null; return !!S.clipHook; },   // motion2
       playGesture, cancelGestures, armsBusy, think, thinkEnd, thinking, thinkVariants: Object.keys(THINK), thinkCan: v => !!THINK[v] && (!THINK[v].can || THINK[v].can()), chinTarget: (side, head, d) => S.face ? S.face.target('chin', side, head, d) : S.chin ? S.chin(side, head, d) : null, setCospeech(on) { S.cosp = !!on; if (S.cosp) { S.speech.beatUntil = -1; } return S.cosp; },
       now: () => S.t, props: () => engineOn ? engine.props() : [], things: thingsNow, get moves() { return engineOn ? engine.moveNames : []; }, get verbs() { return engineOn ? engine.verbs : []; },
       engine,

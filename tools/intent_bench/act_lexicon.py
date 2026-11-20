@@ -288,10 +288,10 @@ DSTYLE = {w: w for w in ["robot", "twist", "floss", "macarena", "moonwalk", "chi
 DSTYLE.update({"hokey": "hokey_pokey", "hip": "hip_hop", "chacha": "cha_cha", "cha cha": "cha_cha",
                "hokey pokey": "hokey_pokey", "hip hop": "hip_hop", "chicken dance": "chicken", "bunny hop": "bunny_hop",
                "electric slide": "electric_slide", "running man": "running_man", "moon walk": "moonwalk",
-               "happy dance": "happy", "snoopy dance": "snoopy", "potty dance": "potty", "rain dance": "rain",
+               "happy dance": "happy", "beagle dance": "beagle", "potty dance": "potty", "rain dance": "rain",
                "can can": "cancan", "macarena dance": "macarena"})
 MNSTYLE = {w: w for w in ["silly", "happy", "funny", "crazy", "wild", "goofy", "fancy", "funky", "wiggly", "robot",
-                          "disco", "victory", "excited", "sad", "spooky", "graceful", "ballet", "chicken", "snoopy",
+                          "disco", "victory", "excited", "sad", "spooky", "graceful", "ballet", "chicken", "beagle",
                           "rain", "potty", "celebration", "birthday", "bedtime", "jungle", "monkey", "bear", "bunny",
                           "rabbit", "fox", "hippo", "penguin", "pirate", "cowboy", "fairy", "princess", "superhero",
                           "dinosaur", "zombie", "jelly", "wobbly", "tap", "hula", "salsa", "tango", "irish", "square",

@@ -58,11 +58,19 @@ from anim.lipstream import StreamingLipAnimator      # noqa: E402
 from anim.schema import FPS as ROW_FPS, SAMPLE_RATE as SR, IDX  # noqa: E402
 from anim.rig import RigMixer, RIG_PARAMS, LIP_OWNED  # noqa: E402
 from live.core import LiveCore                       # noqa: E402
+try:                                                  # motion2: real-human body motion for juno / junor
+    from anim import motion_layer as _m2              # noqa: E402
+    _m2.prewarm()                                     # MM database + clip library loaded once, off the session path
+except Exception as _e:                               # never let it stop the server
+    _m2 = None
+    print("motion2 unavailable:", _e, file=sys.stderr, flush=True)
 
 mono = time.monotonic
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROFILES = os.path.join(HERE, "profiles.json")
 CHARACTERS = ["fox", "bear", "rabbit", "hippo", "monkey", "orb", "cube", "drop", "star", "pyramid", "blob", "muse", "junor"]   # + muse
+from anim.mascots import MASCOTS as _MASCOTS                      # noqa: E402  : the mascots on the muse skeleton
+CHARACTERS += [c for c in _MASCOTS if os.path.isfile(os.path.join(ROOT, "animals", c + ".glsl"))]
 A_HDR = struct.Struct("<B3xQ")          # 'A', pad, uint64 first sample
 V_HDR = struct.Struct("<BBHId")         # 'V', flags, pad, uint32 frame number, float64 t
 SPFS = {20: 1200, 24: 1000, 30: 800}    # timeline samples per output frame
@@ -79,6 +87,7 @@ def log(*a):
     print(time.strftime("%H:%M:%S"), *a, file=sys.stderr, flush=True)
 
 
+_GL, _GR = IDX.get("gest_l"), IDX.get("gest_r")   # motion2 (no gesture net in this tree: None -> the arms are always free)
 class Core(LiveCore):
     """live.core.LiveCore at any output rate in SPFS (its resampler arithmetic is general; its constructor allows
     only 24 / 30)."""
@@ -239,6 +248,9 @@ def profile_for(profile, character, height=None):
     """-> dict(width, height, backend, opts) from avatar/profiles.json, or {} when the profile does not say."""
     prof = load_profiles().get("profiles", {}).get(profile, {})
     ent = dict(prof.get("_default", {}))
+    if character not in prof:      # a mascot without its own profile renders at the muse's
+        from anim.mascots import base as _mbase
+        character = _mbase(character)
     ent.update(prof.get(character, {}))
     if height and ent.get("alts"):
         alts = ent["alts"]
@@ -249,10 +261,11 @@ def profile_for(profile, character, height=None):
 
 # ------------------------------------------------------------------------------------------------ one session
 class Job:
-    __slots__ = ("F", "t", "index", "params", "horizon")
+    __slots__ = ("F", "t", "index", "params", "horizon", "m2")   # + m2
 
     def __init__(self, F, t, index, params, horizon):
         self.F, self.t, self.index, self.params, self.horizon = F, t, index, params, horizon
+        self.m2 = None                  # motion2: (MotionLayer, body pose (189) at t or None), or None
 
 
 class Session:
@@ -283,6 +296,10 @@ class Session:
         self.rigdbg = None              # rigdbg: None = off (the default); on = deque of (F, final values) rows
         self.rigdbg_task = None         # rigdbg: the 100 ms poster (an asyncio task, only while on)
         self.rigdbg_cols_at = None      # rigdbg: when "cols" last went out (None = due: the next message carries it)
+        self.ml = None                  # motion2: the MotionLayer of the current character (None = off: old path)
+        self.m2_on = None               # motion2: the page's on/off (None = the renderer default)
+        self.m2_src = None              # motion2: mm | flow | hybrid from the hub's start message (None = env / mm)
+        self.m2_g = (1.0, 1.0)          # motion2: the last dispatched frame's gest_l / gest_r (no gesture net here: arms free)
         from avatar.surfaces_rx import SurfaceMirror      # the app server's live surfaces ('S' messages)
         self.surf = SurfaceMirror()
         self.rig_lock = threading.Lock()
@@ -316,6 +333,10 @@ class Session:
                     "opts": dict(msg.get("opts") or {}), "late_ms": float(msg.get("late_ms") or a.late_ms),
                     "gop_s": float(msg.get("gop_s") or 2.0), "nvenc": bool(msg.get("nvenc", not a.no_nvenc)),
                     "quality": int(msg.get("jpeg_quality") or 80)}
+        if msg.get("motion2_src") in ("mm", "flow", "hybrid"):   # the hub's config switch (absent = env / mm)
+            self.m2_src = msg["motion2_src"]
+        if "motion2" in msg:             # motion2: per-session on/off (absent = the renderer default)
+            self.m2_on = bool(msg.get("motion2")) and msg.get("motion2") not in ("0", "off")
         self._switch(ch, first=True)
 
     def _resolve(self, ch):
@@ -349,7 +370,8 @@ class Session:
                 old.owner = None
             self.inflight = 0
             self.encoding = 0
-        self.audio_q.put(("reset", ch, self.gen))
+        ml = self._motion_layer(ch)      # motion2: juno / junor only (None for every other character)
+        self.audio_q.put(("reset", ch, self.gen, None, ml))
         self.post_json({"type": "status", "stage": "init", "detail": f"{ch} {w}x{h} {backend}"})
         eng = self.server.engines.get(ch, w, h, backend, opts)
         self.res = (ch, w, h, backend, opts)
@@ -361,6 +383,36 @@ class Session:
             self._open_encoder(eng)
         elif eng.dead:
             self.post_json({"type": "error", "message": "render worker died before it was ready"})
+
+    def _motion_layer(self, ch):
+        """motion2: the real-human body layer for juno / junor (anim/motion_layer.py), else None (never built)."""
+        if _m2 is None or not _m2.wanted(ch):
+            if self.ml is not None:
+                self.ml.close()
+            self.ml = None
+            return None
+        old = self.ml
+        if old is not None:
+            old.close()                  # a flow source thread stops with its layer
+        seed = self.cfg.get("gest_seed")
+        ml = _m2.build(ch, seed=seed, enabled=self.m2_on is not False, src=self.m2_src)
+        self.ml = ml
+        return ml
+
+    def set_motion2(self, msg):
+        """motion2: {"type":"motion2","on":bool,"partner_speaking":bool,"body_busy":bool} (all optional)."""
+        if "on" in msg:
+            self.m2_on = bool(msg.get("on")) and msg.get("on") not in ("0", "off")
+        ml = self.ml
+        if ml is not None:
+            ml.control(msg)
+
+    def play_clip(self, msg):
+        """motion2: {"type":"clip","slug":s,"mirror":bool}: a library clip (anim/motion2/act) on Juno."""
+        ml = self.ml
+        if ml is None:
+            raise ValueError("no motion layer for this character")
+        ml.clip(msg)
 
     def _open_encoder(self, eng):
         with self.cond:                 # once per (engine, switch): the reader thread may race _switch here
@@ -396,6 +448,7 @@ class Session:
                             "init_ms": round(1000 * (mono() - self.t_switch), 1), "engine_init_ms": ei.get("init_ms"),
                             "lookahead_ms": self.cfg["lookahead_ms"], "encoder_errors": info.get("errors") or None,
                             "rig_params": RIG_PARAMS,
+                            **({"motion2": self.ml.info()} if self.ml is not None else {}),   # motion2
                             "encoder_open_ms": info.get("open_ms"), "encoder_fallback": info.get("fallback")})
             with self.cond:
                 self.engine_ok = True
@@ -499,6 +552,7 @@ class Session:
         nxt = None
         gen = 0
         ch = None
+        ml = None                         # motion2: MotionLayer fed the same PCM (juno / junor)
         ring = collections.deque()        # recent (s0, pcm) for warming a new animator on a switch
         ring_n = 0
         RING = int(1.5 * SR)
@@ -507,7 +561,8 @@ class Session:
             if item is None:
                 return
             if item[0] == "reset":
-                _, ch, gen = item
+                _, ch, gen = item[:3]
+                ml = item[4] if len(item) > 4 else None
                 core = None
                 if nxt is not None and ring:        # a switch mid-stream: warm the new animator on the last 1.5 s
                     first = ring[0][0]
@@ -518,7 +573,8 @@ class Session:
                         if s + p.size <= a0:
                             continue
                         p = p[max(0, a0 - s):]
-                        self._emit(core.push(p), a0, gen)
+                        self._ml_push(ml, a0 + max(0, s - a0), p)
+                        self._emit(core.push(p), a0, gen, ml)
                 continue
             s0, pcm = item
             if core is None:
@@ -537,8 +593,12 @@ class Session:
                     core = Core(ch, self.cfg["lookahead_ms"], self.cfg["fps"])
                     nxt = a0
                     gap = s0 - nxt
+                    if ml is not None:
+                        ml.reset()                                           # motion2
                 if gap:
-                    self._emit(core.push(np.zeros(gap, np.int16)), a0, gen)
+                    z = np.zeros(gap, np.int16)
+                    self._ml_push(ml, nxt, z)
+                    self._emit(core.push(z), a0, gen, ml)
                     nxt = s0
             elif s0 < nxt:
                 cut = nxt - s0
@@ -546,19 +606,28 @@ class Session:
                 if cut >= pcm.size:
                     continue
                 pcm, s0 = pcm[cut:], nxt
-            self._emit(core.push(pcm), a0, gen)
+            self._ml_push(ml, s0, pcm)
+            self._emit(core.push(pcm), a0, gen, ml)
             nxt = s0 + pcm.size
             ring.append((s0, pcm))
             ring_n += pcm.size
             while ring and ring_n - ring[0][1].size >= RING:
                 ring_n -= ring.popleft()[1].size
 
-    def _emit(self, jobs, a0, gen):
+    def _ml_push(self, ml, s0, pcm):
+        """motion2: the same PCM the lip animator gets -> canon audio features (its own cost counter)."""
+        if ml is not None:
+            ml.push_audio(s0, pcm)
+
+    def _emit(self, jobs, a0, gen, ml=None):
         if not jobs:
             return
         fps = self.cfg["fps"]
         base = a0 // SPFS[fps]
         new = [Job(base + jb.j, (base + jb.j) / fps, jb.index, jb.params, a0 + jb.horizon) for jb in jobs]
+        if ml is not None:                # motion2: the body pose at each frame's instant (in order, off the dispatch path)
+            for jb in new:
+                jb.m2 = (ml, ml.sample(jb.t))
         with self.cond:
             if gen != self.gen:
                 return
@@ -596,8 +665,13 @@ class Session:
                 force = self.key_req
                 self.key_req = False
                 eng, gen = self.engine, self.gen
+                m2 = None
+                if jb.m2 is not None:     # motion2: canon body pose + weights
+                    m2 = jb.m2[0].frame(jb.m2[1], jb.t, *self.m2_g)
                 with self.rig_lock:
                     params = self.rig.apply(jb.params, jb.t, now)
+                if jb.m2 is not None and _GL is not None and _GR is not None:
+                    self.m2_g = (float(params[_GL]), float(params[_GR]))
                 dbg = self.rigdbg
                 if dbg is not None:     # rigdbg: a copy of the final columns; off = this one check
                     dbg.append((jb.F, params[RIGDBG_IDX]))
@@ -607,7 +681,9 @@ class Session:
             if eng.info.get("surfaces"):
                 for up in self.surf.take():
                     eng.send(("surf",) + up)
-            if not eng.send(("job", jb.F, jb.index, params, force, now)):
+            job = ("job", jb.F, jb.index, params, force, now) if m2 is None else \
+                ("job", jb.F, jb.index, params, force, now, m2[:3])           # motion2: (canon, canon_w, modes)
+            if not eng.send(job):
                 with self.cond:
                     self.inflight = max(0, self.inflight - 1)
 
@@ -661,7 +737,8 @@ class Session:
                 "audio_ahead_ms": None if ahead is None else round(ahead, 1), "kbps": round(8 * s["bytes"] / dt / 1000, 1),
                 "keyframes": s["keys"], "encoder": self.enc_info.get("encoder"), "out_queue": self.out.qsize(),
                 "rig_active": self.rig.rig_active(mono()), "rig_msgs": int(self.totals["rig_msgs"]),
-                "surfaces": dict(self.surf.stats)}
+                "surfaces": dict(self.surf.stats),
+                **({"motion2": self.ml.stats()} if self.ml is not None else {})}
 
     def request_key(self):
         with self.cond:
@@ -671,6 +748,8 @@ class Session:
         self.running = False
         self.audio_q.put(None)
         self.rigdbg = None                  # rigdbg
+        if self.ml is not None:             # motion2: stop a source thread
+            self.ml.close()
         if self.rigdbg_task is not None:
             self.rigdbg_task.cancel()
         with self.cond:
@@ -782,6 +861,10 @@ class Server:
                         sess.set_rig(msg)
                     elif typ == "rigdbg":                 # rendered lip / hand values for the rig debug panel
                         sess.set_rigdbg(msg)
+                    elif typ == "motion2":                # real-human body layer on / off + partner / body state
+                        sess.set_motion2(msg)
+                    elif typ == "clip":                   # a library action clip on juno / junor
+                        sess.play_clip(msg)
                     elif typ == "stop":
                         break
                     else:

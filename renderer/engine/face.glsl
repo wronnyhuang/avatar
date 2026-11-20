@@ -90,12 +90,18 @@ vec3  gHO;                  // world position of the pivot
 float gSqY, gSqX;           // squash scale
 float gBlinkL, gBlinkR, gBrowL, gBrowR, gKnit, gSquint, gWide;
 vec2  gGaze;
+#ifdef EYE_R0
+float gEyeR; vec3 gEyeC; float gBTilt = 0.0, gBThick = 0.0;   // the character's eye size / centre (the emotion columns that scale them are not in this tree: they stay at the drawn values)
+#endif
 
 mat3 rotX(float a){ float c=cos(a),s=sin(a); return mat3(1,0,0, 0,c,s, 0,-s,c); }
 mat3 rotY(float a){ float c=cos(a),s=sin(a); return mat3(c,0,-s, 0,1,0, s,0,c); }
 mat3 rotZ(float a){ float c=cos(a),s=sin(a); return mat3(c,s,0, -s,c,0, 0,0,1); }
 
 void faceInit(){
+#ifdef EYE_R0
+  gEyeR = EYE_R0; gEyeC = EYE_C0;
+#endif
   // yaw>0 toward screen right, pitch>0 nose down, roll>0 crown toward screen right (docs/AUDIO.md)
   // a shape is its own body: body_yaw / body_pitch / body_lean turn it on top of the head columns, body_bounce lifts it
   mat3 F = rotY(SHAPE_YAW0 + uP[P_HEAD_YAW] + 0.35*uP[P_BODY_YAW])*rotX(uP[P_HEAD_PITCH] + 0.15*uP[P_BODY_PITCH])
@@ -129,13 +135,23 @@ float faceEval(vec3 q, float skin, float host){
   float neg = q.x < 0.0 ? 1.0 : 0.0;
   float blink = mix(gBlinkR, gBlinkL, neg), bu = mix(gBrowR, gBrowL, neg);
   vec3 ea = qa - EYE_C;
+#ifdef FLURRY_EYE_SY
+  ea.y /= FLURRY_EYE_SY;                                   // Flurry's upright oval eyes
+#endif
   float rr = length(ea);
   gFEye = rr - EYE_R;
   skin = smax(skin, -(rr - (EYE_R + 0.004)), 0.030);
   vec3 el = ea;
   el.xy = rot(-EYE_TILT)*el.xy;
+#ifdef EYE_LID_YAW
+  el.xz = rot(EYE_LID_YAW)*el.xz;                      // the lids' opening turns out to the side (an eye on the side of the head)
+#endif
   float aU = mix(EYE_AU - 0.10*gSquint + 0.22*gWide, EYE_AC, blink) + 0.07*clamp(bu, -1.0, 1.0)*(1.0 - blink);
   float aL = mix(EYE_AL + EYE_SQUINT*gSquint - 0.12*gWide, EYE_AC, blink);
+#ifdef EYE_LID_SOLID
+  float shellE = length(el) - (EYE_R + 0.004 + EYE_LID_TH*1.9);   // solid lids (the ball fills the inside): no thin shell to break into slits seen edge-on
+#else
+#endif
   float lids = sdEyelids(el, EYE_R + 0.004, EYE_LID_TH, aU, aL);
   gFLid = lids;
   gFMU = el.y*cos(aU) - el.z*sin(aU);
@@ -162,21 +178,37 @@ float faceEval(vec3 q, float skin, float host){
   float bt = clamp((b.x + BROW_L)/(2.0*BROW_L), 0.0, 1.0);
   b.y += 1.05*b.x*b.x;                                // arched
   float bw = BROW_W*(1.0 - 0.62*bt*bt);
+#ifdef FLURRY_BROW_ARCH
+  // Flurry only: a strongly arched, charred-twig brow — more arch, both ends tapered, a slightly irregular width
+  b.y += (FLURRY_BROW_ARCH - 1.05)*b.x*b.x;
+  bw *= mix(0.40, 1.0, smoothstep(0.0, 0.40, bt))*(1.0 + 0.30*(vnoise2(vec2(b.x*70.0, 3.7)) - 0.5));
+#endif
   float hd = max(skin, 0.10 - q.z);                   // rides whatever is there, the lid included; never the far side
   float brow = sdEllipsoid(vec3(b, hd - 0.003), vec3(BROW_L, bw, BROW_H));
   gFBrow = brow;
   return smin(skin, brow, 0.010);
 }
 
+#ifdef FACE_EYE_HOOK
+void faceEyeHook(vec3 e, vec2 uv, float lc, float lidL, inout Surf s);   // e = unit eyeball point in the gaze frame, uv = its xy (parallax)
+#endif
 // paint eyes, lid liner and brows over whatever the character already painted.  toEye = the base camera aim.
 void facePaint(vec3 q, vec3 rd, vec3 n, float skinD, inout Surf s){
   vec3 qa = vec3(abs(q.x), q.yz);
   vec3 ea = qa - EYE_C;
+#ifdef FLURRY_EYE_SY
+  ea.y /= FLURRY_EYE_SY;                                   // Flurry's upright oval eyes
+#endif
   float rr = length(ea);
   float lidOn = smoothstep(0.012, 0.002, gFLid);
   // the lash line: thick on the upper lid, a breath on the lower, the closed seam when they meet
+#ifdef FLURRY_LINER_W
+  float linerU = smoothstep(FLURRY_LINER_W, 0.002, gFMU)*smoothstep(-0.012, -0.002, gFMU)*lidOn;   // Flurry's thin outline
+  float linerL = 0.26*smoothstep(FLURRY_LINER_WL, 0.002, gFML)*smoothstep(-0.008, -0.001, gFML)*lidOn;
+#else
   float linerU = smoothstep(0.017, 0.004, gFMU)*smoothstep(-0.012, -0.002, gFMU)*lidOn;
   float linerL = 0.26*smoothstep(0.009, 0.002, gFML)*smoothstep(-0.008, -0.001, gFML)*lidOn;
+#endif
   float liner = max(linerU, linerL)*step(rr, EYE_R + 2.2*EYE_LID_TH + 0.012);
   s.alb = mix(s.alb, LINER_COL, 0.86*liner);
   s.spec *= 1.0 - liner;
@@ -206,6 +238,9 @@ void facePaint(vec3 q, vec3 rd, vec3 n, float skinD, inout Surf s){
     vec3 ex = normalize(cross(vec3(0,1,0), eyeF)), ey = cross(eyeF, ex);
     mat3 toE = transpose(mat3(ex, ey, eyeF));
     vec3 ee = (q - ce)/EYE_R;
+#ifdef FLURRY_EYE_SY
+    ee.y /= FLURRY_EYE_SY;
+#endif
     vec3 e = toE*ee;
     vec3 vv = toE*(gHR*rd);
     // a storybook eye, not a photograph: a smooth iris that glows low, opposite the light, with no fibres
@@ -249,6 +284,9 @@ void facePaint(vec3 q, vec3 rd, vec3 n, float skinD, inout Surf s){
     float glow = smoothstep(-0.10, -0.80, e.y - 0.25*e.x*sign(uSunDir.x))*irisM*(1.0 - 0.6*pup)*smoothstep(1.0, 0.75, length(e.xy));
     s.emit = vec3(1.0,0.98,0.95)*(5.0*c1 + 2.2*c2)*lidL + vec3(0.62,0.72,0.86)*0.030*EYE_GLOSS*sky*lc
            + EYE_GLOW*glow*lc + s.alb*0.06;
+#endif
+#ifdef FACE_EYE_HOOK
+    faceEyeHook(e, uv, lc, smoothstep(0.92, 0.62, ee.y), s);        // the character paints its own pupil / catch-light last
 #endif
   }
 }

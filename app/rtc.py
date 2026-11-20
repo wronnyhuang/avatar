@@ -71,6 +71,11 @@ PERSONALITY = {
                        "subtle expressions and small gestures. If someone mentions a body part you don't have, do the "
                        "closest movement and say so playfully. ",
 }
+try:      # the mascots' persona lines (app/mascots.py)
+    import mascots as _mascots
+    PERSONALITY.update(_mascots.personas())
+except ImportError:
+    pass
 NOT_SHAPES = {"plush companion"}
 # body end
 MOVE_STYLES = {

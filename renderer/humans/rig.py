@@ -511,7 +511,28 @@ class JunoRig:
         return hw, hr, hg, flags
 
     # ------------------------------------------------------------------ the solve
-    def solve(self, P, t=0.0, cam_pos=None, root=None):
+    def _canon_drive(self):
+        """the canon1 -> bones driver (humans/canon_drive.py), built on first use."""
+        cd = getattr(self, "_cdrive", None)
+        if cd is None:
+            try:
+                from humans.canon_drive import CanonDrive
+            except ImportError:
+                if HERE not in sys.path:
+                    sys.path.append(HERE)
+                from canon_drive import CanonDrive  # type: ignore
+            cd = self._cdrive = CanonDrive(self)
+        return cd
+
+    def solve(self, P, t=0.0, cam_pos=None, root=None, canon=None, canon_w=None, modes=None):
+        """FROZEN INTERFACE: canon = (189) canon1 pose or None (None = exactly the dial rig); canon_w = {torso, head,
+        arm_l, arm_r, fingers_l, fingers_r} -> 0..1 (ANATOMICAL sides; missing = 0; None = all 1); modes = {head, torso}
+        -> "add" (canon relative to canon neutral, composed on the dial pose; default) | "abs" (canon replaces).
+        Arms / fingers are absolute, slerped by weight against the dial arm / fingers."""
+        CD = CS = None
+        if canon is not None:
+            CD = self._canon_drive()
+            CS = CD.prepare(canon, canon_w, modes)
         P = np.asarray(P, dtype=np.float64)
         if P.shape[0] < NPARAMS:
             P = np.concatenate([P, np.zeros(NPARAMS - P.shape[0])])
@@ -578,6 +599,13 @@ class JunoRig:
                 spineD["spine_03"] = spineD["spine_03"] @ self._Fc
             self._eye_off = LF.eye_offset(t, g("gaze_x"), g("gaze_y"), g("gaze_free"))
         hoff = T["head_xyz_scene"]*np.array([g("head_x"), g("head_y"), g("head_z")])
+        if CD is not None:                              # canon torso (spine chain + root shift)
+            Ds3_dial = spineD["spine_03"]
+            for (ib_, _k) in CD.torso:
+                nm_ = self.names[ib_]
+                spineD[nm_] = CD.torso_D(CS, ib_, spineD[nm_])
+            pel = pel + CS["shift"]
+            i_s3 = bi["spine_03"]
         hw, hr, hg, flags = self._holds(P)
         side_out = [dict(), dict()]
         # per-bone FK in skeleton order
@@ -596,10 +624,15 @@ class JunoRig:
             if n in spineD:
                 D[i] = spineD[n]; continue
             if n == "neck_01":
-                D[i] = W @ rot_power(F, neck_share); continue
+                D[i] = W @ rot_power(F, neck_share)
+                if CD is not None:
+                    D[i] = CD.head_D(CS, i, D[i], D[i_s3], Ds3_dial)
+                continue
             if n == "head":
                 pos[i] = pos[i] + W @ hoff + np.array([0.0, 0.006*br*self.ka, 0.0])
                 D[i] = W @ F
+                if CD is not None:
+                    D[i] = CD.head_D(CS, i, D[i], D[i_s3], Ds3_dial)
                 continue
             if n == "jaw":
                 Rj, tj = self._jaw_xform(P)
@@ -614,6 +647,14 @@ class JunoRig:
                 continue
             if hk is None:
                 D[i] = Dp; continue
+            if CD is not None:                          # an arm the canon fully owns skips the dial arm solve
+                ab_ = CD.arm_bone.get(i)
+                if ab_ is not None and CS["w"]["arm_" + ab_[0]] >= 1.0:
+                    D[i] = CD.arm_D(CS, ab_[0], ab_[1], None, D[i_s3])
+                    if ab_[1] == "hand" and (CS["w"]["fingers_l"] < 1.0 or CS["w"]["fingers_r"] < 1.0):
+                        so_ = side_out[hk[1]]
+                        so_["curls"], so_["spread"] = self._curls(P, hk[1], hw[hk[1]], hr[hk[1]], hg[hk[1]])
+                    continue
             hit = False
             for ps in (hk[1],):
                 sb = self.side_bones[ps]
@@ -640,10 +681,31 @@ class JunoRig:
                 if i == sb["ball"]:
                     D[i] = self._ball(ps, D[p], side_out[ps]); hit = True; break
             if hit:
+                if CD is not None:                      # canon arm (absolute, slerped by weight)
+                    a_ = ANAT[hk[1]]; sb = self.side_bones[hk[1]]
+                    for part_ in ("clavicle", "upperarm", "lowerarm", "hand"):
+                        if i == sb[part_]:
+                            if a_ in CD.arm:
+                                D[i] = CD.arm_D(CS, a_, part_, D[i], D[i_s3])
+                            break
                 continue
             fd = self._finger(i, D[p], side_out)
             D[i] = fd if fd is not None else Dp
-        self._fingers_batch(D, pos, side_out)
+        if CD is not None:                              # step 2: contact fit + torso collision + arm layering
+            CD.post_arms(CS, D, pos)
+        if CD is None or CS["w"]["fingers_l"] < 1.0 or CS["w"]["fingers_r"] < 1.0:
+            self._fingers_batch(D, pos, side_out)       # (skipped when the canon owns both hands' fingers)
+        if CD is not None:                              # canon fingers + the arm outputs from the posed bones
+            CD.fingers(CS, D, pos)
+            for ps in range(2):
+                a_ = ANAT[ps]
+                if CS["w"]["arm_" + a_] <= 0.0 or a_ not in CD.arm:
+                    continue
+                sb = self.side_bones[ps]; so = side_out[ps]
+                so["shoulder"] = pos[sb["upperarm"]].copy(); so["elbow"] = pos[sb["lowerarm"]].copy()
+                so["wrist"] = pos[sb["hand"]].copy()
+                so["hand_frame"] = D[sb["hand"]] @ self.hand_rest_frame[ps]
+                so["palm"] = so["wrist"] + so["hand_frame"] @ self.palm_local[ps]
         if T.get("forearm_roll_share") is not None:    # body (gated): no twist bones in the asset, so the hand's
             self._forearm_roll(D, float(T["forearm_roll_share"]))     # roll about the forearm all sat in the wrist
         # ---- assemble matrices (char-local, then the human squash compensation, then the engine root)
@@ -1087,7 +1149,7 @@ class JunoRig:
     def human_params(self, P):
         """rig3: the HUMAN reading of the shared control vector (MeshEngine applies it to the whole vector once per
         frame, before the rig and the shared marks pass).  The page's affect anchors / life were built cartoon-exaggerated
-        for the plush (eye size, popping eyes, pouts, floating marks); a Pixar human acts with brows, lids, cheeks and mouth
+        for the plush (eye size, popping eyes, pouts, floating marks); an animated-film human acts with brows, lids, cheeks and mouth
         shape.  juno.face.json "human": {"gain": {param: [g_pos, g_neg]}, "marks_keep": [...]}: each listed column is scaled
         on its sign; every mark column not in marks_keep is zeroed (no floating cartoon marks on a human).  Body / root /
         hand / camera / lip columns are untouched.  Deterministic, idempotent only through this one call site."""
@@ -1445,7 +1507,7 @@ class JunoRig:
         if LF is not None:                       # motion: blink micro-compression, brow asymmetry
             LF.blink_weights(w, si, btr)
             LF.brow_asym(w, si)
-        # rig3: the asset's brow shapes move only 3-6 mm at weight 1 (a Pixar brow travels ~10-15 mm: SPEC s10 "brows
+        # rig3: the asset's brow shapes move only 3-6 mm at weight 1 (an animated-film brow travels ~10-15 mm: SPEC s10 "brows
         # are the major expression carrier"); they stay clean when extrapolated, so the brows are driven past 1
         ba = float(T["brow_amp"])
         if ba != 1.0:

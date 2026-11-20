@@ -68,6 +68,22 @@ const say = (X, text, gapMs) => { X.vt.userSpeech('start'); X.clock.advance(300)
     say(Y, 'Do a backward somersault.');
     let q = Y.vt.call('do_action', {description: 'do a backward somersault now', move: {name: 'backflip', count: 1}}, 'done', {});
     check('hybrid: a named move -> the engine at once (never the planner)', q.status === 'starting' && lib[0][1].name === 'backflip' && !Y.perf.length);
+    {   // a named move the library does not know (the voice model said move:{name:"wave"}): the description goes to the planner
+      const Z = setup();
+      Z.vt = VTL.createVoiceTools({perf: () => Z.P, motion: () => Z.motion, runCommand: () => ({ok: true}), sendCtl: () => {}, prompt: () => ({}),
+        runLibrary: (desc, move) => (move ? {ran: 0, dup: 0, reason: `I don't know the move "${move.name}"`} : null),
+        coveredByMatcher: () => false, userSpeaking: () => false, now: Z.clock.now, timers: {set: Z.clock.set, clear: Z.clock.clear}});
+      say(Z, 'Can you wave at me with one hand?');
+      const w = Z.vt.call('do_action', {description: 'wave at him with one hand', move: {name: 'wave'}}, 'done', {});
+      check('hybrid: an unknown named move with a description -> the planner, not "I don\'t know the move"', w.ok !== false && Z.perf.length === 1 && Z.perf[0].d === 'wave at him with one hand', w);
+      const Z2 = setup();
+      Z2.vt = VTL.createVoiceTools({perf: () => Z2.P, motion: () => Z2.motion, runCommand: () => ({ok: true}), sendCtl: () => {}, prompt: () => ({}),
+        runLibrary: () => ({ran: 0, dup: 0, reason: 'I am sitting: I would have to stand up first'}),
+        coveredByMatcher: () => false, userSpeaking: () => false, now: Z2.clock.now, timers: {set: Z2.clock.set, clear: Z2.clock.clear}});
+      say(Z2, 'Do a backflip.');
+      const w2 = Z2.vt.call('do_action', {description: 'do a backflip', move: {name: 'backflip'}}, 'done', {});
+      check('hybrid: any other library refusal stays an honest failure', w2.ok === false && /sitting/.test(w2.reason) && !Z2.perf.length, w2);
+    }
     q = Y.vt.call('do_action', {description: 'spin around twice'}, 'done', {});
     check('hybrid: a library-read description a matcher already ran -> already doing that, nothing twice', q.status === 'starting' && /already/.test(q.did) && !Y.perf.length);
     covered = true;

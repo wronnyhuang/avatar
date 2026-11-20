@@ -97,7 +97,7 @@ def main(data, out):
     p = os.path.join(T, "macrodetails", "proportions", "female-young-averagemuscle-averageweight-idealproportions.target.gz")
     if os.path.exists(p):
         V += target_dense(p, nV)
-    # a little Pixar push for v0: bigger eyes
+    # a little animated-film push for v0: bigger eyes
     for side in ("l", "r"):
         V += 0.6 * target_dense(os.path.join(T, "eyes", f"{side}-eye-scale-incr.target.gz"), nV)
     body_v = obj.group_verts("body")

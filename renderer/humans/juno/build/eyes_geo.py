@@ -136,7 +136,7 @@ class EyeFit:
         dn_ = self.theta_m[np.argmin(np.abs(self.phi - 1.5 * np.pi))]
         self.theta_up, self.theta_down = float(up), float(dn_)
         self.phi_medial = np.pi if side == "l" else 0.0
-        # iris: Pixar big — diameter ~ IRIS_W of the visible (front-projected) aperture width, so the upper lid
+        # iris: animated-film big — diameter ~ IRIS_W of the visible (front-projected) aperture width, so the upper lid
         # overlaps it at rest; pupil = PUPIL_K of the iris
         ap = self.R * np.sin(self.theta_m)[:, None] * np.stack([np.cos(self.phi), np.sin(self.phi)], 1)
         self.vis_w = float(ap[:, 0].max() - ap[:, 0].min())

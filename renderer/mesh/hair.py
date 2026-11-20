@@ -220,7 +220,7 @@ class HairRenderer:
         # uniform subset casts the same shadow; at 1080p the full groom in the 2048^2 map was the largest GPU pass
         self.shadow_frac = float(os.environ.get("JUNO_HAIR_SHADOW_FRAC", cfg.get("shadow_frac", 1.0)))
         self.shadow_seg = int(os.environ.get("JUNO_HAIR_SHADOW_SEG", cfg.get("shadow_seg", 1)))
-        # stylised thickness per group kind (a Pixar groom reads as a solid sculpted mass with fine lines, brows as a
+        # stylised thickness per group kind (an animated-film groom reads as a solid sculpted mass with fine lines, brows as a
         # dense dark shape): multiplies the asset's physical widths
         wk = cfg.get("width_k", {})
         self.width_k = dict(scalp=3.4, fuzz=0.9, brows=2.2, lashes=2.6)   # render look-dev: soft brows, a lash LINE (not wires)
