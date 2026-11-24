@@ -210,16 +210,68 @@ def main(conn, character, width, height, backend, opts, rt_tree=None, warmup=3):
         return e is not None and e.name in ("libx264", "jpeg", "mjpeg") and width * height <= 640 * 360
 
     def open_enc(cfg, nvenc, reason=None):
-        if enc_box["enc"] is not None:
-            enc_box["enc"].close()
-        from avatar.encoder import open_encoder
+        from avatar.encoder import open_encoder, X264_FAST
         t = mono()
+        # x264 preset guard: once this session's encode time tripped the guard, every later open (NVENC fallback) stays
+        # on the fast preset; otherwise the encoder's size-aware default (AVATAR_X264_PRESET wins).  The new encoder is
+        # opened before the old one is closed, so a failed open leaves the running encoder in place.
         e = open_encoder(cfg.get("codec", "h264"), width, height, fps=cfg.get("fps", 24),
                          bitrate=cfg.get("bitrate", 2_000_000), gop_s=cfg.get("gop_s", 2.0), nvenc=nvenc,
-                         threads=cfg.get("threads", 4), quality=cfg.get("quality", 80))
-        enc_box.update(enc=e, cfg=cfg, times=[])
+                         threads=cfg.get("threads", 4), quality=cfg.get("quality", 80),
+                         preset=X264_FAST if enc_box.get("x264_fast") else None)
+        if enc_box["enc"] is not None:
+            enc_box["enc"].close()
+        enc_box.update(enc=e, cfg=cfg, times=[], guard=None, guard_wait=0)
         send("encoder", {"encoder": e.name, "codec": e.kind, "codec_string": e.codec_string, "errors": e.errors,
-                         "open_ms": round(1000 * (mono() - t), 1), "fallback": reason})
+                         "open_ms": round(1000 * (mono() - t), 1), "fallback": reason,
+                         "preset": getattr(e, "preset", None), "preset_guard": enc_box.get("x264_fast")})
+        return e
+
+    # x264 preset guard: the size-aware default (superfast at <= 720p) must never break the frame budget on a slow host
+    # CPU.  p90 of the last ~2 s of encode times over 45 % of the frame period -> the session reopens at ultrafast at the
+    # next keyframe boundary (the GOP's own IDR, or a requested one; at most one GOP of waiting) and stays there.
+    # A preset pinned by AVATAR_X264_PRESET is left alone (an explicit value wins); AVATAR_X264_GUARD=0 turns it off.
+    def guard_note(e, ms):
+        from avatar.encoder import PresetGuard, X264_FAST
+        if getattr(e, "preset", None) in (None, X264_FAST) or getattr(e, "x264_preset_src", "") == "env":
+            return
+        g = enc_box.get("guard")
+        if g is None:
+            g = enc_box["guard"] = PresetGuard(fps=(enc_box["cfg"] or {}).get("fps", 24))
+        if g.note(ms):
+            enc_box["x264_fast"] = g.reason
+            enc_box["guard_wait"] = 0
+            # one bounded second chance later in the session (a cold host's first minute); a second trip is final
+            from avatar.encoder import RetryGate
+            enc_box["retry"] = None if enc_box.get("retry_used") else RetryGate(g.limit_ms, mono(), fps=g.fps)
+            print(f"[encoder] x264 preset guard: {g.reason}; {e.preset} -> {X264_FAST} at the next keyframe, "
+                  f"for the rest of the session ({e.w}x{e.h})", file=sys.stderr, flush=True)
+
+    def guard_switch_due(e, force_key):
+        from avatar.encoder import X264_FAST
+        if e.name != "libx264" or e.preset == X264_FAST or getattr(e, "x264_preset_src", "") == "env":
+            return False
+        enc_box["guard_wait"] = enc_box.get("guard_wait", 0) + 1
+        return bool(force_key) or e.next_is_key() or enc_box["guard_wait"] > e.gop
+
+    def guard_retry_note(e, ms):
+        """On the fast preset after a trip: when the host has had room for a while, go back to the size default once."""
+        r = enc_box.get("retry")
+        if r is None or not r.note(ms, mono()):
+            return
+        enc_box.update(retry=None, retry_used=True, x264_fast=None, hq_due=True)
+        print(f"[encoder] x264 preset guard: fast-preset encode p{r.q:.0f} {r.stat_ms:.1f} ms < {r.ok_ms:.1f} ms after "
+              f"{r.retry_s:.0f} s; one retry of the size default at the next keyframe ({e.w}x{e.h})", file=sys.stderr, flush=True)
+
+    def guard_reopen(e, why=None):
+        """Encoder thread, just before a frame that is an IDR anyway: swap in the fast-preset encoder (its first frame
+        is that IDR, announced with its codec_string like an encoder fallback)."""
+        try:
+            return open_enc(enc_box["cfg"], False, why or ("x264 preset guard: " + str(enc_box["x264_fast"])))
+        except Exception as ex:
+            send("error", f"x264 preset guard: reopen failed: {ex}")
+            enc_box["guard_wait"] = -10 ** 9          # keep the running encoder; do not retry every frame
+            return e
 
     def encoder_loop():
         while True:
@@ -240,6 +292,11 @@ def main(conn, character, width, height, backend, opts, rt_tree=None, warmup=3):
                 continue
             _, j, img, force_key, render_ms, t_r0 = item
             e = enc_box["enc"]
+            if e is not None and enc_box.get("x264_fast") and guard_switch_due(e, force_key):
+                e = guard_reopen(e)
+            elif e is not None and enc_box.get("hq_due") and e.name == "libx264" and (force_key or e.next_is_key()):
+                enc_box["hq_due"] = False
+                e = guard_reopen(e, "x264 preset guard: retry of the size default")
             if e is None:
                 send("frame", j, 0, b"", render_ms, 0.0, t_r0, mono())
                 enc_done.set()
@@ -256,6 +313,10 @@ def main(conn, character, width, height, backend, opts, rt_tree=None, warmup=3):
                     note_frame(render_ms, enc_ms)
                 except Exception:
                     pass
+            if e.name == "libx264" and not enc_box.get("x264_fast"):
+                guard_note(e, enc_ms)
+            elif e.name == "libx264" and enc_box.get("retry") is not None:
+                guard_retry_note(e, enc_ms)
             # NVENC on a GPU someone else saturates (the K620 under Blender) can take 100-600 ms a frame: when its
             # recent mean passes half a frame period, fall back to libx264 for the rest of the session (IDR first)
             if e.name == "h264_nvenc":

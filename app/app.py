@@ -82,6 +82,7 @@ sys.path.insert(0, HERE)
 import wire  # noqa: E402
 from struct import error as struct_error  # noqa: E402
 from providers import Box  # noqa: E402
+import stall_hub  # noqa: E402  (video stall watchdog, hub side; the page side is stallwatch.js)
 from vendor import LiveVendor, scrub  # noqa: E402
 from intent_hub import IntentHub  # noqa: E402  (fast local intent matcher on the mic)
 import rtc  # noqa: E402
@@ -494,6 +495,10 @@ class RenderLink:
         self.last_stats: dict = {}
         self.pings: deque = deque(maxlen=200)
         self.frames = 0
+        self.last_frame_at = 0.0       # stall watchdog: monotonic time of the last video frame from the renderer
+        self.fault_mute = False        # test faults (config test_faults): frames swallowed / one picture repeated
+        self.fault_static = False      #   until this link is replaced
+        self.last_key: bytes | None = None
 
     async def connect(self) -> None:
         url = self.ep["ws_url"] + ("&" if "?" in self.ep["ws_url"] else "?") + "key=" + quote(self.ep.get("key", ""))
@@ -575,8 +580,17 @@ class RenderLink:
             async for msg in self.ws:
                 if msg.type == aiohttp.WSMsgType.BINARY:
                     if msg.data and msg.data[0] == wire.V:
+                        data = msg.data
+                        if self.hub.test_faults:            # stall watchdog test faults (never on a live service)
+                            if self.fault_mute:
+                                continue
+                            if self.fault_static and self.last_key is not None:
+                                data = stall_hub.static_copy(data, self.last_key)
+                            elif len(data) > 1 and data[1] & 1:
+                                self.last_key = data
                         self.frames += 1
-                        self.hub.on_video(self, msg.data)
+                        self.last_frame_at = time.monotonic()
+                        self.hub.on_video(self, data)
                 elif msg.type == aiohttp.WSMsgType.TEXT:
                     try:
                         m = json.loads(msg.data)
@@ -720,6 +734,20 @@ class Session:
             hub.intent.on_text = self._on_fast_asr      # + the affect judge's early 'pre' verdict
         self.tv: tv_agent.TVAgent | None = None          # created for a character with the wall TV
         self.affect: affect.Affect | None = None         # feelings on the face / body (muse)
+        # video stall watchdog (app/stall_hub.py): the page's reports, the hub's own actions, unrecovered-stall alerts
+        self.sw = stall_hub.cfg(self.cfg.get("stall_watch"))
+        self.stall_page: list[dict] = []
+        self.stall_events: list[dict] = []
+        self.stall_notes: list[dict] = []
+        self._stall_noted: set = set()
+        self.render_fed_at = 0.0                         # audio last sent to the renderer (frames are due while fed)
+        self.attach_at = 0.0                             # the render link was (re-)attached
+        self.video_lost_at = 0.0                         # the render link closed mid-session (0 = not lost)
+        self._reattaching = False
+        self._reattach_times: deque = deque()
+        self._silent_key = False
+        self._skip_at = 0.0
+        self.fault: dict | None = None                   # test faults (config test_faults): hold / garble until
 
     # -- outbound to the page
     def send(self, obj: dict) -> None:
@@ -751,12 +779,14 @@ class Session:
                 "react_mode": (self.cfg.get("react") or {}).get("mode", "rules"),
                 "motion2": r.get("motion2") if self.m2_allowed() else None,   # the renderer's real-human body layer (juno / junor) + its clip list; config "motion2": false = kill switch
                 "planner": bool(self.planner) and bool(getattr(getattr(self.hub, "planner", None), "enabled", True)),  # page switch AND hub planner
+                "stall_watch": stall_hub.page_cfg(self.sw),   # video stall watchdog: the page's switch + thresholds
                 **char_scene(self.character)}   # config.body / config.props (the muse only)
 
     def _emit(self, s0: int, pcm: bytes, voiced: bool) -> None:
         msg = wire.pack_audio(s0, pcm)
         if self.link and self.video_ok:
             self.link.send_audio(msg)
+            self.render_fed_at = time.monotonic()
         self.down.put(msg)
         self.m["audio_msgs"] += 1
 
@@ -769,6 +799,8 @@ class Session:
             self.live_at = time.monotonic()
             self.last_user_speech = self.live_at
             self.status("live", f"{CHARACTERS[self.character][0]} is listening" + ("" if self.video_ok else " (voice only — video unavailable)"))
+            if self.sw["enabled"]:
+                self.tasks.append(asyncio.create_task(self._stall_loop()))
             if self.direct:
                 self.tasks.append(asyncio.create_task(self._direct_clock()))
             else:
@@ -797,6 +829,7 @@ class Session:
             self.status("warming", f"loading {CHARACTERS[self.character][0]}", hub.char_eta())
             self.link = await hub.attach_render(self, ep)
             self.video_ok = True
+            self.attach_at = time.monotonic()
             self.rigdbg_push()                           # the panel opened before the renderer was ready
             self.w = int((self.link.ready_info or {}).get("width", self.w))
             self.h = int((self.link.ready_info or {}).get("height", self.h))
@@ -1055,6 +1088,7 @@ class Session:
         self._pt_pb = ((s0 + n) / SR, time.monotonic())  # playback_t fallback
         if self.link and self.video_ok:
             self.link.send_audio(wire.pack_audio(s0, pcm))
+            self.render_fed_at = time.monotonic()
         if self.rx is not None and not flags & 1:
             self.rx.add_own(s0, pcm)
 
@@ -1356,6 +1390,12 @@ class Session:
             self.on_rigdbg(m)
         elif t in ("motion2", "clip"):                             # body layer on/off + state, a library clip
             self.on_motion2(m)
+        elif t == "stall":                                         # the page's stall watchdog (app/stallwatch.js)
+            self._on_stall_report(m)
+        elif t == "stall_help":
+            self._on_stall_help(m)
+        elif t == "test_fault":
+            self._test_fault(m)
         elif t == "keyframe":
             self.m["keyframe_requests"] += 1
             if self.link and self.video_ok:
@@ -1678,6 +1718,178 @@ class Session:
             self.status("error", "switch failed: " + scrub(str(e))[:160])
             self.end("switch failed")
 
+    # -- video stall watchdog (app/stall_hub.py; the page side is app/stallwatch.js)
+    def _sw_event(self, ev: str, **kw) -> dict:
+        e = {"t": round(time.monotonic() - self.t_mono, 2), "ev": ev, **kw}
+        self.stall_events.append(e)
+        if len(self.stall_events) > 200:
+            del self.stall_events[:100]
+        return e
+
+    def _renderer_silent_s(self, now: float) -> float | None:
+        """Seconds without a video frame from the renderer while it is being fed audio; None = frames are not due (no
+        link, not fed: the page's tap stopped, e.g. a hidden page)."""
+        link = self.link
+        if not (link and self.video_ok and link.alive()) or now - self.render_fed_at > self.sw["audio_fresh_s"]:
+            return None
+        return now - max(link.last_frame_at, self.attach_at, self.live_at)
+
+    def _reattach_allowed(self, now: float) -> bool:
+        c, q = self.sw, self._reattach_times
+        while q and now - q[0] > c["reattach_window_s"]:
+            q.popleft()
+        return len(q) < int(c["reattach_max"]) and (not q or now - q[-1] >= c["reattach_gap_s"])
+
+    def _spawn_reattach(self, why: str) -> bool:
+        now = time.monotonic()
+        if self._reattaching or not self._reattach_allowed(now):
+            return False
+        self._reattach_times.append(now)
+        self.tasks.append(asyncio.create_task(self._reattach(why)))
+        return True
+
+    async def _stall_loop(self) -> None:
+        """1 s tick while live: renderer silent while fed -> keyframe, then re-attach; render link lost -> re-attach;
+        an unrecovered stall older than note_s -> one alert log line."""
+        c = self.sw
+        try:
+            while not self.ended.is_set():
+                await asyncio.sleep(1.0)
+                if self.stage != "live":
+                    self._silent_key = False
+                    continue
+                now = time.monotonic()
+                if self.link is None or not self.video_ok:
+                    if self.video_lost_at:
+                        lost = now - self.video_lost_at
+                        if lost >= c["relink_delay_s"]:
+                            self._spawn_reattach("render link lost")
+                        self._maybe_note("hub:lost:%d" % int(self.video_lost_at), lost, "the render link closed")
+                    continue
+                sil = self._renderer_silent_s(now)
+                if sil is None or sil < c["key_s"]:
+                    self._silent_key = False
+                    continue
+                if not self._silent_key:
+                    self._silent_key = True
+                    self.link.send_json({"type": "keyframe"})
+                    self._sw_event("renderer_silent", s=round(sil, 1), action="keyframe")
+                    log(f"session {self.sid[:6]} stall: no frame from the renderer for {sil:.1f} s while fed -> keyframe")
+                if sil >= c["reattach_s"]:
+                    self._spawn_reattach(f"renderer silent {sil:.1f} s")
+                self._maybe_note("hub:silent:%d" % int(now - sil), sil, "the renderer sends no frames")
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:  # noqa: BLE001
+            log(f"session {self.sid[:6]} stall loop failed: {type(e).__name__}: {e}")
+
+    async def _reattach(self, why: str) -> bool:
+        """Close the render link and attach a fresh one with this session's params (the session-start path). Never
+        creates, restarts or terminates the box: a box that is not running is left alone."""
+        if self._reattaching or self.ended.is_set() or self.stage != "live":
+            return False
+        self._reattaching = True
+        t0 = time.monotonic()
+        ok, err = False, ""
+        log(f"session {self.sid[:6]} stall: re-attaching the render link ({why})")
+        try:
+            st = self.hub.box.status().get("state")
+            if st != "running":
+                raise RuntimeError(f"render box {st}")
+            ep = await self.hub.box.wait_ready(15)
+            old, self.link = self.link, None
+            self.video_ok = False
+            async with self.hub.link_lock:
+                cur, self.hub.link = self.hub.link, None
+                for lk in {id(x): x for x in (old, cur) if x is not None}.values():
+                    await lk.close()
+            link = await self.hub.attach_render(self, ep)
+            if self.ended.is_set() or self.stage != "live":
+                raise RuntimeError("the session moved on")
+            self.link, self.video_ok = link, True
+            self.attach_at = time.monotonic()
+            self.video_lost_at = 0.0
+            self._silent_key = False
+            self.render_ready.append({**(link.ready_info or {}), "reattach": True, "why": why[:80]})
+            self.rigdbg_push()
+            self.surfaces_attach()
+            self.send(self.config_msg(link.ready_info))
+            self.status("live", f"{CHARACTERS[self.character][0]} is listening")
+            ok = True
+        except Exception as e:  # noqa: BLE001
+            err = scrub(str(e))[:160]
+            if not self.video_ok and not self.video_lost_at:
+                self.video_lost_at = time.monotonic()
+        finally:
+            self._reattaching = False
+        ms = round((time.monotonic() - t0) * 1000)
+        self._sw_event("reattach", why=why[:80], ok=ok, ms=ms, err=err or None)
+        self.send({"type": "stall_hub", "action": "reattach", "ok": ok})
+        log(f"session {self.sid[:6]} stall: re-attach {'ok' if ok else 'FAILED'} in {ms} ms ({why})" + (f": {err}" if err else ""))
+        return ok
+
+    def _maybe_note(self, key: str, age_s: float, what: str) -> None:
+        c = self.sw
+        if age_s < c["note_s"] or key in self._stall_noted:
+            return
+        self._stall_noted.add(key)
+        n = sum(1 for e in self.stall_events if e.get("ev") == "reattach")
+        text = (f"[avatar] the avatar video has been stalled for {age_s:.0f} s in a live session "
+                f"({what}); automatic recovery has not fixed it (hub re-attaches so far: {n}). The voice keeps working.")
+
+        rec = self.hub.stall_notes.note(c, text)
+        self.stall_notes.append({**rec, "t": round(time.monotonic() - self.t_mono, 2), "key": key})
+
+    def _on_stall_report(self, m: dict) -> None:
+        r = {k: m.get(k) for k in ("ev", "id", "cls", "t0_s", "dur_ms", "detect_ms", "steps", "fixed_by", "outcome",
+                                   "alerted", "luma")}
+        r["t"] = round(time.monotonic() - self.t_mono, 2)
+        self.stall_page.append(r)
+        if len(self.stall_page) > 300:
+            del self.stall_page[:100]
+        dur = float(r.get("dur_ms") or 0) / 1000
+        if r["ev"] == "close":                       # one log line per stall
+            log(f"session {self.sid[:6]} stall: {r.get('cls')} {r.get('outcome')} after {dur:.1f} s "
+                f"(detected at {float(r.get('detect_ms') or 0) / 1000:.1f} s; steps {','.join(map(str, r.get('steps') or [])) or '-'}; "
+                f"fixed by {r.get('fixed_by') or '-'})")
+        elif r["ev"] == "update" and r.get("outcome") == "open":
+            self._maybe_note(f"page:{r.get('id')}", dur, f"page: {r.get('cls')}, tried {','.join(map(str, r.get('steps') or []))}")
+
+    def _on_stall_help(self, m: dict) -> None:
+        now, step, cls = time.monotonic(), m.get("step"), str(m.get("cls") or "")[:20]
+        if step == "skip" or step == "hub":
+            sil = self._renderer_silent_s(now)
+            dead = self.link is None or not self.video_ok or not self.link.alive()
+            if step == "hub" and (dead or (sil is not None and sil >= 2.0) or cls == "static"):
+                ok = self._spawn_reattach(f"page asked ({cls})")
+                self._sw_event("page_hub", cls=cls, action="reattach" if ok else "reattach_not_allowed",
+                               renderer_silent_s=None if sil is None else round(sil, 1))
+                return
+            if now - self._skip_at < 1.5 or dead:
+                return
+            self._skip_at = now                      # downstream of the renderer: a fresh keyframe (the page has
+            self.link.send_json({"type": "keyframe"})   # already flushed its own reorder buffer)
+            self._sw_event("skip", by=step, cls=cls or None)
+
+    def _test_fault(self, m: dict) -> None:
+        if not self.hub.test_faults:
+            return
+        kind, now = str(m.get("kind") or ""), time.monotonic()
+        try:
+            secs = max(0.1, min(120.0, float(m.get("s") or 5)))
+        except (TypeError, ValueError):
+            secs = 5.0
+        self._sw_event("test_fault", kind=kind, s=secs)
+        log(f"session {self.sid[:6]} TEST FAULT {kind} {secs:.1f} s")
+        if kind in ("hold", "garble"):
+            self.fault = dict(self.fault or {}, **{kind + "_until": now + secs})
+        elif kind == "unlink" and self.link and self.link.ws is not None:
+            self.tasks.append(asyncio.create_task(self.link.ws.close()))
+        elif kind == "mute" and self.link:
+            self.link.fault_mute = True
+        elif kind == "static" and self.link:
+            self.link.fault_static = True
+
     # -- summaries
     def summary(self, full: bool = False) -> dict:
         ps = self.page_stats
@@ -1711,6 +1923,7 @@ class Session:
             "voice": "direct" if self.direct else "hub", "voice_mode": self.voice_mode, "rtc": self.rtc_calls[-6:],
             "playback": dict(self.pb), "page_usd": round(self.page_usd, 5),
             "suppressed_render_errors": self.suppressed_render_errors,
+            "stalls": stall_hub.summarize(self.stall_page, self.stall_events, self.stall_notes, last),   # stall watchdog
         }
         if self.rx is not None:
             out["react"] = self.rx.summary()
@@ -1752,6 +1965,8 @@ class Hub:
         os.makedirs(DATA, exist_ok=True)
         os.chmod(STATE, 0o700)
         self.cfg = self._load_cfg()
+        # stall watchdog test faults ({type:'test_fault'} from the page): a private test instance only, never a live service
+        self.test_faults = self.cfg.get("test_faults") is True
         self.secret = self._secret()
         self.spend = Spend(float(self.cfg["daily_cap_usd"]))
         bcfg = dict(self.cfg)
@@ -1762,6 +1977,7 @@ class Hub:
         self.history: deque = deque(maxlen=20)
         self.link: RenderLink | None = None
         self.link_lock = asyncio.Lock()
+        self.stall_notes = stall_hub.Notes(log)          # stall watchdog: one unrecovered-stall alert per 30 min at most
         self.http: aiohttp.ClientSession | None = None
         self.started = time.time()
         self.warm_task: asyncio.Task | None = None
@@ -1780,6 +1996,7 @@ class Hub:
                      "quiet.js",                       # talkativeness + quiet mode (controller; gate in voice.js)
                      "teach.js",                       # the chalkboard / TV performance (window.AvatarTeach)
                      "rigdebug.js",                    # the live rig debug panel (window.AvatarRigDebug; nothing runs until opened)
+                     "stallwatch.js",                  # video stall watchdog (window.AvatarStall; driven by the page's 250 ms timer)
                      "recorder.js"):                   # session recording (stage + both voices) -> the hub
             fp = os.path.join(HERE, name)
             if os.path.isfile(fp):
@@ -1942,6 +2159,13 @@ class Hub:
     def on_video(self, link: RenderLink, msg: bytes) -> None:
         s = self.session
         if s and link is s.link and s.stage in ("live", "switching") and not s.ended.is_set():
+            if s.fault is not None:                  # stall watchdog test faults (config test_faults only)
+                now = time.monotonic()
+                if s.fault.get("hold_until", 0) > now:
+                    s.m["fault_held"] = s.m.get("fault_held", 0) + 1
+                    return
+                if s.fault.get("garble_until", 0) > now:
+                    msg = stall_hub.garble(msg)
             s.down.put(msg)
             s.m["frames_fwd"] += 1
             if msg[1] & 1:
@@ -1998,6 +2222,9 @@ class Hub:
             s.surfaces.detach()
             s.errors.append("render link closed: " + link.err)
             s.send({"type": "status", "stage": "live", "detail": "video lost — voice continues"})
+            if s.sw["enabled"] and s.stage == "live" and not s._reattaching:   # stall watchdog: re-attach (_stall_loop)
+                s.video_lost_at = time.monotonic()
+                s._sw_event("link_closed", err=(link.err or "")[:80])
         if link is self.link:
             self.link = None
 

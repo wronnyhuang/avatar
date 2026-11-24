@@ -1,0 +1,32 @@
+<!doctype html><meta charset="utf-8"><title>Gemini mic resample (page wiring)</title>
+<script src="../app/voice.js"></script>
+<script>
+// voice.js in 'gemini' mode with a fake token door and a fake WebSocket: what the vendor socket receives from the mic.
+// The "microphone" = 1 kHz + 10 kHz tones (the 10 kHz one folds onto 6 kHz if the 24 -> 16 kHz step has no low-pass).
+window.run = async (micFir) => {
+  const ctx = new AudioContext({sampleRate: 24000}); await ctx.resume();
+  const d = ctx.createMediaStreamDestination();
+  for (const f of [1000, 10000]) { const o = ctx.createOscillator(); o.frequency.value = f; const g = ctx.createGain(); g.gain.value = 0.3; o.connect(g).connect(d); o.start(); }
+  const sent = []; let sock = null;
+  window.fetch = async () => ({ok: true, json: async () => ({token: 't', url: 'wss://example.invalid/ws', model: 'fake'})});
+  window.WebSocket = class { constructor() { this.readyState = 1; sock = this; setTimeout(() => this.onopen && this.onopen(), 0); }
+    send(s) { sent.push(s); } close() {} };
+  const opts = {mode: 'gemini', character: 'fox', ctx, micStream: d.stream, geminiUrl: 'x', gate: false, audible: () => false};
+  if (micFir !== null) opts.micFir = micFir;
+  const v = AvatarVoice.createVoice(opts);
+  v.start().catch(() => {});
+  for (let i = 0; i < 100 && !sock; i++) await new Promise(r => setTimeout(r, 20));
+  await new Promise(r => setTimeout(r, 100));
+  sock.onmessage({data: JSON.stringify({setupComplete: {}})});
+  await new Promise(r => setTimeout(r, 1500));
+  const audio = sent.filter(s => s.indexOf('"realtimeInput":{"audio"') >= 0).map(s => JSON.parse(s).realtimeInput.audio);
+  const pcm = audio.map(a => { const b = atob(a.data); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new Int16Array(u.buffer); });
+  const all = new Float64Array(pcm.reduce((n, p) => n + p.length, 0)); let k = 0; for (const p of pcm) for (const s of p) all[k++] = s / 32768;
+  const goertzel = (x, f) => { const w = 2 * Math.PI * f / 16000; let re = 0, im = 0; for (let i = 0; i < x.length; i++) { re += x[i] * Math.cos(w * i); im -= x[i] * Math.sin(w * i); } return 2 * Math.hypot(re, im) / x.length; };
+  const tail = all.subarray(Math.min(1600, all.length));
+  const st = v.stats();
+  try { v.stop(); } catch (e) {} await ctx.close();
+  return {n: audio.length, lens: [...new Set(pcm.map(p => p.length))], mimes: [...new Set(audio.map(a => a.mimeType))], nonAudio: sent.filter(s => s.indexOf('"t":"cfg"') >= 0).length,
+    a1k: goertzel(tail, 1000), a6k: goertzel(tail, 6000), mic_rs: st.mic_rs || null};
+};
+</script>

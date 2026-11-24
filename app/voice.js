@@ -69,11 +69,24 @@ class Meter extends AudioWorkletProcessor {
   }
 }
 // Gemini Live: the (gated) mic as 16 kHz PCM16, 20 ms per message
+// The context rate -> 16 kHz goes through the anti-aliased polyphase resampler (__mkResampler, ~1.2 ms delay); the old
+// sample picking (no low-pass: 8-12 kHz folded onto the fricative band) stays behind processorOptions {fir: false} (?micfir=0).
 class Pcm16Tap extends AudioWorkletProcessor {
-  constructor() { super(); this.r = sampleRate / 16000; this.acc = 0; this.buf = new Int16Array(320); this.n = 0; }
+  constructor(opts) { super(); const po = (opts && opts.processorOptions) || {};
+    this.r = sampleRate / 16000; this.acc = 0; this.buf = new Int16Array(320); this.n = 0;
+    this.rs = po.fir !== false && typeof __mkResampler === 'function' ? __mkResampler(sampleRate, 16000) : null;
+    this.y = this.rs ? new Float32Array(this.rs.outMax(128)) : null;
+    this.port.postMessage({t: 'cfg', fir: !!this.rs, taps: this.rs ? this.rs.taps : 0, delayMs: this.rs ? this.rs.delaySec * 1000 : 0, rate: sampleRate}); }
   process(inputs, outputs) {
     const x = inputs[0] && inputs[0][0]; const o = outputs[0] && outputs[0][0]; if (o) o.fill(0);
     if (!x) return true;
+    if (this.rs) {
+      if (this.y.length < this.rs.outMax(x.length)) this.y = new Float32Array(this.rs.outMax(x.length));   // only if the quantum grows
+      const y = this.y, m = this.rs.run(x, x.length, y);
+      for (let i = 0; i < m; i++) { const v = y[i] > 1 ? 1 : y[i] < -1 ? -1 : y[i]; this.buf[this.n++] = Math.round(v * 32767);
+        if (this.n === 320) { this.port.postMessage(this.buf); this.n = 0; } }   // postMessage copies (structured clone)
+      return true;
+    }
     for (let i = 0; i < x.length; i++) { this.acc += 1; if (this.acc >= this.r) { this.acc -= this.r;
       const v = Math.max(-1, Math.min(1, x[i])); this.buf[this.n++] = v * 32767;
       if (this.n === 320) { this.port.postMessage(this.buf.slice(0)); this.n = 0; } } }
@@ -209,10 +222,65 @@ class Gate extends AudioWorkletProcessor {
 }
 registerProcessor('avatar-mic-gate', Gate);
 `;
+  /* makeResampler(inRate, outRate, opt) — anti-aliased streaming rational resampler (polyphase windowed-sinc FIR, Kaiser
+     window). SELF-CONTAINED (no outer references): its source text rides into the audio worklet (workletSource below) and
+     the same function runs on the main thread / under node (tests/mic_resample_test.cjs).
+     Ratio L/M = outRate/inRate in lowest terms; one prototype low-pass at L*inRate, split into L phases of K taps; an
+     integer phase accumulator picks the phase of each output, so the output count is exact (no drift) and the result does
+     not depend on how the input is split into blocks. Band edges scale with min(inRate, outRate): pass to 0.425x
+     (6.8 kHz for a 16 kHz side), stop from 0.5375x (8.6 kHz), atten 70 dB target -> group delay ~1.2 ms at any input rate.
+     run(inp, n, out) consumes n samples of inp and writes the outputs to out (Float32Array, >= outMax(n) long), returns
+     the count. No allocation after construction. inRate == outRate: a copy. */
+  function makeResampler(inRate, outRate, opt) {
+    opt = opt || {};
+    const fin = Math.round(inRate), fout = Math.round(outRate);
+    const gcd = (a, b) => { while (b) { const t = a % b; a = b; b = t; } return a; };
+    const g = gcd(fin, fout), L = fout / g, M = fin / g;
+    if (L === M) return {L: 1, M: 1, K: 0, taps: 0, delaySec: 0, outMax: n => n,
+      run(inp, n, out) { for (let i = 0; i < n; i++) out[i] = inp[i]; return n; }, reset() {}};
+    const lo = Math.min(fin, fout), pe = (opt.pass || 0.425) * lo, se = (opt.stop || 0.5375) * lo, A = opt.atten || 70;
+    const P = Math.min(L, opt.maxPhases || 1024);          // phase table size (exact when L <= maxPhases, else nearest phase)
+    const fs = P * fin, fc = (pe + se) / 2 / fs, dw = 2 * Math.PI * (se - pe) / fs;
+    const K = Math.max(2, Math.ceil((Math.ceil((A - 7.95) / (2.285 * dw)) + 1) / P)), N = K * P;
+    const beta = A > 50 ? 0.1102 * (A - 8.7) : A >= 21 ? 0.5842 * Math.pow(A - 21, 0.4) + 0.07886 * (A - 21) : 0;
+    const i0 = x => { let s = 1, t = 1; for (let k = 1; k < 60; k++) { t *= (x / (2 * k)) * (x / (2 * k)); s += t; if (t < 1e-12 * s) break; } return s; };
+    const c = (N - 1) / 2, ib = i0(beta), h = new Float64Array(N);
+    for (let m = 0; m < N; m++) {
+      const x = m - c, r = x / c, w = i0(beta * Math.sqrt(Math.max(0, 1 - r * r))) / ib;
+      h[m] = (x === 0 ? 2 * fc : Math.sin(2 * Math.PI * fc * x) / (Math.PI * x)) * w;
+    }
+    // phase p, tap j (reversed so the dot product runs forward over the history): H[p*K + j] = h[p + (K-1-j)*P], unit DC gain per phase
+    const H = new Float32Array(P * K);
+    for (let p = 0; p < P; p++) {
+      let s = 0; for (let k = 0; k < K; k++) s += h[p + k * P];
+      for (let k = 0; k < K; k++) H[p * K + (K - 1 - k)] = h[p + k * P] / s;
+    }
+    const hist = new Float32Array(2 * K);                   // each sample written twice: a window of K is always contiguous
+    let w = K - 1, ph = 0;
+    return {L, M, K, taps: N, P, delaySec: c / fs, outMax: n => Math.ceil(n * L / M) + 2,
+      run(inp, n, out) {
+        let o = 0;
+        for (let i = 0; i < n; i++) {
+          w = w + 1 === K ? 0 : w + 1; const x = inp[i]; hist[w] = x; hist[w + K] = x;
+          while (ph < L) {
+            const b = (P === L ? ph : Math.floor(ph * P / L)) * K; let acc = 0;
+            for (let j = 0; j < K; j++) acc += H[b + j] * hist[w + 1 + j];
+            out[o++] = acc; ph += M;
+          }
+          ph -= L;
+        }
+        return o;
+      },
+      reset() { hist.fill(0); w = K - 1; ph = 0; }};
+  }
+  // the exact module text the page loads into the AudioWorklet (also what tests evaluate)
+  function workletSource() {
+    return '\nconst __mkResampler = ' + makeResampler.toString() + ';\n' + WORKLET;
+  }
   const loaded = new WeakMap();
   async function ensureWorklet(ctx) {
     if (!loaded.has(ctx)) {
-      const u = URL.createObjectURL(new Blob([WORKLET], {type: 'application/javascript'}));
+      const u = URL.createObjectURL(new Blob([workletSource()], {type: 'application/javascript'}));
       loaded.set(ctx, ctx.audioWorklet.addModule(u));
     }
     return loaded.get(ctx);
@@ -820,9 +888,11 @@ registerProcessor('avatar-mic-gate', Gate);
       ws.onclose = ev => { log('ws_close', {code: ev.code, reason: String(ev.reason || '').slice(0, 120)});
         if (V.stopping) return; if (V.ready) drop('gemini closed ' + ev.code); else emitState('error', 'Gemini: ' + (String(ev.reason || '').slice(0, 100) || ('closed ' + ev.code))); };
       const ms = await micForVendor();
-      if (ms) { const src = ctx.createMediaStreamSource(ms), tap = new AudioWorkletNode(ctx, 'avatar-pcm16-tap', {numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1]});
+      if (ms) { const src = ctx.createMediaStreamSource(ms), tap = new AudioWorkletNode(ctx, 'avatar-pcm16-tap', {numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1],
+          processorOptions: {fir: o.micFir !== false}});   // ?micfir=0: the old unfiltered sample picking (A/B)
         const sink = ctx.createGain(); sink.gain.value = 0; src.connect(tap); tap.connect(sink).connect(ctx.destination);
-        tap.port.onmessage = ev => { if (V.ready && ws.readyState === 1) ws.send('{"realtimeInput":{"audio":{"mimeType":"audio/pcm;rate=16000","data":"' + b64(ev.data) + '"}}}'); };
+        tap.port.onmessage = ev => { const d = ev.data; if (d && d.t === 'cfg') { V.micRs = d; log('mic_resampler', d); return; }
+          if (V.ready && ws.readyState === 1) ws.send('{"realtimeInput":{"audio":{"mimeType":"audio/pcm;rate=16000","data":"' + b64(d) + '"}}}'); };
         V.gemTap = {src, tap, sink}; }
       setTimeout(() => { if (!V.ready && V.state === 'connecting') { emitState('error', 'Gemini setup timeout'); stop(); } }, 12000);
     }
@@ -1396,7 +1466,7 @@ registerProcessor('avatar-mic-gate', Gate);
       micMuted: () => V.micMuted, speakerMuted: () => V.spkMuted,
       setQuiet, setTalk, respondNow, quiet: () => ({on: V.q.on, wake: V.q.wake, muted: V.q.muted, ...V.q.n}), canRespond, talk: () => ({...V.talk}),
       lastSegment: () => V.lastSeg || null,
-      stats: () => ({vision_frames: V.frames || 0, gem_tools: GEM ? !!V.gemTools : undefined, gate: V.gate || null, gate_on: !!V.gateNodes, mic_settings: V.micSettings || null, mode, model: V.model || (MOCK ? 'mock' : null), vad: o.vad || null, state: V.state,
+      stats: () => ({vision_frames: V.frames || 0, gem_tools: GEM ? !!V.gemTools : undefined, mic_rs: V.micRs ? {fir: V.micRs.fir, taps: V.micRs.taps, delay_ms: Math.round(V.micRs.delayMs * 100) / 100, rate: V.micRs.rate} : undefined, gate: V.gate || null, gate_on: !!V.gateNodes, mic_settings: V.micSettings || null, mode, model: V.model || (MOCK ? 'mock' : null), vad: o.vad || null, state: V.state,
         startup_ms: V.startupMs, create_ms: V.createMs, turns: V.turns.slice(-100), calls: V.calls.slice(-100),
         events: V.events, evlog: V.evlog.slice(window.__avEvlogAll ? 0 : -200), live_seconds: V.liveSeconds, usage_n: V.usage.length,
         mic_muted: V.micMuted, spk_muted: V.spkMuted, quiet: {on: V.q.on, wake: V.q.wake, muted: V.q.muted, ...V.q.n}, shield: {on: V.sh.on, n: V.sh.n, held: V.sh.held, other: V.sh.other}, talk_level: V.talk.level,
@@ -1408,5 +1478,5 @@ registerProcessor('avatar-mic-gate', Gate);
     return api;
   }
 
-  window.AvatarVoice = {createVoice, createPlayout, TSR, SILENT};   // SILENT for the server-relayed notes
+  window.AvatarVoice = {createVoice, createPlayout, TSR, SILENT, makeResampler, workletSource};   // SILENT for the server-relayed notes
 })();

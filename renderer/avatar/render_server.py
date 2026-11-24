@@ -449,7 +449,8 @@ class Session:
                             "lookahead_ms": self.cfg["lookahead_ms"], "encoder_errors": info.get("errors") or None,
                             "rig_params": RIG_PARAMS,
                             **({"motion2": self.ml.info()} if self.ml is not None else {}),   # motion2
-                            "encoder_open_ms": info.get("open_ms"), "encoder_fallback": info.get("fallback")})
+                            "encoder_open_ms": info.get("open_ms"), "encoder_fallback": info.get("fallback"),
+                            "encoder_preset": info.get("preset")})        # libx264's preset (None: NVENC / JPEG)
             with self.cond:
                 self.engine_ok = True
                 self.key_req = True
@@ -736,6 +737,8 @@ class Session:
                 "inflight": inf, "lag_ms": m(s["lag"]), "lag_p95": p(s["lag"], 95), "service_ms": m(s["svc"]),
                 "audio_ahead_ms": None if ahead is None else round(ahead, 1), "kbps": round(8 * s["bytes"] / dt / 1000, 1),
                 "keyframes": s["keys"], "encoder": self.enc_info.get("encoder"), "out_queue": self.out.qsize(),
+                "encoder_preset": self.enc_info.get("preset"),                  # libx264 preset in use (None: NVENC)
+                "encoder_preset_guard": bool(self.enc_info.get("preset_guard")),  # the slow-CPU guard switched it
                 "rig_active": self.rig.rig_active(mono()), "rig_msgs": int(self.totals["rig_msgs"]),
                 "surfaces": dict(self.surf.stats),
                 **({"motion2": self.ml.stats()} if self.ml is not None else {})}

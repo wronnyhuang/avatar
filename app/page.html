@@ -252,7 +252,7 @@ registerProcessor('avatar-io', IO);
 const S = {
   live: false, starting: false, sid: null, ctx: null, node: null, stream: null, src: null,
   cfg: null, base: null, D: 0.3, want: 1, got: new Map(), lost: new Set(), gapSince: 0,
-  dec: null, decCodec: null, needKey: true, frames: [], drawn: 0, drawnT: null,
+  dec: null, decCodec: null, needKey: true, frames: [], drawn: 0, drawnT: null, decOut: 0,   // decOut: decoded frames (stall watchdog)
   micSeq: 0, upQ: [], ctlQ: [], upInflight: 0, stage: '', ended: false,
   wst: null, voicedRanges: [], userEndCt: null, prevTurnCt: -1, turnsNew: [], lastFA: null,
   st: {late: 0, dropped: 0, decErr: 0, keyReq: 0, pollErr: 0, upErr: 0, framesIn: 0, skippedSeq: 0, dDelta: 0},
@@ -295,7 +295,18 @@ const DS = (() => {     // 24 kHz -> 16 kHz (x2/3): windowed-sinc low-pass at 7.
     for (let k = 0; k < T; k++) h[k] /= sum; return h; };
   return {T, H, h0: mk(0), h1: mk(0.5), tail: new Float32Array(T), next: T};
 })();
+// The 16-tap filter above lets 8.6-10 kHz through at only -20..-44 dB (aliases onto 6-7.4 kHz) and is -3.9 dB at 6.8 kHz;
+// the hub's ASR mic now goes through voice.js's polyphase resampler (pass to 6.8 kHz, >= 60 dB from 8.6 kHz, ~1.2 ms).
+// ?micfir=0 = the old filter (same switch as the Gemini mic). 480 in -> exactly 320 out per chunk.
+const MIC16 = {rs: null, x: null, y: null};
 function down16(pcm) {
+  if (Q.get('micfir') !== '0' && window.AvatarVoice && window.AvatarVoice.makeResampler) {
+    if (!MIC16.rs) MIC16.rs = window.AvatarVoice.makeResampler(24000, 16000);
+    if (!MIC16.x || MIC16.x.length !== pcm.length) { MIC16.x = new Float32Array(pcm.length); MIC16.y = new Float32Array(MIC16.rs.outMax(pcm.length)); }
+    MIC16.x.set(pcm); const n = MIC16.rs.run(MIC16.x, pcm.length, MIC16.y), out = new Int16Array(n);
+    for (let i = 0; i < n; i++) { const v = Math.round(MIC16.y[i]); out[i] = v > 32767 ? 32767 : v < -32768 ? -32768 : v; }
+    return out;
+  }
   const {T, H} = DS, buf = new Float32Array(DS.tail.length + pcm.length);
   buf.set(DS.tail); for (let i = 0; i < pcm.length; i++) buf[DS.tail.length + i] = pcm[i];
   const out = []; let p = DS.next;
@@ -506,6 +517,7 @@ function makeVoice() {
     geminiUrl: url('api/gemini', {sid: S.sid}), visionFps: Q.get('vfps') !== null ? +Q.get('vfps') : 0,   // Gemini 3.8 Live history: D.history.filter(x => x.text).slice(-20),
     renewMs: Q.get('renew_s') ? +Q.get('renew_s') * 1000 : 0, planner: plannerReq(),
     gate: Q.get('gate') !== '0', gateRef: D.play ? D.play.out : null, hardDuplex: $('eg').checked, audible: () => !!(D.play && D.play.avatarVoice().voiced), effort: Q.get('effort') || '', style: Q.get('style') || '', early: Q.get('early') !== '0',
+    micFir: Q.get('micfir') !== '0',   // the Gemini mic's anti-aliased 16 kHz resample; ?micfir=0 = the old sample picking (A/B)
     onState: (st, d) => {
       if (st === 'live' && D.alog && v.sendNote) { try { v.sendNote(D.alog.summary()); D.alogNoteVer = D.alog.version(); } catch (e) {} }   // speech
       if (D.voice !== v) return;
@@ -1322,6 +1334,7 @@ async function start(quiet) {
     for (let lane = 0; lane < (XL.legacy ? 2 : XL.lanes); lane++) exchangeLoop(my, lane);
     clearInterval(XL.kickTimer); if (XL.kick) XL.kickTimer = setInterval(() => xlKick(my), 10);
     statsLoop(my);
+    S.videoLost = false; S.stageDetail = ''; swStart(my);   // stall watchdog
     wakeLock(true);
     if (S.direct) await startDirect(vmode);      // the voice dials while the renderer warms (video joins when ready)
     recBegin();                                  // rec: record this session to the server
@@ -1364,6 +1377,7 @@ async function quietRestart(why) {
 }
 
 function stopLocal(quiet) {
+  swStop();                                                     // stall watchdog
   if (window.AvatarRec) { try { AvatarRec.end(quiet ? 'reconnect' : 'stop'); } catch (e) {} }   // rec: before the mic / voice go
   if (!quiet) wakeLock(false);
   if (D.voice) { try { D.voice.stop(); } catch (e) {} D.voice = null; }
@@ -1650,7 +1664,7 @@ function makeDecoder(codec) {
     output: f => {
       if (my !== gen.n) { f.close(); return; }
       const t = f.timestamp / 1e6;
-      createImageBitmap(f).then(bmp => { f.close(); addFrame(t, bmp); }, () => { f.close(); S.st.decErr++; });
+      S.decOut++; createImageBitmap(f).then(bmp => { f.close(); addFrame(t, bmp); }, () => { f.close(); S.st.decErr++; });
     },
     error: e => { S.st.decErr++; console.warn('decoder', e); if (S.dec === d) { S.dec = null; S.needKey = true; requestKey(); } },
   });
@@ -1677,7 +1691,7 @@ function onVideo(m) {
   const data = m.subarray(16);
   S.st.framesIn++;
   if (flags & 2) {   // JPEG
-    createImageBitmap(new Blob([data], {type: 'image/jpeg'})).then(bmp => addFrame(t, bmp), () => S.st.decErr++);
+    createImageBitmap(new Blob([data], {type: 'image/jpeg'})).then(bmp => { S.decOut++; addFrame(t, bmp); }, () => S.st.decErr++);
     return;
   }
   if (typeof VideoDecoder === 'undefined') return;
@@ -1764,12 +1778,65 @@ function tick(now) {
 }
 requestAnimationFrame(tick);
 
+/* stall watchdog (app/stallwatch.js): a 250 ms timer reads the frame counters (received / decoded / drawn) and a 32x18 grey
+   signature of the canvas, finds a stalled or frozen picture, runs the recovery ladder and reports each stall (and each
+   expected no-video wait) to the hub; nothing on the per-frame path. Off: ?stall=0 or config stall_watch.enabled false. */
+const SWP = {w: null, timer: 0, sc: null, sg: null, cost: {n: 0, ms: 0, max: 0}, alertText: null};
+function swOn() { return !!window.AvatarStall && Q.get('stall') !== '0' && !FLASH && !(S.cfg && S.cfg.stall_watch && S.cfg.stall_watch.enabled === false); }
+function swSig() {
+  if (!S.drawn || (S.cfg && S.cfg.stall_watch && S.cfg.stall_watch.content === false) || Q.get('stallcontent') === '0') return undefined;
+  if (!SWP.sc) { SWP.sc = document.createElement('canvas'); SWP.sc.width = 32; SWP.sc.height = 18; SWP.sg = SWP.sc.getContext('2d', {willReadFrequently: true}); }
+  const t0 = performance.now();
+  let sig;
+  try { sig = AvatarStall.signature(cv, SWP.sg, 32, 18); } catch (e) { return undefined; }
+  const ms = performance.now() - t0; SWP.cost.n++; SWP.cost.ms += ms; SWP.cost.max = Math.max(SWP.cost.max, ms);
+  return sig;
+}
+function swStart(my) {
+  swStop();
+  if (!swOn()) return;
+  const c = Object.assign({}, (S.cfg && S.cfg.stall_watch) || {});
+  // this page has no separate video socket (the exchange lanes carry the video): no 'reopen' step
+  if (!c.steps) c.steps = AvatarStall.DEFAULTS.steps.filter(x => x[0] !== 'reopen');
+  SWP.w = AvatarStall.create({cfg: c, actions: {
+    keyframe: st => { if (st.cls === 'not_decoded' && S.dec) { try { S.dec.close(); } catch (e) {} S.dec = null; } S.needKey = true; requestKey(); },
+    resync: () => {                                // skip to live: drop the reorder buffer, reset the video lag, ask for an IDR
+      for (const f of S.frames) { try { f.bmp.close(); } catch (e) {} } S.frames = []; S.drawnT = null;
+      S.vlag = 0; S.vlEx = []; S.needKey = true; requestKey(); sendCtl({type: 'stall_help', step: 'skip'}); },
+    hub: st => sendCtl({type: 'stall_help', step: 'hub', cls: st.cls}),
+    alert: on => {
+      const el = $('status');
+      if (on) { SWP.alertText = el.textContent; setStatus('Live — video stalled, reconnecting…', 'live'); }
+      else if (/video stalled/.test(el.textContent)) setStatus(SWP.alertText || 'Live', 'live');
+    },
+    report: r => sendCtl(Object.assign({type: 'stall'}, r)),
+    log: m => console.info('stallwatch: ' + m)}});
+  const step = () => {
+    if (gen.n !== my || !SWP.w) return;
+    const hidden = document.visibilityState !== 'visible';
+    SWP.w.tick(performance.now(), {live: S.live, stage: S.stage, detail: S.stageDetail || '', hidden,
+      video: S.cfg && S.cfg.video === false || S.videoLost ? false : undefined,
+      recv: S.st.framesIn, dec: S.decOut, drawn: S.drawn, sig: hidden || S.stage !== 'live' ? null : swSig()});
+  };
+  SWP.timer = setInterval(step, SWP.w.cfg.tick_ms);
+}
+function swStop() { if (SWP.timer) clearInterval(SWP.timer); SWP.timer = 0; if (SWP.w) { try { SWP.w.end(performance.now()); } catch (e) {} } SWP.w = null; }
+function swStats() {
+  if (!SWP.w) return {};
+  const s = SWP.w.stats(performance.now());
+  return {stall_ms: s.stall_ms, stalls: s.stalls, longest_stall_ms: s.longest_stall_ms, recoveries: s.recoveries,
+    stall: {open: s.open, wait: s.wait, wait_ms: s.wait_ms, unrecovered: s.unrecovered, steps: s.steps, rate_limited: s.rate_limited,
+      sig: SWP.cost.n ? {n: SWP.cost.n, mean_us: Math.round(SWP.cost.ms / SWP.cost.n * 1000), max_us: Math.round(SWP.cost.max * 1000)} : null}};
+}
+
+
 // ------------------------------------------------------------------ JSON from the server
 let capLine = {you: '', avatar: ''}, capWho = null;
 function onJSON(j) {
   switch (j.type) {
     case 'status': onStatus(j); break;
     case 'config': applyConfig(j); break;
+    case 'stall_hub': if (SWP.w) SWP.w.hubAction(performance.now(), j.action, j.ok); break;   // stall watchdog: the hub re-attached
     case 'affect': onAffect(j); break;                          // devloop: feelings on the face / body
     case 'board_item': case 'board_plan_done': case 'board_plan_error': case 'board_state': case 'teach_abort':   // teach
       if (D.teach) D.teach.onHub(j); break;
@@ -1883,6 +1950,7 @@ function onTurn(j) {
 
 function applyConfig(c) {
   S.cfg = Object.assign(S.cfg || {}, c);
+  if (c.video === true) S.videoLost = false;       // stall watchdog: a (re-)attached render link
   // motion: the character's body + scene for the move engine (absent = the older characters: engine off)
   if (D.motion && D.motion.setProps && 'character' in c) { try { D.motion.setProps(c.props || null, c.body || null, c.character); D.propsFor = c.character; } catch (e) { console.warn('setProps', e); } }
   if ('character' in c) teachConfig(c);                                                    // teach
@@ -1892,7 +1960,8 @@ function applyConfig(c) {
 }
 
 function onStatus(j) {
-  S.stage = j.stage;
+  S.stage = j.stage; S.stageDetail = j.detail || '';
+  if (j.stage === 'live') S.videoLost = /video lost/i.test(j.detail || '');   // stall watchdog: the hub lost its render link
   warmBar(j.stage === 'warming', null, j.eta_s);
   const name = charName((S.cfg && S.cfg.character) || sel);
   warmStatus(j);                                // honest warm-up text (elapsed counter once the estimate is overrun) + the voice's body note
@@ -1946,7 +2015,7 @@ async function statsLoop(my) {
       audio_buf_ms: w.hi > 0 && w.playing >= 0 ? Math.round((w.hi - w.playing) / SR * 1000) : null,
       underruns: w.under || 0, underrun_ms: Math.round(w.underMs || 0), late_audio: w.late || 0,
       delay_ms: Math.round(S.D * 1000), delay_added_ms: S.st.dDelta, out_latency_ms: Math.round(((S.ctx && S.ctx.outputLatency) || 0) * 1000),
-      echo_guard: $('eg').checked, turns: S.turnsNew.splice(0)};
+      echo_guard: $('eg').checked, turns: S.turnsNew.splice(0), hidden: document.visibilityState !== 'visible', ...swStats()};   // stall watchdog
     if (S.direct) {
       const ps = D.play ? D.play.stats() : {};
       msg.voice = {mode: D.mode, ...ps, video_rtt_ms: D.rtt.length ? {p50: r1(pct(D.rtt.slice(-200), .5)), p90: r1(pct(D.rtt.slice(-200), .9)), n: D.rtt.length} : null,
@@ -2383,6 +2452,8 @@ Object.assign(window.__avatar, {
     micTrack: S.stream && S.stream.getAudioTracks()[0] ? S.stream.getAudioTracks()[0].label : null,
     camTrack: D.perc && D.perc._state && D.perc._state.stream && D.perc._state.stream.getVideoTracks()[0] ? D.perc._state.stream.getVideoTracks()[0].label : null}),
   switchMic: id => { $('micsel').value = id; return $('micsel').onchange(); }, switchCam: id => { $('camsel').value = id; return $('camsel').onchange(); }});
+window.__avatar.stall = () => (SWP.w ? Object.assign(swStats(), SWP.w.records()) : null);   // stall watchdog
+window.__avatar.stallFault = (kind, s) => sendCtl({type: 'test_fault', kind, s});            // honoured only by a hub with config test_faults: true
 window.__avatar.rigdbg = () => (window.AvatarRigDebug ? AvatarRigDebug.snapshot() : null);   // rig debug panel
 // the per-frame rig recorder (tests): rigTrace(true) starts, rigTrace(false) stops and returns, rigTrace() = so far
 function rigTraceRow(rig, rt) {
