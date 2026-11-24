@@ -50,6 +50,8 @@
 #define LIP_TILT 0.30
 #define LIP_DEPTH (0.26*LIPU)                       // lead: the cavity ends in front of MR_FACE_ZMIN, so its back wall is painted dark like the rest
 #define LIP_W 0.285
+#define LIP_NARROW 0.78                             // the mouth against this face (engine/lips.glsl)
+#define LIP_REACH 1.12                              // how far a spread or a grin may carry the corners
 #define LIP_REST_OPEN (0.20 + 0.14*clamp(uP[P_SMILE], 0.0, 1.0))*(1.0 - clamp(uP[P_BROW_KNIT], 0.0, 1.0)*(1.0 - smoothstep(0.0, 0.5, uP[P_SMILE])))
 #define LIP_HU (0.030*LIPU)
 #define LIP_HL (0.040*LIPU)                         // a thin lower lip: the open mouth shows the dark inside, not a snow roll

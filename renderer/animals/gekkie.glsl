@@ -160,6 +160,7 @@
 #define LIP_O vec3(0.0,-0.305,0.535)
 #define LIP_TILT 0.16
 #define LIP_W 0.440
+#define LIP_REACH 1.08                              // how far a spread or a grin may carry the corners
 #define LIP_HU (0.020*LIPU)
 #define LIP_HL (0.018*LIPU)
 #define LIP_TU (0.005*LIPU)                          // hd: the lips lie flush (no applied roll)

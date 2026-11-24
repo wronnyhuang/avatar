@@ -39,6 +39,8 @@
 #define LIP_O vec3(0.0,-0.115,0.515)
 #define LIP_TILT 0.08
 #define LIP_W 0.195
+#define LIP_NARROW 0.78                             // the mouth against this face (engine/lips.glsl)
+#define LIP_REACH 1.20                              // how far a spread or a grin may carry the corners
 #define LIP_HU (0.024*LIPU)
 #define LIP_HL (0.028*LIPU)
 #define LIP_TU (0.008*LIPU)

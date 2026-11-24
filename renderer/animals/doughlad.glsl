@@ -39,6 +39,7 @@
 #define LIP_O vec3(0.0,-0.150,0.492)
 #define LIP_TILT 0.10
 #define LIP_W 0.130
+#define LIP_REACH 1.15                              // how far a spread or a grin may carry the corners
 #define LIP_HU (0.030*LIPU)
 #define LIP_HL (0.040*LIPU)
 #define LIP_TU (0.012*LIPU)
