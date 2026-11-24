@@ -147,6 +147,20 @@ float gEmTeeth = 0.0, gEmSkew = 0.0;      // the emotion columns that bare the t
 #ifndef LIP_FLOW
 #define LIP_FLOW 1.0                     // how far the skin's paint follows the jaw and the corners
 #endif
+// ---- mouth width against the face.  Both are OFF unless a character defines them: nothing changes for the others.
+//    LIP_NARROW  float  scales the half width of the mouth at rest and in every viseme and expression (corners only:
+//                       lip height, fullness, the opening's height, teeth and tongue keep the proportions set from LIP_W).
+//                       Use it when a face's mouth reads too wide; < 1 narrows.
+//    LIP_REACH   float  soft ceiling on how far a spread ("ee"), a smile or a wide expression may carry the corners, in
+//                       resting half widths (after LIP_NARROW).  1.15 = never more than about 15% wider than at rest.
+//                       Use it when the resting mouth is right but talking / grinning runs into the cheeks or the silhouette.
+#ifdef LIP_NARROW
+#define LIP_W0 (LIP_W*(LIP_NARROW))      // the resting half width as drawn
+#define LIP_BENDK (LIP_NARROW)           // the corners' lift keeps its proportion to the width: a smile stays a curve, not a V
+#else
+#define LIP_W0 LIP_W
+#define LIP_BENDK 1.0
+#endif
 #ifndef LIP_SMIRK
 #define LIP_SMIRK 0.15                   // how far smirk = 1 slides the mouth, in LIP_W
 #endif
@@ -231,6 +245,16 @@ void lipsInit(){
 
   // corners in x.  A full pucker draws them in to the rim of a small opening, and the opening sets the size of that rim
   gLW = LIP_W*(1.0 + LIP_SPREAD*sp - (LIP_PUCKER - 0.30*open)*pk + 0.05*smile + 0.03*cheek)*(1.0 - 0.10*open*(1.0 - pk))*(1.0 - 0.04*press);
+#ifdef LIP_NARROW
+  gLW *= (LIP_NARROW);
+#endif
+#ifdef LIP_REACH
+  { // smooth ceiling: follows gLW well below the cap, levels off at LIP_REACH*LIP_W0, no kink for the lip sync to pop on
+    float cap = (LIP_REACH)*LIP_W0, k = 0.12*LIP_W0;
+    float h = clamp(0.5 + 0.5*(cap - gLW)/k, 0.0, 1.0);
+    gLW = mix(cap, gLW, h) - k*h*(1.0 - h);
+  }
+#endif
 
   // the opening.  A round O needs height as well as narrowness, so the pucker pulls both heights to the width
   float au = LIP_W*(0.26*LIP_OPEN_Y*open + LIP_LIFT*up);
@@ -343,7 +367,7 @@ float lipsEval(vec3 q, float host){
   float sx = clamp(x/gLW, -1.0, 1.0);
 
   // ---- the mid line, and where it sits in y.  It levels off past the corner, with no kink.  A smirk lifts one corner
-  float v = y - gLYC - gLBend*(1.0 + 0.85*gLSm*sx)*uu/sqrt(1.0 + 0.39*uu*uu) + gLTub*lipsBell(x/(0.032*LIPU)) - gLSm*0.095*LIP_W*sx;
+  float v = y - gLYC - LIP_BENDK*gLBend*(1.0 + 0.85*gLSm*sx)*uu/sqrt(1.0 + 0.39*uu*uu) + gLTub*lipsBell(x/(0.032*LIPU)) - gLSm*0.095*LIP_W*sx;
   gLV = v; gLU = u;
 
   // ---- signed distance to the lens, with its gradient
@@ -410,7 +434,7 @@ float lipsEval(vec3 q, float host){
   float ws = mix(0.0045*LIPU, 0.80*(gLW + LIP_HU), gLCornT);   // a ring blends upper into lower around its sides
   float wu = smoothstep(-ws, ws, v);
   gLUpper = wu;
-  float rx = x*LIP_W/gLW;
+  float rx = x*LIP_W0/gLW;
   float bow = 1.0 + LIP_BOW*(1.0 - gLPk)*(0.12*lipsBell((abs(rx) - 0.062*LIPU)/(0.085*LIPU)) - 0.16*lipsBell(rx/(0.034*LIPU)));   // cupid's bow, philtrum dip
   float hAvg = 0.5*(gLHU + gLHL);                         // both lips arrive at the corner equal, so the end is one soft shape
   float kc = smoothstep(0.55, 0.98, u)*(1.0 - gLCornT);
@@ -521,7 +545,7 @@ vec2 lipsFlow(){
   float fl = (gLYC - gLAl)*exp(-lipsSq(min(p.y, 0.0)/(1.15*LIP_W)));          // everything under the line follows the jaw
   float fu = (gLYC + gLAu)*exp(-lipsSq(max(p.y, 0.0)/(0.70*LIP_W)));          // the skin over it follows the upper lip, less far
   float fy = mix(fl, fu, smoothstep(-0.45*LIP_W, 0.45*LIP_W, p.y))*wx;
-  float fx = (gLW - LIP_W)*sign(p.x)*exp(-lipsSq((a - LIP_W)/(0.95*LIP_W)))*exp(-lipsSq(p.y/(1.05*LIP_W)));
+  float fx = (gLW - LIP_W0)*sign(p.x)*exp(-lipsSq((a - LIP_W)/(0.95*LIP_W)))*exp(-lipsSq(p.y/(1.05*LIP_W)));
   return LIP_FLOW*(vec2(fx, fy) + vec2(gLSmX, 0.0)*exp(-dot(p, p)/lipsSq(1.5*LIP_W)));
 }
 
