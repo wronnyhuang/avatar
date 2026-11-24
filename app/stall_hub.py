@@ -81,6 +81,16 @@ class Notes:
         return rec
 
 
+def silent_s(now: float, due: bool, last_frame_at: float, attach_at: float, live_at: float, base: float):
+    """-> (seconds of renderer silence or None, new base).  due = frames are expected right now (a live link that is
+    being fed audio and is not switching character).  While frames are not due the base moves with `now`, so the wait
+    itself (an engine initialising after a character switch, a hidden page, a link gap) never counts as silence: only
+    silence WHILE frames are due does."""
+    if not due:
+        return None, now
+    return now - max(last_frame_at, attach_at, live_at, base), base
+
+
 def summarize(page: list, hub_events: list, notes: list, last_stats: dict | None) -> dict:
     """The session record's 'stalls' block: the page's closed stalls (and the one still open), the hub's own actions."""
     closed = [p for p in page if p.get("ev") == "close"]

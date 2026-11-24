@@ -1704,7 +1704,12 @@ class Session:
             if old:
                 await old.close()
             if self.link and self.video_ok:
-                info = await self.link.switch(ch, self.cfg["render_ready_timeout_s"])
+                self._switching = True                   # stall watchdog: no frames are due until the new engine is ready
+                try:
+                    info = await self.link.switch(ch, self.cfg["render_ready_timeout_s"])
+                finally:
+                    self._switching = False
+                    self._sil_base = time.monotonic()
                 self.render_ready.append({**(info or {}), "switch": True})
                 self.surfaces_attach()                   # back to the muse -> full canvases re-sent
             self.send(self.config_msg(self.link.ready_info if self.link else None))
@@ -1730,9 +1735,13 @@ class Session:
         """Seconds without a video frame from the renderer while it is being fed audio; None = frames are not due (no
         link, not fed: the page's tap stopped, e.g. a hidden page)."""
         link = self.link
-        if not (link and self.video_ok and link.alive()) or now - self.render_fed_at > self.sw["audio_fresh_s"]:
-            return None
-        return now - max(link.last_frame_at, self.attach_at, self.live_at)
+        # frames are not due while the renderer is switching character either (a new engine initialises: up to a
+        # minute on a cold box, no frames by design); stall_hub.silent_s restarts the clock whenever frames were not due
+        due = bool(link and self.video_ok and link.alive() and now - self.render_fed_at <= self.sw["audio_fresh_s"]
+                   and not getattr(self, "_switching", False))
+        sil, self._sil_base = stall_hub.silent_s(now, due, link.last_frame_at if link else 0.0, self.attach_at, self.live_at,
+                                                 getattr(self, "_sil_base", 0.0))
+        return sil
 
     def _reattach_allowed(self, now: float) -> bool:
         c, q = self.sw, self._reattach_times

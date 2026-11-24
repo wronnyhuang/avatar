@@ -16,6 +16,17 @@ def check(name, ok, detail=""):
 
 
 c = sh.cfg(None)
+# renderer silence: only while frames are due; a character switch / hidden page restarts the clock
+sil, base = sh.silent_s(100.0, True, 99.5, 10.0, 10.0, 0.0)
+check("silence while due = since the last frame", abs(sil - 0.5) < 1e-9 and base == 0.0)
+base = 0.0
+for t in range(100, 126):                      # a 25 s character switch: no frames due
+    sil, base = sh.silent_s(float(t), False, 99.0, 10.0, 10.0, base)
+check("no silence during a switch", sil is None and base == 125.0)
+sil, base = sh.silent_s(126.0, True, 99.0, 10.0, 10.0, base)
+check("after the switch the clock starts from when frames were due again (1 s, not 27 s)", abs(sil - 1.0) < 1e-9, sil)
+sil, base = sh.silent_s(140.0, True, 99.0, 10.0, 10.0, base)
+check("a real stall after the switch still counts", abs(sil - 15.0) < 1e-9, sil)
 check("defaults on", c["enabled"] is True and c["key_s"] == 3.0 and c["reattach_s"] == 6.0 and c["note_s"] == 15.0)
 check("config false = off", sh.cfg(False)["enabled"] is False)
 check("config dict off", sh.cfg({"enabled": False})["enabled"] is False)
