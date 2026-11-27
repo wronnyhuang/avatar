@@ -809,6 +809,13 @@
       else if (sec != null) cmd.duration_ms = Math.round(clamp(sec, 0.2, 120) * 1000);
       if (key === 'around') { delete cmd.duration_ms; cmd.repeat = 3; }
       const r = d.runCommand ? d.runCommand(cmd, info) : null;
+      // dropped as a duplicate of what a fast matcher already started from his words (the page's runCommand
+      // answers {dup, first}) -> it IS happening: success-shaped, never ok:false (live: "I couldn't look left" while looking left)
+      if (r && typeof r === 'object' && r.dup && get('dupOk') !== false) {
+        const f = r.first && typeof r.first === 'object' ? r.first : null;
+        if (f && f.ok === false) return {ok: false, reason: f.reason || 'it could not look there'};
+        return {ok: true, status: 'starting', already: true, did: (f && f.did ? f.did : prop ? 'looking at the ' + prop.name : 'looking ' + key) + ' — already under way, started from his own words as he asked (his request IS happening: say so naturally, never apologize or say it could not be done)'};
+      }
       const ok = r === true || (r && typeof r === 'object' ? r.ok !== false && !r.dup : !!r);
       return ok ? {ok: true, did: r && r.did ? r.did : prop ? 'looking at the ' + prop.name : 'looking ' + key} : {ok: false, reason: (r && r.reason) || 'it could not look there'};
     }

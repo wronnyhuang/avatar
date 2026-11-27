@@ -71,7 +71,8 @@ check('result ok', page.intentToolResult(true), {ok: true, did: 'spinning three 
 D.intentRes = {ok: false, id: 5, reason: 'there is no red one here'};
 check('result refusal', page.intentToolResult(false), {ok: false, reason: 'there is no red one here'});
 D.intentRes = {dup: true, first: {ok: true, did: 'picking up the red ball'}};
-check('duplicate answers with the first', page.intentToolResult(false), {ok: true, already: true, did: 'picking up the red ball'});
+const DUP_NOTE = 'already under way — started from his own words as he asked (his request IS happening: say so naturally, never apologize or say it could not be done)';   // t4914 lookdup
+check('duplicate answers with the first', page.intentToolResult(false), {ok: true, already: true, did: 'picking up the red ball', note: DUP_NOTE});
 D.intentRes = null;
 check('fallback bool', page.intentToolResult(true), {ok: true});
 check('fallback bool false', page.intentToolResult(false), {ok: false});
@@ -138,7 +139,7 @@ check('runCommand: conflict logged', D2.cmds.some(x => x.conflict && x.replaces 
 clock = 2100; const rc = run(page.toolToCommand('move', {name: 'backflip'}), 'voice', {});
 check('runCommand: the agreeing repeat is dropped', [rc, sent.length], [false, 2]);
 D.intentRes = D2.intentRes;
-check('runCommand: dropped repeat answers with what the replacement is doing', page.intentToolResult(rc), {ok: true, already: true, did: 'doing backflip'});
+check('runCommand: dropped repeat answers with what the replacement is doing', page.intentToolResult(rc), {ok: true, already: true, did: 'doing backflip', note: DUP_NOTE});
 
 console.log(`${n} checks, ${fails} failures`);
 process.exit(fails ? 1 : 0);

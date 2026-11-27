@@ -892,9 +892,12 @@ function actToolCommand(name, a) {
 }
 // the tool output = motion.command()'s result {ok, did, reason} (fallback {ok: bool}); a call dropped as a duplicate
 // (the matcher already acted on the same words) answers with what that first command did
+const DUP_NOTE = 'already under way — started from his own words as he asked (his request IS happening: say so naturally, never apologize or say it could not be done)';
 function intentToolResult(ran) {
   const r = D.intentRes, pick = (x, o) => { if (x.did) o.did = String(x.did); if (x.reason) o.reason = String(x.reason); return o; };
-  if (r && r.dup) return r.first && typeof r.first === 'object' ? pick(r.first, {ok: r.first.ok !== false, already: true}) : {ok: true, already: true};
+  if (r && r.dup) { const o = r.first && typeof r.first === 'object' ? pick(r.first, {ok: r.first.ok !== false, already: true}) : {ok: true, already: true};
+    if (o.ok && Q.get('dupok') !== '0') o.note = DUP_NOTE;
+    return o; }
   if (r && typeof r === 'object') return pick(r, {ok: r.ok !== false});
   return {ok: !!ran};
 }
@@ -984,6 +987,12 @@ const REL_ALIAS = {hand_l: ['paw_l'], hand_r: ['paw_r'], cheeks: ['cheek'], ear_
 // one entry for every command source (voice tools, the server's fast matcher 'matcher', the page's 'caption' matcher,
 // page UI). IntentDedupe drops a command when another source drove the same body part within ~3 s (the realtime
 // model's tool call ~1 s after the matcher already acted), and exact repeats from the same source.
+// the voice tools' own commands (app/voicetools.js look): a call dropped as a duplicate answers {dup, first}
+// (first = what the first run of this request did), not a bare false the tool reads as a failure
+function vtRunCommand(cmd, info) {
+  const r = runCommand(cmd, 'voice', info);
+  return r === false && D.intentRes && D.intentRes.dup ? {dup: true, first: D.intentRes.first || null} : r;
+}
 function runCommand(cmd, source, info) {
   const t = performance.now();
   if (D.rdbg) D.rdbg.cmd(cmd, source, info);
@@ -2319,7 +2328,7 @@ D.perf = window.AvatarPerform ? AvatarPerform.createPerformer({
 // the server's unified worker; learn_gesture -> window.Gestures. Perception / program events come back as silent notes.
 D.vt = window.AvatarVoiceTools ? AvatarVoiceTools.createVoiceTools({
   perf: () => D.perf, motion: () => D.motion, behaviors: () => window.Behaviors || null, gestures: () => window.Gestures || null,
-  attention: () => window.Attention || null, runCommand: (cmd, info) => runCommand(cmd, 'voice', info), sendCtl, prompt: voicePrompt,
+  attention: () => window.Attention || null, runCommand: (cmd, info) => vtRunCommand(cmd, info), dupOk: () => Q.get('dupok') !== '0', sendCtl, prompt: voicePrompt,
   sceneMatcher: () => (Q.get('steps') !== '0' && Q.get('intent') !== '0' && window.Intent && window.INTENT_RULES && intentAct() ? pageMatcherNow() : null),
   runStep: (cmd, info) => (D.perf ? D.perf.engineCall({}, () => runCommand(cmd, 'caption', info)).result : runCommand(cmd, 'caption', info)),
   sceneAliases: () => (S.cfg && S.cfg.props && Array.isArray(S.cfg.props.props) ? S.cfg.props.props.map(p => ({id: p.id, aliases: p.aliases || []})) : []),
