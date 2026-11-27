@@ -605,7 +605,10 @@
     }
     function stepsResult(steps, lead) {
       const k = stepsTally(steps), pl = n => `${n} step${n > 1 ? 's' : ''}`;
-      const why = [...new Set(steps.filter(s => s.kind === 'refused').map(s => s.reason))].join('; ');
+      const why0 = [...new Set(steps.filter(s => s.kind === 'refused').map(s => s.reason))];
+      // a step that only failed on "which one do you mean?" because the thing an earlier step named is not
+      // here ("grab the headphones and put them on") adds no reason of its own — the plain reason stands alone
+      const plain = why0.filter(r => !/\?\s*$/.test(r)), why = (plain.length ? plain : why0).join('; ');
       if (!k.acc) return {ok: false, status: 'not_done', ran: false, reason: `${why}, so nothing moved on screen: tell him that plainly in a few words of your own; never act as if you are doing it`};
       const steps_ = steps.map(s => s.kind === 'refused' ? `${s.step}: NOT done (${s.reason})` : `${s.step}: ${s.kind === 'dup' ? 'already under way' : s.kind === 'queued' ? 'next, after the step before it' : s.did || 'doing it'}`);
       if (k.refused) return {ok: true, status: 'starting', partial: true, did: `${lead}, but only ${pl(k.acc)} of ${k.n}: ${steps_.join('; ')}`.slice(0, 400),

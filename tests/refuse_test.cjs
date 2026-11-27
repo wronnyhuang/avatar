@@ -38,10 +38,17 @@ for (const [text, thing] of [['put on your headphones', 'headphones'], ['pick up
   check(`all refused: "${text}" -> ok:false, the engine's reason, nothing planned`, o.r.ok === false && new RegExp('no ' + thing).test(o.r.reason) && !o.perf.length && refused(o.steps) === o.steps.length && o.steps.length >= 1, o.r);
   check(`all refused: "${text}" -> the model's second call is not "under way"`, o.r2.ok === false && !o.perf.length, o.r2);
 }
+{ // the composed sentence — plural agreement, and no dangling "which one do you mean?" for the absent thing's "them"
+  const o = run('grab the headphones and put them on');
+  check('all refused, two steps: "there are no headphones here, so nothing moved…" (no clarification question, no "is no headphones")',
+    o.r.ok === false && /^there are no headphones here, so nothing moved/.test(o.r.reason) && !/which one|\?/.test(o.r.reason) && !/is no headphones/.test(o.r.reason), o.r);
+  const k = run('grab the kite');
+  check('singular thing keeps "there is no kite …"', k.r.ok === false && /there is no kite/.test(k.r.reason), k.r);
+}
 {
   const o = run('put on your headphones and sit at the desk');
   check('partly refused: partial, says which step did not run and why, and that the other runs', o.r.ok === true && o.r.partial === true && /only 1 step of 2/.test(o.r.did) &&
-    /put on headphones: NOT done \(there is no headphones here\)/.test(o.r.did) && /sit at desk: walking/.test(o.r.did) && /no headphones/.test(o.r.next), o.r);
+    /put on headphones: NOT done \(there are no headphones here\)/.test(o.r.did) && /sit at desk: walking/.test(o.r.did) && /no headphones/.test(o.r.next), o.r);
   check('partly refused: the present step really runs on the engine', !!moved(o.X));
 }
 {

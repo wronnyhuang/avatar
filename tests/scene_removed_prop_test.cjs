@@ -53,7 +53,7 @@ for (const text of ['put on your headphones', 'pick up the headset', 'take off y
   const s = T.m.state();
   check(`(d) matcher "${text}": declined honestly (ok false, "there is no … here"), nothing started, nothing held or worn`,
     // (a pronoun step after it — "put them on" — has nothing to refer to: "which one do you mean?", also ok false)
-    !err && rs.length >= 1 && /there is no (headphones|headset) here/.test(rs[0].reason) && rs.every(r => r.ok === false && /there is no (headphones|headset) here|which one/.test(r.reason)) && !started && handsEmpty(T) && !s.wearing.length && !T.ev.slice(k0).some(e => e.kind === 'object' && e.phase === 'start'),
+    !err && rs.length >= 1 && /there (is|are) no (headphones|headset) here/.test(rs[0].reason) && rs.every(r => r.ok === false && /there (is|are) no (headphones|headset) here|which one/.test(r.reason)) && !started && handsEmpty(T) && !s.wearing.length && !T.ev.slice(k0).some(e => e.kind === 'object' && e.phase === 'start'),
     err ? String(err) : rs.map(r => r.ok + ':' + (r.reason || r.did)).join(' | '));
 }
 { // the voice model's object tool (page onCall('object') -> runCommand -> motion.command, src voice)
@@ -80,7 +80,7 @@ for (const text of ['put on your headphones', 'pick up the headset']) {
   // (known gap: the do_action result itself still says "doing what he asked" for a refused step — the voice tools do not
   // read runStep's result; generic for any thing that is not in the scene, not asserted here)
   check(`(d) do_action "${text}": no keyframe mime (planner not called), no crash, the step the engine ran was refused, nothing moved`,
-    !err && r && H.perf.length === 0 && H.steps.length >= 1 && H.steps.every(s => s.r.ok === false && /there is no/.test(s.r.reason)) && handsEmpty(H.T) && !H.T.m.state().wearing.length,
+    !err && r && H.perf.length === 0 && H.steps.length >= 1 && H.steps.every(s => s.r.ok === false && /there (is|are) no/.test(s.r.reason)) && handsEmpty(H.T) && !H.T.m.state().wearing.length,
     err ? String(err) : {r, perf: H.perf, steps: H.steps.map(s => [s.cmd.verb, s.r.ok, s.r.reason])});
 }
 { // the scene-less refusal (noThingHere) is unchanged: a character with no things declines "put on your headphones"

@@ -482,6 +482,7 @@
       props = adaptProps(props); body = adaptBody(body || (props && props.body) || null);
       E.body = bodyModel(body);
       E.props = props && typeof props === 'object' && Array.isArray(props.props) ? props : null;
+      E.endRevert = !(props && props.endstate === false);   // the end-of-move reverts (face him after standing up; put a taken-off thing back); scene config endstate:false = off
       if (E.props && E.props.props.some(d => d && d.removed)) E.props = Object.assign({}, E.props, {props: E.props.props.filter(d => !(d && d.removed))});   // a prop flagged "removed" is out of the scene (the hub drops it too)
       E.places = E.props && Array.isArray(E.props.places) ? E.props.places.map(normPlace).filter(Boolean) : [];
       if (!E.places.some(p => p.id === 'floor')) E.places.push({id: 'floor', name: 'the floor', aliases: ['floor', 'ground'], center: [0, 0, 0.5], size: [3, 2], top_y: 0, spots: [[-0.28, 0, 0.55], [0.28, 0, 0.55], [0, 0, 0.62], [-0.5, 0, 0.45], [0.5, 0, 0.45]], floor: true});
@@ -1382,6 +1383,8 @@
       for (const a of d.aliases || []) toks(a).forEach(w => set.add(w));
       return set;
     }
+    // "there are no headphones here" / "there is no kite here" (a plural-named thing reads as plural)
+    const noSuch = w => `there ${/[^s]s$/i.test(String(w).trim()) ? 'are' : 'is'} no ${w} here`;
     function resolveObject(desc, verb, opt = {}) {
       if (!E.P.length) return {err: 'there are no objects here'};
       let d = desc;
@@ -1395,7 +1398,7 @@
       if (nm.length) {
         const ex = C.filter(p => { const N = propNames(p); return nm.every(w => N.has(w)); });   // an exact word wins ("sunglasses" is not the "sun hat")
         const x = ex.length ? ex : C.filter(p => { const N = propNames(p); return nm.every(w => N.has(w) || [...N].some(n => n.startsWith(w) || w.startsWith(n) && n.length > 2)); });
-        if (!x.length) { const y = C.filter(p => { const N = propNames(p); return nm.some(w => N.has(w)); }); if (!y.length) return {err: `there is no ${d.name || d.category} here`}; C = y; } else C = x;
+        if (!x.length) { const y = C.filter(p => { const N = propNames(p); return nm.some(w => N.has(w)); }); if (!y.length) return {err: noSuch(d.name || d.category)}; C = y; } else C = x;
         filters.push(d.name || d.category);
       }
       if (d.category && d.name) { const x = C.filter(p => toks(p.def.category).some(w => toks(d.category).includes(w))); if (x.length) C = x; }
@@ -4747,7 +4750,7 @@
         }
       }
       if (w.length && /^(floor|ground|rug|carpet)$/.test(w.join(' '))) return {err: "I'd rather not paw at the floor"};
-      return {err: words ? `there is no ${words} here` : 'which thing?', ask: !words};
+      return {err: words ? noSuch(words) : 'which thing?', ask: !words};
     }
     const targetName = T => T.prop ? 'the ' + byId(T.prop).name : T.place ? (() => { const q = rawPlace(T.place); const n = q && q.name || T.place; return /^the /.test(n) ? n : 'the ' + n; })() : 'its spot';
     // the best spot on a horizontal rect (centre c, top y, size [w, d], yaw a): nearest the body, clear of what rests there
@@ -4895,11 +4898,40 @@
     function jobProp(J) { for (const g of (J && J.goals) || []) { const q = g && g.id ? byId(g.id) : null; if (q) return q; } return null; }
     function pendingProps() { const out = []; for (let i = E.jobs.length - 1; i >= 0; i--) { const J = E.jobs[i]; if (J.stopped || J.kind !== 'object') continue; const q = jobProp(J); if (q && !out.includes(q)) out.push(q); } return out; }
     function pendingProp() { return E.jobs && E.jobs.length ? pendingProps()[0] || null : null; }
+    /* "take off the hat" with nowhere named ends with the thing in a paw — shown for a moment, then it goes
+       back where it lives on its own (a commanded pose reverts to neutral), once nothing else is going on. Anything he
+       asks about that thing meanwhile ("hold it", "put it on the desk", "show me") takes it over: no auto put-back. A
+       thing he asked it to hold / pick up is never marked. */
+    const AUTO_BACK_S = 2.5;
+    function autoBackMark(J) {
+      if (!E.endRevert || J.stopped || J.kind !== 'object' || J.src === 'auto') return;
+      const gs = J.goals || []; if (!gs.length || !gs.every(g => g && g.g === 'unworn')) return;
+      for (const g of gs) { const p = byId(g.id); if (p && p.held && !p.worn) p.autoBack = t() + AUTO_BACK_S; }
+    }
+    function autoBackClear(goals, src) {
+      if (src === 'auto') return;
+      const txt = JSON.stringify(goals || []);
+      for (const p of E.P) if (p.autoBack && (txt.includes('"' + p.id + '"') || !p.held)) delete p.autoBack;
+    }
+    function autoBackFrame() {
+      if (E.queue || E.oqueue || E.activity) return;
+      for (const p of E.P) {
+        if (!p.autoBack) continue;
+        if (!p.held || p.worn) { delete p.autoBack; continue; }
+        if (t() < p.autoBack) continue;
+        delete p.autoBack;
+        const r = museCommand({action: 'object', verb: 'put_back', object: {id: p.id}}, 'auto', 'ab' + Math.round(t() * 1000));
+        if (!r || r.ok === false) {   // its spot is taken: set it down within reach instead
+          museCommand({action: 'object', verb: 'put_down', object: {id: p.id}}, 'auto', 'ab' + Math.round(t() * 1000) + 'd');
+        }
+        return;
+      }
+    }
     function jobFrame() {
       // a held end state (turned away, lying, …) gives way to the next job once its own motion is over
       if (E.move && E.move.holdEnd && !E.chain && E.jobs.some(j => j !== E.move.opOf) && t() - E.move.t0 >= E.move.dur) finishMove(E.move, 'end');
       if (E.move || E.chain) return;
-      const J = E.jobs[0]; if (!J) return;
+      const J = E.jobs[0]; if (!J) { autoBackFrame(); return; }
       if (!J.ops) {
         const r = planGoals(J.goals);
         if (!r.ok) { E.jobs.shift(); emit({kind: J.kind, name: J.name, id: J.id, src: J.src, phase: 'fail', args: J.args, reason: r.reason}); J.result = r; return; }
@@ -4908,11 +4940,11 @@
       }
       // the last job done standing with its back (or side) to him: it turns back to face him (eyes lead) — unless
       // the request was to turn away / hold a pose, or it is lying, seated or working
-      if (!J.ops.length && !J.faced && !J.stopped && J.kind === 'object' && E.jobs.length === 1 && !E.sitOn && E.posture !== 'lying' && !E.activity &&
+      if (!J.ops.length && !J.faced && !J.stopped && (J.kind === 'object' || (E.endRevert && (J.done || []).some(o => o && o.op === 'stand_up'))) /* a job that got it up from its seat ends facing him too */ && E.jobs.length === 1 && !E.sitOn && E.posture !== 'lying' && !E.activity &&
           Math.abs(wrap(E.base.yaw)) > 0.06 && !(J.args && J.args.hold) && !(J.goals || []).some(g => g && (g.g === 'touch' || g.g === 'go_to'))) { /* at a thing it stays facing it */ J.faced = true; J.ops.push({op: 'face', sub: true, did: ['', '']}); }
       if (J.failErr) { E.jobs.shift(); emit({kind: J.kind, name: J.name, id: J.id, src: J.src, phase: 'fail', args: J.args, reason: J.failErr, did: describe(J.done, 1)}); J.result = {ok: false, reason: J.failErr}; return; }
       const op = J.ops.shift();
-      if (!op) { E.jobs.shift(); emit({kind: J.kind, name: J.name, id: J.id, src: J.src, phase: J.stopped ? 'interrupted' : 'end', args: J.args, did: ((dd) => dd + (J.stopped && !/\bstop(ped)?\b|cut short|relaxed/.test(dd) ? (J.replacedWhy ? ` (then stopped: ${J.replacedWhy})` : ' (then stopped)') : J.stopped && J.replacedWhy && !/replaced|relax/.test(dd) ? ` (${J.replacedWhy})` : ''))(describe(J.done, 1) || J.noopDid || (J.stopped ? 'nothing yet' : 'it already was that way')), reason: J.replacedWhy, state: stateBrief()}); return; }
+      if (!op) { E.jobs.shift(); autoBackMark(J); emit({kind: J.kind, name: J.name, id: J.id, src: J.src, phase: J.stopped ? 'interrupted' : 'end', args: J.args, did: ((dd) => dd + (J.stopped && !/\bstop(ped)?\b|cut short|relaxed/.test(dd) ? (J.replacedWhy ? ` (then stopped: ${J.replacedWhy})` : ' (then stopped)') : J.stopped && J.replacedWhy && !/replaced|relax/.test(dd) ? ` (${J.replacedWhy})` : ''))(describe(J.done, 1) || J.noopDid || (J.stopped ? 'nothing yet' : 'it already was that way')), reason: J.replacedWhy, state: stateBrief()}); return; }
       const r = runOp(op, J);
       if (E.dbg) E.dbg(op, r);
       if (r && r.err) {
@@ -5189,6 +5221,7 @@
       const prev = E.jobs.length || E.move || E.chain ? null : planGoals(goals);
       if (prev && !prev.ok) { emit({kind, name, id, src, phase: 'fail', args, reason: prev.reason}); return {ok: false, id, reason: prev.reason}; }
       const J = {kind, name, goals, args, src, id, ops: null};
+      autoBackClear(goals, src);
       if (prev && !prev.ops.length) { emit({kind, name, id, src, phase: 'end', args, did: 'nothing to do — it already is that way'}); return {ok: true, id, did: 'nothing to do — it already is that way', already: true}; }
       E.jobs.push(J);
       if (kind === 'object') { const q = jobProp(J); if (q) E.lastRef = q; }
