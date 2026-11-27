@@ -2345,6 +2345,7 @@ D.vt = window.AvatarVoiceTools ? AvatarVoiceTools.createVoiceTools({
   onTv: (name, args) => teachTv(name, args),                                           // teach: walk to the TV / home
   objectPlans: () => Q.get('objplan') !== '0',                                         // tricks with things -> the planner (?objplan=0 = the old refusal)
   absentThings: () => Q.get('absent') !== '0',                                         // a thing not in the scene is refused, never mimed (?absent=0 = off)
+  idiomGuard: () => Q.get('idiomguard') !== '0',                                       // the absent-thing refusal names only a known object (idioms pass; ?idiomguard=0 = old any-noun rule)
   log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
 }) : null;
 if (D.vt) { D.vt.attach(); addEventListener('load', () => D.vt.attach()); }

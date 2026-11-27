@@ -14,6 +14,9 @@ import numpy as np
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "renderer")
 sys.path[:0] = [ROOT, os.path.join(ROOT, "engine")]
 os.environ.setdefault("TA_OUT", os.path.join(ROOT, "..", "out", "cache"))
+# the character alone: the scene props are drawn in the character pass (into its coverage alpha), so with them the mask
+# spans the toys / chair / desk and the bounding-box checks (root_y, squash) measure the props, not the body
+os.environ.setdefault("AVATAR_NO_PROPS", "1")
 from anim.schema import IDX, NPARAMS  # noqa: E402
 
 ap = argparse.ArgumentParser()
@@ -79,6 +82,8 @@ def stats(m):
     return dict(n=len(xs), cx=xs.mean(), cy=ys.mean(), w=xs.max() - xs.min(), h=ys.max() - ys.min(), top=ys.min(), bot=ys.max())
 
 
+render(vec())    # warm-up: the idle history weight (rt_engine._idle_alpha) starts at full weight and decays over
+#                  frames across reset_history, so the very first pass differs (rest vs rest: max |diff| ~24, <= 1 after it)
 m0, i0 = mask(vec())
 s0 = stats(m0)
 check("rest renders the character", s0["n"] > 500, f"{s0['n']} px")

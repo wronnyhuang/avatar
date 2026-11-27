@@ -222,8 +222,16 @@ function replay(src, wmsg, popts) {
       const d = JSON.parse(fs.readFileSync(fp, 'utf8'));
       const A = await replay(base, d.wmsg, {}), B = await replay(cur, d.wmsg, {}), Cc = await replay(cur, d.wmsg, {canon: true, reactFeat: RF});
       const same = (x, y) => x.length === y.length && x.every((f, i) => f.s === y[i].s);
+      // the base comparison: every field the BASE_REF stream had is unchanged, EXCEPT the expression tracker's output, which
+      // re-tuned by design (per-user profile, new taus): face.xp and its events
+      // (expression_change / nod / head_shake — the shake waits while xp.talk says he is talking). Fields added to the stream
+      // since (aspect, face.xp.dev) are ignored. The canon guarantee itself is the next check.
+      const XT = /^(expression_change|nod|head_shake)$/;
+      const pick = (b, a) => a && typeof a === 'object' && b && typeof b === 'object' ? (Array.isArray(a) ? b.map((v, i) => pick(v, a[i])) : Object.fromEntries(Object.keys(a).map(k => [k, pick(b[k], a[k])]))) : b;
+      const noXt = o => { if (o.face) delete o.face.xp; if (Array.isArray(o.events)) o.events = o.events.filter(e => !XT.test(e.type)); return o; };
+      const sameBase = (x, y) => x.length === y.length && x.every((f, i) => { const a = noXt(JSON.parse(f.s)); return JSON.stringify(a) === JSON.stringify(pick(noXt(JSON.parse(y[i].s)), a)); });
       const nm = path.basename(fp, '.json');
-      check(`replay ${nm}: ${BASE_REF} perception == canon:false (${A.feats.length} feature frames, byte-identical JSON)`, A.feats.length > 100 && same(A.feats, B.feats));
+      check(`replay ${nm}: ${BASE_REF} perception == canon:false on the ${BASE_REF} fields, expression tracker aside (${A.feats.length} feature frames)`, A.feats.length > 100 && sameBase(A.feats, B.feats));
       check(`replay ${nm}: canon:true minus f.canon == canon:false; no f.canon / stats.canon when off`, same(B.feats, Cc.feats) && B.feats.every(f => f.seq === null) && !('canon' in B.stats) && Cc.stats.canon.n > 0);
       const bc = d.canon, rc = Cc.canon;
       const eq = bc.length === rc.length && bc.every((c, i) => c.seq === rc[i].seq && c.t === rc[i].t && c.mask.join() === rc[i].mask.join() && c.motion.every((v, j) => Object.is(Math.fround(v), Math.fround(rc[i].motion[j]))));

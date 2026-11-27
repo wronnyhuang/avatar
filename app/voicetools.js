@@ -363,7 +363,14 @@
       'water juice coffee tea milk drink guitar piano drum flower plant stick rock stone blanket pillow scarf coat jacket shirt shoe sock glove mask lamp candle remote camera key coin card dice ' +
       'bone carrot fish balloon kite bat racket rope basket bucket broom mirror clock watch ring necklace sword wand flag gift present envelope newspaper magazine picture photo tv television ' +
       'radio speaker microphone mic curtain blinds cabinet cupboard closet oven trunk suitcase wallet purse hammer tool brush comb toothbrush towel soap thing object item stuff frisbee ' +
-      'puzzle block lego crayon marker notebook folder bookshelf shelf couch sofa bed bench ladder bike skateboard helmet').split(' '));
+      'puzzle block lego crayon marker notebook folder bookshelf shelf couch sofa bed bench ladder bike skateboard helmet ' +
+      // (idiom guard: the strong verbs now refuse only a known object, so the everyday list is wider)
+      'flashlight torch scissors boot slipper sandal sneaker trainer hoodie sweater sweatshirt jumper vest tie bowtie belt bracelet earring goggles beanie ' +
+      'beret bonnet hood cape cloak gown dress skirt pants trousers jeans shorts overalls apron uniform costume wig tiara bandana badge medal sticker ' +
+      'teddybear bear plush stuffie rattle yoyo marble whistle trumpet violin flute ukulele harmonica tambourine xylophone baton microphone ' +
+      'map compass binoculars telescope magnifier lantern match lighter shovel spade rake hose net jar lid tray pan pot kettle teapot teacup straw ' +
+      'napkin tissue bandage blanket quilt sleepingbag tent ball balloon bubble wand ticket letter postcard chalk eraser crayon paintbrush paint easel ' +
+      'cheese bread egg orange grape lemon pear peach strawberry cherry candy lollipop chocolate donut muffin cupcake icecream popcorn soda lemonade').split(' '));
     const NT_DET = new Set(['the', 'a', 'an', 'that', 'this', 'those', 'these', 'some', 'my', 'your', 'his', 'her', 'their', 'our', 'its', 'another']);
     const NT_IOBJ = new Set(['me', 'him', 'her', 'us', 'them', 'it']);
     // words that end a noun phrase (prepositions, particles, adverbs, conjunctions, verbs that follow an object)
@@ -389,6 +396,7 @@
     /* sceneWords — for a character WITH things around it (the muse), the words naming those things (ids, name
        words, the scene file's aliases): a thing-taking request whose object is none of them is the same honest refusal
        ("put on your scarf and your gloves" planned a keyframe mime of wearing nothing). null = the no-scene case above. */
+    const oldRule = () => d.idiomGuard !== undefined && !bool('idiomGuard');   // ?idiomguard=0 = the strong verbs' old any-noun rule
     function noThingHere(desc, sceneWords) {
       let props = null;
       if (!sceneWords) {
@@ -404,17 +412,31 @@
         if (NT_IOBJ.has(w[j]) && NT_DET.has(w[j + 1])) j++;              // give THEM a .., hand ME the ..
         else if (/^(up|over|out|down|off|on|back)$/.test(w[j] || '') && NT_DET.has(w[j + 1])) j++;   // hold UP the .., lift UP my ..
         if (!NT_DET.has(w[j])) continue;
-        j++;
-        const np = [];
-        while (j < w.length && np.length < 6 && w[j] !== '|' && !NT_STOP.has(w[j]) && !(/ly$/.test(w[j]) && !NT_LY_NOUN.test(w[j]))) np.push(w[j++]);
-        if (!np.length) continue;
+        // the verb's objects — the first noun phrase and any "and <det> ..." after it ("take off your mittens and your scarf")
+        const nps = [];
+        while (NT_DET.has(w[j]) && nps.length < 4) {
+          j++;
+          const np = [];
+          while (j < w.length && np.length < 6 && w[j] !== '|' && !NT_STOP.has(w[j]) && !(/ly$/.test(w[j]) && !NT_LY_NOUN.test(w[j]))) np.push(w[j++]);
+          if (np.length) nps.push(np);
+          if (w[j] === 'and' && NT_DET.has(w[j + 1])) j++; else break;
+        }
+        if (!nps.length) continue;
         if (v.part && !v.part.test(w[j] || '')) { if (v.part.source !== '^up$') { /* put / take without a particle: only a known object */ v.strong = false; } else continue; }
-        if (np.some(x => BODY_PARTS.test(x) || NOT_THINGS.has(x))) continue;      // the user's own body, a gesture, an abstract thing
-        const head = np[np.length - 1], sing = head.length > 3 && /s$/.test(head) && !/ss$/.test(head) ? head.slice(0, -1) : head;
-        if (!v.strong && !(THINGS.has(head) || THINGS.has(sing))) continue;         // hold / open / lift / give ..: known objects only
-        if (sceneWords && np.some(x => sceneWords.has(x) || sceneWords.has(x.replace(/(es|s)$/, '')))) continue;   // one of the things around it
-        return {ok: false, status: 'no_such_thing', ran: false, reason: `there is no ${np.join(' ')} around you${sceneWords ? '' : ' (you have no objects here)'}, so nothing moved on screen: tell him that plainly in a few words of your own. ` +
-          'Anything he asks of your own body alone, also acting something out with it, is a normal request you can do: never ask him to say a special word for it.'};
+        for (const np of nps) {
+          if (np.some(x => BODY_PARTS.test(x) || NOT_THINGS.has(x))) continue;      // the user's own body, a gesture, an abstract thing
+          const head = np[np.length - 1];
+          // only a known physical object is "missing" — "pick up the slack", "take a load off", "put on
+          // some swagger" name no thing; a -ing modifier marks the figurative compound ("thinking cap", "dancing shoes").
+          // ?absent=0 (absentThings false) brings back the old rule: any noun after a strong verb (put on, pick up, grab ..)
+          const isThing = x => THINGS.has(x) || (x.length > 3 && /s$/.test(x) && !/ss$/.test(x) && THINGS.has(x.slice(0, -1))) || THINGS.has(x.replace(/es$/, ''));
+          const known = isThing(head) || np.slice(0, -1).some(isThing);   // the head or the object it is part of ("the remote control")
+          if (!known && !(v.strong && oldRule())) continue;
+          if (np.length > 1 && /ing$/.test(np[np.length - 2]) && !THINGS.has(np[np.length - 2]) && !oldRule()) continue;
+          if (sceneWords && np.some(x => sceneWords.has(x) || sceneWords.has(x.replace(/(es|s)$/, '')))) continue;   // one of the things around it
+          return {ok: false, status: 'no_such_thing', ran: false, reason: `there is no ${np.join(' ')} around you${sceneWords ? '' : ' (you have no objects here)'}, so nothing moved on screen: tell him that plainly in a few words of your own. ` +
+            'Anything he asks of your own body alone, also acting something out with it, is a normal request you can do: never ask him to say a special word for it.'};
+        }
       }
       return null;
     }
@@ -434,6 +456,7 @@
       // the result says what each step really did (a step the engine refused is not "doing what he asked")
       if (u0 && u0.steps && !had) return stepsResult(u0.steps, 'doing what he asked');
       const u = V.utts[V.utts.length - 1];
+      if (u && u.contSteps && u.steps && !u.contTold && now() - (u.finalAt || u.t0) < 30000) { u.contTold = true; return stepsResult(u.steps, 'doing what he asked'); }   // the continuation's steps, once
       if (u && u.expanded && now() - (u.finalAt || u.t0) < 30000) {
         if (u.steps && stepsTally(u.steps).acc === 0) return stepsResult(u.steps, 'doing what he asked');   // all refused a moment ago: still not done
         return {ok: true, status: 'starting', did: 'under way now — already started from his words a moment ago (his request is happening: a brief natural cue)'};
@@ -603,10 +626,17 @@
       try { if (typeof M.understood === 'function' && !M.understood(u.text)) return 0; } catch (e) { return 0; }
       if (isHypothetical(u.text).hyp) return 0;
       u.expanded = true;
-      for (const h of hits) { try { if (typeof M.commit === 'function') M.commit(h, now()); d.runStep(h.cmd, {text: u.text, rule: h.rule}); } catch (e) {} }
-      V.expanded.push({t: Math.round(now()), n: hits.length, text: u.text.slice(0, 160), steps: hits.map(h => h.cmd.verb || h.cmd.name), continuation: true});
-      log({vt: 'steps_cont', n: hits.length, text: u.text.slice(0, 160)});
-      return hits.length;
+      // each step's real outcome reaches the voice model (runSteps / stepsResult, as sceneRoute's result does):
+      // its own do_action call of the continuation answers with it (sceneRoute), and a note says it at once — a refused
+      // step asks for a reply (the model must not say it is doing it), an all-done one only informs (no second reply)
+      const steps = runSteps(hits, u.text, true), k = stepsTally(steps);
+      u.steps = steps; u.contSteps = true;
+      V.expanded.push({t: Math.round(now()), n: hits.length, text: u.text.slice(0, 160), steps: hits.map(h => h.cmd.verb || h.cmd.name), continuation: true, refused: k.refused || undefined});
+      log({vt: 'steps_cont', n: hits.length, refused: k.refused || undefined, text: u.text.slice(0, 160)});
+      const r = stepsResult(steps, 'the second half of his request, from his own words');
+      if (k.refused) followUp(`His words (${u.text.slice(0, 120)}) were run as steps: ${r.ok === false ? 'NOT done — ' + r.reason : r.did + '. ' + r.next}`);
+      else if (k.dup < k.n) prompt(`His words (${u.text.slice(0, 120)}) were run as steps already: ${r.did}. Do not call a tool for them again.`, {respond: false});
+      return k.acc;
     }
 
     // ------------------------------------------------------------------------------------------- behaviours

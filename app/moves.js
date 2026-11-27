@@ -1303,6 +1303,21 @@
       }
       return best || E.places.find(p => p.floor);
     }
+    // the surface a prop let go at `rest` sits on. The footprint alone (placeAt) misses rest spots that lie on the
+    // furniture but outside its place's rectangle (the desk's near-edge spots, freeSpotNear): "put the book on the desk"
+    // recorded "floor". The height it rests at decides: the place whose top is under its bottom, nearest its footprint.
+    function restPlaceOf(p, rest) {
+      const pl = placeAt(rest[0], rest[2], rest[1]), bot = rest[1] - p.restH;
+      if (pl && Math.abs(pl.top_y - bot) < 0.02) return pl;
+      let best = null, bd = Infinity;
+      for (const q of E.places) {
+        if (q.floor || Math.abs(q.top_y - bot) >= 0.02) continue;
+        const c = q.center, l = rotYv([rest[0] - c[0], 0, rest[2] - c[2]], -(q.yaw || 0));
+        const d = Math.hypot(Math.max(0, Math.abs(l[0]) - (q.size[0] || 0.4) / 2), Math.max(0, Math.abs(l[2]) - (q.size[1] || 0.4) / 2));
+        if (d < bd) { bd = d; best = q; }
+      }
+      return best && bd <= footR(p) + 0.1 ? best : pl;
+    }
     function restYFor(p, pl) { return (pl ? pl.top_y : 0) + p.restH; }
     const footR = p => Math.min(p.size, 0.15);   // a resting prop's footprint radius (a big bounding radius over-reserves a desk)
     function spotFree(pt, self) { return !E.P.some(q => q !== self && !q.held && !q.flying && !q.worn && !(q.F && q.F.furniture) && Math.hypot(q.pos[0] - pt[0], q.pos[2] - pt[2]) < (footR(q) + footR(self)) * 1.05); }
@@ -1523,7 +1538,7 @@
         return u >= 1;
       }, end() {
         p.att.l = 0; p.att.r = 0; p.held = null; p.free = true; p.grip = null; p.hoff = [0, 0, 0];
-        const pl = placeAt(rest[0], rest[2], rest[1]);
+        const pl = restPlaceOf(p, rest);
         const home = len3(sub3(rest, p.home)) < 0.01;
         if (home && Math.abs(wrap(p.rot[1])) < 2e-3 && Math.abs(p.rot[0]) + Math.abs(p.rot[2]) < 2e-3) p.rot = [0, 0, 0];   // back in its home pose exactly (the headphones' band on the saddle)
         p.where = home ? 'home' : 'placed'; p.place = home ? p.homePlace : pl ? pl.id : 'floor';

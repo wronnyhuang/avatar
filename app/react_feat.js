@@ -102,9 +102,10 @@
   function bodyFromPose(lm, w, h, visMin) {
     if (visMin == null) visMin = 0.5;
     const a = lm || ZERO_POSE, stride = a.length >= 33 * 4 ? 4 : 3;
-    const px = [0, 0, 0, 0, 0, 0], py = px.slice(), pz = px.slice(), vis = px.slice();
+    const px = [0, 0, 0, 0, 0, 0], py = px.slice(), pz = px.slice(), vis = px.slice(), inF = px.slice();
     for (let j = 0; j < 6; j++) {
       const o = POSE_IDX[j] * stride;
+      inF[j] = a[o] > -0.02 && a[o] < 1.02 && a[o + 1] > -0.02 && a[o + 1] < 1.02;
       px[j] = a[o] * w; py[j] = a[o + 1] * h; pz[j] = a[o + 2] * w; vis[j] = stride === 4 ? +a[o + 3] : 1;
     }
     const cx = 0.5 * (px[0] + px[1]), cy = 0.5 * (py[0] + py[1]), cz = 0.5 * (pz[0] + pz[1]);
@@ -116,7 +117,8 @@
     if (side === 0) side = 1;                          // numpy: sign 0 (or -0) -> +1
     for (let j = 0; j < 6; j++) {
       const o = 3 * j;
-      if (!ok || vis[j] < visMin) {
+      // spec.body_from_pose in-frame check : pose-lite invents wrists/elbows below the image -> hidden
+      if (!ok || vis[j] < visMin || !inF[j]) {
         body[o] = REST[j][0] * side; body[o + 1] = REST[j][1]; body[o + 2] = REST[j][2];
       } else {
         body[o] = (px[j] - cx) / s; body[o + 1] = -(py[j] - cy) / s; body[o + 2] = -(pz[j] - cz) / s;

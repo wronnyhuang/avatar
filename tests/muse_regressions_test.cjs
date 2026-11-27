@@ -106,6 +106,7 @@ for (const [cmds, want, label] of [
   for (const c of [O('pick_up', 'headphones'), O('put_on', 'headphones'), O('pull', 'chair', {target: 'closer'}), O('pull', 'desk', {target: 'closer'}), O('pull', 'chair', {target: {object: 'desk'}}),
     O('sit_at', 'desk'), O('pick_up', 'laptop'), O('place', 'laptop', {place: 'desk'}), O('slide', 'laptop', {target: 'closer'}), O('open', 'laptop'), O('work_on', 'laptop')]) { T.m.command(c); runIdle(T, 40); }
   T.step(60, false);
+  const chairP = () => T.m.engine.E.P.find(p => p.id === 'chair').pos, seat0 = chairP().slice();
   IntentDedupe.reset(); let tms = 50000; IntentDedupe.userSpoke(tms); const res = [];
   const run = (cmd, source) => { if (IntentDedupe.seen(cmd, tms, source)) { const fr = IntentDedupe.last.rec && IntentDedupe.last.rec.res; if (fr && fr.id !== undefined) { const ok = T.m.anchor(fr.id, source === "model" ? "voice" : source); if (process.env.DBG) console.log("   anchor", fr.id, ok, JSON.stringify(cmd).slice(0, 80)); } res.push({dup: true}); return; } const cf = IntentDedupe.last.conflict; const c2 = cf && cf.res && cf.res.id !== undefined ? Object.assign({}, cmd, {replaces: cf.res.id}) : cmd;
     const r = T.m.command(c2, {src: source === 'model' ? 'voice' : source}); IntentDedupe.attach(r); res.push(r); };
@@ -115,10 +116,13 @@ for (const [cmds, want, label] of [
   for (const c of [O('stop', null), O('close', {name: 'silver laptop'}), O('pick_up', {name: 'silver laptop'}), O('place', {name: 'silver laptop'}, {place: 'floor'}), O('take_off', {name: 'pink headphones'}),
     O('place', {name: 'pink headphones'}, {place: 'hook'}), {action: 'move', name: 'stand'}, O('push', {name: 'chair'}, {target: 'back'}), O('put_back', {name: 'desk'})]) { if (!c.object) delete c.object; run(c, 'model'); wait(0.35); }
   const done = runIdle(T, 150), s = T.m.state();
+  // "push the chair back" while it stands at the desk = back from the desk (moves.js furniture goal 'back'), not home: one
+  // push per utterance (before that, the model's duplicate push ran a second time and took the chair home)
+  const chairBack = where(T, 'chair') === 'home' || Math.hypot(chairP()[0] - seat0[0], chairP()[2] - seat0[2]) > 0.3;
   if (process.env.DBG) for (const e of T.ev) if (e.id >= 12 && e.phase !== "start") console.log("   ev", e.id, e.name, e.phase, String(e.did || e.reason).slice(0, 140));
   check('B9 reverse burst drains: not typing, lid closed, headphones off and on the stand, laptop on the floor, standing, chair back',
-    done && !s.activity && !s.open.length && !s.wearing.length && where(T, 'headphones') === 'home' && /floor|home/.test(where(T, 'laptop')) && s.posture === 'standing' && where(T, 'chair') === 'home',
-    JSON.stringify({done, activity: s.activity, open: s.open, wearing: s.wearing, posture: s.posture, props: s.props.filter(p => ['headphones', 'laptop', 'chair', 'desk'].includes(p.id)).map(p => p.id + ':' + p.where)}));
+    done && !s.activity && !s.open.length && !s.wearing.length && where(T, 'headphones') === 'home' && /floor|home/.test(where(T, 'laptop')) && s.posture === 'standing' && chairBack,
+    JSON.stringify({done, activity: s.activity, open: s.open, wearing: s.wearing, posture: s.posture, chairMoved: +Math.hypot(chairP()[0] - seat0[0], chairP()[2] - seat0[2]).toFixed(2), props: s.props.filter(p => ['headphones', 'laptop', 'chair', 'desk'].includes(p.id)).map(p => p.id + ':' + p.where)}));
   check('B9 no tool result said ok for a job that never ran', res.every(r => r.dup || r.ok === false || r.already || T.ev.some(e => e.id === r.id && /end|interrupted|fail/.test(e.phase))), res.map(r => r.dup ? 'dup' : (r.ok ? 'ok' : 'no') + '#' + r.id).join(' ')); }
 
 // ---- B10: slide / scoot furniture = push / pull toward what it names

@@ -146,8 +146,9 @@ for (const id of ['ordinals', 'tower', 'ball']) speak(id);
   check('co-speech through the real playGesture moves a free hand (seated, turned back)', lift > lift0 + 0.12, `hand y max ${lift0.toFixed(2)} → ${lift.toFixed(2)}`);
   const armBack = back.filter(c => !/nod|brow|head_shake|shrug_small/.test(c.type));
   check('co-speech turned back (hands free): arm gestures again', armBack.length >= 1, back.map(c => c.type + ':' + c.side).join(' ') + ' busy ' + JSON.stringify(X.m.armsBusy()));
-  const r = cmd({action: 'object', verb: 'put_on', object: {name: 'mug'}}); step(3);
-  check('muse: a refusal is logged as failed with its reason', r.ok === false && L.items().some(i => i.status === 'failed' && /mug/.test(i.reason || i.text)));
+  // (a small non-wearable like the mug is balanced on the head instead; the gift box is declined)
+  const r = cmd({action: 'object', verb: 'put_on', object: {name: 'gift box'}}); step(3);
+  check('muse: a refusal is logged as failed with its reason', r.ok === false && L.items().some(i => i.status === 'failed' && /gift box/.test(i.reason || i.text)));
 }
 // ---- 5. answer(q) (speech-c2): current-state questions from the OBSERVED state, history questions from the log, never
 // inventing — on the REAL muse engine (fed exactly like section 4), then a few on the contract stand-in
@@ -209,13 +210,23 @@ for (const id of ['ordinals', 'tower', 'ball']) speak(id);
   qa('what did you do before that?', [/^before that, you /, /typing on the silver laptop/]);
   qa('did you turn back?', [/^yes\b/, /turned back/]);
   // a refusal: tried but couldn't — never "yes"
-  cmd({action: 'object', verb: 'put_on', object: {name: 'mug'}}); step(3);
-  qa('did you put on the mug?', [/^no\b/, /tried to put on the red mug but couldn't/, /something to wear/], [/^yes/]);
-  qa('what did you just do?', [/^you just tried to put on the red mug but couldn't/]);
+  cmd({action: 'object', verb: 'put_on', object: {name: 'gift box'}}); step(3);
+  qa('did you put on the gift box?', [/^no\b/, /tried to put on the gift box but couldn't/, /something to wear/], [/^yes/]);
+  qa('what did you just do?', [/^you just tried to put on the gift box but couldn't/]);
   qa('did you put on the headphones?', [/^yes\b/, /put on the pink headphones/]);
-  qa("why couldn't you put on the mug?", [/^because the red mug isn't something to wear/]);
+  qa("why couldn't you put on the gift box?", [/^because the gift box isn't something to wear/]);
   qa('how many times did you put something on?', [/^once\b/, /pink headphones/, /couldn't/]);
   check('answer: hand wording, never "paw" (the muse has hands)', said.every(a => !/\bpaws?\b/.test(a)), said.filter(a => /\bpaws?\b/.test(a)).join(' | '));
+}
+// "put on the mug" (a small non-wearable) on the real muse engine = balance it on the head, said so (the contract:
+// "put on of a small non-wearable = balance it on the head"); a real wearable still goes on as worn
+{
+  const {makeMuse, HP_FIXTURE} = require('./muse_lib.cjs');
+  const X = makeMuse(17, {propsPath: HP_FIXTURE}); for (let i = 0; i < 10; i++) X.step(1);
+  const r = X.m.command({action: 'object', verb: 'put_on', object: {name: 'mug'}}, {src: 'matcher'});
+  for (let i = 0; i < 60 * 30; i++) { X.step(1); const E = X.m.engine.E; if (!E.move && !E.chain && !E.jobs.length && !E.queue && !E.oqueue && i > 3) break; }
+  const mug = X.m.engine.E.P.find(p => p.id === 'mug');
+  check('muse: "put on the mug" balances it on the head (not worn), and says so', r.ok === true && /balancing the red mug on/.test(r.did || '') && mug && mug.bal && !mug.worn, JSON.stringify(r) + ' bal=' + (mug && mug.bal) + ' worn=' + (mug && mug.worn));
 }
 {
   let T = 0; const L = AL.createActionLog({now: () => T, limb: 'hand'});
