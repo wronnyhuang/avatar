@@ -3542,7 +3542,7 @@
   "sorry": "sad",
   "cute": "happy",
   "cheer": "happy",
-  "laugh": "happy",
+  "laugh": "laughing",
   "scary": "scared",
   "angrily": "angry",
   "thinking": "thinking",
@@ -3553,7 +3553,7 @@
  },
  "emo_alias": {
   "cheer up": "happy",
-  "laugh": "happy",
+  "laugh": "laughing",
   "makea face": "silly"
  },
  "adjust": {

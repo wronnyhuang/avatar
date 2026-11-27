@@ -31,7 +31,7 @@ const DT = 1 / 30, N = 75 * 30;
 function session(Lib, name) {
   const ev = [];
   // idle2 off = the base's idle schedule (the new look-away timing is on by default; the base lib ignores the option)
-  const m = Lib.createMotion({seed: 4555, character: name, idle2: false, poseRevert: false /* OFF = identical covers the pose-revert switch too (the base ignores it) */, onAction: e => ev.push(JSON.stringify(Object.assign({}, e, {wall: undefined})))   /* wall = Date.now(): the only field that may differ */});
+  const m = Lib.createMotion({seed: 4555, character: name, poseRevert: false /* OFF = identical covers the pose-revert switch too (the base ignores it) */, idle2: false, libMoves: false, onAction: e => ev.push(JSON.stringify(Object.assign({}, e, {wall: undefined})))   /* wall = Date.now(): the only field that may differ */});
   if (BODY[name]) m.setProps(JSON.parse(JSON.stringify(PROPS[name])), JSON.parse(JSON.stringify(BODY[name])), name); else m.setProps(null, null, name);
   const frames = [];
   const kfA = [{t: 0.2, right_paw_y: 0.5, right_paw_x: 0.2, head_yaw: 0.1}, {t: 0.7, right_paw_y: 0.9, right_paw_z: 0.2, smile: 0.4}, {t: 1.2, right_paw_y: 0.6, mouth_open: 0.3},

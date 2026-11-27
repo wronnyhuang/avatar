@@ -1181,12 +1181,25 @@
     }
     const FP = (s, h, open, turn) => HP(s, h[0], h[1], h[2], open, turn);
     const pulse = (u, a, b, c, d) => u < a ? 0 : u < b ? mj((u - a) / (b - a)) : u < c ? 1 : u < d ? 1 - mj((u - c) / (d - c)) : 0;
+    // ---- the library's moves on THIS body. The contract's inward numbers assume the paws meet at
+    // hand_x -0.45; a body file says where its midline really is (the Muse family: -0.9, Juno: -0.45), so claps and
+    // crossings are written as a fraction of the way to the midline. IN(x) = a contract inward x on this body; KM = how
+    // much further in the midline is (1 = contract body). CMD(g): a gesture he asked for (reflex / co-speech / idle / affect-layer users
+    // of the same entry keep their small form). createMotion({libMoves: false}) or ?libmoves=0 = the old numbers.
+    let libm = opts.libMoves;
+    if (libm === undefined) { try { libm = new URLSearchParams(globalThis.location.search).get('libmoves') !== '0'; } catch (e) { libm = true; } }
+    const LIBM = () => !!libm && cfg.libMoves !== false;
+    const KM = () => (LIBM() && S.midX ? S.midX / -0.45 : 1);
+    const IN = x => (x < 0 ? Math.max(-1, x * KM()) : x);
+    const CMD = g => LIBM() && (!g || ((g.src || 'cmd') === 'cmd' && g.via !== 'affect' && g.via !== 'ui'));   // not the affect layer's own gesture, not the page's greeting
     const GEST = {
       wave: {dur: g => 0.5 + (g.cycles || 4) * 0.4 + 0.2, attack: 0.38, release: 0.5, fn(u, g) {
         const s = g.side, e = smooth01((u - 0.25) / 0.3), w = Math.sin(2 * Math.PI * 2.5 * (u - 0.25));
-        const set = HP(s, 0.20 + 0.12 * w * e, 1.0 + 0.03 * Math.sin(2 * Math.PI * 5 * u) * e, 0.20, 1, 1 - 0.3 * Math.abs(w) * e);
+        const big = CMD(g) ? 1 : 0;   // asked for, the paw swings wide beside the head (two clear ends), the body sways with it
+        const set = HP(s, 0.20 + big * 0.15 + (0.12 + big * 0.2) * w * e, 1.0 + big * 0.1 + 0.03 * Math.sin(2 * Math.PI * 5 * u) * e - big * 0.12 * Math.abs(w) * e, 0.20, 1, 1 - 0.3 * Math.abs(w) * e);
         set['shoulder_' + s] = 0.12; set['point_' + s] = 0; set['thumb_' + s] = 0.3;
-        return {set, add: {head_roll: (s === 'r' ? 1 : -1) * 0.05, smile: 0.25, brow_l: 0.25, brow_r: 0.25, ear_l: 0.2, ear_r: 0.2}};
+        const sg = s === 'r' ? 1 : -1;
+        return {set, add: {head_roll: sg * 0.05 + big * 0.03 * w * e, body_lean: big * 0.2 * sg * w * e, smile: 0.25 + big * 0.2, brow_l: 0.25, brow_r: 0.25, ear_l: 0.2, ear_r: 0.2}};
       }},
       raise_paw: {dur: 2.2, attack: 0.4, release: 0.45, fn(u, g) { const s = g.side; return {set: Object.assign(HP(s, 0.25, 0.95, 0.15, 1, 1), {['shoulder_' + s]: 0.1})}; }},
       raise_both: {dur: 2.2, attack: 0.45, release: 0.5, fn(u) {
@@ -1230,15 +1243,20 @@
       tail_swish: {dur: 3.2, attack: 0.5, release: 0.6, fn(u) { return {set: {tail_wag: 0.55 * Math.sin(2 * Math.PI * 0.55 * u)}, add: {tail_curl: 0.2}}; }},
       clap: {dur: g => 0.5 + 0.42 * (g.cycles || 4), attack: 0.35, release: 0.45, fn(u) {
         const k = u < 0.35 ? 0 : 0.5 + 0.5 * Math.cos(2 * Math.PI * 2.4 * (u - 0.35));
-        const x = -0.45 + 0.2 * k;
-        return {set: Object.assign(HP('l', x, 0.45, 0.45, 1, 0), HP('r', x, 0.45, 0.45, 1, 0)), add: {smile: 0.45, squint: 0.2, body_bounce: 0.05 * (1 - k)}};
+        // the paws MEET at this body's midline and part by half the way out; in front of the chest
+        const K = KM(), x = IN(-0.45) * (1 - (K > 1 ? 0.6 : 0.445) * k), up = K > 1 ? Math.min(1, K - 1) : 0;
+        return {set: Object.assign(HP('l', x, 0.45 + 0.05 * up, 0.45 + 0.3 * up, 1, 0), HP('r', x, 0.45 + 0.05 * up, 0.45 + 0.3 * up, 1, 0)), add: {smile: 0.45, squint: 0.2, body_bounce: 0.05 * (1 - k)}};
       }},
       thumbs_up: {dur: g => g.dur || 2.2, attack: 0.38, release: 0.45, fn(u, g) {
         const s = g.side; const set = HP(s, 0.10, 0.45, 0.45, 0, 0); set['thumb_' + s] = 1;
         return {set, add: {smile: 0.35, head_pitch: 0.04 * pulse(u, 0.35, 0.5, 0.6, 0.8), brow_l: 0.15, brow_r: 0.15}};
       }},
-      shrug: {dur: 1.7, attack: 0.25, release: 0.45, fn(u) {
-        const p = pulse(u, 0, 0.3, 1.0, 1.4);
+      shrug: {dur: g => (CMD(g) ? 2.1 : 1.7), attack: 0.25, release: 0.45, fn(u, g) {
+        const p = CMD(g) ? pulse(u, 0, 0.3, 1.4, 1.8) : pulse(u, 0, 0.3, 1.0, 1.4);
+        if (CMD(g)) {   // asked for, the whole shrug: paws out and up with the palms up, the body lifting into the shoulders, the head sinking and tilting
+          return {set: Object.assign({shoulder_l: p, shoulder_r: p}, HP('l', 0.35, 0.30 + 0.15 * p, 0.5, 1, 1), HP('r', 0.35, 0.30 + 0.15 * p, 0.5, 1, 1)),
+            add: {head_roll: 0.12 * p, head_y: -0.02 * p, body_bounce: 0.22 * p, brow_l: 0.6 * p, brow_r: 0.5 * p, head_pitch: -0.04 * p, mouth_open: 0.05 * p, smile: -0.1 * p}};
+        }
         return {set: Object.assign({shoulder_l: p, shoulder_r: p}, HP('l', 0.35, 0.30, 0.20, 1, 1), HP('r', 0.35, 0.30, 0.20, 1, 1)),
           add: {head_roll: 0.08 * p, brow_l: 0.5 * p, brow_r: 0.4 * p, head_pitch: -0.03 * p, mouth_open: 0.05 * p}};
       }},
@@ -1273,7 +1291,7 @@
       }},
       lean_in: {dur: g => g.dur || 2.5, attack: 0.5, release: 0.6, fn() { return {set: {body_pitch: 0.7}, add: {head_z: 0.035, eye_wide: 0.1, brow_l: 0.15, brow_r: 0.15}}; }},
       lean_back: {dur: g => g.dur || 2.5, attack: 0.5, release: 0.6, fn() { return {set: {body_pitch: -0.6}, add: {head_z: -0.03, head_pitch: -0.04}}; }},
-      lean_side: {dur: g => g.dur || 2.5, attack: 0.5, release: 0.6, fn(u, g) { return {set: {body_lean: 0.7 * (g.dir || 1)}, add: {head_roll: 0.06 * (g.dir || 1)}}; }},
+      lean_side: {dur: g => g.dur || 2.5, attack: 0.5, release: 0.6, fn(u, g) { return CMD(g) ? {set: leanSide(0.7 * (g.dir || 1))} : {set: {body_lean: 0.7 * (g.dir || 1)}, add: {head_roll: 0.06 * (g.dir || 1)}}; }},
       tilt_head: {dur: g => g.dur || 2.4, attack: 0.35, release: 0.5, fn(u, g) { return {add: {head_roll: 0.17 * (g.dir || 1), brow_l: 0.12, brow_r: 0.12}}; }},
       head_tilt: {dur: g => U(2.0, 3.5), attack: 0.6, release: 0.7, fn(u, g) { g.dir = g.dir || pick([-1, 1]); return {add: {head_roll: 0.11 * g.dir}}; }},
       cover_eyes: {dur: g => g.dur || 2.6, attack: 0.4, release: 0.35, fn(u, g) {
@@ -1323,11 +1341,16 @@
         return {set: {body_bounce: 0.3 * Math.abs(b), body_lean: 0.35 * s, tail_wag: 0.8 * Math.sin(2 * Math.PI * 2 * u)},
           add: {head_roll: 0.08 * s, hand_l_y: 0.35 + 0.1 * b, hand_r_y: 0.35 - 0.1 * b, hand_l_x: 0.15, hand_r_x: 0.15, smile: 0.5}};
       }},
-      laugh: {dur: 1.9, attack: 0.15, release: 0.45, fn(u) {
+      laugh: {dur: g => (CMD(g) ? 3.8 : 1.9), attack: 0.15, release: 0.45, fn(u, g) {
         const v = 0.5 + 0.5 * Math.sin(2 * Math.PI * 5 * u);
+        if (CMD(g)) {   // asked for, a laugh of the whole body: it rocks back and forth, the head thrown back, both paws on the belly, shaking
+          const rk = Math.sin(2 * Math.PI * 1.25 * u), e = pulse(u, 0, 0.3, (g.duration_s || 3.8) - 0.6, (g.duration_s || 3.8));
+          return {set: Object.assign({mouth_open: 0.4 + 0.3 * v}, HP('l', IN(-0.3), 0.28 + 0.05 * v, 0.5, 0.8, 0), HP('r', IN(-0.3), 0.2 + 0.05 * (1 - v), 0.5, 0.8, 0)),
+            add: {smile: 0.8, squint: 0.7, head_pitch: (-0.16 + 0.2 * Math.max(0, rk) + 0.04 * v) * e, body_pitch: (-0.45 + 0.9 * Math.max(0, rk)) * e, body_lean: 0.2 * Math.sin(2 * Math.PI * 0.6 * u) * e, body_bounce: 0.3 * v, shoulder_l: 0.5 * v, shoulder_r: 0.5 * v, ear_l: 0.2, ear_r: 0.2}};
+        }
         return {set: {mouth_open: 0.2 + 0.18 * v}, add: {smile: 0.7, squint: 0.65, head_pitch: -0.06 + 0.035 * v, body_bounce: 0.05 * v, shoulder_l: 0.2 * v, shoulder_r: 0.2 * v, ear_l: 0.2, ear_r: 0.2}};
       }},
-      high_five: {dur: g => g.dur || 2.2, attack: 0.38, release: 0.45, fn(u, g) { return {set: HP(g.side, 0.15, 0.85, 0.6, 1, 1), add: {smile: 0.4}}; }},
+      high_five: {dur: g => g.dur || 2.2, attack: 0.38, release: 0.45, fn(u, g) { return {set: CMD(g) ? HP(g.side, 0.5, 1.1, 0.5, 1, 1) : HP(g.side, 0.15, 0.85, 0.6, 1, 1), add: {smile: 0.4}}; }},   // asked for, the paw goes UP high
       blow_kiss: {dur: 1.8, attack: 0.3, release: 0.4, fn(u, g) {
         const s = g.side, out = mj(clamp((u - 0.7) / 0.45, 0, 1));
         if (S.face) {   // muse: the paw's fingertips on its lips first (head steady), then thrown out toward him
@@ -1370,6 +1393,48 @@
       quizzical: {dur: 1.8, attack: 0.3, release: 0.5, fn(u, g) {
         g.dir = g.dir || pick([-1, 1]);
         return {add: {head_roll: 0.11 * g.dir, brow_l: g.dir > 0 ? 0.45 : -0.1, brow_r: g.dir > 0 ? -0.1 : 0.45, brow_knit: 0.2, ear_l: 0.15 * g.dir, ear_r: -0.15 * g.dir}};
+      }},
+      // ---- a FEELING he asks to see ("look excited", "act scared") is played with the body, not the face alone.
+      // One short body phrase per family, started with the commanded expression (command0 'expression'); the face holds on.
+      feel_up: {dur: 4.0, attack: 0.25, release: 0.6, fn(u, g) {      // excited / thrilled: both paws up and pumping, bouncing, swaying
+        const k = g.k ?? 1, e = pulse(u, 0.1, 0.4, 3.2, 3.8), b = Math.sin(2 * Math.PI * 2.2 * u) * e, s = Math.sin(2 * Math.PI * 1.1 * u) * e;
+        return {set: Object.assign(HP('l', 0.3, 0.45 + (0.6 + 0.12 * b) * k, 0.15, 1, 1), HP('r', 0.3, 0.45 + (0.6 - 0.12 * b) * k, 0.15, 1, 1)),
+          add: {body_bounce: 0.6 * k * Math.abs(b), body_lean: 0.35 * k * s, head_roll: 0.08 * s, head_pitch: -0.05, eye_wide: 0.2, mouth_open: 0.25, tail_wag: 0.6 * Math.sin(2 * Math.PI * 3 * u)}};
+      }},
+      feel_glad: {dur: 4.0, attack: 0.35, release: 0.6, fn(u, g) {    // happy / proud / loving: a sway from side to side, paws lifted and swinging with it
+        const k = g.k ?? 1, e = pulse(u, 0, 0.4, 3.2, 3.9), s = Math.sin(2 * Math.PI * 0.9 * u) * e;
+        return {set: Object.assign(HP('l', 0.3, (0.45 - 0.2 * s) * k, 0.35, 1, 0.6), HP('r', 0.3, (0.45 + 0.2 * s) * k, 0.35, 1, 0.6)),
+          add: {body_bounce: 0.3 * k * Math.abs(s), body_lean: 0.5 * k * s, head_roll: 0.12 * s, smile: 0.2, squint: 0.2}};
+      }},
+      feel_shrink: {dur: 4.2, attack: 0.3, release: 0.7, fn(u, g) {   // scared / terrified / worried / nervous: pulled back and small, paws up in front, trembling, glancing about
+        const k = g.k ?? 1, tr = 0.035 * k * Math.sin(2 * Math.PI * 9 * u), gl = Math.sin(2 * Math.PI * 0.7 * u);
+        return {set: Object.assign(HP('l', IN(-0.36) + tr, 0.25 + 0.6 * k, 0.5, 0.4, 0), HP('r', IN(-0.36) - tr, 0.25 + 0.6 * k, 0.5, 0.4, 0)),
+          add: {body_pitch: -0.75 * k, body_bounce: -0.25 * k, body_lean: 4 * tr, head_pitch: 0.06, head_yaw: 0.12 * k * gl, gaze_x: 0.35 * gl, shoulder_l: 0.5 * k, shoulder_r: 0.5 * k, mouth_open: 0.2 * k}};
+      }},
+      feel_jolt: {dur: 3.2, attack: 0.22, release: 0.7, fn(u, g) {    // surprised: a start backward, paws flung up and open beside the face, held
+        const k = g.k ?? 1, j = pulse(u, 0, 0.25, 0.5, 1.0);
+        return {set: Object.assign(HP('l', 0.35, 0.85 * k, 0.35, 1, 1), HP('r', 0.35, 0.85 * k, 0.35, 1, 1)), add: {body_pitch: -0.5 * k - 0.3 * k * j, head_pitch: -0.08, mouth_open: 0.2}};
+      }},
+      feel_slump: {dur: 4.4, attack: 0.7, release: 0.9, fn(u, g) {    // sad / disappointed / hurt / tired: it sinks, the head hangs, a slow sway
+        const k = g.k ?? 1, s = Math.sin(2 * Math.PI * 0.35 * u);
+        return {add: {body_pitch: 0.5 * k, body_bounce: -0.4 * k, head_pitch: 0.2 * k, head_roll: 0.06 * s, body_lean: 0.15 * k * s, shoulder_l: -0.2, shoulder_r: -0.2, gaze_y: -0.3, hand_l_z: 0.12, hand_r_z: 0.12}};
+      }},
+      feel_tense: {dur: 4.0, attack: 0.25, release: 0.6, fn(u, g) {   // angry / frustrated / grumpy: fists on the hips, leaning in, two stomps of the body, a shake of the head
+        const k = g.k ?? 1, st = pulse(u, 0.6, 0.75, 0.85, 1.1) + pulse(u, 1.3, 1.45, 1.55, 1.8), sh = Math.sin(2 * Math.PI * 2.5 * u) * pulse(u, 2.0, 2.2, 3.0, 3.3);
+        return {set: Object.assign(HP('l', -0.1, 0.15, 0.05, 0, 0), HP('r', -0.1, 0.15, 0.05, 0, 0)), add: {body_pitch: 0.6 * k + 0.35 * k * st, body_bounce: -0.5 * k * st, head_pitch: 0.1 * k, head_yaw: 0.16 * k * sh, shoulder_l: 0.3, shoulder_r: 0.3}};
+      }},
+      feel_puzzled: {dur: 3.4, attack: 0.3, release: 0.6, fn(u, g) {  // confused / curious: a half shrug, palms up, leaning to one side to look
+        const k = g.k ?? 1, p = pulse(u, 0, 0.4, 2.6, 3.2);
+        return {set: Object.assign(HP('l', 0.35, 0.3 + 0.15 * p, 0.5, 1, 1), HP('r', 0.35, 0.3 + 0.15 * p, 0.5, 1, 1)), add: {shoulder_l: 0.7 * p, shoulder_r: 0.7 * p, body_lean: 0.5 * k * p, head_roll: 0.1 * p, brow_knit: 0.3, smile: -0.2}};
+      }},
+      feel_wary: {dur: 4.0, attack: 0.4, release: 0.7, fn(u, g) {     // suspicious / jealous / disgusted: arms folded, turned half away, a look back over the shoulder
+        const k = g.k ?? 1, up = Math.min(1, KM() - 1), gl = pulse(u, 0.8, 1.2, 2.6, 3.2);
+        return {set: Object.assign(HP('l', IN(-0.5), 0.5 + 0.05 * up, 0.4 + 0.1 * up, 0, 0), HP('r', IN(-0.3), 0.3, 0.45 + 0.35 * up, 0, 0)),
+          add: {body_yaw: 0.55 * k, body_pitch: -0.3 * k, head_yaw: -0.14 * k * gl, head_roll: 0.08, gaze_x: -0.4 * gl, shoulder_l: 0.4, shoulder_r: 0.4}};
+      }},
+      feel_shy: {dur: 4.0, attack: 0.4, release: 0.7, fn(u, g) {      // shy / embarrassed: paws together low in front, twisting away, looking down
+        const k = g.k ?? 1, s = Math.sin(2 * Math.PI * 0.6 * u);
+        return {set: Object.assign(HP('l', IN(-0.4), 0.2, 0.45, 0.4, 0), HP('r', IN(-0.4), 0.2, 0.45, 0.4, 0)), add: {body_yaw: 0.35 * k * s, body_lean: 0.2 * k, shoulder_l: 0.4, shoulder_r: 0.4}};
       }},
       startle_hands: {dur: 1.0, attack: 0.06, release: 0.6, fn() { return {add: {hand_l_y: 0.18, hand_r_y: 0.18, hand_l_z: 0.12, hand_r_z: 0.12, hand_l_open: 0.5, hand_r_open: 0.5}}; }},
     };
@@ -1661,7 +1726,8 @@
     EXPR.mad = EXPR.angry; EXPR.joy = EXPR.happy; EXPR.tired = EXPR.sleepy; EXPR.bored = EXPR.sleepy; EXPR.think = EXPR.thinking;
     const ALIAS_EXPR = {surprised: 'shocked amazed astonished surprising', sad: 'unhappy upset gloomy sorry', angry: 'grumpy furious cross annoyed angrily',
       happy: 'glad joyful cheerful cheer cute', scared: 'frightened terrified fearful scary', worried: 'nervous anxious', confused: 'puzzled',
-      disgusted: 'grossed gross', excited: 'thrilled', silly: 'goofy funny', thinking: 'thoughtful', love: 'loving', laughing: 'laugh'};
+      disgusted: 'grossed gross', excited: 'thrilled', silly: 'goofy funny', thinking: 'thoughtful', love: 'loving', laughing: 'laugh',
+      suspicious: 'jealous envious distrustful wary', proud: 'confident', shy: 'bashful', sleepy: 'exhausted', surprised: 'startled', curious: 'interested intrigued'};   // feelings the matcher can name
     for (const [k, v] of Object.entries(ALIAS_EXPR)) for (const a of v.split(' ')) EXPR[a] = EXPR[k];
     function startExpression(name, intensity = 1, hold = false, durS = 2.6, ease = 0.35) {
       const e = EXPR[name]; if (!e) return false;
@@ -1885,6 +1951,37 @@
       S.log.push({t: +S.t.toFixed(2), freeze: n});
       return n > 0;
     }
+    // ---- matcher poses on THIS body. A side lean: the waist dial alone is 12 degrees on a short-waisted
+    // body, so the head goes with it and (a whole-body character) the body tips a little the same way.
+    function leanSide(v) {
+      const sg = v >= 0 ? 1 : -1, m = Math.min(1, Math.abs(v) * 1.4), up = sg > 0 ? 'l' : 'r', dn = sg > 0 ? 'r' : 'l';   // + = toward screen-right
+      // the far arm lifts out for balance, the near arm hangs out from the tipped body: the lean reads from across the room
+      return Object.assign({body_lean: sg * m, head_roll: sg * 0.2 * m}, HP(up, 0.55 * m, 0.5 * m, 0.1 * m), HP(dn, 0.3 * m, -0.1 * m, 0.1 * m));
+    }
+    function bodyPose(name, targets) {
+      if (!LIBM()) return targets;
+      if (name === 'lean_side' && Number.isFinite(+targets.body_lean) && Object.keys(targets).length === 1) return leanSide(+targets.body_lean);
+      if (name === 'cross_arms') {   // both forearms across the chest, one above the other, at the body's own midline
+        const up = Math.min(1, KM() - 1);   // fists, one forearm above the other (no paw passes the midline on these bodies)
+        return Object.assign({}, targets, {hand_l_x: IN(-0.5), hand_l_y: 0.5 + 0.05 * up, hand_l_z: 0.4 + 0.1 * up, hand_r_x: IN(-0.3), hand_r_y: 0.3, hand_r_z: 0.45 + 0.35 * up,
+          hand_l_open: 0, hand_r_open: 0, shoulder_l: 0.4, shoulder_r: 0.4, body_pitch: -0.25});
+      }
+      return targets;
+    }
+    // the body phrase that goes with a commanded feeling (GEST feel_*), by the expression's own entry (aliases share it)
+    const FEEL_BODY = new Map();
+    for (const [g, names] of Object.entries({feel_up: 'excited', feel_glad: 'happy proud love', feel_laugh: 'laughing', feel_shrink: 'scared worried', feel_jolt: 'surprised',
+      feel_slump: 'sad disappointed hurt sleepy', feel_tense: 'angry frustrated grumpy', feel_puzzled: 'confused', feel_shy: 'shy embarrassed', feel_wary: 'suspicious disgusted'})) for (const n of names.split(' ')) if (EXPR[n]) FEEL_BODY.set(EXPR[n], g);
+    function feelBody(name, intensity, src) {
+      if (!LIBM() || cfg.feelBody === false || src === 'affect') return;
+      const f = FEEL_BODY.get(EXPR[name]); if (!f) return;
+      if (S.kf.length && kfBusy().any) return;                          // a planned move is playing: the face only
+      if (engineOn && engine.wholeBody && engine.wholeBody()) return;   // mid whole-body move: the face only
+      if (S.gestures.some(o => !o.rel && !o.isExpr && o.src === 'cmd' && !(o.g && o.g.feel))) return;   // a gesture he asked for is playing ("scratch your head and look confused"): the face only
+      const lite = EXPR[name] === EXPR.worried || EXPR[name] === EXPR.sleepy;
+      const G = startGesture(f === 'feel_laugh' ? 'laugh' : f, {src: 'cmd', via: src, feel: true, k: clamp((+intensity || 1) * (lite ? 0.7 : 1.1), 0.3, 1.3)});
+      if (G) ownOverHolds(G.params);
+    }
     // a pose aimed at the face, for a character with face points (the muse). Named matcher poses get the face
     // point outright (cover_eyes, cover_mouth, thinking / paw on chin, hand_on_head); any other pose whose paw target
     // is near one of the contract's face poses (mouth, chin, eyes — e.g. a pose-tool "touch your mouth") is drawn onto
@@ -1932,7 +2029,8 @@
       switch (cmd.action) {
         case 'pose': {
           let n = 0;
-          const tg = S.face ? facePose(cmd.name, cmd.targets || {}) : (cmd.targets || {});
+          const tg0 = bodyPose(cmd.name, cmd.targets || {});
+          const tg = S.face ? facePose(cmd.name, tg0) : tg0;
           for (const [k, v] of Object.entries(tg)) if (hold(k, v, ease, holdIt, durS)) n++;
           return n > 0;
         }
@@ -1976,6 +2074,7 @@
         case 'expression': {
           const name = String(cmd.name || '').toLowerCase();
           if (name === 'neutral' || name === 'none') { release('expression', cmd.ease_ms); for (const o of S.gestures) if (o.isExpr && !o.rel) o.rel = {t0: S.t, w: weightOf(o)}; return true; }
+          if (EXPR[name]) feelBody(name, cmd.intensity ?? 1, src);   // a commanded feeling moves the body too (before the face, which then holds over it)
           const okE = startExpression(name, cmd.intensity ?? 1, holdIt, durS ?? 2.6, ease);
           if (okE) { const GE = S.gestures[S.gestures.length - 1]; if (GE && GE.isExpr) ownOverHolds(GE.params); }
           return okE;
@@ -3703,6 +3802,9 @@
         const has = !!(engine && body && typeof body === 'object');
         S.gtune = has && body.gesture_tuning && typeof body.gesture_tuning === 'object' ? body.gesture_tuning : null;
         S.face = has ? makeFace(body) : null;
+        // the hand_x that puts a paw on the body's midline, from the body file's own hand map (contract -0.45)
+        { const hm = has && body.hand_map, rw = hm && hm.rest_wrist_scene, mx = Array.isArray(rw) ? -rw[0] / ((+hm.gain_x_in || 1.05) * (+hm.L_scene || 0.57)) : NaN;
+          S.midX = Number.isFinite(mx) && mx < -0.2 && mx > -1 ? mx : null; }
         // the character's own chin (see makeChin). S.chinNone: its arm cannot reach its chin at all
         const cg = !S.face && Object.prototype.hasOwnProperty.call(CHIN_GEOM, S.charName) ? CHIN_GEOM[S.charName] : null;
         S.chin = makeChin(cg); S.chinNone = !!cg && !S.chin;
