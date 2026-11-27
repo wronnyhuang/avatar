@@ -22,7 +22,9 @@ let fails = 0, passes = 0;
 const check = (n, ok, d) => { if (!ok || VERBOSE) console.log((ok ? 'PASS ' : 'FAIL ') + n + (d ? '  — ' + d : '')); if (ok) passes++; else fails++; };
 const feat = t => ({features: {t, face: {present: true, x: 0, y: 0, ax: 0, ay: 0, z: .5, lookX: 0, lookY: 0, blend: {}}, attending: true, attention: .9, motion: .02, hands: []}});
 function mkMotion(name, seed, onAction) {
-  const m = M.createMotion({seed, character: name, onAction});
+  // idle2 off — these checks compare a run with its same-seed counterfactual (no thinking); with idle2 on an idle
+  // never starts over a thinking stall, so the two runs' idle streams would part (tests/idle_away_test.cjs covers that guard)
+  const m = M.createMotion({seed, character: name, onAction, idle2: false});
   if (name === 'muse') m.setProps(JSON.parse(JSON.stringify(PROPS)), JSON.parse(JSON.stringify(BODY)), 'muse'); else m.setProps(null, null, name);
   return m;
 }

@@ -25,7 +25,9 @@ const PER = /^root_(yaw|pitch|roll)$/;
 // a character as the page runs it: the muse with its body + scene, every other character without (seated, no engine)
 function makeChar(name, seed = 4286) {
   const ev = [];
-  const m = M.createMotion({seed, character: name, onAction: e => ev.push(e)});
+  // idle2 off — the checks compare a job run with its same-seed no-job run; with idle2 on an idle never starts
+  // over a keyframe job, so the two runs' idle streams would part (tests/idle_away_test.cjs covers that guard)
+  const m = M.createMotion({seed, character: name, idle2: false, onAction: e => ev.push(e)});
   if (name === 'muse') m.setProps(JSON.parse(JSON.stringify(PROPS)), JSON.parse(JSON.stringify(BODY)), 'muse');
   else m.setProps(null, null, name);
   let t = 0;

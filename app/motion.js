@@ -191,6 +191,23 @@
     lively: {amp: 1.3, gest: 1.25, fidget: 1.4, mirror: 1.15, beat: 1.6, sway: 1.4},
   };
 
+  // idle while the user looks away: look-away / yawn / head-scratch style idles start somewhat sooner and come a bit
+  // more often. While he is LOOKING AWAY (seen, not attending for IDLE_AWAY.confirmS — a glance
+  // aside is not one; over once he has looked back for backS, or nobody has been in frame for goneS) the idle clock
+  // (behaviours: S.fidget.next) runs faster:
+  //   IDLE_AWAY_ONSET — until the first idle of that look-away the clock runs 1 / ONSET as fast in silence (measured: the
+  //                     median wait from his look-away to the first idle x0.63 .. 0.68, tests/idle_away_replay.cjs);
+  //   IDLE_AWAY_RATE  — after it, for as long as he stays away, the clock runs RATE as fast (measured: idles per away
+  //                     minute x1.3 .. 1.5), never closer than IDLE_AWAY.minGapS start to start (not a constant fidget).
+  // The same switch adds the guards the old scheduler lacked (a fidget could start in a 0.3 s pause between his words, or
+  // over a commanded gesture / a thinking stall / a keyframe job): an idle waits until nobody has been voiced for
+  // IDLE_AWAY.quietS and never starts over what the body was told to do (idleClear). A head scratch joins the idle bag
+  // while he is away (weight scratchW; the no-repeat bag still keeps the last three kinds out).
+  // Old timing, idle for idle: createMotion({idle2: false}) or the page URL's ?idle2=0.
+  const IDLE_AWAY_ONSET = 0.55;
+  const IDLE_AWAY_RATE = 1.4;
+  const IDLE_AWAY = {confirmS: 0.6, backS: 2.0, goneS: 20, quietS: 0.6, scratchW: 0.9, minGapS: 3.8};   // backS: looked back this long = the look-away is over; goneS: nobody in frame this long = not a look-away (no camera, he left)
+
   // ------------------------------------------------------------------ small math
   const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
   const lerp = (a, b, s) => a + (b - a) * s;
@@ -242,6 +259,12 @@
     let presetName = opts.preset;
     if (presetName === undefined) { try { presetName = new URLSearchParams(globalThis.location.search).get('mset') || 'default'; } catch (e) { presetName = 'default'; } }
     if (!PRESETS[presetName]) presetName = 'default';
+    // idle: the look-away idle timing (IDLE_AWAY_ONSET / IDLE_AWAY_RATE); createMotion({idle2: false}) or ?idle2=0 = the old timing
+    // (an object = on, with overrides for tuning / tests: {onset, rate, minGapS, ...IDLE_AWAY keys})
+    let idle2 = opts.idle2;
+    if (idle2 === undefined) { try { idle2 = new URLSearchParams(globalThis.location.search).get('idle2') !== '0'; } catch (e) { idle2 = true; } }
+    const IA = Object.assign({onset: IDLE_AWAY_ONSET, rate: IDLE_AWAY_RATE}, IDLE_AWAY, idle2 && typeof idle2 === 'object' ? idle2 : null);
+    idle2 = !!idle2;
     const K = PRESETS[presetName];
     cfg.mirrorGain = Object.assign({}, DEFAULTS.mirrorGain, (opts.config || {}).mirrorGain || {});
     const rnd = mulberry32((opts.seed ?? (Date.now() ^ 0x5bd1e995)) >>> 0);
@@ -947,12 +970,27 @@
       const bTarget = clamp((S.idleT - cfg.boredAfter) / 22, 0, 1) * (u.attending ? 0.7 : 1) + 0.5 * u.boredom * clamp(S.idleT / 6, 0, 1);
       S.bored = lp(S.bored, clamp(bTarget, 0, 1), dt, bTarget > S.bored ? 5 : 1.2);
       const fid = S.fidget;
-      fid.next -= dt * (0.3 + 0.9 * S.bored) * K.fidget;
-      if (fid.next <= 0) {
+      // idle: a look-away speeds the idle clock (sooner to the first idle, then a bit more often) — see IDLE_AWAY_ONSET
+      let awayK = 1;
+      if (idle2) {
+        const seen = u.present || (u.everSeen && u.absentT < IDLE_AWAY.goneS);
+        if (u.present) u.everSeen = true;
+        if (fid.away && (!seen || (u.attending && u.attT >= IA.backS))) fid.away = null;
+        else if (!fid.away && seen && !u.attending && u.awayT >= IA.confirmS) fid.away = {since: t - u.awayT, n: 0};
+        if (fid.away && !u.attending) awayK = fid.away.n ? IA.rate : (av.speaking || uv.speaking ? 1 : 1 / IA.onset);   // the wait to the first idle is a wait in silence
+      }
+      fid.next -= dt * (0.3 + 0.9 * S.bored) * K.fidget * awayK;
+      // "a bit more often" is not a constant fidget: while the clock is sped up, idles keep IA.minGapS between their starts
+      // and an idle starts in a real pause, not between two words (prosody's `speaking` drops 0.32 s into a pause): it
+      // waits until nobody has been voiced for IA.quietS — if the talk resumes first, it is dropped like before
+      const talk = av.speaking || uv.speaking;
+      if (fid.next <= 0 && idle2 && ((awayK > 1 && t - (fid.at ?? -99) < IA.minGapS) || (!talk && (av.silentT < IA.quietS || uv.silentT < IA.quietS)))) fid.next = 0;
+      else if (fid.next <= 0) {
         fid.next = logn(lerp(10, 5, S.bored), 0.35);
         // no idle fidget over a whole-body / object job (live v7: a 'sigh' fidget mid-offer left the ball
         // held at the belly; v3: a head_tilt mid-give)
-        if (!av.speaking && !uv.speaking && !S.cmdLook && !(engineOn && engine && ((engine.kit && engine.kit.busy && engine.kit.busy()) || (engine.wholeBody && engine.wholeBody())))) fidget();
+        if (!talk && !S.cmdLook && !(engineOn && engine && ((engine.kit && engine.kit.busy && engine.kit.busy()) || (engine.wholeBody && engine.wholeBody()))) &&
+          (!idle2 || idleClear())) fidget();
       }
       // idle ear twitches, nose twitches
       for (const s of ['l', 'r']) {
@@ -973,9 +1011,25 @@
       ['look_around', 3], ['weight_shift', 2], ['sigh', 1.4], ['ear_wiggle', 1], ['tail_swish', 1.2], ['paw_fidget', 1.6],
       ['head_tilt', 1.5], ['sniff', 1], ['stretch', 0.5], ['yawn', 0.45], ['chin_rest', 0.9], ['shoulder_roll', 0.8],
     ];
+    // idle: never an idle over what the body was told to do or is doing for the conversation: a commanded /
+    // co-speech gesture, a thinking stall (the head scratch stays the stall), a commanded look-around, a keyframe job
+    // (planned moves, writing). Object / whole-body jobs are the caller's older guard (engine.kit.busy).
+    function idleClear() {
+      // (through its release too; an open-ended commanded HOLD is a posture, not a move: idles go on around it as before)
+      for (const G of S.gestures) if (G.src === 'think' || ((G.src === 'cmd' || G.src === 'cospeech') && Number.isFinite(G.dur))) return false;
+      if (S.around && S.around.kind === 'cmd') return false;
+      return !(S.kf && S.kf.some(J => !J.term));
+    }
     function fidget() {
       const fid = S.fidget, b = S.bored;
-      const ok = FIDGETS.filter(([n]) => !fid.last.includes(n) &&
+      // idle: while he looks away a head scratch joins the bag, only where the paw is aimed at the character's own head (a body file with a temple: Muse, Juno, the
+      // mascots). The shader animals' scratch is a fixed dial pose that leaves the paw raised beside the ear on most of them
+      // (fox, orb, blob, hippo, drop: it reads as a raised paw / a wave at nobody)
+      const canScratch = !!(S.face && S.face.has && S.face.has('temple'));
+      const bag = idle2 && fid.away && IA.scratchW > 0 && canScratch ? FIDGETS.concat([['scratch_head', IA.scratchW]]) : FIDGETS;
+      if (fid.away) fid.away.n++;
+      fid.at = S.t;
+      const ok = bag.filter(([n]) => !fid.last.includes(n) &&
         !((n === 'stretch' || n === 'yawn') && (b < 0.55 || S.t - (fid.bigAt || -99) < 35)) &&
         !(n === 'chin_rest' && b < 0.35));
       let tot = 0; for (const [, w] of ok) tot += w;
@@ -3512,7 +3566,7 @@
       return {t: S.t, mode: S.mode, bored: S.bored, idleT: S.idleT, user: Object.assign({}, S.user, {hands: undefined}), expr: Object.assign({}, S.expr.m),
         speaking: S.av.speaking, listening: S.uv.speaking, holds: Object.keys(S.holds), gestures: S.gestures.map(g => g.name + ':' + g.src),
         cmdLook: S.cmdLook && S.cmdLook.target, focus: S.focus && S.focus.kind, avert: !!S.avert, around: S.around && S.around.kind,
-        eye: S.eye.W.slice(), head: S.headT.slice(), prior: !!prior, priorErr: S.priorErr || null, preset: presetName,
+        eye: S.eye.W.slice(), head: S.headT.slice(), prior: !!prior, priorErr: S.priorErr || null, preset: presetName, idle2, idleAway: S.fidget.away ? Object.assign({}, S.fidget.away) : null,
         kf: S.kf.map(kfSummary), listener: !!listener, listenerErr: S.listenerErr || null, program: !!programLayer, programErr: S.programErr || null};
     }
     // motion.state() → the action state (contract §4); motion.state.<x> still reads the internal state (old tests)
@@ -3574,6 +3628,6 @@
       setProbe, probe, meta};
   }
 
-  return {createMotion, RIG_PARAMS, SCHEMA_PARAMS, NEW_PARAMS, LIPSYNC: [...LIPSYNC], LEGACY: [...LEGACY], RANGE, DEFAULTS,
+  return {createMotion, IDLE_AWAY_ONSET, IDLE_AWAY_RATE, IDLE_AWAY, RIG_PARAMS, SCHEMA_PARAMS, NEW_PARAMS, LIPSYNC: [...LIPSYNC], LEGACY: [...LEGACY], RANGE, DEFAULTS,
     GAZE_RX, GAZE_RY, TAN_HFOV2, TAN_VFOV2, mj, softSat, splitHead, KF_ALIAS, LISTENER_GROUPS, SPEECH_GROUP};
 });
