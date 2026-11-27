@@ -4,21 +4,25 @@ const load = require('./load.cjs');
 const Moves = load('app/moves.js'); globalThis.AvatarMovesLib = Moves;
 const M = load('app/motion.js');
 const FIX = path.join(__dirname, 'fixtures');
-function museFiles() {
+// opts.propsPath: an explicit props file for this one engine (tests of the wearable-band engine logic load the pre-removal
+// scene tests/fixtures/muse_props_with_headphones.json = HP_FIXTURE; everything else gets the real scene)
+const HP_FIXTURE = path.join(FIX, 'muse_props_with_headphones.json');
+function museFiles(o = {}) {
   // default: the REAL files (renderer/animals); MUSE_MOCK=1 = the mocks
   const out = {body: JSON.parse(fs.readFileSync(path.join(FIX, 'muse_body_mock.json'))), props: JSON.parse(fs.readFileSync(path.join(FIX, 'muse_props_mock.json'))), src: 'mock'};
   const first = l => l.find(p => p && fs.existsSync(p));
   const A = path.join(__dirname, '..', 'renderer', 'animals');
   const bp = process.env.MUSE_BODY || (process.env.MUSE_MOCK ? null : first([path.join(A, 'muse.body.json')]));
-  const pp = process.env.MUSE_PROPS || (process.env.MUSE_MOCK ? null : first([path.join(A, 'muse.props.json')]));
+  const pp = o.propsPath || process.env.MUSE_PROPS || (process.env.MUSE_MOCK ? null : first([path.join(A, 'muse.props.json')]));
   if (bp && fs.existsSync(bp)) { out.body = JSON.parse(fs.readFileSync(bp)); out.src = 'real body'; }
   if (pp && fs.existsSync(pp)) { out.props = JSON.parse(fs.readFileSync(pp)); out.src += '+real props'; }
   return out;
 }
 function makeMuse(seed = 5, opts = {}) {
   const ev = [];
-  const m = M.createMotion(Object.assign({seed, preset: 'default', onAction: e => ev.push(e)}, opts));
-  const f = museFiles();
+  const {propsPath, ...mopts} = opts;
+  const m = M.createMotion(Object.assign({seed, preset: 'default', onAction: e => ev.push(e)}, mopts));
+  const f = museFiles({propsPath});
   m.setProps(f.props, f.body, 'muse');
   const face = {present: true, x: 0.05, y: 0.02, z: 0.45, yaw: 0, pitch: 0, roll: 0, blend: {}};
   const rows = [];
@@ -27,4 +31,4 @@ function makeMuse(seed = 5, opts = {}) {
   function runUntilIdle(maxS = 60) { const n0 = rows.length; for (let i = 0; i < maxS * 30; i++) { step(1); const E = m.engine.E; if (!E.move && !E.chain && !E.jobs.length && !E.queue && !E.oqueue && i > 3) break; } return (rows.length - n0) / 30; }
   return {m, ev, rows, step, runUntilIdle, files: f, DT};
 }
-module.exports = {M, Moves, makeMuse, museFiles};
+module.exports = {M, Moves, makeMuse, museFiles, HP_FIXTURE};

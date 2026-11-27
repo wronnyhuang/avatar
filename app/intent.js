@@ -324,6 +324,7 @@
     for (const c of (Array.isArray(cfg) ? cfg : [cfg])) {
       if (!c || typeof c !== 'object') continue;
       for (const p of (c.props || [])) {
+        if (p && p.removed) continue;   // flagged removed: out of the scene
         const words = (p.aliases || []).concat([String(p.id || '').replace(/_/g, ' '), String(p.name || '')]);
         for (let w of words) {
           w = normalize(w).join(' ').replace(/\|/g, '').trim();
@@ -1153,6 +1154,7 @@
     const props = [], places = [];
     for (const c of cs) {
       for (const p of (c.props || [])) {
+        if (p && p.removed) continue;   // flagged removed: out of the scene
         const words = new Set(); for (const w of [p.id, p.name, p.kind, p.category].concat(p.aliases || [])) for (const t of sceneToks(w)) { words.add(t); words.add(sing(t)); }
         const colors = new Set([p.color].concat(p.colors || []).filter((x) => typeof x === 'string').map((x) => x.toLowerCase()));
         props.push({id: String(p.id), words, colors});

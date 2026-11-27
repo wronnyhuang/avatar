@@ -73,11 +73,9 @@
     "side table",
     "little table",
     "small table",
-    "stand",
-    "headphone stand",
     "end table"
    ],
-   "kind": "table_stand",
+   "kind": "table",
    "movable": false,
    "center": [
     1.0,
@@ -90,7 +88,6 @@
    ],
    "top_y": 0.15652,
    "floor_y": 0.0,
-   "stand_top_y": 0.45,
    "rgb": [
     176,
     128,
@@ -108,7 +105,7 @@
      0.46087
     ]
    ],
-   "notes": "a low oak side table with a headphone stand (post + padded saddle) in the middle; the headphones hang there, their cups beside the table (scene: moved front-right of home so it no longer hides the chalkboard)"
+   "notes": "a low oak side table (its headphone stand and the headphones were removed from the scene)"
   },
   {
    "id": "desk_top",
@@ -523,6 +520,8 @@
   {
    "slot": 0,
    "id": "headphones",
+   "removed": true,
+   "_removed_note": "taken out of the scene at the owner's request; the slot stays so prop1.. keep their columns. To bring it back delete these two lines and set side_table back to kind table_stand + stand_top_y 0.45.",
    "name": "pink headphones",
    "color": "pink",
    "colors": [

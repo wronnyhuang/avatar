@@ -3,7 +3,11 @@
 // the action events, smoothness (no pops), planted feet that do not slide, props never floating / duplicated.
 // MUSE_BODY=… MUSE_PROPS=… point it at the real renderer/animals/muse.{body,props}.json. Exit code = failures.
 'use strict';
-const {makeMuse} = require('./muse_lib.cjs');
+const {makeMuse, HP_FIXTURE} = require('./muse_lib.cjs');
+// the headphones (and their stand) are out of the real scene. The headline / reverse / full
+// reverse / put-away / variants A+B are the two-paw wearable-band engine story, so they keep running on the pre-removal
+// scene (tests/fixtures/muse_props_with_headphones.json, loaded explicitly per engine); sections 5..7 run on the real scene.
+const HP = {propsPath: HP_FIXTURE};
 let fails = 0; const out = [];
 const T00 = Date.now(); const check = (name, ok, detail) => { const l = (ok ? 'PASS ' : 'FAIL ') + name + (detail ? '  — ' + detail : ''); out.push(l); if (!ok) fails++; if (process.env.MUSE_PROGRESS) console.error(((Date.now() - T00) / 1000).toFixed(1) + 's ' + l.slice(0, 160)); };
 const O = (verb, name, extra = {}) => Object.assign({action: 'object', verb, object: name ? {name} : undefined}, extra);
@@ -70,7 +74,7 @@ function run(T, cmds, label, opt = {}) {
 const st = T => T.m.state();
 const wrap = x => x - Math.round(x);
 // ---------------------------------------------------------------- 1. the headline, step by step
-const T = makeMuse(11);
+const T = makeMuse(11, HP);
 T.step(10);
 run(T, [O('pick_up', 'headphones'), O('put_on', 'headphones'), O('pull', 'chair', {target: 'me'}), O('pull', 'desk', {target: 'me'}),
   O('pull', 'chair', {target: {object: {name: 'desk'}}}), O('sit_in', 'chair'), O('pick_up', 'laptop'), O('slide', 'laptop', {target: 'closer'}),
@@ -120,7 +124,7 @@ check('reverse: headphones off (put down somewhere), standing, chair back from t
 smooth(T, 'reverse', r0); feet(T, 'reverse', r0); props(T, 'reverse', r0);
 // ---------------------------------------------------------------- 2b. (c2) the FULL reverse: headline forward, then everything undone —
 // the headphones back on their stand (band on the saddle = the props JSON home pose), the laptop closed and put back
-{ const R = makeMuse(13); R.step(10);
+{ const R = makeMuse(13, HP); R.step(10);
   run(R, [O('pick_up', 'headphones'), O('put_on', 'headphones'), O('pull', 'chair', {target: 'me'}), O('pull', 'desk', {target: 'me'}),
     O('pull', 'chair', {target: {object: {name: 'desk'}}}), O('sit_in', 'chair'), O('pick_up', 'laptop'), O('slide', 'laptop', {target: 'closer'}),
     O('open', 'laptop'), O('type_on', 'laptop'), O('turn_back')], 'full reverse — forward part', {tail: 30});
@@ -143,7 +147,7 @@ smooth(T, 'reverse', r0); feet(T, 'reverse', r0); props(T, 'reverse', r0);
 // the other phrasings from the seat, holding the headphones it just took off: put them away / down where they were / return (no object)
 { const res = [];
   for (const [i, c] of [O('put_away', 'headphones'), O('put_down', 'headphones', {place: 'where they were'}), {action: 'object', verb: 'return'}].entries()) {
-    const V = makeMuse(90 + i); V.step(10);
+    const V = makeMuse(90 + i, HP); V.step(10);
     for (const c0 of [O('put_on', 'headphones'), O('pull', 'chair', {target: {object: {name: 'desk'}}}), O('sit_in', 'chair'), O('take_off', 'headphones')]) { V.m.command(c0, {src: 'test'}); V.runUntilIdle(90); }
     const held0 = !!V.m.state().holding.left || !!V.m.state().holding.right, r = V.m.command(c, {src: 'test'}); V.runUntilIdle(90); V.step(20);
     const hp = V.m.engine.E.P.find(p => p.id === 'headphones'), sV = V.m.state();
@@ -151,13 +155,13 @@ smooth(T, 'reverse', r0); feet(T, 'reverse', r0); props(T, 'reverse', r0);
   }
   check('put them away / down where they were / return it (seated, holding them): back on the stand, nothing left held', res.every(x => x.ok), res.map(x => x.d).join(' | ').slice(0, 600)); }
 // ---------------------------------------------------------------- 3. variant A: one request, three commands at once
-const A = makeMuse(21); A.step(10);
+const A = makeMuse(21, HP); A.step(10);
 run(A, [O('put_on', 'headphones'), O('sit_at', 'laptop'), O('work_on', 'laptop')], 'variant A (one-shot "put on your headphones and sit down at your laptop and get to work")', {batch: true, tail: 120});
 s = st(A);
 check('variant A: wearing headphones, seated at the desk, laptop open, typing', s.wearing.includes('headphones') && s.sittingOn === 'chair' && s.atDesk && s.activity === 'typing', JSON.stringify({w: s.wearing, sit: s.sittingOn, desk: s.atDesk, act: s.activity, open: s.open}));
 smooth(A, 'variant A'); feet(A, 'variant A'); props(A, 'variant A');
 // ---------------------------------------------------------------- 4. variant B: other order (sit first, then the desk, then work)
-const Bm = makeMuse(31); Bm.step(10);
+const Bm = makeMuse(31, HP); Bm.step(10);
 run(Bm, [{action: 'move', name: 'sit'}, O('pull', 'desk', {target: 'me'}), O('work_on', 'laptop'), O('put_on', 'headphones')], 'variant B (sit → pull the desk → work → headphones)', {tail: 90});
 s = st(Bm);
 check('variant B: ends seated at the desk typing... then (headphones last) wearing them; typing resumed or stopped truthfully', s.wearing.includes('headphones') && (s.sittingOn === null || s.sittingOn === 'chair'), JSON.stringify({w: s.wearing, sit: s.sittingOn, desk: s.atDesk, act: s.activity}));
@@ -207,7 +211,7 @@ smooth(D, 'cancel'); feet(D, 'cancel'); props(D, 'cancel');
   check('chair against the desk: pull / push it from a reach-checked grip (both handles, a stance with room)', res.every(x => x.ok), res.map(x => x.d).join(' | ')); }
 // ---------------------------------------------------------------- 7. truthful failures
 const F = makeMuse(61); F.step(5);
-const f1 = F.m.command(O('pick_up', 'piano'), {src: 'test'}), f2 = F.m.command(O('pick_up', 'desk'), {src: 'test'}), f3 = F.m.command(O('take_off', 'headphones'), {src: 'test'});
+const f1 = F.m.command(O('pick_up', 'piano'), {src: 'test'}), f2 = F.m.command(O('pick_up', 'desk'), {src: 'test'}), f3 = F.m.command(O('take_off', 'hat'), {src: 'test'});   // the real scene's wearable is the hat
 check('failures are truthful: no such object / furniture is not picked up / not wearing it', !f1.ok && /no piano/.test(f1.reason) && !f2.ok && f3.ok && /not wearing/.test(f3.did), [f1.reason, f2.reason, f3.did].join(' | '));
 // timing
 // on a busy shared machine (load averages of 30+) the best of 3 identical runs is the
@@ -217,5 +221,5 @@ for (let k = 0; k < 3; k++) { const TT = makeMuse(71); TT.step(5); TT.m.command(
 const us = Math.min(...runsUs);
 check('step() cost while walking / dragging / typing ≤ 500 µs (best of 3 runs)', us <= 500, `${us.toFixed(0)} µs per frame (runs ${runsUs.map(x => x.toFixed(0)).join(' / ')} µs)`);
 console.log(out.join('\n'));
-console.log(`\n${out.length - fails}/${out.length} passed (files: ${T.files.src})`);
+console.log(`\n${out.length - fails}/${out.length} passed (files: ${T.files.src} = the headphones fixture for 1..4; ${F.files.src} for 5..7)`);
 process.exit(fails);

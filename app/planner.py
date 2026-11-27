@@ -581,6 +581,14 @@ GRIP_WORDS = {"power": "one paw", "pinch": "one paw, small pinch", "two_hand": "
 _SCENES: dict = {}
 
 
+def scene_present(cfg):
+    """a props file may flag a prop "removed": true (out of the scene; the renderer keeps its slot empty).
+    The page, the matcher and the planners never hear of it."""
+    if isinstance(cfg, dict) and isinstance(cfg.get("props"), list) and any(isinstance(p, dict) and p.get("removed") for p in cfg["props"]):
+        cfg = dict(cfg, props=[p for p in cfg["props"] if not (isinstance(p, dict) and p.get("removed"))])
+    return cfg
+
+
 def load_scene(character: str, d: str | None = None) -> dict | None:
     """the character's props file (cached by mtime), or None (no scene)"""
     path = os.path.join(d or SCENE_DIR, f"{character}.props.json")
@@ -598,6 +606,7 @@ def load_scene(character: str, d: str | None = None) -> dict | None:
         return None
     if not isinstance(cfg, dict) or not isinstance(cfg.get("props"), list):
         return None
+    cfg = scene_present(cfg)
     _SCENES[path] = (mt, cfg)
     return cfg
 

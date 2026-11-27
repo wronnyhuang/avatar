@@ -194,7 +194,8 @@ for (const ch of ['muse', 'fox', 'orb', 'cube', 'blob']) for (const rs of [3, 11
   check('(e) a held head pose: the head variants are refused (never fights it)', !rr.ok || !/up|tilt|hmm|away/.test(rr.variant), JSON.stringify(rr));
   // the muse holding a prop in a paw: the paw variant uses the other paw or falls back to the paw-less main pose
   const Z = scene('muse', {think: false});
-  Z.m.command({action: 'object', verb: 'pick_up', object: {id: 'headphones'}}, {src: 'tool'}); Z.step(12);
+  // the headphones left the real scene — the yellow ball is the held prop now (it was a silent no-op)
+  Z.m.command({action: 'object', verb: 'pick_up', object: {id: 'ball'}}, {src: 'tool'}); Z.step(12);
   const hold = Z.m.state().holding || {}, rz = Z.m.think({variant: 'chin', side: hold.right ? 'l' : 'r'});
   check('(e) muse holding a prop: the chin pose takes the free paw or falls back (prop stays put)', rz.ok && (rz.variant === 'away' || rz.side !== (hold.right ? 'l' : 'r') || !(hold.left || hold.right)),
     `holding ${JSON.stringify(hold)}, think -> ${JSON.stringify(rz)}`);

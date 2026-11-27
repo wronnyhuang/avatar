@@ -46,6 +46,14 @@ def act_for(character: str | None) -> bool:
     return bool(character) and (character in ACT_CHARACTERS or "*" in ACT_CHARACTERS)
 
 
+def scene_present(cfg):
+    """a props file may flag a prop "removed": true (out of the scene; the renderer keeps its slot empty).
+    The page, the matcher and the planners never hear of it."""
+    if isinstance(cfg, dict) and isinstance(cfg.get("props"), list) and any(isinstance(p, dict) and p.get("removed") for p in cfg["props"]):
+        cfg = dict(cfg, props=[p for p in cfg["props"] if not (isinstance(p, dict) and p.get("removed"))])
+    return cfg
+
+
 def scene_for(character: str | None):
     """config.props of a character: renderer/animals/<c>.props.json (props agent), else renderer/props/<c>.json,
     else the mock scene (tests/props_mock/<c>.json) until the real one lands. None when there is none."""
@@ -58,7 +66,7 @@ def scene_for(character: str | None):
                os.path.join(RENDER_ROOT, "props", f"{character}.json"), os.path.join(MOCK_PROPS, f"{character}.json")):
         try:
             with open(fn, encoding="utf-8") as f:
-                sc = json.load(f)
+                sc = scene_present(json.load(f))
             break
         except (OSError, ValueError):
             continue

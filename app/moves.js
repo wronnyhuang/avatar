@@ -482,6 +482,7 @@
       props = adaptProps(props); body = adaptBody(body || (props && props.body) || null);
       E.body = bodyModel(body);
       E.props = props && typeof props === 'object' && Array.isArray(props.props) ? props : null;
+      if (E.props && E.props.props.some(d => d && d.removed)) E.props = Object.assign({}, E.props, {props: E.props.props.filter(d => !(d && d.removed))});   // a prop flagged "removed" is out of the scene (the hub drops it too)
       E.places = E.props && Array.isArray(E.props.places) ? E.props.places.map(normPlace).filter(Boolean) : [];
       if (!E.places.some(p => p.id === 'floor')) E.places.push({id: 'floor', name: 'the floor', aliases: ['floor', 'ground'], center: [0, 0, 0.5], size: [3, 2], top_y: 0, spots: [[-0.28, 0, 0.55], [0.28, 0, 0.55], [0, 0, 0.62], [-0.5, 0, 0.45], [0.5, 0, 0.45]], floor: true});
       const R = E.props && E.props.reach || {};

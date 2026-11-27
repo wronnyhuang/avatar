@@ -45,6 +45,8 @@ def _scene(character):
         cfg = json.load(open(path, encoding="utf-8"))
     except (OSError, ValueError):
         return None
+    if isinstance(cfg, dict) and isinstance(cfg.get("props"), list):      # a prop flagged "removed" is not in the scene
+        cfg = dict(cfg, props=[p for p in cfg["props"] if not (isinstance(p, dict) and p.get("removed"))])
     body = {}
     bpath = os.path.join(SCENE_DIR, f"{name}.body.json")
     if character == "juno":

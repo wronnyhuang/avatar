@@ -312,7 +312,7 @@ MOVES = ["spin", "twirl", "turn", "turn_away", "turn_back", "backflip", "frontfl
 OBJECT_VERBS = ["pick_up", "put_down", "put_back", "place", "show", "inspect", "turn", "flip", "hand_over", "toss", "drop",
                 "shake", "hug", "offer", "smell", "put_on", "take_off", "pull", "push", "bring", "slide", "sit_in",
                 "sit_at", "stand_up", "open", "close", "work_on", "type_on", "stop", "turn_back"]
-ACT_NOTE = ("Whole-body moves use `move`; anything to do with the things around you (headphones, chair, desk, laptop and "
+ACT_NOTE = ("Whole-body moves use `move`; anything to do with the things around you (hat, chair, desk, laptop and "
             "the rest) uses `object`. Use them only when he asks you to do it now ('can you ...?' counts), never on your "
             "own and never for his stories, wishes, a 'don't', or questions about what you did or are doing. "
             # (seen in testing: "if I asked you to jump, could you?" -> it jumped)
@@ -347,12 +347,12 @@ def act_tools() -> list[dict]:
              "required": ["name"]}},
         {"type": "function", "name": "object",
          "description": "Do something with a thing around you: pick up, put down/back, show, toss, hug, put on/take off "
-                        "(headphones), pull/push/bring/slide (chair, desk, laptop), sit in/at, stand up, open/close, "
+                        "(hat, sunglasses), pull/push/bring/slide (chair, desk, laptop), sit in/at, stand up, open/close, "
                         "work on the laptop, turn back to him. 'Give me' = offer; hand_over = to your other hand; stop = stop working." + silent,
          "parameters": {"type": "object", "properties": {
              "verb": {"type": "string", "enum": OBJECT_VERBS},
              "object": {"type": "object", "description": "which thing; omit for what you hold or just used",
-                        "properties": {"name": {"type": "string", "description": "e.g. ball, headphones, chair, laptop"},
+                        "properties": {"name": {"type": "string", "description": "e.g. ball, hat, chair, laptop"},
                                        "color": {"type": "string"},
                                        "ref": {"type": "string", "enum": ["it", "other", "all"]}}},
              "target": {"type": "string", "description": "where to: me, closer, back, away, or a thing (desk)"},
@@ -405,11 +405,11 @@ def live_session(name: str, what: str, voice: str, *a, **k) -> dict:   # noqa: F
     if act_for(what, character):
         r = s["delegation"]["responses"]
         r["tools"] = _act_gesture(list(r["tools"])) + act_tools()
-        r["instructions"] += " Whole-body moves use `move`; things around you (headphones, chair, desk, laptop) use " \
+        r["instructions"] += " Whole-body moves use `move`; things around you (hat, chair, desk, laptop) use " \
                              "`object`, only for what he asks for now; several steps = several calls in order. If a result has ok false, answer with its reason instead of done."
         s["instructions"] = s["instructions"].replace(
             "- Body movement: ", "- Body movement and the things around you: spin, flip, jump, dance, walk, sit, stand, "
-            "pick up, put on headphones, pull a chair, open the laptop and work, ")
+            "pick up, put on the hat, pull a chair, open the laptop and work, ")
     return s
 # intent end
 
@@ -671,7 +671,7 @@ P_PROGRAM = ("A rule or routine he wants your body to keep following (whenever s
              "taught you, when the camera noticed something, and when he signals that he wants you to talk. When a note "
              "asks you to speak, answer in a few natural words of your own, fitting the moment; otherwise just keep it in "
              "mind. ")
-P_OBJECT_NOTE = ("Anything he asks you to do with or to one of the things around you (headphones, chair, desk, laptop, "
+P_OBJECT_NOTE = ("Anything he asks you to do with or to one of the things around you (hat, chair, desk, laptop, "
                  "the chalk and eraser on the board's tray and the rest: fetching, holding up to show him, giving, waving, "
                  "putting it somewhere, wearing, opening, pushing, sitting, juggling, throwing, pouring, kicking) uses "
                  "`object` instead, same rules, never a mime; several such steps in one request = calls in order (a body "
@@ -769,7 +769,7 @@ def live_session(name: str, what: str, voice: str, *a, planner: bool | None = No
                          "Interruption policy: Stop speaking when the user interrupts. Listen to what they say.\n"
                          "Delegation policy:\nBackend tools:\n"
                          f"- {ACTION_TOOL}: anything the user asks your body to do.\n"
-                         + ("- object: the things around you (headphones, chair, desk, laptop).\n" if act else "") +
+                         + ("- object: the things around you (hat, chair, desk, laptop).\n" if act else "") +
                          "- Behaviours, looks, style and gestures: start_behavior, change_behavior, stop_behavior, "
                          "list_behaviors, look, set_style, learn_gesture.\n"
                          "- Small gestures and faces of your own while you talk.\n"
@@ -787,7 +787,7 @@ def live_session(name: str, what: str, voice: str, *a, planner: bool | None = No
     r["instructions"] = (f"You move the body of {name}, a cartoon {what}. For anything the user asked the body to do, make "
                          f"exactly one {ACTION_TOOL} call with the request restated completely (counts, direction, speed, "
                          "style, which paw, the order of the steps; talk = how the user wants it to talk during it)"
-                         + (", except plain single steps with the things around it (headphones, chair, desk, laptop): "
+                         + (", except plain single steps with the things around it (hat, chair, desk, laptop): "
                             "`object`, several steps = several calls in order; tricks with things stay one "
                             f"{ACTION_TOOL} call" if act else "") +
                          ". A lasting rule or routine: start_behavior / change_behavior / stop_behavior / list_behaviors; "

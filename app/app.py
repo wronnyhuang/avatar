@@ -38,6 +38,14 @@ _SCENE_CACHE: dict = {}
 MESH_CHARS = ("junor",)      # characters drawn by the mesh renderer (renderer/mesh, assets in renderer/humans/<c>/)
 
 
+def scene_present(cfg):
+    """a props file may flag a prop "removed": true (out of the scene; the renderer keeps its slot empty).
+    The page, the matcher and the planners never hear of it."""
+    if isinstance(cfg, dict) and isinstance(cfg.get("props"), list) and any(isinstance(p, dict) and p.get("removed") for p in cfg["props"]):
+        cfg = dict(cfg, props=[p for p in cfg["props"] if not (isinstance(p, dict) and p.get("removed"))])
+    return cfg
+
+
 def _mesh_files(renderer_root: str, character: str) -> dict:
     """config.body / config.props of a mesh character: renderer/humans/charfiles.py (body json from humans/<c>/, props = the
     shared muse.props.json deep-merged with humans/<c>/<c>.props.override.json, never a copy)."""
@@ -56,7 +64,7 @@ def _mesh_files(renderer_root: str, character: str) -> dict:
             print(f"config.{kind}: {character} unreadable: {type(e).__name__}: {e}", flush=True)
             continue
         if v is not None:
-            out[kind] = v
+            out[kind] = scene_present(v) if kind == "props" else v
     return out
 
 
@@ -73,7 +81,7 @@ def char_scene(character: str) -> dict:
         if os.path.isfile(fp):
             try:
                 with open(fp, encoding="utf-8") as f:
-                    out[key] = json.load(f)
+                    out[key] = scene_present(json.load(f))
             except (OSError, ValueError):
                 pass
     _SCENE_CACHE[character] = out
@@ -210,7 +218,7 @@ def load_char_files(cfg: dict, character: str) -> dict:
             p = os.path.join(d, f"{character}.{kind}.json")
             try:
                 with open(p, encoding="utf-8") as f:
-                    out[kind] = json.load(f)
+                    out[kind] = scene_present(json.load(f))
             except FileNotFoundError:
                 pass
             except (OSError, ValueError) as e:

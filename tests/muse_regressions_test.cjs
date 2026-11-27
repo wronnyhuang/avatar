@@ -3,29 +3,37 @@
 // furniture slide, unknown place → own spot, seated fetch. Exit code = failures.
 'use strict';
 const fs = require('fs'), path = require('path');
-const {makeMuse, museFiles} = require('./muse_lib.cjs');
+const {makeMuse, museFiles, HP_FIXTURE} = require('./muse_lib.cjs');
 const load = require('./load.cjs');
 const {Intent, IntentDedupe} = load('app/intent.js');
 let fails = 0;
 const check = (n, ok, d) => { console.log((ok ? 'PASS ' : 'FAIL ') + n + (d ? '  — ' + d : '')); if (!ok) fails++; };
 const O = (verb, o, x) => Object.assign({action: 'object', verb, object: typeof o === 'string' ? {id: o} : o}, x || {});
 const props = museFiles().props;
-const matcher = Intent.create(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'app', 'intent_rules.json'))), {scene: props});
+const RULES = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'app', 'intent_rules.json')));
+const matcher = Intent.create(RULES, {scene: props});
+// the headphones left the real scene. The cases about the two-paw wearable band (its pronouns, an
+// explicit paw taking it off, a replaced put-back, headset = pink headphones, the reverse burst, its own spot on the stand)
+// run on the pre-removal scene, loaded explicitly: HP for the engine, propsHP / matcherHP for the matcher and the dedupe.
+const HP = {propsPath: HP_FIXTURE}, propsHP = museFiles(HP).props, matcherHP = Intent.create(RULES, {scene: propsHP});
 const idle = T => { const E = T.m.engine.E; return !E.move && !E.chain && !E.jobs.length && !E.queue && !E.oqueue; };
 const runIdle = (T, s = 60) => { for (let i = 0; i < s * 30; i++) { T.step(1, false); if (idle(T) && i > 3) return true; } return false; };
 const where = (T, id) => (T.m.state().props.find(p => p.id === id) || {}).where;
 const winding = (T, from) => { let acc = 0; for (let i = from + 1; i < T.rows.length; i++) { let d = (T.rows[i].root_yaw || 0) - (T.rows[i - 1].root_yaw || 0); d -= Math.round(d); acc += d; } return acc; };
-const say = (T, text) => matcher.parse(text, {final: true, stable: true}).map(h => T.m.command(h.cmd, {src: 'matcher'}));
+const say = (T, text, mt = matcher) => mt.parse(text, {final: true, stable: true}).map(h => T.m.command(h.cmd, {src: 'matcher'}));
 
 // ---- B2: pronouns bind to the step before them (my own phrasings)
 for (const [pre, text, check2] of [
   [[O('put_on', 'headphones')], 'please take the headphones off and then put them back where they go', T => where(T, 'headphones') === 'home' && !T.m.state().wearing.length],
   [[O('put_on', 'headphones')], 'remove the headphones and put it away', T => where(T, 'headphones') === 'home'],
-  [[], 'grab the yellow ball and set it down', T => where(T, 'ball') === 'floor' && !T.m.state().holding.left && !T.m.state().holding.right],
+  // "set it down" = the nearest free surface: with the headphone stand gone the side table has a free spot next to
+  // the book, so the ball may land there (before: floor). The case is about the pronoun, so any put-down place counts.
+  [[], 'grab the yellow ball and set it down', T => /^(floor|side_table)$/.test(where(T, 'ball')) && !T.m.state().holding.left && !T.m.state().holding.right],
   [[O('pick_up', 'book')], 'grab the mug and then put it on the desk', T => /desk/.test(where(T, 'mug')) && T.m.state().holding.left !== 'mug' && T.m.state().holding.right !== 'mug'],
 ]) {
-  const T = makeMuse(7); T.step(5, false); for (const c of pre) { T.m.command(c); runIdle(T, 30); }
-  const rs = say(T, text); runIdle(T, 60);
+  const hp = /headphones/.test(text);
+  const T = makeMuse(7, hp ? HP : {}); T.step(5, false); for (const c of pre) { T.m.command(c); runIdle(T, 30); }
+  const rs = say(T, text, hp ? matcherHP : matcher); runIdle(T, 60);
   check(`B2 "${text}": every step accepted, the pronoun means the thing named before it`, rs.length >= 2 && rs.every(r => r.ok) && check2(T), rs.map(r => r.ok + ':' + String(r.did || r.reason).slice(0, 60)).join(' | ') + ' | ' + JSON.stringify(T.m.state().props.filter(p => ['headphones', 'ball', 'mug'].includes(p.id)).map(p => p.id + ':' + p.where)));
 }
 { // the voice model's two calls in sequence with ref 'it' while the first is still queued
@@ -33,19 +41,19 @@ for (const [pre, text, check2] of [
   const a = T.m.command(O('pick_up', {name: 'plant'}), {src: 'voice'}), b = T.m.command(O('put_back', {ref: 'it'}), {src: 'voice'}); runIdle(T, 60);
   check('B2 model calls pick_up plant → put_back {ref:it} (queued): binds to the plant', a.ok && b.ok && where(T, 'plant') === 'home' && !T.m.state().holding.left && !T.m.state().holding.right, (b.did || b.reason));
 }
-{ const ps = matcher.parse('take off the headphones and put them down', {final: true}).map(h => h.cmd);
+{ const ps = matcherHP.parse('take off the headphones and put them down', {final: true}).map(h => h.cmd);
   check('B2 matcher: "them" after one named thing is {ref:it}, not {ref:all}', ps.length === 2 && JSON.stringify(ps[1].object) === '{"ref":"it"}', JSON.stringify(ps));
   const pa = matcher.parse('put them all back', {final: true}).map(h => h.cmd);
   check('B2 matcher: an explicit "all" stays all', pa.length === 1 && pa[0].object.ref === 'all', JSON.stringify(pa)); }
 
 // ---- B3: an explicit paw is honored (character's own frame), two-pawed props unaffected
-for (const id of ['ball', 'headphones', 'plant']) for (const side of ['left', 'right']) {
-  const T = makeMuse(9); T.step(5, false); const r = T.m.command(O('pick_up', id, {side})); runIdle(T, 30);
+for (const id of ['ball', 'headphones', 'plant', 'hat']) for (const side of ['left', 'right']) {
+  const T = makeMuse(9, id === 'headphones' ? HP : {}); T.step(5, false); const r = T.m.command(O('pick_up', id, {side})); runIdle(T, 30);
   check(`B3 pick up the ${id} with the ${side} paw → state().holding.${side}`, r.ok && T.m.state().holding[side] === id, JSON.stringify(T.m.state().holding));
 }
 { const T = makeMuse(9); T.step(5, false); T.m.command(O('pick_up', 'laptop', {side: 'right'})); runIdle(T, 30);
   const h = T.m.state().holding; check('B3 a two-pawed prop with a side: still both paws', h.left === 'laptop' && h.right === 'laptop', JSON.stringify(h)); }
-{ const T = makeMuse(9); T.step(5, false); T.m.command(O('put_on', 'headphones')); runIdle(T, 30); T.m.command(O('take_off', 'headphones', {side: 'right'})); runIdle(T, 30);
+{ const T = makeMuse(9, HP); T.step(5, false); T.m.command(O('put_on', 'headphones')); runIdle(T, 30); T.m.command(O('take_off', 'headphones', {side: 'right'})); runIdle(T, 30);
   check('B3 take off the headphones with the right paw', T.m.state().holding.right === 'headphones', JSON.stringify(T.m.state().holding)); }
 { const T = makeMuse(9); T.step(5, false); T.m.command(O('pick_up', 'ball', {side: 'right'})); runIdle(T, 30); const r = T.m.command(O('pick_up', 'mug', {side: 'right'})); runIdle(T, 30);
   check('B3 asked paw busy: the other paw, said truthfully', r.ok && /right paw is holding something/.test(r.did) && T.m.state().holding.left === 'mug', r.did); }
@@ -57,7 +65,7 @@ for (const [pre, first, second, delay] of [
   [O('pick_up', 'ball'), O('put_back', {name: 'ball'}), O('put_back', {name: 'yellow ball'}), 1.1],
   [O('pick_up', 'mug'), O('place', {name: 'mug'}, {place: 'desk'}), O('place', {name: 'mug'}, {place: 'floor'}), 0.8],
 ]) {
-  const T = makeMuse(10); T.step(5, false); T.m.command(pre); runIdle(T, 30); const k0 = T.ev.length;
+  const T = makeMuse(10, /headphones/.test(JSON.stringify(pre)) ? HP : {}); T.step(5, false); T.m.command(pre); runIdle(T, 30); const k0 = T.ev.length;
   const a = T.m.command(first); T.step(Math.round(delay * 30), false); const b = T.m.command(Object.assign({}, second, {replaces: a.id})); const done = runIdle(T, 60);
   const ends = T.ev.slice(k0).filter(e => e.kind === 'object' && /end|interrupted|fail/.test(e.phase));
   const id2 = b.replaced !== undefined ? b.id : a.id, h = T.m.state().holding;
@@ -66,7 +74,7 @@ for (const [pre, first, second, delay] of [
 }
 
 // ---- B5: same thing under two names is not a disagreement
-IntentDedupe.setScene(props);
+IntentDedupe.setScene(propsHP);
 check('B5 headset vs pink headphones agree; computer vs laptop agree; ball vs mug disagree',
   IntentDedupe.agree(O('put_back', {name: 'headset'}), O('put_back', {name: 'pink headphones'})) && IntentDedupe.agree(O('pick_up', {name: 'computer'}), O('pick_up', {name: 'laptop'})) &&
   !IntentDedupe.agree(O('pick_up', {name: 'ball'}), O('pick_up', {name: 'mug'})) && IntentDedupe.agree(O('place', 'ball', {place: 'side_table'}), O('place', 'ball', {place: 'side table'})));
@@ -94,7 +102,7 @@ for (const [cmds, want, label] of [
 
 // ---- B9: the reverse burst from the seated-working state never stalls (matcher burst, then the model's refinements
 // merged like page.html runCommand: IntentDedupe.seen → conflict → replaces)
-{ const T = makeMuse(13); T.step(5, false);
+{ const T = makeMuse(13, HP); T.step(5, false);
   for (const c of [O('pick_up', 'headphones'), O('put_on', 'headphones'), O('pull', 'chair', {target: 'closer'}), O('pull', 'desk', {target: 'closer'}), O('pull', 'chair', {target: {object: 'desk'}}),
     O('sit_at', 'desk'), O('pick_up', 'laptop'), O('place', 'laptop', {place: 'desk'}), O('slide', 'laptop', {target: 'closer'}), O('open', 'laptop'), O('work_on', 'laptop')]) { T.m.command(c); runIdle(T, 40); }
   T.step(60, false);
@@ -121,7 +129,7 @@ for (const [cmds, want, label] of [
   check('B10 slide the desk to the chair: the desk moves toward the chair', r.ok && d1 < d0 - 0.15, `${(r.did || r.reason)} | ${d0.toFixed(2)} → ${d1.toFixed(2)}`); }
 
 // ---- B11: an unknown place for a thing with its own spot → its own spot, said truthfully
-{ const T = makeMuse(15); T.step(5, false); T.m.command(O('pick_up', 'headphones')); runIdle(T, 30); const r = T.m.command(O('place', {name: 'headphones'}, {place: 'hook'})); runIdle(T, 40);
+{ const T = makeMuse(15, HP); T.step(5, false); T.m.command(O('pick_up', 'headphones')); runIdle(T, 30); const r = T.m.command(O('place', {name: 'headphones'}, {place: 'hook'})); runIdle(T, 40);
   check('B11 headphones "on the hook" (no hook): back on the stand, and it says there is no hook', r.ok && /no hook/.test(r.did) && where(T, 'headphones') === 'home', r.did || r.reason); }
 
 // ---- B12: fetching from the seat at the desk ends seated again

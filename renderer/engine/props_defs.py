@@ -209,9 +209,14 @@ def defines(character):
     for k, pr in enumerate(props):
         kind = pr["kind"]
         pk, ext, ga, gr, grip, bnd, free = CATALOG[kind]
-        kinds.add(kind)
+        # a prop flagged "removed": true is taken out of the scene but KEEPS its slot (the other props' columns
+        # prop{k}_* never move): kind 0 has no model (propUnit -> far), its PROPKIND_* is not compiled, and a tiny
+        # bound keeps every mask / shadow test off it.  The page never hears of it (app loaders drop it).
+        gone = bool(pr.get("removed"))
+        if not gone:
+            kinds.add(kind)
         fitted = kind == "headphones"     # its grip anchor comes from the fit, not from grip_point_local
-        if kind == "headphones":          # fitted to the head: cup spacing W and the crown arc (unit frame = head frame)
+        if kind == "headphones" and not gone:   # fitted to the head: cup spacing W and the crown arc (unit frame = head frame)
             hp = pr.get("fit", {})
             W, A = float(hp.get("w", 0.80)), float(hp.get("arc", 1.10))
             out += [f"#define PROPS_HP_W {_lit(W)}", f"#define PROPS_HP_ARC {_lit(A)}",
@@ -231,12 +236,14 @@ def defines(character):
                 out.append(f"#define PROPS_DESK {_lit(dims)}")
                 ext = (0.5*dims[0], 0.5*dims[2], 0.5*dims[1])
             bnd = (ext[0]**2 + ext[1]**2 + ext[2]**2)**0.5 + 0.05
+        if gone:
+            pk, ext, bnd, free, size = 0, (0.001, 0.001, 0.001), 0.001, 1, 0.001
         cols["PR_PX"].append(IDX[f"prop{k}_x"])
         cols["PR_PHH"].append(IDX.get(f"prop{k}_hh", -1))
         cols["PR_PS"].append(IDX.get(f"prop{k}_s", -1))
         cols["PR_KIND"].append(pk)
         cols["PR_GRIP"].append(GRIPS[pr.get("grip", grip)])
-        cols["PR_FREE"].append(1 if pr.get("furniture", free) else 0)
+        cols["PR_FREE"].append(1 if (gone or pr.get("furniture", free)) else 0)
         cols["PR_HOME"].append(to_scene(pr["home"]["pos"], H, base_y))
         cols["PR_ROT"].append([6.283185307*float(a) for a in pr["home"].get("rot", [0, 0, 0])])   # turns in the JSON
         cols["PR_SIZE"].append(size)
@@ -248,10 +255,10 @@ def defines(character):
         cols["PR_GA"].append(pr.get("grip_anchor", ga))
         cols["PR_GR"].append(pr.get("grip_r", gr))
         cols["PR_EXT"].append(ext)
-        bb = BBOX.get(kind)
+        bb = None if gone else BBOX.get(kind)
         cols["PR_BBC"].append(bb[0] if bb else (0.0, 0.0, 0.0))
-        cols["PR_BBH"].append(bb[1] if bb else tuple(float(v) + 0.04 for v in ext))
-        ba = BBOX_ART.get(kind)          # articulated: its own box + radius, else the shut ones
+        cols["PR_BBH"].append(bb[1] if bb else tuple(float(v) + (0.0 if gone else 0.04) for v in ext))
+        ba = None if gone else BBOX_ART.get(kind)          # articulated: its own box + radius, else the shut ones
         cols["PR_BBC2"].append(ba[0][0] if ba else cols["PR_BBC"][-1])
         cols["PR_BBH2"].append(ba[0][1] if ba else cols["PR_BBH"][-1])
         cols["PR_BND2"].append(ba[1] if ba else bnd)

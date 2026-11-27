@@ -96,12 +96,11 @@ def build(reach=None):
          "center": [0.0, 0.0, 0.0], "size": hl([9.4, 5.0]), "top_y": 0.0,
          "spots": [h([0.70, 0.016, 0.55]), h([-0.70, 0.016, 0.55]), h([1.20, 0.016, -0.30]), h([-1.00, 0.016, 0.90])],
          "notes": "the studio floor; the rug (x -2.70..2.20, z -1.60..1.90 scene) is 0.016 scene above it"},
-        {"id": "side_table", "name": "the side table", "aliases": ["side table", "little table", "small table", "stand",
-         "headphone stand", "end table"], "kind": "table_stand", "movable": False,
+        {"id": "side_table", "name": "the side table", "aliases": ["side table", "little table", "small table", "end table"], "kind": "table", "movable": False,   # was table_stand (+ "stand", "headphone stand" aliases, stand_top_y)
          "center": h([st["c"][0], st["top"], st["c"][1]]), "size": hl([st["w"], st["d"]]), "top_y": round(st["top"]/H, 5),
-         "floor_y": 0.0, "stand_top_y": round((st["top"] + st["stand_h"])/H, 5), "rgb": [176, 128, 86],
+         "floor_y": 0.0, "rgb": [176, 128, 86],
          "spots": [h([st["c"][0] + 0.17, st["top"], st["c"][1] + 0.06]), h([st["c"][0] - 0.17, st["top"], st["c"][1] + 0.06])],
-         "notes": "a low oak side table with a headphone stand (post + padded saddle) in the middle; the headphones hang there, their cups beside the table"},
+         "notes": "a low oak side table (its headphone stand and the headphones were removed from the scene)"},
         {"id": "desk_top", "name": "the desk", "aliases": ["desk", "table", "desktop", "on the desk"], "kind": "desk_top",
          "movable": True, "on_prop": "desk", "local_center": hl([0.0, 0.5*dh, 0.0]), "center": h([desk_c[0], desk_top_y, desk_c[2]]),
          "size": hl([dw, dd]), "top_y": round(desk_top_y/H, 5),
@@ -122,7 +121,8 @@ def build(reach=None):
         return {"id": id_, "side": side, "local": hl(local), "world_home": h(world(pos, ry, local)), "note": note}
 
     props = [
-        {"slot": 0, "id": "headphones", "name": "pink headphones", "color": "pink", "colors": ["pink", "silver"],
+        {"slot": 0, "id": "headphones", "removed": True,   # out of the scene at the owner's request; the slot stays
+         "name": "pink headphones", "color": "pink", "colors": ["pink", "silver"],
          "aliases": ["headphones", "headset", "earphones", "cans", "phones"], "category": "wearable", "kind": "headphones",
          "size": round(1.05/H, 5), "mass": "light", "movable": True, "furniture": False, "wearable": True,
          "scale": round(1.0/H, 6), "rgb": [236, 128, 150], "rgb2": [214, 216, 226],

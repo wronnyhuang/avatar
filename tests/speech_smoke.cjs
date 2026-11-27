@@ -112,8 +112,9 @@ function speak(id, opts = {}) {
 for (const id of ['ordinals', 'tower', 'ball']) speak(id);
 // ---- 4. the REAL muse engine (moves.js + the real muse JSON): the desk headline, its log, co-speech while typing / turned back
 {
-  const {makeMuse} = require('./muse_lib.cjs');
-  const X = makeMuse(17); let T = 0, seen = 0;
+  const {makeMuse, HP_FIXTURE} = require('./muse_lib.cjs');
+  // the pink headphones left the real scene; this action-log story keeps them (the pre-removal scene, explicitly)
+  const X = makeMuse(17, {propsPath: HP_FIXTURE}); let T = 0, seen = 0;
   const L = AL.createActionLog({now: () => X.m.now(), limb: 'hand'});
   const sync = () => { for (; seen < X.ev.length; seen++) L.push(Object.assign({}, X.ev[seen], {t: undefined})); L.observe(X.m.state()); };
   const step = n => { for (let i = 0; i < n; i++) { X.step(1); sync(); } };
@@ -151,8 +152,9 @@ for (const id of ['ordinals', 'tower', 'ball']) speak(id);
 // ---- 5. answer(q) (speech-c2): current-state questions from the OBSERVED state, history questions from the log, never
 // inventing — on the REAL muse engine (fed exactly like section 4), then a few on the contract stand-in
 {
-  const {makeMuse} = require('./muse_lib.cjs');
-  const X = makeMuse(17); let seen = 0;
+  const {makeMuse, HP_FIXTURE} = require('./muse_lib.cjs');
+  // the pink headphones left the real scene; this action-log story keeps them (the pre-removal scene, explicitly)
+  const X = makeMuse(17, {propsPath: HP_FIXTURE}); let seen = 0;
   const L = AL.createActionLog({now: () => X.m.now(), limb: 'hand'});
   const sync = () => { for (; seen < X.ev.length; seen++) L.push(Object.assign({}, X.ev[seen], {t: undefined})); L.observe(X.m.state()); };
   const step = n => { for (let i = 0; i < n; i++) { X.step(1); sync(); } };

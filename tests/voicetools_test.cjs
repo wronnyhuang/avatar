@@ -348,12 +348,13 @@ const say = (X, text, gapMs) => { X.vt.userSpeech('start'); X.clock.advance(300)
   let row; for (let i = 0; i < 30; i++) row = m.step(1 / 30, {});
   const chairRight = m.props().find(p => p.id === 'chair').pos[0] > 0;
   check('motion: look at the chair turns the gaze toward it (screen side of the chair) and says so', rr.ok && /looking at the chair/.test(rr.did) && (chairRight ? row.gaze_x > 0.3 : row.gaze_x < -0.3) && m.state().looking === 'chair', {did: rr.did, gaze_x: row.gaze_x});
-  const rh = X2.vt.call('look', {target: 'headphones', seconds: 2}, 'done', {});
+  // the headphones left the real scene; the straw hat on the floor across the room is the other-side thing now
+  const rh = X2.vt.call('look', {target: 'hat', seconds: 2}, 'done', {});
   for (let i = 0; i < 30; i++) row = m.step(1 / 30, {});
-  const hpRight = m.props().find(p => p.id === 'headphones').pos[0] > 0;
-  check('motion: look at the headphones (other side) turns the other way', rh.ok && (hpRight ? row.gaze_x > 0.3 : row.gaze_x < -0.3), {gaze_x: row.gaze_x});
+  const hatRight = m.props().find(p => p.id === 'hat').pos[0] > 0;
+  check('motion: look at the hat (other side) turns the other way', rh.ok && hatRight !== chairRight && (hatRight ? row.gaze_x > 0.3 : row.gaze_x < -0.3), {gaze_x: row.gaze_x});
   for (let i = 0; i < 90; i++) row = m.step(1 / 30, {});
-  check('motion: the look ends after its seconds', m.state().looking !== 'headphones');
+  check('motion: the look ends after its seconds', m.state().looking !== 'hat');
 
   X = setup();
   r = X.vt.call('set_style', {energy: 0.2, mirroring: 1.4, expressiveness: -1}, 'done', {});

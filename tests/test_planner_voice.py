@@ -163,6 +163,10 @@ class Sessions(unittest.TestCase):
         self.assertNotIn("describe what you did", hp)
 
 
+sys.path.insert(0, HERE)
+from prompt_wording_hat import hat_wording  # noqa: E402  (the one intended prompt-wording change vs the base commit)
+
+
 @unittest.skipIf(RTC0 is None, f"git cannot show {BASE} (planner-off exactness needs the base commit)")
 class PlannerOffIsTheBase(unittest.TestCase):
     def test_realtime_live_gemini_byte_for_byte(self):
@@ -171,15 +175,15 @@ class PlannerOffIsTheBase(unittest.TestCase):
                 with self.subTest(character=key, style=style):
                     a = rtc.realtime_session(name, what, voice, "server", "", style, character=key, planner=False)
                     b = RTC0.realtime_session(name, what, voice, "server", "", style, character=key)
-                    self.assertEqual(json.dumps(a, sort_keys=True), json.dumps(b, sort_keys=True))
+                    self.assertEqual(json.dumps(a, sort_keys=True), hat_wording(json.dumps(b, sort_keys=True)))
             with self.subTest(character=key, path="live"):
                 self.assertEqual(json.dumps(rtc.live_session(name, what, voice, key, planner=False), sort_keys=True),
-                                 json.dumps(RTC0.live_session(name, what, voice, key), sort_keys=True))
+                                 hat_wording(json.dumps(RTC0.live_session(name, what, voice, key), sort_keys=True)))
             for mode in ("gemini", "gemini-think"):
                 with self.subTest(character=key, path=mode):
                     a = gemini_live.setup_for(mode, name, what, voice, key, None, False)["setup"]
                     b = GEM0.setup_for(mode, name, what, voice, key, None)["setup"]
-                    self.assertEqual(json.dumps(a, sort_keys=True), json.dumps(b, sort_keys=True))
+                    self.assertEqual(json.dumps(a, sort_keys=True), hat_wording(json.dumps(b, sort_keys=True)))
 
 
 class NoExamplePhrases(unittest.TestCase):
