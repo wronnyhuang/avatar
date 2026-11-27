@@ -2333,6 +2333,7 @@ D.vt = window.AvatarVoiceTools ? AvatarVoiceTools.createVoiceTools({
   reactMode: () => (D.unified ? 'unified' : D.learned ? 'learned' : 'rules'), character: () => (S.cfg && S.cfg.character) || sel,
   thinker: () => D.think,
   onTv: (name, args) => teachTv(name, args),                                           // teach: walk to the TV / home
+  absentThings: () => Q.get('absent') !== '0',                                         // a thing not in the scene is refused, never mimed (?absent=0 = off)
   objectPlans: () => Q.get('objplan') !== '0',                                         // tricks with things -> the planner (?objplan=0 = the old refusal)
   log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
 }) : null;

@@ -379,10 +379,15 @@
       if (is(/^(hold|holds|holding|held|open|opens|opened|opening|close|closes|closed|closing|shut|shuts|shutting|throw|throws|throwing|threw|toss|tosses|tossed|tossing|catch|catches|catching|caught|give|gives|giving|gave|slide|slides|sliding|lift|lifts|lifted|lifting|show|shows|showing|use|uses|using|read|reads|reading|kick|kicks|kicking|bounce|bounces|bouncing)$/)) return {n: 1, strong: false};
       return null;
     }
-    function noThingHere(desc) {
+    /* sceneWords — for a character WITH things around it (the muse), the words naming those things (ids, name
+       words, the scene file's aliases): a thing-taking request whose object is none of them is the same honest refusal
+       ("put on your scarf and your gloves" planned a keyframe mime of wearing nothing). null = the no-scene case above. */
+    function noThingHere(desc, sceneWords) {
       let props = null;
-      try { const m = get('motion'); props = m && typeof m.props === 'function' ? m.props() : null; } catch (e) { props = null; }
-      if (!Array.isArray(props) || props.length) return null;           // the scene characters (the muse) use sceneRoute
+      if (!sceneWords) {
+        try { const m = get('motion'); props = m && typeof m.props === 'function' ? m.props() : null; } catch (e) { props = null; }
+        if (!Array.isArray(props) || props.length) return null;         // the scene characters (the muse) use sceneRoute
+      }
       const low = ' ' + String(desc || '').toLowerCase().replace(/[’`]/g, "'").replace(/[.,;:!?()—–]+/g, ' | ').replace(/[^a-z'| ]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
       if (/ (pretend|pretending|pretends|mime|miming|mimes|imaginary|invisible|make believe|as if|as though|air|act out|acting out|acts out) /.test(low)) return null;
       const w = low.trim().split(' ');
@@ -400,7 +405,8 @@
         if (np.some(x => BODY_PARTS.test(x) || NOT_THINGS.has(x))) continue;      // the user's own body, a gesture, an abstract thing
         const head = np[np.length - 1], sing = head.length > 3 && /s$/.test(head) && !/ss$/.test(head) ? head.slice(0, -1) : head;
         if (!v.strong && !(THINGS.has(head) || THINGS.has(sing))) continue;         // hold / open / lift / give ..: known objects only
-        return {ok: false, status: 'no_such_thing', ran: false, reason: `there is no ${np.join(' ')} around you (you have no objects here), so nothing moved on screen: tell him that plainly in a few words of your own. ` +
+        if (sceneWords && np.some(x => sceneWords.has(x) || sceneWords.has(x.replace(/(es|s)$/, '')))) continue;   // one of the things around it
+        return {ok: false, status: 'no_such_thing', ran: false, reason: `there is no ${np.join(' ')} around you${sceneWords ? '' : ' (you have no objects here)'}, so nothing moved on screen: tell him that plainly in a few words of your own. ` +
           'Anything he asks of your own body alone, also acting something out with it, is a normal request you can do: never ask him to say a special word for it.'};
       }
       return null;
@@ -416,18 +422,23 @@
       if (!M || typeof M.parse !== 'function' || !d.runStep) return null;
       // hybrid: a fast matcher already started this request from the user's words -> the model's restatement adds nothing
       if (coveredNow()) return {ok: true, status: 'starting', already: true, did: 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)'};
-      const n = expand(1);
-      if (n) return {ok: true, status: 'starting', did: `doing what he asked, ${n} step${n > 1 ? 's' : ''} in order`, next: 'It starts right away: give him a brief natural cue now.'};
+      const u0 = V.utts[V.utts.length - 1], had = !!(u0 && u0.steps);
+      expand(1);
+      // the result says what each step really did (a step the engine refused is not "doing what he asked")
+      if (u0 && u0.steps && !had) return stepsResult(u0.steps, 'doing what he asked');
       const u = V.utts[V.utts.length - 1];
-      if (u && u.expanded && now() - (u.finalAt || u.t0) < 30000) return {ok: true, status: 'starting', did: 'under way now — already started from his words a moment ago (his request is happening: a brief natural cue)'};
+      if (u && u.expanded && now() - (u.finalAt || u.t0) < 30000) {
+        if (u.steps && stepsTally(u.steps).acc === 0) return stepsResult(u.steps, 'doing what he asked');   // all refused a moment ago: still not done
+        return {ok: true, status: 'starting', did: 'under way now — already started from his words a moment ago (his request is happening: a brief natural cue)'};
+      }
       let hits = [];
       try { hits = M.parse(desc, {final: true, nowMs: now()}) || []; } catch (e) { hits = []; }
       let ok = false;
       try { ok = hits.some(h => h && h.cmd && h.cmd.action === 'object') && (typeof M.understood !== 'function' || M.understood(desc)); } catch (e) { ok = false; }
       if (ok) {
-        for (const h of hits) { try { d.runStep(h.cmd, {text: desc, rule: h.rule}); } catch (e) {} }
-        log({vt: 'steps_desc', n: hits.length, text: desc.slice(0, 160)});
-        return {ok: true, status: 'starting', did: `doing it, ${hits.length} step${hits.length > 1 ? 's' : ''} in order`, next: 'It starts right away: give him a brief natural cue now.'};
+        const steps = runSteps(hits, desc, false);
+        log({vt: 'steps_desc', n: hits.length, refused: stepsTally(steps).refused || undefined, text: desc.slice(0, 160)});
+        return stepsResult(steps, 'doing it');
       }
       let props = [];
       try { const m = get('motion'); props = m && typeof m.props === 'function' ? m.props() : []; } catch (e) { props = []; }
@@ -441,6 +452,13 @@
       try { const m = get('motion'); canPlan = (d.objectPlans === undefined || bool('objectPlans')) && !!m && typeof m.things === 'function'; } catch (e) { canPlan = false; }
       if (named && canPlan) return {plan: true, thing: named.id};
       if (named) return {ok: false, status: 'use_object', reason: `the ${named.name || named.id} is one of the things around you: move it with the object tool (one call per step, in order), not ${ACTION[0]}`};
+      // a thing that is NOT around it is not planned as a mime of holding / wearing nothing (?absent=0: off)
+      if (props.length && (d.absentThings === undefined || bool('absentThings'))) {
+        const words = new Set();
+        for (const p of props) for (const w of [p.id, p.name, ...(aliases[p.id] || [])]) for (const x of String(w || '').toLowerCase().replace(/[^a-z ]+/g, ' ').split(/\s+/)) if (x.length > 2) words.add(x);
+        const nt = noThingHere(desc, words);
+        if (nt) { log({vt: 'no_thing', scene: true, description: desc.slice(0, 120)}); return nt; }
+      }
       return null;
     }
     // a reply (and a corrected tool call) after a refusal: the call's own response may already have spoken (parallel
@@ -520,14 +538,50 @@
       try { if (typeof M.understood === 'function' && !M.understood(text)) return 0; } catch (e) { return 0; }
       if (isHypothetical(text).hyp) return 0;
       u.expanded = true; if (joined) prev.expanded = true;
-      let n = 0;
-      for (const h of hits) {
-        try { if (typeof M.commit === 'function') M.commit(h, now()); d.runStep(h.cmd, {text, rule: h.rule}); n++; } catch (e) {}
-      }
-      V.expanded.push({t: Math.round(now()), n, text: text.slice(0, 160), steps: hits.map(h => h.cmd.verb || h.cmd.name), joined: joined || undefined});
+      const steps = runSteps(hits, text, true), k = stepsTally(steps);
+      u.steps = steps;                                        // sceneRoute's result reads what each step did
+      V.expanded.push({t: Math.round(now()), n: steps.length, text: text.slice(0, 160), steps: hits.map(h => h.cmd.verb || h.cmd.name), joined: joined || undefined, refused: k.refused || undefined});
       if (V.expanded.length > 30) V.expanded.splice(0, 15);
-      log({vt: 'steps', n, text: u.text.slice(0, 160)});
-      return n;
+      log({vt: 'steps', n: steps.length, refused: k.refused || undefined, text: u.text.slice(0, 160)});
+      return k.acc;                                           // the steps the engine took on (ran, queued or already running)
+    }
+
+    /* what each step of a multi-step route really did. runStep's answer (the page's runCommand through the
+       performer's engineCall): {ok:false, reason} = the engine refused it (nothing moved: "there is no headphones here");
+       false / {dup:true} = dropped as a repeat of a command already running from his words (under way, not new, not a
+       refusal); {queued:true} / {deferred} = will run after the step before it; anything else = it ran. */
+    function runSteps(hits, text, commit) {
+      const M = get('sceneMatcher'), out = [];
+      for (const h of hits) {
+        let r;
+        try { if (commit && M && typeof M.commit === 'function') M.commit(h, now()); r = d.runStep(h.cmd, {text, rule: h.rule}); }
+        catch (e) { r = {ok: false, reason: String(e && e.message || e).slice(0, 80)}; }
+        const o = r && typeof r === 'object' ? r : null;
+        const kind = r === false || (o && o.dup) ? 'dup' : o && o.ok === false ? 'refused' : o && (o.queued || o.deferred) ? 'queued' : 'ran';
+        out.push({step: stepName(h.cmd), kind, did: o && o.did ? String(o.did).slice(0, 160) : '', reason: kind === 'refused' ? String(o.reason || 'it could not be done').slice(0, 160) : ''});
+      }
+      return out;
+    }
+    function stepName(c) {
+      if (!c || typeof c !== 'object') return 'a step';
+      const o = c.object && typeof c.object === 'object' ? (c.object.name || c.object.ref || c.object.id) : c.object;
+      return [String(c.verb || c.name || c.action || 'step').replace(/_/g, ' '), o, c.place || c.target].filter(x => x && typeof x !== 'object').join(' ').slice(0, 80);
+    }
+    function stepsTally(steps) {
+      const k = {n: steps.length, ran: 0, queued: 0, dup: 0, refused: 0};
+      for (const s of steps) k[s.kind]++;
+      k.acc = k.ran + k.queued + k.dup;
+      return k;
+    }
+    function stepsResult(steps, lead) {
+      const k = stepsTally(steps), pl = n => `${n} step${n > 1 ? 's' : ''}`;
+      const why = [...new Set(steps.filter(s => s.kind === 'refused').map(s => s.reason))].join('; ');
+      if (!k.acc) return {ok: false, status: 'not_done', ran: false, reason: `${why}, so nothing moved on screen: tell him that plainly in a few words of your own; never act as if you are doing it`};
+      const steps_ = steps.map(s => s.kind === 'refused' ? `${s.step}: NOT done (${s.reason})` : `${s.step}: ${s.kind === 'dup' ? 'already under way' : s.kind === 'queued' ? 'next, after the step before it' : s.did || 'doing it'}`);
+      if (k.refused) return {ok: true, status: 'starting', partial: true, did: `${lead}, but only ${pl(k.acc)} of ${k.n}: ${steps_.join('; ')}`.slice(0, 400),
+        not_done: why, next: `The rest starts right away: tell him briefly, in your own words, which part you cannot do and why (${why}).`};
+      if (k.dup === k.n) return {ok: true, status: 'starting', already: true, did: 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)'};
+      return {ok: true, status: 'starting', did: `${lead}, ${pl(k.n)} in order: ${steps_.join('; ')}`.slice(0, 400), next: 'It starts right away: give him a brief natural cue now.'};
     }
 
     /* the second half of a split request arrives AFTER the model already made its scene call for the first half
