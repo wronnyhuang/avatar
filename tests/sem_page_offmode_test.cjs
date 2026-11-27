@@ -14,6 +14,9 @@ const loadSrc = src => { const mod = {exports: {}}; new Function('module', 'expo
 const cur = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 const base = rel => execFileSync('git', ['show', `${BASE}:${rel}`], {cwd: ROOT, encoding: 'utf8', maxBuffer: 64 << 20});
 try { base('app/motion.js'); } catch (e) { console.log(`SKIP: no git checkout with ${BASE} (${String(e.message).split('\n')[0]})`); process.exit(0); }
+// the gaze split is a deliberate behaviour change of the rules path; this identity proof runs with its switch off
+// (?gazesplit=0, which the base build does not read) — so it also proves that gazesplit=0 IS the old motion, byte for byte.
+globalThis.location = {search: '?gazesplit=0'};
 globalThis.AvatarMovesLib = loadSrc(cur('app/moves.js'));
 if (cur('app/moves.js') !== base('app/moves.js')) console.log('note: app/moves.js differs from base');
 const Mnew = loadSrc(cur('app/motion.js')), Mold = loadSrc(base('app/motion.js'));

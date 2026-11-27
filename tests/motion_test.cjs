@@ -55,15 +55,20 @@ function jumps(rows) {
 
 // ---------------------------------------------------------------- 1. face moves left → right; a jump; eyes lead, head follows
 {
-  const sc = run('track', 12, t => {
+  const fol = [];   // the head's FOLLOWING layer (the gaze spring, before idle head noise), per frame
+  const sc = run('track', 12, (t, m) => {
+    fol.push(m.state.hy.x);
     let x;
     if (t < 1) x = -0.6; else if (t < 4) x = -0.6 + 1.2 * (t - 1) / 3; else if (t < 7) x = 0.6; else if (t < 7.0 + DT) x = -0.5; else x = -0.5;
     return {features: {t, face: face(x, 0.1), attending: true, attention: 0.9, motion: 0.05, hands: []}};
   });
   const r = sc.rows;
   const g1 = at(r, 0.95).gaze_x, h1 = at(r, 0.95).head_yaw, g2 = at(r, 6.9).gaze_x, h2 = at(r, 6.9).head_yaw;
-  check('track: he is screen-left → avatar looks screen-left (gaze_x<0, head_yaw<0)', g1 < -0.3 && h1 < -0.1, `gaze ${g1.toFixed(2)} head ${h1.toFixed(2)}`);
-  check('track: he is screen-right → avatar looks screen-right', g2 > 0.3 && h2 > 0.1, `gaze ${g2.toFixed(2)} head ${h2.toFixed(2)}`);
+  // gaze split: the eyes carry most of the aim, the head follows the same way but turns less than the eyes' aim
+  // (before the split the head out-turned it: head_yaw < -0.1 here)
+  const f1 = fol[Math.round(0.95 * FPS)], f2 = fol[Math.round(6.9 * FPS)], e1 = g1 * M.GAZE_RX, e2 = g2 * M.GAZE_RX;
+  check('track: he is screen-left → avatar looks screen-left (gaze_x<0, the head follows partly)', g1 < -0.3 && f1 < -0.02 && f1 > 0.6 * e1, `gaze ${g1.toFixed(2)} (${e1.toFixed(3)} rad) head follow ${f1.toFixed(3)} rad, head out ${h1.toFixed(2)}`);
+  check('track: he is screen-right → avatar looks screen-right', g2 > 0.3 && f2 > 0.02 && f2 < 0.6 * e2, `gaze ${g2.toFixed(2)} (${e2.toFixed(3)} rad) head follow ${f2.toFixed(3)} rad, head out ${h2.toFixed(2)}`);
   // step at t=7: x 0.6 → -0.5
   const gEnd = at(r, 9).gaze_x, hEnd = at(r, 9).head_yaw;
   const gHalf = firstT(r, q => q.gaze_x < (g2 + gEnd) / 2, 7), hHalf = firstT(r, q => q.head_yaw < (h2 + hEnd) / 2, 7);

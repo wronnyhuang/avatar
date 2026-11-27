@@ -16,7 +16,9 @@
  *   Eyes LEAD (saccade after a 150–250 ms reaction, 45–150 ms long, min-jerk), the head FOLLOWS through a
  *   second-order spring; since gaze is world-referenced the eyes stay on target while the head arrives (VOR for free).
  *   Looking AT him = eye world angle ≈ gazeFollow × his angular offset (default 0.5: visible following while staying
- *   inside the mutual-gaze cone), head ≈ headFollow × offset (0.6).
+ *   inside the mutual-gaze cone). Gaze split (default on): the eyes carry most of that aim in their sockets and the
+ *   head turns only W − eye-in-head (eyeShare 0.7 of W, soft-limited to eyeMax ≈ 11.5°; beyond it the head takes the rest).
+ *   ?gazesplit=0 = the old split, head ≈ headFollow × offset (0.6: the head out-turned the eyes' aim).
  *
  * LAYERS (base → top): life (breath, blinks, micro-saccades, springs on ears/tail/paws, weight shifts) · attention
  *   and gaze · emotion mirroring (delayed, attenuated) · reflexes (startle, wave back, perk up, look back, point,
@@ -153,7 +155,14 @@
 
   const DEFAULTS = {
     gazeFollow: 0.5,        // eye world angle per radian of his angular offset
-    headFollow: 0.6,        // head yaw/pitch per radian of his offset
+    headFollow: 0.6,        // head yaw/pitch per radian of his offset (the split before the gaze split; still the head's share with gazeSplit off)
+    // gaze split: following his face, the EYES carry most of the aim and the head only part of it. The aim itself (the
+    // eye-in-world angle W = gazeFollow × his offset) does not change; the head turns W − e, where e = the eye-in-head angle
+    // = eyeShare × W, soft-limited to eyeMax (beyond the comfortable eye range the head takes the rest). Page URL:
+    // ?gazesplit=0 = the old behaviour (head = headFollow × offset), ?eyeshare=0..1, ?eyemax=<degrees>.
+    gazeSplit: true,
+    eyeShare: 0.7,          // share of the aim angle the eyes carry in their sockets while inside the eye range
+    eyeMax: 0.2,            // rad (≈ 11.5°): the most the eyes turn in the head sideways (vertical: × 0.75); the head takes the rest
     headMax: 0.5,
     reactLatency: [0.15, 0.25],   // eyes start this long after he moves (s)
     mirrorLag: 0.45,        // pure delay of emotion mirroring (s) ...
@@ -207,9 +216,28 @@
   }
   const lp = (prev, x, dt, tau) => prev + (x - prev) * (1 - Math.exp(-dt / Math.max(1e-4, tau)));
 
+  // gaze split: the head's part of an aim W (rad, eye-in-world) — W minus what the eyes carry in their sockets.
+  // softSat: linear up to half the limit, then eases into it (C1, monotonic): no kink in the head as the eyes run out of range.
+  function softSat(x, m) {
+    const a = Math.abs(x), k = 0.5 * m;
+    if (!(m > 0)) return 0;
+    return a <= k ? x : Math.sign(x) * (k + (m - k) * Math.tanh((a - k) / (m - k)));
+  }
+  function splitHead(W, share, eyeMax) {
+    const sh = clamp(+share || 0, 0, 1);
+    return [W[0] - softSat(sh * W[0], eyeMax), W[1] - softSat(sh * W[1], 0.75 * eyeMax)];
+  }
+
   // ------------------------------------------------------------------ the controller
   function createMotion(opts = {}) {
     const cfg = Object.assign({}, DEFAULTS, opts.config || {});
+    // the page URL's gaze-split switches (as ?mset=: page.html needs no change); an explicit config value wins
+    try {
+      const q = new URLSearchParams(globalThis.location.search), oc = opts.config || {}, num = k => (q.get(k) !== null && q.get(k) !== '' && Number.isFinite(+q.get(k)) ? +q.get(k) : null);
+      if (oc.gazeSplit === undefined && q.get('gazesplit') === '0') cfg.gazeSplit = false;
+      if (oc.eyeShare === undefined && num('eyeshare') !== null) cfg.eyeShare = clamp(num('eyeshare'), 0, 1);
+      if (oc.eyeMax === undefined && num('eyemax') !== null) cfg.eyeMax = clamp(num('eyemax'), 0, 30) * Math.PI / 180;
+    } catch (e) {}
     // preset: createMotion({preset}) or the page URL's ?mset= (so page.html needs no change); unknown → default
     let presetName = opts.preset;
     if (presetName === undefined) { try { presetName = new URLSearchParams(globalThis.location.search).get('mset') || 'default'; } catch (e) { presetName = 'default'; } }
@@ -669,7 +697,11 @@
     function chooseTarget(dt) {
       const t = S.t, u = S.user;
       const userW = () => [cfg.gazeFollow * u.ax, cfg.gazeFollow * u.ay];
-      const userH = (g = cfg.headFollow) => [g * u.ax, 0.8 * g * u.ay];
+      const userH = (g = cfg.headFollow) => {
+        if (!cfg.gazeSplit) return [g * u.ax, 0.8 * g * u.ay];
+        const H = splitHead(userW(), cfg.eyeShare, cfg.eyeMax), k = g / (cfg.headFollow || 1);   // eyes carry most of the aim
+        return [k * H[0], k * H[1]];
+      };
       // 1. a commanded look
       if (S.cmdLook) {
         const c = S.cmdLook;
@@ -3543,5 +3575,5 @@
   }
 
   return {createMotion, RIG_PARAMS, SCHEMA_PARAMS, NEW_PARAMS, LIPSYNC: [...LIPSYNC], LEGACY: [...LEGACY], RANGE, DEFAULTS,
-    GAZE_RX, GAZE_RY, TAN_HFOV2, TAN_VFOV2, mj, KF_ALIAS, LISTENER_GROUPS, SPEECH_GROUP};
+    GAZE_RX, GAZE_RY, TAN_HFOV2, TAN_VFOV2, mj, softSat, splitHead, KF_ALIAS, LISTENER_GROUPS, SPEECH_GROUP};
 });

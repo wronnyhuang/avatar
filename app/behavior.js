@@ -895,6 +895,16 @@
   // ------------------------------------------------------------------ look targets (screen frame, radians: + = right / up)
   const TAN_H = Math.tan(35 * Math.PI / 180), TAN_V = Math.tan(27.5 * Math.PI / 180);
   const GAZE_RX = Math.atan(0.30), GAZE_RY = Math.atan(0.24);
+  // gaze split (the same rule as motion.js splitHead): looking at HIS FACE, the eyes carry most of the aim in their
+  // sockets (GAZE_SPLIT.share of it, soft-limited to GAZE_SPLIT.eyeMax rad, vertical × 0.75) and the head only the rest —
+  // including whatever lies beyond the eye dials' range. ?gazesplit=0 / createBehaviors({gazeSplit:false}) = the old head gains.
+  const GAZE_SPLIT = {share: 0.7, eyeMax: 0.2};
+  const softSat = (x, m) => { const a = Math.abs(x), k = 0.5 * m; return !(m > 0) ? 0 : a <= k ? x : Math.sign(x) * (k + (m - k) * Math.tanh((a - k) / (m - k))); };
+  const USER_LOOK = /^(user|him|me|camera|face|you|eyes)$/;
+  const isUserLook = target => typeof target === 'string' && USER_LOOK.test(target.toLowerCase().replace(/[\s-]+/g, '_').replace(/^(his|my|the)_/, ''));
+  function splitLookHead(W) {   // W = the eye-in-world aim (rad) → the head's part
+    return [GAZE_RX, GAZE_RY].map((r, i) => { const wc = clamp(W[i], -r, r); return wc - softSat(GAZE_SPLIT.share * wc, (i ? 0.75 : 1) * GAZE_SPLIT.eyeMax) + (W[i] - wc); });
+  }
   function lookAngles(target, U, rec) {
     if (Array.isArray(target)) return [clamp(+target[0] || 0, -1, 1), clamp(+target[1] || 0, -1, 1)].map((v, i) => Math.atan(v * (i ? TAN_V : TAN_H)));
     if (target && typeof target === 'object') {
@@ -936,6 +946,8 @@
       style: {}};
     const perc = createPerceiver();
     const FZ = Object.freeze;
+    let gazeSplit = opts.gazeSplit;   // createBehaviors({gazeSplit}) or the page URL's ?gazesplit=0 (off)
+    if (gazeSplit === undefined) { try { gazeSplit = new URLSearchParams(globalThis.location.search).get('gazesplit') !== '0'; } catch (e) { gazeSplit = true; } }
     function emitEv(ev) {
       ev = Object.assign({t: +R.clock.toFixed(3)}, ev);
       for (const fn of R.listeners.slice()) { try { fn(ev); } catch (e) { /* the listener's problem */ } }
@@ -1149,7 +1161,8 @@
       const U = perc.snapshot() || perc.P.U;
       const ang = lookAngles(L.target, U, L) || [0, 0];
       const W = [clamp(0.85 * ang[0], -0.6, 0.6), clamp(0.85 * ang[1], -0.45, 0.45)];
-      const H = L.head ? [clamp(0.75 * ang[0], -0.6, 0.6), clamp(0.6 * ang[1], -0.45, 0.45)] : [0, 0];
+      const H = !L.head ? [0, 0] : gazeSplit && isUserLook(L.target) ? splitLookHead(W)   // his face → eyes lead, head partly
+        : [clamp(0.75 * ang[0], -0.6, 0.6), clamp(0.6 * ang[1], -0.45, 0.45)];
       if (!L.eye) { L.eye = [readChannel('gaze_x') * GAZE_RX, readChannel('gaze_y') * GAZE_RY]; L.hd = [readChannel('head_yaw'), readChannel('head_pitch')]; }
       for (let i = 0; i < 2; i++) { L.eye[i] = lp(L.eye[i], W[i], dt, 0.035 / L.speed); L.hd[i] = lp(L.hd[i], H[i], dt, 0.22 / L.speed); }
       // gaze is world-referenced (an offset from the camera direction, independent of the head): eyes take the target, the
