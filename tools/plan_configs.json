@@ -922,5 +922,85 @@
   },
   "character": "muse",
   "note": "sealed candidate #2: Opus 5.5 via the claude_door (effort low, thinking off), library on, hedged by gem35lite (OpenRouter) after 4.5 s (S1b: 2/83 planner plans had no pose by 4.5 s)"
+ },
+ "Q0_frozen_sonnet55door_nt": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   },
+   "prompt_variant": "frozen",
+   "check": false
+  },
+  "character": "muse",
+  "note": "quality BEFORE on any tree: the live config (= C_sonnet55door_nt) with the frozen prompt and the plan check off"
+ },
+ "Q1_sonnet55door_nt": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   },
+   "prompt_variant": "q1",
+   "check": true
+  },
+  "character": "muse",
+  "note": "quality AFTER: the live config with the q1 prompt variant + the plan check (the code defaults, named)"
+ },
+ "Q0P_frozen_planner_only": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   },
+   "prompt_variant": "frozen",
+   "check": false,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "every row to the planner (page + hub library off) \u2014 the planner's own quality on the whole set; prompt frozen"
+ },
+ "Q1P_planner_only": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   },
+   "prompt_variant": "q1",
+   "check": true,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "every row to the planner (page + hub library off) \u2014 the planner's own quality on the whole set; prompt q1"
+ },
+ "Q0P_bonbon": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": null,
+   "prompt_variant": "frozen",
+   "check": false,
+   "library": false
+  },
+  "character": "bonbon",
+  "route": "planner",
+  "note": "quality mascot spot-check (bonbon): planner only, prompt frozen"
+ },
+ "Q1P_bonbon": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": null,
+   "prompt_variant": "q1",
+   "check": true,
+   "library": false
+  },
+  "character": "bonbon",
+  "route": "planner",
+  "note": "quality mascot spot-check (bonbon): planner only, prompt q1"
  }
 }

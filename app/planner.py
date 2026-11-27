@@ -122,7 +122,13 @@ STALL_MOTION_S = 1.0    # open and < 1.0 s of motion is parsed (the page's buffe
 DEFAULTS = {"enabled": True, "model": "auto", "route": "auto", "effort": "auto",
             "fallback": {"model": "auto", "after_s": FALLBACK_AFTER_S}, "zdr": "auto", "quality": "quality",
             "cache_models": ["gpt-6.1-sol"], "timeout_s": 25.0, "retry_min_s": 8.0, "cache": True, "library": True,
-            "max_output_tokens": 12000, "max_concurrent": 3, "stall_s": STALL_S, "stall_motion_s": STALL_MOTION_S}
+            "max_output_tokens": 12000, "max_concurrent": 3, "stall_s": STALL_S, "stall_motion_s": STALL_MOTION_S,
+            # "prompt_variant" = the MANIFEST variant served instead of <character>.txt ("q1": the Muse
+            # family's body-true prompt; "" / "frozen" / false = the frozen prompt, exactly as before; env
+            # AVATAR_PLANNER_PROMPT overrides). "check" = plan_issues() gates the plan cache (a plan that reads as
+            # standing still is not written, and an old entry that does is not served);
+            # false = the cache exactly as before (env AVATAR_PLANNER_CHECK=0).
+            "prompt_variant": "q1", "check": True}
 
 # exec_stream.cjs KF_ALIAS keys: the own-side controls the parser knows by default (the Muse's set)
 KF_CONTROLS = ([f"{own}_paw_{a}" for own in ("right", "left") for a in ("x", "y", "z", "open", "turn")]
@@ -526,6 +532,111 @@ def load_prompts(d: str = PROMPT_DIR) -> dict:
         out[key] = {"text": text, "sha256": h, "ok": h == ent["sha256"], "controls": ent["controls"],
                     "traits": ent["traits"]}
     return out
+
+
+def load_variants(d: str = PROMPT_DIR) -> dict:
+    """{character: {variant: {"text", "sha256", "ok", "controls", "traits"}}} from MANIFEST "variants"
+    (app/planner_prompts/make_prompts.py VARIANTS); {} when the manifest has none."""
+    try:
+        with open(os.path.join(d, "MANIFEST.json"), encoding="utf-8") as f:
+            man = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    out: dict = {}
+    for key, vs in (man.get("variants") or {}).items():
+        for name, ent in (vs or {}).items():
+            try:
+                with open(os.path.join(d, ent["file"]), encoding="utf-8") as f:
+                    text = f.read()
+            except OSError:
+                continue
+            h = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            out.setdefault(key, {})[name] = {"text": text, "sha256": h, "ok": h == ent["sha256"],
+                                             "controls": ent["controls"], "traits": ent["traits"], "variant": name,
+                                             "for": list(ent.get("for") or [key])}
+    return out
+
+
+def prompt_variant(cfg) -> str:
+    """the configured variant name ('' = the frozen prompts)"""
+    v = os.environ.get("AVATAR_PLANNER_PROMPT")
+    if v is None:
+        v = (cfg or {}).get("prompt_variant", DEFAULTS["prompt_variant"])
+    v = "" if v in (None, False) else str(v).strip()
+    return "" if v.lower() in ("", "frozen", "off", "0", "false", "none") else v
+
+
+# ------------------------------------------------------------------------------------- the plan check
+# What a FINISHED plan must have to be worth keeping: something a viewer can see, for long enough to see it. Measured
+# on the wire poses (own-side control names), in each control's own visible unit — the amounts the q1 prompt quotes
+# ("a paw that travels less than 0.3 in every control looks like it did not move"; the waist dials are 12-23 degrees
+# at 1.0). It never changes a pose and never delays one: it runs once, on the done event, and only decides whether the
+# plan may live in the cache (a plan that shows nothing is planned afresh next time instead of being served for good); the
+# softer findings are only reported ("issues" in the done event and the hub log).
+CHECK_VISIBLE = (                                    # (control regexp, the change from rest that plainly shows)
+    (re.compile(r"^(right|left)_paw_[xyz]$"), 0.3), (re.compile(r"^root_[xz]$"), 0.1), (re.compile(r"^root_y$"), 0.08),
+    (re.compile(r"^root_(yaw|pitch|roll)$"), 0.04), (re.compile(r"^(right|left)_foot_[xyz]$"), 0.06),
+    (re.compile(r"^body_(lean|pitch|yaw|bounce)$"), 0.5), (re.compile(r"^head_(yaw|pitch|roll)$"), 0.15),
+    (re.compile(r"^squash$"), 0.2), (re.compile(r"^(right|left)_shoulder$"), 0.6),
+    (re.compile(r"^(smile|mouth_open|eye_wide|squint|eyes_closed|tongue_out|brow_knit|(right|left)_(brow|ear|point|thumb)|"
+                r"tail_wag|tail_raise|tail_curl|nose_wiggle)$"), 0.4),
+    (re.compile(r"^(right|left)_fingers$"), 1.0), (re.compile(r"^(right|left)_paw_(open|turn)$"), 0.6))
+CHECK_REST = {"smile": 0.1, "tail_raise": 0.4, "right_paw_open": 0.2, "left_paw_open": 0.2}
+CHECK_MIN_S = 0.5                                    # a plan whose last pose is earlier is over before it shows
+CHECK_HARD = ("static",)                             # the issue that keeps a plan out of the cache (the others are reported)
+
+
+def plan_issues(poses) -> list[str]:
+    """-> the names of what is wrong with a finished plan ([] = fine): 'static' (no control ever leaves rest by an amount
+    that shows), 'short' (the last pose before CHECK_MIN_S), 'held_tiny' (a control reverses >= 3 times and never swings
+    by an amount that shows, while nothing else in the plan moves far either: a rhythm nobody can see).
+    Plans with scene steps (a `do` key / paw events) are never judged here: what they show is the engine's."""
+    poses = [p for p in (poses or []) if isinstance(p, dict)]
+    if not poses:
+        return ["static", "short"]
+    if any("do" in p or any(k.endswith(("_let_go", "_catch", "_grab", "_toss_up")) or "_held_" in k for k in p) for p in poses):
+        return []
+    out = []
+    best = 0.0                                       # the largest departure from rest, in visible units
+    swing: dict = {}       # control -> [last value, last direction, reversals, largest swing between two turns, last turn]
+    for p in poses:
+        for k, v in p.items():
+            if k in ("t", "ms") or not isinstance(v, (int, float)) or isinstance(v, bool):
+                continue
+            unit = next((u for rx, u in CHECK_VISIBLE if rx.match(k)), None)
+            if unit is None:
+                continue
+            best = max(best, abs(v - CHECK_REST.get(k, 0.0)) / unit)
+            w = swing.setdefault(k, [CHECK_REST.get(k, 0.0), 0, 0, 0.0, None, unit])
+            d = v - w[0]
+            if abs(d) > 1e-6:
+                sg = 1 if d > 0 else -1
+                if w[1] and sg != w[1]:              # a turn: the stretch since the turn before it is one swing
+                    if w[4] is not None:
+                        w[3] = max(w[3], abs(w[0] - w[4]) / unit)
+                    w[4] = w[0]
+                    w[2] += 1
+                w[1] = sg
+                w[0] = v
+    for w in swing.values():                         # the stretch after the last turn
+        if w[4] is not None:
+            w[3] = max(w[3], abs(w[0] - w[4]) / w[5])
+    if best < 1.0:
+        out.append("static")
+    t_last = max((float(p.get("t") or 0.0) for p in poses), default=0.0)
+    if t_last < CHECK_MIN_S:
+        out.append("short")
+    rhythm = [w for w in swing.values() if w[2] >= 3]
+    if rhythm and max(w[3] for w in rhythm) < 1.0 and best < 2.0:
+        out.append("held_tiny")
+    return out
+
+
+def check_on(cfg) -> bool:
+    v = os.environ.get("AVATAR_PLANNER_CHECK")
+    if v is not None:
+        return v.strip().lower() not in ("0", "false", "off", "no", "")
+    return bool((cfg or {}).get("check", DEFAULTS["check"]))
 
 
 def state_note(traits: dict, state) -> str:
@@ -2097,6 +2208,23 @@ class Planner(_SemanticPlanner):
         self.log = log
         self.cache_dir = cache_dir
         self.prompts = load_prompts(prompt_dir)
+        import charcaps; charcaps.alias_prompts(self.prompts)   # juno, junor and the mascots plan with the muse's prompt
+        # the configured prompt variant replaces the prompt of the characters it was measured for (the MANIFEST entry's
+        # "for": the Muse and the mascots on its hand map — not Juno, whose arms are her own); an unknown variant / a sha
+        # mismatch leaves the frozen prompt in place
+        self.variant = prompt_variant(c)
+        if self.variant:
+            for k, vs in load_variants(prompt_dir).items():
+                v = vs.get(self.variant)
+                if not v or k not in self.prompts:
+                    continue
+                if not v["ok"]:
+                    log(f"planner: prompt variant {k}.{self.variant} sha mismatch with MANIFEST.json — the frozen prompt is used")
+                    continue
+                base = self.prompts[k]
+                for ch in v["for"]:
+                    if self.prompts.get(ch) is base:           # only who plans with k's prompt today
+                        self.prompts[ch] = v
         self.scene_dir = scene_dir                 # where <character>.props.json live (default renderer/animals)
         self.appendix_path = os.path.join(prompt_dir, "objects_appendix.txt")
         self._matchers: dict = {}
@@ -2199,6 +2327,9 @@ class Planner(_SemanticPlanner):
             ok_models.update(cache_models(self.cfg))
         if ent.get("prompt_sha") != prompt_sha or ent.get("model") not in ok_models or not ent.get("poses"):
             return None                            # a different prompt / model wrote it: plan afresh (and overwrite)
+        if check_on(self.cfg) and any(i in CHECK_HARD for i in plan_issues(ent["poses"])):
+            self.stats["cache_rejected"] = self.stats.get("cache_rejected", 0) + 1
+            return None                            # an old plan today's check rejects: plan afresh
         return ent
 
     def cache_put(self, key: str, ent: dict) -> None:
@@ -2538,8 +2669,14 @@ class Planner(_SemanticPlanner):
                    "attempts": [a.record() for a in atts], "dropped": len(parser.dropped),
                    "salvaged": len(parser.salvaged), "unknown": sorted({u for e in parser.errors for u in e["unknown"]}),
                    "complete_how": parser.complete_how, "library": why, "note": note}
+            issues = plan_issues(wire) if ok and check_on(self.cfg) else []     # quality
+            if issues:
+                res["issues"] = issues
+                self.log(f"planner: plan check {issues} for {description[:60]!r} ({used.spec['model']})"
+                         + (" — not cached" if any(i in CHECK_HARD for i in issues) else ""))
             if ok and err is None:
                 self.stats["planner"] += 1
+            if ok and err is None and not any(i in CHECK_HARD for i in issues):
                 self.cache_put(key, {"key": key, "character": character, "description": description, "normalized": norm,
                                      "note": note, "poses": wire, "summary": summary, "prompt_sha": prompt_sha,
                                      "model": used.spec["model"], "route": used.spec["route"],

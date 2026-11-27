@@ -59,7 +59,16 @@ def characters() -> dict:
     tree = ast.parse(open(os.path.join(APP, "app.py"), encoding="utf-8").read())
     for node in tree.body:
         if isinstance(node, ast.Assign) and any(getattr(t, "id", None) == "CHARACTERS" for t in node.targets):
-            return ast.literal_eval(node.value)
+            chars = ast.literal_eval(node.value)
+            try:        # a character aliased in charcaps (juno -> muse, the mascots) borrows its alias's prompt (planner.load_prompts)
+                sys.path.insert(0, APP); import charcaps
+                chars = {k: v for k, v in chars.items() if not charcaps.alias(k)}
+            except ImportError:
+                pass
+            finally:
+                if sys.path and sys.path[0] == APP:
+                    sys.path.pop(0)
+            return chars
     raise RuntimeError("CHARACTERS not found in app.py")
 
 
@@ -289,6 +298,122 @@ def render(key: str, tr: dict, base: str) -> str:
     return text
 
 
+# ------------------------------------------------------------------------------------------------- variants
+# A VARIANT is a second prompt for a character, served instead of <key>.txt when the planner's config says so
+# ("prompt_variant", default "q1"; "" / "frozen" = <key>.txt exactly as before). MANIFEST "variants": {key: {name: entry}}.
+# q1 (the Muse and everything that plans with its prompt: Juno, the mascots) — what a blind eval showed the frozen
+# prompt gets wrong about THIS body, measured on the renderer (tools/kf_reach.py = renderer/animals/muse.glsl's arm block;
+# every pose below was rendered and looked at):
+#   - the paw map: x -0.45 is NOT the midline (the paws stop 0.55 apart: a clap never meets, crossed arms never cross) —
+#     the midline is x -0.9; the arm is 0.57 long under a head 1.4 wide, so "overhead" ends beside the head;
+#   - right_point / right_thumb exist (the frozen prompt never names them: pointing was a mitten, thumbs-up a fist);
+#   - body_lean / body_pitch / body_yaw 1.0 is 11 / 16 / 23 degrees ("0.3 is a clear bend" = 3 degrees: invisible);
+#   - staging: floor work and anything read from the side is unreadable front-on (a plank is a ball).
+Q1_PAW_OLD_HEAD = ("- right_paw_x/y/z, left_paw_x/y/z: offset of the paw from its rest pose, in arm lengths. x = outward from "
+                   "the body's midline (+ = out to that side, - = across the front of the chest toward the other side); y = up "
+                   "(0 = rest at the side, 0.45 = chest height in front, 1.0 = straight up overhead, -0.5 = down by the legs); "
+                   "z = toward the camera (forward). Range -1..1.2.\n")
+Q1_PAW_OLD_REF_START = "  Reference poses the engine uses: "
+Q1_PAW_NEW = (
+    "- right_paw_x/y/z, left_paw_x/y/z: where the paw goes, as an offset from its rest pose. Range -1..1.2. x = sideways: 0 = "
+    "hanging at its side, + = out away from the body (0.85 = the arm straight out sideways), - = inward across the front "
+    "(-0.9 = the middle of the body, where the two paws meet; a paw cannot cross to the other side). y = up: 0 = hip height "
+    "(rest), 0.5 = chest, 0.6 = shoulder, 1.0 = cheek and ear height, 1.2 = as high as it goes. z = forward, toward the "
+    "camera: 0.5 = just in front of the belly or chest, 1 = the arm stretched forward; negative = behind the body.\n"
+    "  The arms are SHORT (a quarter of the body height) and the head is wider than the shoulders: a paw cannot go above the "
+    "head, around it, or down to the knees or feet. The executor stops a paw on the surface of the body or the head and at "
+    "arm's length. Seen from the front, y shows most (1.0 of y is a third of the body height), x less, and z hardly at all: "
+    "an arm stretched at the camera is foreshortened to a stub, so point, reach, punch and throw to a SIDE unless the "
+    "request says at the camera or at the viewer.\n"
+    "  Poses checked on this body (mirror them for the other paw, vary around them): paw on its hip, elbow out (x -0.1, y "
+    "0.15, z 0.05); on the belly (x -0.6, y 0.25, z 0.55); on the chest or heart (x -0.75, y 0.5, z 0.45); the two paws "
+    "together in front of the chest, as in a clap, a prayer or holding something (x -0.9, y 0.5, z 0.75 for both; a clap "
+    "opens them to x -0.3 and closes them again, 0.2 s or more each way); arms crossed (both at x -0.9, one at y 0.5, z 0.6, the other at y 0.3, z "
+    "0.75); in front of the mouth (x -0.75, y 1.05, z 0.25); on its cheek (x -0.2, y 1.15, z 0.1); covering its eye (x -0.5, "
+    "y 1.2, z 0.35); at the temple beside the eye, as in a salute (x -0.2, y 1.2, z 0.35, open 1); on the side of the head, "
+    "as in a scratch (x 0.3, y 1.2, z 0.5); up beside the head, for up, overhead, a cheer or a raised hand (x 0.6, y 1.2, z "
+    "0.1); a hello in front of the shoulder, palm to the camera (x 0.1, y 0.7, z 0.6, open 1, turn 1); straight out to the "
+    "side, also for pointing with point 1 and the head turned the same way (x 0.85, y 0.6, z -0.3); out to the side and up "
+    "(x 1.0, y 0.8, z 0); reaching at the camera (x -0.25, y 0.6, z 0.95); behind its back (x -0.5, y 0.15, z -1); a "
+    "strongman flex (x 0.5, y 0.95, z 0, open 0); a shrug (x 0.5, y 0.4, z 0.5, open 1, turn 1, with both shoulders 1 and "
+    "the head tilted); a thumbs-up (x 0.1, y 0.45, z 0.45, open 0, thumb 1).\n"
+    "  How far is enough: a paw that travels less than 0.3 in every control looks like it did not move. A rhythmic move "
+    "(wave, rub, pat, shake, fan, scrub, knock) needs two clearly different ends, one pose at each, 0.5 or more apart, "
+    "mostly in y: a wave swings between up beside the head (x 0, y 1.2, z 0) and out to the side (x 1.0, y 0.8, z 0), palm "
+    "to the camera; a belly rub slides between low (x -0.45, y 0, z 0.55) and high (x -0.45, y 0.55, z 0.55); a pat or a "
+    "knock leaves the spot by 0.4 and comes back. Let the body join the rhythm (a little body_lean, head_roll or bounce on "
+    "each beat) so it reads from across the room.\n")
+Q1_OPEN_OLD = "- right_paw_open / left_paw_open: 0 = fist, 0.2 = rest, 1 = open spread palm."
+Q1_OPEN_NEW = ("- right_paw_open / left_paw_open: 0 = fist, 0.2 = rest, 1 = open spread palm. right_point / left_point 0..1: 1 = "
+               "the index finger out and the others folded (pointing at something). right_thumb / left_thumb 0..1: 1 = the thumb "
+               "stuck out (a thumbs-up is open 0 with thumb 1).")
+Q1_BODY_OLD = "0.3 is a clear bend, 1 the maximum.\n"
+Q1_BODY_NEW = ("The waist is short, so these bends are small: 1 is only about 12 degrees sideways, 16 forward, 23 of twist. Use "
+               "0.7-1 for a bend that shows; for a big lean tip the whole body the same way too (root_roll 0.04-0.07 with "
+               "body_lean), for a deep bow root_pitch 0.06-0.1 with body_pitch 1.\n")
+Q1_GUIDE_ANCHOR = "- To hold a position (\"stand like X\")"
+Q1_GUIDE_NEW = (
+    "- Show it to the camera. The viewer sees Muse from the front, a few steps away. Whatever only reads from the side - "
+    "lying down, push-ups, sit-ups, a plank, crawling, a roll forward or back, a kick forward, running or walking on the "
+    "spot - do in PROFILE: turn first (root_yaw 0.25 or -0.25), do it, and turn back to the camera at the end. Whatever is "
+    "done with the arms or the face, do facing the camera, with the working paw where it is seen: out to the side or in "
+    "front of the body, never behind the head.\n"
+    "- Big and few: choose the two or three controls that carry the action and move them far; a pose that differs from "
+    "rest by less than \"how far is enough\" above reads as standing still. A feeling or an act (excited, scared, bored, "
+    "laughing, worn out...) is played with the whole body - face, head, arms, posture and rhythm together - never with the "
+    "face alone.\n")
+
+
+def render_q1(base: str) -> str:
+    """the Muse's q1 prompt, cut from muse.txt (frozen + FIXES) by exact substitutions"""
+    S = split_template(base)
+    paws = S["paws"]
+    i, j = paws.find(Q1_PAW_OLD_HEAD), paws.find(Q1_PAW_OLD_REF_START)
+    k = paws.find("\n", j) + 1
+    if i < 0 or j != i + len(Q1_PAW_OLD_HEAD) or k <= 0:
+        raise RuntimeError("q1: the frozen paw bullet moved")
+    paws = paws[:i] + Q1_PAW_NEW + paws[k:]
+    paws = _sub(paws, Q1_OPEN_OLD, Q1_OPEN_NEW)
+    bhf = _sub(S["bhf"], Q1_BODY_OLD, Q1_BODY_NEW)
+    g = S["guidance"]
+    if g.count(Q1_GUIDE_ANCHOR) != 1:
+        raise RuntimeError("q1: guidance anchor moved")
+    g = g.replace(Q1_GUIDE_ANCHOR, Q1_GUIDE_NEW + Q1_GUIDE_ANCHOR)
+    return "".join(S[n] if n not in ("paws", "bhf", "guidance") else {"paws": paws, "bhf": bhf, "guidance": g}[n]
+                   for n, _ in ANCHORS)
+
+
+VARIANTS = {"muse": {"q1": render_q1}}
+HAND_MAP_KEYS = ("rest_wrist_scene", "L_scene", "gain_x_out", "gain_x_in", "gain_y", "gain_z", "min_x_scene")
+
+
+def _hand_map(key: str):
+    """the numbers of a character's hand map (its body file: renderer/animals/<c>.body.json, a mesh human's
+    renderer/humans/<c>/<c>.body.json); None without one"""
+    for path in (os.path.join(RENDER, "animals", key + ".body.json"), os.path.join(RENDER, "humans", key, key + ".body.json")):
+        hm = (_json(path) or {}).get("hand_map")
+        if isinstance(hm, dict):
+            return [hm.get(k) for k in HAND_MAP_KEYS]
+    return None
+
+
+def variant_for(key: str) -> list:
+    """who a variant of `key` is served to: `key` and every character that plans with its prompt (charcaps.ALIAS) AND
+    has the same hand map — a variant's paw numbers are measured on that map (Juno borrows the Muse's prompt but her
+    arms are her own: she keeps the frozen prompt)."""
+    out = [key]
+    try:
+        sys.path.insert(0, APP); import charcaps
+        base = _hand_map(key)
+        out += sorted(c for c, a in charcaps.ALIAS.items() if a == key and base is not None and _hand_map(c) == base)
+    except ImportError:
+        pass
+    finally:
+        if sys.path and sys.path[0] == APP:
+            sys.path.pop(0)
+    return out
+
+
 def sha(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
@@ -310,6 +435,13 @@ def build() -> tuple[dict, dict]:
         files[key + ".txt"] = text
         man["characters"][key] = {"file": key + ".txt", "sha256": sha(text), "bytes": len(text.encode("utf-8")),
                                   "traits": tr, "controls": controls(key, tr)}
+        for vname, fn in (VARIANTS.get(key) or {}).items():           # quality
+            vtext = fn(text)
+            vfile = f"{key}.{vname}.txt"
+            files[vfile] = vtext
+            man.setdefault("variants", {}).setdefault(key, {})[vname] = {
+                "file": vfile, "sha256": sha(vtext), "bytes": len(vtext.encode("utf-8")), "traits": tr,
+                "controls": controls(key, tr), "for": variant_for(key)}
     return files, man
 
 
