@@ -31,7 +31,7 @@ const DT = 1 / 30, N = 75 * 30;
 function session(Lib, name) {
   const ev = [];
   // idle2 off = the base's idle schedule (the new look-away timing is on by default; the base lib ignores the option)
-  const m = Lib.createMotion({seed: 4555, character: name, idle2: false, onAction: e => ev.push(JSON.stringify(Object.assign({}, e, {wall: undefined})))   /* wall = Date.now(): the only field that may differ */});
+  const m = Lib.createMotion({seed: 4555, character: name, idle2: false, poseRevert: false /* OFF = identical covers the pose-revert switch too (the base ignores it) */, onAction: e => ev.push(JSON.stringify(Object.assign({}, e, {wall: undefined})))   /* wall = Date.now(): the only field that may differ */});
   if (BODY[name]) m.setProps(JSON.parse(JSON.stringify(PROPS[name])), JSON.parse(JSON.stringify(BODY[name])), name); else m.setProps(null, null, name);
   const frames = [];
   const kfA = [{t: 0.2, right_paw_y: 0.5, right_paw_x: 0.2, head_yaw: 0.1}, {t: 0.7, right_paw_y: 0.9, right_paw_z: 0.2, smile: 0.4}, {t: 1.2, right_paw_y: 0.6, mouth_open: 0.3},
@@ -91,7 +91,8 @@ function perfScript(Lib, plannerOpt) {
   const d = {motion: () => motion, prompt: (x, o) => { out.push('prompt ' + JSON.stringify([x, o && o.respond, o && o.maxWaitMs])); if (o && o.onAudio) out.push('(onAudio)'); return null; },
     sendCtl: o => out.push('ctl ' + JSON.stringify(o)), runCommand: c => { out.push('run ' + JSON.stringify(c)); return {ok: true, id: 'e' + out.length}; },
     character: () => 'muse', now: () => t, timers: {set: (f, ms) => { timers.push({f, at: t + ms}); return timers.length; }, clear: () => {}}, thinker: () => th,
-    userSpeaking: () => false, lastUserSpeech: () => -1e12, log: r => out.push('log ' + JSON.stringify(r))};
+    userSpeaking: () => false, lastUserSpeech: () => -1e12, log: r => out.push('log ' + JSON.stringify(r)),
+    moveSync: () => false};   // OFF = identical covers the move-sync switch too (the base ignores the option)
   if (plannerOpt) Object.assign(d, plannerOpt);
   const P = Lib.createPerformer(d);
   const adv = ms => { t += ms; const due = timers.filter(x => x.at <= t && !x.done); for (const x of due) { x.done = true; x.f(); } };

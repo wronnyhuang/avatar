@@ -460,7 +460,7 @@ function mockMotion(clock) {
 function talk() {
   for (const mode of ['usual', 'through', 'quiet']) {
     const clock = makeClock(), notes = [], ctl = [], m = mockMotion(clock);
-    const P = Perf.createPerformer({motion: () => m, prompt: (t, o) => { notes.push({t, o}); return {}; }, sendCtl: x => ctl.push(x), character: () => 'fox',
+    const P = Perf.createPerformer({moveSync: () => false /* the flow without move sync */, motion: () => m, prompt: (t, o) => { notes.push({t, o}); return {}; }, sendCtl: x => ctl.push(x), character: () => 'fox',
       now: clock.now, timers: {set: clock.set, clear: clock.clear}, userSpeaking: () => false, lastUserSpeech: () => -1e12});
     m.onAction = ev => P.onAction(ev);
     const r = P.call('count to five while you jump five times', {talk: mode === 'usual' ? undefined : mode, words: 'Count to five while you jump five times'});

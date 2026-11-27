@@ -951,7 +951,7 @@ function voiceLibrary(desc, move, info) {
   if (!cmds.length) return null;
   let ran = 0, dup = 0, reason = ''; const did = [];
   for (const c of cmds) {
-    const r = runCommand(c, 'voice', info);
+    const r = runCommand(c, 'voice', Object.assign({}, info || {}, {description: String(desc || '')}));   // + the request's words (a named duration)
     if (r === false && D.intentRes && D.intentRes.dup) dup++;
     else if (r && (r === true || r.ok !== false)) { ran++; if (r.did) did.push(r.did); }
     else reason = (r && r.reason) || reason;
@@ -1011,6 +1011,12 @@ function runCommand(cmd, source, info) {
   D.cmds.push({cmd, source, t: Math.round(t)}); if (D.cmds.length > 300) D.cmds.splice(0, 100);
   const asked = cmd0, dsrc = source === 'voice' ? 'model' : source;                  // intent c2: as seen() recorded it
   if (cmd.action === 'release' && Array.isArray(cmd.parts)) cmd = {...cmd, parts: cmd.parts.flatMap(p => REL_ALIAS[p] || [p])};
+  // a duration he named ("keep your eyes closed for ten seconds") rides on a held pose / look / face (the motion layer
+  // lets every commanded pose go after a short hold otherwise, and bounds this one)
+  if (D.motion && D.motion.askedHoldS && cmd.duration_ms == null && (cmd.action === 'hold' || (/^(pose|look|expression|gesture)$/.test(cmd.action || '') && (cmd.hold === true || cmd.hold === 'true')))) {
+    const hs = D.motion.askedHoldS(info && (info.text || info.description) || '');
+    if (hs) cmd = {...cmd, duration_ms: Math.round(hs * 1000)};
+  }
   if (D.motion && D.motion.command) {
     let ok = false, res = null;
     // r2-objvoice: the user's object request -> the lesson's chalk / eraser go back on the tray first (queued before it)
@@ -2300,6 +2306,9 @@ D.perf = window.AvatarPerform ? AvatarPerform.createPerformer({
   lastUserSpeech: () => Math.max(D.userSpokeAt || -1e12, D.micVoicedAt && !S.direct ? D.micVoicedAt : -1e12, D.voice && D.voice.lastUserSpeechAt ? D.voice.lastUserSpeechAt() : -1e12),
   alog: () => D.alog, cache: Q.get('pagecache') !== '0', thinker: () => D.think,
   planner: () => D.planMode, semState: () => semStateNow(),
+  // move sync (app/perform.js): the motion starts with the words that announce it, the "done" line lands at its end; ?movesync=0 = off
+  moveSync: () => Q.get('movesync') !== '0' && !(S.cfg && S.cfg.move_sync === false),
+  avatarSpeaking: () => !!(D.play && D.play.avatarVoice && D.play.avatarVoice().voiced),
   log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
 }) : null;
 // end
@@ -2332,9 +2341,10 @@ D.vt = window.AvatarVoiceTools ? AvatarVoiceTools.createVoiceTools({
   lastUserSpeech: () => Math.max(D.userSpokeAt || -1e12, D.voice && D.voice.lastUserSpeechAt ? D.voice.lastUserSpeechAt() : -1e12),
   reactMode: () => (D.unified ? 'unified' : D.learned ? 'learned' : 'rules'), character: () => (S.cfg && S.cfg.character) || sel,
   thinker: () => D.think,
+  moveSync: () => Q.get('movesync') !== '0' && !(S.cfg && S.cfg.move_sync === false),
   onTv: (name, args) => teachTv(name, args),                                           // teach: walk to the TV / home
-  absentThings: () => Q.get('absent') !== '0',                                         // a thing not in the scene is refused, never mimed (?absent=0 = off)
   objectPlans: () => Q.get('objplan') !== '0',                                         // tricks with things -> the planner (?objplan=0 = the old refusal)
+  absentThings: () => Q.get('absent') !== '0',                                         // a thing not in the scene is refused, never mimed (?absent=0 = off)
   log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
 }) : null;
 if (D.vt) { D.vt.attach(); addEventListener('load', () => D.vt.attach()); }

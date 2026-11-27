@@ -200,7 +200,7 @@ function jumps(rows) {
     const c = [];
     const once = (a) => t >= a && t < a + DT;
     if (once(1)) c.push({action: 'pose', targets: {head_yaw: 0.4, hand_l_y: 0.9, hand_l_x: 0.25, hand_l_open: 1}, hold: true, ease_ms: 350});
-    if (once(6)) c.push({action: 'release', parts: ['head', 'hand_l']});
+    if (once(5)) c.push({action: 'release', parts: ['head', 'hand_l']});   // a held pose lets go on its own after ~4 s, so the explicit release comes before that
     if (once(8)) c.push({action: 'look', target: 'left', hold: true});
     if (once(11)) c.push({action: 'release', parts: 'all'});
     if (once(12.5)) c.push({action: 'gesture', name: 'nod', side: 'right', repeat: 1});
@@ -208,14 +208,14 @@ function jumps(rows) {
     return {features: {t, face: face(0, 0.05), attending: true, attention: 0.9, motion: 0.05, hands: []}, commands: c};
   });
   const r = sc.rows;
-  const held = r.filter(q => q.t > 2.0 && q.t < 6);
+  const held = r.filter(q => q.t > 2.0 && q.t < 5);
   check('commands: pose eases in (no frame jump > 0.06 rad)', r.slice(29, 45).every((q, i, a) => !i || Math.abs(q.head_yaw - a[i - 1].head_yaw) < 0.06), '');
   check('commands: held exactly while held', held.every(q => Math.abs(q.head_yaw - 0.4) < 1e-6 && Math.abs(q.hand_l_y - 0.9) < 0.01), `${held[0].head_yaw.toFixed(3)} … ${held[held.length - 1].head_yaw.toFixed(3)}`);
   check('commands: the rest keeps living during the hold (brow/breath/gaze move)', std(held.map(q => q.breath)) > 0.05 && std(held.map(q => q.brow_l)) > 0.01 && held.some(q => q.blink_l > 0.8),
     `breath std ${std(held.map(q => q.breath)).toFixed(3)}, brow std ${std(held.map(q => q.brow_l)).toFixed(3)}`);
-  const rel = r.filter(q => q.t > 6 && q.t < 6.6);
-  check('commands: release eases out (≥ 250 ms, no jump)', rel.every((q, i, a) => !i || Math.abs(q.head_yaw - a[i - 1].head_yaw) < 0.06) && at(r, 6.2).head_yaw > 0.15, `at +0.2 s ${at(r, 6.2).head_yaw.toFixed(3)}`);
-  check('commands: after release the head is free again', Math.abs(at(r, 7.5).head_yaw) < 0.2, at(r, 7.5).head_yaw.toFixed(3));
+  const rel = r.filter(q => q.t > 5 && q.t < 5.6);
+  check('commands: release eases out (≥ 250 ms, no jump)', rel.every((q, i, a) => !i || Math.abs(q.head_yaw - a[i - 1].head_yaw) < 0.06) && at(r, 5.2).head_yaw > 0.15, `at +0.2 s ${at(r, 5.2).head_yaw.toFixed(3)}`);
+  check('commands: after release the head is free again', Math.abs(at(r, 6.5).head_yaw) < 0.2, at(r, 6.5).head_yaw.toFixed(3));
   const lk = r.filter(q => q.t > 9 && q.t < 11);
   check("commands: 'look left' (character's own left = screen-right) holds", lk.every(q => q.gaze_x > 0.6 && q.head_yaw > 0.15), `gaze ${lk[0].gaze_x.toFixed(2)} head ${lk[0].head_yaw.toFixed(2)}`);
   check('commands: look released → back to him', Math.abs(at(r, 12.3).gaze_x) < 0.3, at(r, 12.3).gaze_x.toFixed(2));

@@ -85,7 +85,8 @@ function setup(character, o) {
   const ctl = [], ran = [];
   const alogCalls = [];
   const alog = o.alog === false ? null : {command: (c, r, s) => alogCalls.push(['command', c, r, s]), push: ev => alogCalls.push(['push', ev])};
-  const P = Perf.createPerformer({
+  const P = Perf.createPerformer({moveSync: () => false,   // this file tests the flow without move sync (tests/move_sync_test.cjs has the other)
+
     motion: () => motion, prompt: voice.prompt, sendCtl: m => ctl.push(JSON.parse(JSON.stringify(m))),
     runCommand: (cmd, info) => { ran.push({cmd, info, t: clock.now()}); const r = motion.command(cmd, {src: 'voice'}); return r; },
     character: () => character, userSpeaking: () => voice.userTalking, lastUserSpeech: () => voice.lastUser,

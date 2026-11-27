@@ -20,6 +20,23 @@
  * Two calls of ONE request (no speech from him in between) run in order; a newer request replaces one still being
  * prepared. Nothing here holds, gates or delays the avatar's audio or lip-sync: the only hold is the motion waiting
  * for its cue. Note texts describe the situation only: the voice model words every reply itself.
+ *
+ * MOVE SYNC (docs/MOVE-SYNC.md; d.moveSync() === false / ?movesync=0 = the flow above, unchanged). Nothing here delays
+ * a tool result or a reply; only WHEN the motion starts and WHEN the notes go out changes:
+ *   start  = in step with the words that announce it; no reply is ever held (the tool result goes back at once, as before).
+ *            The tool result asks for a word or two of acknowledgement, not the announcement: the CUE is the announcement.
+ *            At 'ready':
+ *              - its reply to the call is being spoken -> those words are the announcement: the move starts as they end, at
+ *                most CUE_MAX_MS after ready (no second cue: it used to be heard a second into the motion);
+ *              - its reply is over -> the cue is the announcement. It was asked EARLY, at the plan's first pose (the model
+ *                needs ~1 s to start speaking, the plan ~0.5 s more to be ready) or the moment its reply ended; the move
+ *                starts at the cue's first audio, at most CUE_SYNC_MAX_MS after ready (the thinking gesture stays up);
+ *              - its reply has not begun -> the move starts at that reply's first audio (<= CUE_MAX_MS).
+ *            A known move (library / clip / a matcher's) still plays at once, as before (latency first).
+ *   done   = the check-in note leaves one model latency BEFORE the motion ends (motion.kfState().end_s / motion.eta(); the
+ *            latency is measured in this session: note -> first audio), so the "done" line is heard as the motion ends
+ *            instead of one latency after it. The 'playing now' note carries the real duration. A rules-layer run (gesture /
+ *            pose / face) ends when the motion layer says it has, not after a fixed 1.8 s.
  */
 (function (root, factory) {
   const lib = factory();
@@ -38,10 +55,17 @@
   const WAIT_MAX_MS = 15000;       // a step never waits longer than this for the step before it
   const RULES_END_MS = 1800;       // a library run of rules-layer commands only (gesture/look/face/pose): its end
   const LIB_SAFETY_MS = 30000;
+  const CUE_SYNC_MAX_MS = 1500;    // a job whose cue HAS been asked waits this long (after ready) for the cue's first audio
+  const LAT0_MS = 900;             // note -> first audio, the first estimate (real sessions: tool result -> speech p50 ~0.9 s)
+  const LAT_MIN_MS = 300, LAT_MAX_MS = 1500;
+  const DONE_LEAD_PAD_MS = 0;      // the check-in leaves latency + this before the motion's end
   const PART_NOW = ' Check in with him and tell him honestly what did not work, in a few words of your own.';
   const PART_LATER = ' Tell him honestly what did not work, in a few words, when you next speak.';     // an engine run whose end event never came
   const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
   const NEXT_PREP = 'It is being prepared: say something short and natural now, not that it is done. A silent note will tell you when it is about to start.';
+  // move sync: the first words only acknowledge (the body shows it thinking); the announcement is the cue, which is
+  // timed to the motion's start
+  const NEXT_PREP_SYNC = 'It is being prepared (the body shows it thinking meanwhile): say only a word or two now to show you heard him. Do not announce it yet and do not say it is done: a silent note will tell you the moment it starts, announce it then.';
   const NEXT_START = 'It starts right away: give him a brief natural cue now.';
   const NEXT_AFTER = 'It follows the step before it: say something short and natural now. A silent note will tell you when it is about to start.';
   // how he asked it to talk during the action (do_action's `talk`): through = keep talking while it plays,
@@ -58,7 +82,22 @@
     const motion = () => (d.motion ? d.motion() : null);
     const userSpeaking = () => { try { return !!(d.userSpeaking && d.userSpeaking()); } catch (e) { return false; } };
     const lastUserSpeech = () => { try { const v = d.lastUserSpeech ? +d.lastUserSpeech() : -1e12; return Number.isFinite(v) ? v : -1e12; } catch (e) { return -1e12; } };
-    const P = {n: 0, jobs: new Map(), order: [], cache: new Map(), engine: new Map(), deferred: [], late: 0, prompts: 0, semOrphan: null};
+    const P = {n: 0, jobs: new Map(), order: [], cache: new Map(), engine: new Map(), deferred: [], late: 0, prompts: 0, semOrphan: null,
+      av: {onset: -1e12}, lat: {ms: LAT0_MS, n: 0, pend: null}};   // the avatar's last speech onset; note -> audio latency
+    // move sync (see the header). Every getter is optional: a page without them = sync on, "not speaking".
+    function syncOn() { try { return !(d.moveSync && d.moveSync() === false); } catch (e) { return true; } }
+    function avSpeaking() { try { return !!(d.avatarSpeaking && d.avatarSpeaking()); } catch (e) { return false; } }
+    function leadMs() { return Math.max(LAT_MIN_MS, Math.min(LAT_MAX_MS, P.lat.ms)) + DONE_LEAD_PAD_MS; }
+    // a reply was asked for: the next avatar speech onset is its latency sample (onSent = when the note really left)
+    function askedReply() { const pend = {t: now()}; P.lat.pend = pend; return {onSent: () => { pend.t = now(); }}; }
+    function latSample(t) {
+      const pd = P.lat.pend; if (!pd) return;
+      P.lat.pend = null;
+      const v = t - pd.t; if (!(v > 50 && v < 5000)) return;
+      P.lat.ms = P.lat.n ? 0.6 * P.lat.ms + 0.4 * v : v; P.lat.n++;
+    }
+    function etaNow() { const m = motion(); try { const e = m && typeof m.eta === 'function' ? m.eta() : null; return e && typeof e === 'object' ? e : null; } catch (e) { return null; } }
+    function askedHold(J) { const m = motion(); try { return m && typeof m.askedHoldS === 'function' ? m.askedHoldS(J.words || J.description) || m.askedHoldS(J.description) : null; } catch (e) { return null; } }
     // (docs/SEMANTIC.md §4): which planner writes the move — read at every call (the switch applies to the next
     // command). 'current' (default, and whenever d.planner is absent) = the messages byte for byte.
     function mode() { try { return d.planner && d.planner() === 'semantic' ? 'semantic' : 'current'; } catch (e) { return 'current'; } }
@@ -147,6 +186,7 @@
         outcome: null, cue: null, alogged: false, talk: talkOf(info.talk),
         words: info.words ? String(info.words).replace(/\s+/g, ' ').trim().slice(0, 400) : ''};   // his words (library 2nd try)
       if (Number.isFinite(info.start_ms) && Number.isFinite(info.start_lat_ms)) J.marks.user_end_ms = info.start_ms - info.start_lat_ms;
+      if (syncOn() && avSpeaking()) J.marks.first_speech_ms = t;    // it spoke and called in one reply: the announcement is already being said
       for (const o of active()) {
         if (sameRequest(o.t)) J.waitFor.add(o.id);                    // this request's earlier step: this one follows it
         else if (!o.playing) { o.outcome = 'replaced'; o.replacedBy = id; o.marks.end_ms = t; close(o); }   // a newer request
@@ -179,7 +219,7 @@
       log({perform: id, description: desc, status: J.status, after: [...J.waitFor], t: Math.round(t)});
       if (J.closed && J.outcome === 'failed') return {ok: false, id, reason: J.error || 'it could not be done'};
       const next = J.talk === 'quiet' ? NEXT_QUIET : J.status === 'starting' ? (J.talk === 'through' ? NEXT_START_THROUGH : NEXT_START)
-        : J.talk === 'through' ? NEXT_THROUGH : J.waitFor.size ? NEXT_AFTER : NEXT_PREP;
+        : J.talk === 'through' ? NEXT_THROUGH : J.waitFor.size ? NEXT_AFTER : syncOn() ? NEXT_PREP_SYNC : NEXT_PREP;
       return {ok: true, status: J.status, id, next, talk: J.talk === 'usual' ? undefined : J.talk};
     }
     function armWatch(J) {
@@ -218,6 +258,7 @@
           if (J.mode === 'semantic' && m.source !== 'cache' && !J.cacheHit) P.semEst = 0.7 * P.semEst + 0.3 * Math.min(8000, J.marks.plan_first_pose_ms - J.t);
         }
         J.poses.push(...poses);
+        earlyCue(J, !!m.done);
       }
       if (m.done) { J.done = true; J.ok = m.ok !== false; J.error = m.error ? String(m.error).slice(0, 160) : null; }
       if (m.done && !J.poses.length) { fail(J, J.error || 'nothing could be planned'); return true; }
@@ -237,6 +278,7 @@
         let r = null;
         const kc = {action: 'keyframes', id: J.id, description: J.description, poses: J.poses.slice(), done: J.done, hold: true};
         if (J.space === 'rig') { kc.space = 'rig'; kc.hz = J.hz || 20; if (J.keepPose) kc.keep_pose = true; if (J.extent) kc.extent = J.extent; }
+        { const hs = askedHold(J); if (hs) kc.hold_s = hs; }   // "for ten seconds" (the motion layer bounds every kept pose)
         try { r = m.command(kc, {src: 'voice'}); }
         catch (e) { r = {ok: false, reason: 'error: ' + String(e && e.message || e).slice(0, 80)}; }
         if (!r || r.ok === false) { fail(J, (r && r.reason) || 'the body could not play it'); return; }
@@ -272,6 +314,28 @@
       J.phase = 'ready'; J.marks.ready_ms = now();
       if (userSpeaking()) { J.cue = 'none: he is speaking'; release(J, 'he is speaking'); return; }
       if (J.talk === 'quiet') { J.cue = 'none: quiet'; release(J, 'quiet'); return; }     // no words around it
+      const capMs = J.mode === 'semantic' ? CUE_MAX_SEM_MS : CUE_MAX_MS;
+      if (syncOn() && J.talk === 'usual' && J.status !== 'starting') {   // start in step with the words that announce it
+        const spoke = J.marks.first_speech_ms != null;
+        if (!spoke) {                                               // its reply to the call has not begun: the move waits for its first audio
+          J.cue = 'the tool result'; J.cueAskedAt = J.t;
+          J.timers.cue = T.set(() => { const quiet = J.marks.first_speech_ms == null; release(J, 'cue timeout'); if (quiet && !J.closed && !userSpeaking()) { J.cue = 'note (late)'; askCue(J); } }, capMs);
+          return;
+        }
+        if (J.cueAudioAt != null) { release(J, 'cue audio'); return; }   // the cue (asked at the first pose) is already being spoken
+        T.clear(J.timers.ecue);
+        if (!J.cueAskedAt && avSpeaking()) {
+          // its reply to the call is still being spoken: those words are the announcement, the move starts as they end (a cue
+          // asked now would be heard a second into the motion)
+          J.cue = 'its reply (being spoken)'; J.marks.cue_audio_ms = Math.max(J.marks.first_speech_ms, P.av.onset); afterReply(J);
+          J.timers.cue = T.set(() => release(J, 'cue timeout'), capMs);
+          return;
+        }
+        if (!J.cueAskedAt) askCue(J);                               // it is silent: the cue, now
+        // the announcement is on its way: the move waits for its first audio (the thinking gesture is still up), bounded
+        J.timers.cue = T.set(() => release(J, 'cue timeout'), J.mode === 'semantic' ? capMs : CUE_SYNC_MAX_MS);
+        return;
+      }
       J.cueAskedAt = now();
       if (J.status === 'starting') J.cue = 'the tool result';       // its reply to 'starting' is the cue
       else if (J.talk === 'through') {                              // talk through the whole motion
@@ -280,19 +344,37 @@
         J.cuePrompt = prompt(`The action he asked for (${q(J)}) is about to start` + (s > 0 ? `, about ${s} s of it planned so far` : '') +
           '. He asked you to talk while it plays: start now, in your own words, and keep going in time with it until it ends.',
           {respond: true, maxWaitMs: CUE_STALE_MS, onAudio: () => release(J, 'cue audio')});
-      } else {
-        J.cue = 'note';
-        const s = plannedS(J);
-        J.cuePrompt = prompt(`The action he asked for (${q(J)}) is about to start` + (s > 0 ? `, about ${s} s of it planned so far` : '') +
-          '. Give him one brief natural cue now, in your own words. It has not happened yet: never say it is done or finished (a later note tells you when it is); if he asked you to talk during it, do that through the motion.',
-          {respond: true, maxWaitMs: CUE_STALE_MS, onAudio: () => release(J, 'cue audio')});
-      }
-      J.timers.cue = T.set(() => release(J, 'cue timeout'), J.mode === 'semantic' ? CUE_MAX_SEM_MS : CUE_MAX_MS);
+      } else askCue(J);
+      J.timers.cue = T.set(() => release(J, 'cue timeout'), capMs);
+    }
+    // the plan is arriving and its reply to the call is over: ask the cue NOW, so its audio lands about when the plan
+    // is ready (the model needs ~1 s to start speaking). Its reply is still being spoken: look again when it ends (until ready).
+    function earlyCue(J, done) {
+      T.clear(J.timers.ecue);
+      if (!syncOn() || done || J.closed || J.cueAskedAt || (J.phase !== 'planning' && J.phase !== 'buffering') || J.talk !== 'usual' || J.status === 'starting' || J.waitFor.size || !J.poses.length) return;
+      if (J.marks.first_speech_ms != null && !avSpeaking() && !userSpeaking()) { J.cueEarly = true; askCue(J); return; }
+      J.timers.ecue = T.set(() => earlyCue(J, J.done), 80);
+    }
+    // ready while its reply to the call is being spoken: the move starts as those words end (or at the cap)
+    function afterReply(J) {
+      T.clear(J.timers.arep);
+      if (J.closed || J.phase !== 'ready') return;
+      if (!avSpeaking()) { if (J.silAt == null) J.silAt = now(); if (now() - J.silAt >= 120) { release(J, 'announcement ended'); return; } }   // (a pause between words is not its end)
+      else J.silAt = null;
+      J.timers.arep = T.set(() => afterReply(J), 40);
+    }
+    function askCue(J) {
+      if (!/^note \(/.test(String(J.cue))) J.cue = 'note';
+      J.cueAskedAt = now();
+      const s = plannedS(J), lt = syncOn() ? askedReply() : null;
+      J.cuePrompt = prompt(`The action he asked for (${q(J)}) is about to start` + (s > 0 ? `, about ${s} s of it planned so far` : '') +
+        '. Give him one brief natural cue now, in your own words. It has not happened yet: never say it is done or finished (a later note tells you when it is); if he asked you to talk during it, do that through the motion.',
+        {respond: true, maxWaitMs: CUE_STALE_MS, onSent: lt ? lt.onSent : undefined, onAudio: () => { if (J.cueAudioAt == null) J.cueAudioAt = now(); release(J, 'cue audio'); }});
     }
     function release(J, why) {
       if (J.closed || J.phase !== 'ready') return;
       T.clear(J.timers.cue); J.phase = 'released'; J.releaseWhy = why;
-      if (/audio/.test(why)) J.marks.cue_audio_ms = now();
+      if (/audio/.test(why) && J.marks.cue_audio_ms == null) J.marks.cue_audio_ms = J.cueAudioAt != null ? J.cueAudioAt : now();
       const m = motion();
       if (m && typeof m.kfRelease === 'function') { try { m.kfRelease(J.id); } catch (e) {} }
     }
@@ -302,7 +384,47 @@
       if (J.marks.first_motion_ms == null) J.marks.first_motion_ms = now();
       J.phase = 'playing'; J.playing = true; J.startedAt = now();
       thinkEnd(J, 'move started');                                  // (motion.js already faded it at the job's first frame)
-      prompt(`The action he asked for (${q(J)}) is playing on screen now.`, {respond: false});
+      { const dn = durNote(kfRemainMs(J)); if (dn) J.durTold = true; prompt(`The action he asked for (${q(J)}) is playing on screen now.` + dn, {respond: false}); }
+      if (syncOn()) watchEnd(J);
+    }
+    // ---- the "done" line lands as the motion ends
+    function durNote(ms) { return syncOn() && Number.isFinite(ms) && ms > 1500 ? ` It takes about ${Math.round(ms / 100) / 10} s more: a note tells you as it finishes; do not say it is done before that.` : ''; }
+    function kfRemainMs(J) {       // ms until every dial of this job is back at rest (null = not known yet)
+      const m = motion();
+      try {
+        const st = m && m.kfState ? m.kfState(J.id) : null;
+        if (st && st.complete && Number.isFinite(st.end_s) && st.phase === 'playing' && !st.interrupted) return Math.max(0, (st.end_s - st.played_s) * 1000);
+      } catch (e) {}
+      return null;
+    }
+    function libRemainMs(J) {      // a library run: the commanded motion still running (null = not known)
+      const e = etaNow(); if (!e) return null;
+      if (!e.any) return 0;
+      return Number.isFinite(e.act) ? Math.max(0, e.act * 1000) : null;
+    }
+    function watchEnd(J) {
+      if (J.closed || !J.playing) return;
+      const lib = !!J.libRun, rules = lib && !J.engineIds.size, rem = lib ? libRemainMs(J) : kfRemainMs(J);
+      if (rules && rem !== null && rem <= 0 && now() - J.startedAt >= 300) { finish(J, 'end'); return; }   // a rules-layer run is over
+      if (!J.durTold && !lib && rem !== null && rem > 1500 + leadMs()) {   // the plan's end became known while it plays
+        J.durTold = true; prompt(`The action he asked for (${q(J)}) takes about ${Math.round(rem / 100) / 10} s more: a note tells you as it finishes; do not say it is done before that.`, {respond: false});
+      }
+      if (!J.early && rem !== null && rem <= leadMs()) earlyDone(J, rem);
+      if (J.early && !rules) return;                                // its end event closes it
+      T.clear(J.timers.endw);
+      J.timers.endw = T.set(() => watchEnd(J), rem !== null ? Math.max(30, Math.min(200, J.early ? rem : rem - leadMs())) : 120);
+    }
+    function earlyDone(J, rem) {
+      if (J.early || J.closed) return;
+      const follower = active().some(F => F !== J && F.waitFor.has(J.id));
+      if (follower) return;                                         // the next step follows: no check-in (finish says so)
+      const since = J.startedAt || J.marks.ready_ms || J.t;
+      const heSpoke = userSpeaking() || lastUserSpeech() > since, quiet = J.talk === 'quiet';
+      J.early = {at: now(), rem: Math.round(rem), respond: !heSpoke && !quiet};
+      J.marks.done_note_ms = now();
+      const lt = J.early.respond ? askedReply() : null;
+      prompt(`The action he asked for (${q(J)}) is just finishing on screen now.` + (heSpoke || quiet ? '' : ' Briefly check in with him about it, in your own words.'),
+        {respond: J.early.respond, maxWaitMs: CHECKIN_STALE_MS, onSent: lt ? lt.onSent : undefined});
     }
     function finish(J, kind, ev) {
       if (J.closed) return;
@@ -316,8 +438,15 @@
         const part = ev && ev.partial ? ` Part of it did not work: ${String(ev.partial).slice(0, 200)}.` : '';   // a failed object step
         if (part) J.partial = String(ev.partial).slice(0, 200);
         const tail = heSpoke || quiet ? (part ? PART_LATER : '') : part ? PART_NOW : ' Briefly check in with him about it, in your own words.';
-        if (!follower) prompt(`The action he asked for (${q(J)}) has finished on screen.` + part + tail,
-          {respond: !heSpoke && !quiet, maxWaitMs: CHECKIN_STALE_MS});
+        if (J.early) {                                              // the check-in already left as the motion was ending
+          J.checkin = J.early.respond ? 'asked (early)' : heSpoke ? 'skipped: he spoke' : 'skipped: quiet';
+          if (part) prompt(`The action he asked for (${q(J)}) has finished on screen.` + part + PART_LATER, {respond: false});
+        } else {
+          if (!follower && syncOn()) J.marks.done_note_ms = now();
+          const lt = !follower && !heSpoke && !quiet && syncOn() ? askedReply() : null;
+          if (!follower) prompt(`The action he asked for (${q(J)}) has finished on screen.` + part + tail,
+            {respond: !heSpoke && !quiet, maxWaitMs: CHECKIN_STALE_MS, onSent: lt ? lt.onSent : undefined});
+        }
       } else if (kind === 'interrupted') {
         prompt(`The action he asked for (${q(J)}) was stopped before it finished.`, {respond: false});
       } else {
@@ -345,6 +474,7 @@
       sendCtl({type: 'perform', id: J.id, description: J.description, source: J.source || null, marks,
         character: J.character, outcome: J.outcome, status: J.status, cue: J.cue || null, release: J.releaseWhy || null,
         cache: J.cacheHit || undefined, error: J.error || undefined, hub: J.hub || undefined, checkin: J.checkin || undefined,
+        sync: syncOn() ? {lead_ms: J.early ? J.early.rem : undefined, lat_ms: Math.round(P.lat.ms)} : undefined,
         talk: J.talk === 'usual' ? undefined : J.talk,
         after_wait: J.waitTimedOut ? 'timed out' : undefined,
         ...(J.mode === 'semantic' ? {planner: 'semantic', space: J.space || undefined, sem_unavailable: J.semUnavailable || undefined} : {})});
@@ -360,6 +490,7 @@
     function runLibrary(J, cmds) {
       if (J.closed) return;
       if (!J.source) J.source = 'library';
+      J.libRun = true;                                              // (watchEnd)
       if (J.waitFor.size) { J.pendingEngine = cmds; return; }
       const t = now();
       if (J.marks.ready_ms == null) J.marks.ready_ms = t;
@@ -382,8 +513,10 @@
       }
       if (!okN) { fail(J, reasons[0] || 'the body could not do it'); return; }
       thinkEnd(J, 'library move started');
-      prompt(`The action he asked for (${q(J)}) is playing on screen now.`, {respond: false});
-      J.timers.end = T.set(() => finish(J, 'end'), J.engineIds.size ? LIB_SAFETY_MS : RULES_END_MS);
+      const sync = syncOn() && !!etaNow();
+      prompt(`The action he asked for (${q(J)}) is playing on screen now.` + (sync ? durNote(libRemainMs(J)) : ''), {respond: false});
+      J.timers.end = T.set(() => finish(J, 'end'), J.engineIds.size || sync ? LIB_SAFETY_MS : RULES_END_MS);
+      if (sync) J.timers.endw = T.set(() => watchEnd(J), 100);      // its real end (and the check-in just before it)
     }
     function engineEnded(eid, ph, ev) {
       const e = P.engine.get(eid); if (!e || e.ended) return;
@@ -425,8 +558,10 @@
     // ------------------------------------------------------------------------------------------------ voice + stop
     function avatarAudio() {
       const t = now();
+      P.av.onset = t; latSample(t);
       for (const J of active()) {
         if (J.marks.first_speech_ms == null && t >= J.marks.call_ms) J.marks.first_speech_ms = t;
+        if (J.cueEarly && J.cueAudioAt == null && J.cueAskedAt != null && t >= J.cueAskedAt) J.cueAudioAt = t;
         if (J.phase === 'ready' && J.cueAskedAt != null && t >= J.cueAskedAt) release(J, 'cue audio (tap)');
       }
     }
@@ -482,7 +617,8 @@
     function stats() {
       const L = list();
       return {jobs: L.length, active: L.filter(x => !x.closed).length, late_kf: P.late, cache: P.cache.size, deferred: P.deferred.length,
-        prompts: P.prompts, last: L.slice(-8), ...(mode() === 'semantic' ? {sem_est_ms: Math.round(P.semEst)} : {})};
+        prompts: P.prompts, last: L.slice(-8), ...(mode() === 'semantic' ? {sem_est_ms: Math.round(P.semEst)} : {}),
+        ...(syncOn() ? {sync: true, reply_lat_ms: Math.round(P.lat.ms), reply_lat_n: P.lat.n} : {})};
     }
     function reset() { stop('reset'); P.jobs.clear(); P.order = []; P.engine.clear(); }
     return {call, onKf, onAction, avatarAudio, engineCall, stop, list, stats, reset, active: () => active().length, onSem, semLast, mode,

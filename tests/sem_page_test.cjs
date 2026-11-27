@@ -315,7 +315,7 @@ function makePerf(mode, extra = {}) {
   const motion = {command: (c, o) => { cmds.push(c); return {ok: true, id: c.id}; }, kfFeed: (id, p, d, info) => { feeds.push({id, n: p.length, d, info}); return {ok: true}; },
     kfRelease: () => ({ok: true}), kfState: () => null, state: () => ({posture: 'standing'})};
   const th = {begun: [], known: [], ended: [], begin(id) { this.begun.push(id); return {ok: true}; }, known(id) { this.known.push(id); }, end(id, w) { this.ended.push([id, w]); }, cancel() {}};
-  const P = Perf.createPerformer(Object.assign({motion: () => motion, prompt: (x, o) => { prompts.push(x); return null; }, sendCtl: o => sent.push(JSON.parse(JSON.stringify(o))),
+  const P = Perf.createPerformer(Object.assign({moveSync: () => false /* the flow without move sync */, motion: () => motion, prompt: (x, o) => { prompts.push(x); return null; }, sendCtl: o => sent.push(JSON.parse(JSON.stringify(o))),
     character: () => 'muse', now: () => t, timers: {set: (f, ms) => { timers.push({f, at: t + ms}); return timers.length; }, clear: () => {}}, thinker: () => th,
     planner: mode === undefined ? undefined : () => mode, semState: () => ({user: {present: true, ax: 0.1, ay: -0.05}})}, extra));
   return {P, sent, prompts, cmds, feeds, th, timers, adv: ms => { t += ms; }, now: () => t};

@@ -246,6 +246,24 @@
   }
 
   // ------------------------------------------------------------------ the controller
+  // a duration he asked for in words ("for ten seconds", "for 2 minutes", "for half a minute", "until I say stop")
+  // -> seconds, or null when none is named ("for a second / a moment / a bit" name no real duration). General: a number
+  // (digits or a number word) + a time unit after "for"; an open-ended "until ..." = the longest hold (the engine bounds it).
+  const NUMW = {a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15,
+    twenty: 20, thirty: 30, forty: 40, 'forty five': 45, fifty: 50, sixty: 60, 'a couple': 2, 'a couple of': 2, 'a few': 3, several: 5, half: 0.5, 'half a': 0.5};
+  function askedHoldS(text) {
+    const t = ' ' + String(text == null ? '' : text).toLowerCase().replace(/[’`]/g, "'").replace(/[^a-z0-9.' ]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+    const m = /\bfor (?:about |around |at least |like |roughly |up to |another )?(\d+(?:\.\d+)?|forty five|a couple of|a couple|a few|half a|half|several|[a-z]+) ?(seconds?|secs?|s|minutes?|mins?|min)\b/.exec(t);
+    if (m) {
+      const n = /^\d/.test(m[1]) ? +m[1] : NUMW[m[1]];
+      if (Number.isFinite(n) && n > 0) {
+        const s = n * (/^m/.test(m[2]) ? 60 : 1);
+        if (!(/^(a|an|one)$/.test(m[1]) && /^s/.test(m[2]))) return Math.min(600, s);   // "for a second" = a moment, not a duration
+      }
+    }
+    if (/\b(?:until|till|til) (?:i |we |you're |you are |he |she |they |told|asked)/.test(t) || /\buntil told\b/.test(t)) return 600;
+    return null;
+  }
   function createMotion(opts = {}) {
     const cfg = Object.assign({}, DEFAULTS, opts.config || {});
     // the page URL's gaze-split switches (as ?mset=: page.html needs no change); an explicit config value wins
@@ -266,6 +284,10 @@
     const IA = Object.assign({onset: IDLE_AWAY_ONSET, rate: IDLE_AWAY_RATE}, IDLE_AWAY, idle2 && typeof idle2 === 'object' ? idle2 : null);
     idle2 = !!idle2;
     const K = PRESETS[presetName];
+    // commanded poses go back to rest on their own (poseRevertFrame); createMotion({poseRevert: false}) / ?poserevert=0 = off
+    let prOn = opts.poseRevert !== undefined ? opts.poseRevert : (opts.config || {}).poseRevert;
+    if (prOn === undefined) { try { prOn = new URLSearchParams(globalThis.location.search).get('poserevert') !== '0'; } catch (e) { prOn = true; } }
+    prOn = prOn !== false && prOn !== 0 && prOn !== '0';
     cfg.mirrorGain = Object.assign({}, DEFAULTS.mirrorGain, (opts.config || {}).mirrorGain || {});
     const rnd = mulberry32((opts.seed ?? (Date.now() ^ 0x5bd1e995)) >>> 0);
     const U = (a = 0, b = 1) => a + (b - a) * rnd();
@@ -1695,7 +1717,7 @@
     const vmax = p => /^head_(yaw|pitch|roll)/.test(p) ? 1.6 : /^head_/.test(p) ? 0.25 : /^body_/.test(p) ? 2.2 :
       /^hand_.*_(x|y|z)$/.test(p) ? 3.0 : /^(gaze|blink)/.test(p) ? 12 : 4;
     const minEase = (p, d) => 1.875 * Math.abs(d) / vmax(p);
-    function hold(param, value, easeS, isHold, durS) {
+    function hold(param, value, easeS, isHold, durS, frz) {
       if (!(param in RANGE) && !RIG_PARAMS.includes(param)) return false;
       if (LIPSYNC.has(param)) return false;
       const [lo, hi] = (S.rng && S.rng[param]) || RANGE[param] || [-1, 1];
@@ -1704,7 +1726,8 @@
       const prev = S.holds[param];
       const from = prev && !prev.out ? holdValue(prev) : cur, to = clamp(+value, lo, hi);
       const ease = Math.max(easeS, minEase(param, to - from));
-      S.holds[param] = {from, to, t0: S.t, ease, until: isHold ? Infinity : S.t + ease + (durS ?? 2.5), out: null};
+      S.holds[param] = {from, to, t0: S.t, ease, until: isHold ? Infinity : S.t + ease + (durS ?? 2.5), out: null,
+        durS: Number.isFinite(durS) ? durS : null, frz: !!frz};   // what poseRevertFrame bounds a hold by
       return true;
     }
     function holdValue(h) { return lerp(h.from, h.to, mj((S.t - h.t0) / h.ease)); }
@@ -1743,6 +1766,99 @@
       if (set === 'all' || set.has('gaze_x')) { S.cmdLook = null; if (S.around && S.around.kind === 'cmd') S.around = null; }
       S.log.push({t: +S.t.toFixed(2), release: set === 'all' ? 'all' : [...set]});
     }
+    // ---------------------------------------------------------------- every commanded pose goes back to rest
+    // (docs/POSE-REVERT.md). RULE: a commanded pose / move is a visit, never a new resting state. Whatever a command leaves on a
+    // DIAL of the face, eyes, brows, mouth, ears, head, torso, shoulders, arms, hands or tail is held for a short while and then
+    // eased back to the live value (the reflex layers — blinks, gaze, expressions, idle life — own the dial again), whatever the
+    // command said: hold:true, no duration, a planner program that keeps its last pose, "freeze". STATE is not a pose and stays:
+    // where it is in the room and which way it faces (the engine's root), its posture (seated on the chair / standing / lying /
+    // crouched), what it holds or wears, the board / TV station, a running activity (typing), and a behaviour program he started
+    // ("copy me until I say stop": app/behavior.js sits under the commanded layers and is not a command).
+    //   HOLD    s  a held pose / gesture / face / look with no duration asked
+    //   FREEZE  s  "hold that / freeze / don't move" (he asked it to stay; still bounded)
+    //   MAX     s  the longest any hold lasts, also when he names a duration ("for ten seconds" = 10, "for five minutes" = MAX)
+    // One guard, run every frame before the gesture / hold layers, bounds every source in place — a new command path that
+    // writes an unbounded hold is bounded too. Off: createMotion({poseRevert: false}) / ?poserevert=0 / setPoseRevert(false).
+    const PR = {HOLD: 4.0, FREEZE: 8.0, MAX: 60.0};
+    S.pr = {on: prOn, n: 0, efrz: null};
+    const prSpan = (durS, frz) => Number.isFinite(durS) && durS > 0 ? Math.min(durS, PR.MAX) : frz ? PR.FREEZE : PR.HOLD;
+    function poseRevertFrame() {
+      if (!S.pr.on) return;
+      const t = S.t, gone = [];
+      // held poses ("close your eyes", "raise your paw and hold it", freeze): applyHolds eases them out at `until`
+      for (const p in S.holds) {
+        const h = S.holds[p]; if (h.out) continue;
+        const lim = h.t0 + h.ease + prSpan(h.durS, h.frz);
+        if (h.until > lim) h.until = lim;
+        if (t >= h.until) gone.push(p);
+      }
+      // commanded gestures / expressions that hold (dur = Infinity) or run past MAX: their own release envelope ends them
+      for (const G of S.gestures) {
+        if (G.rel || G.src !== 'cmd' || G.dur <= PR.MAX) continue;
+        const a = +G.attack || 0, r = +G.release || 0.3;
+        G.dur = a + prSpan(G.g && +G.g.duration_s, false) + r; G.pr = true;
+      }
+      for (const G of S.gestures) if (G.pr && !G.prSaid && t - G.t0 >= G.dur - (+G.release || 0.3)) { G.prSaid = true; gone.push(G.name.replace(/^expr:/, '')); }
+      // a held look ("look left", "look at me"): the gaze goes back to the attention layer
+      const c = S.cmdLook;
+      if (c && c.hold) {
+        if (c.prLim === undefined) c.prLim = t + prSpan(c.durS, false);
+        if (t > c.prLim) { S.cmdLook = null; if (S.around && S.around.kind === 'cmd') S.around = null; gone.push('look'); }
+      }
+      if (S.focus && S.focus.until > t + PR.MAX) S.focus.until = t + PR.HOLD;   // a held point's look
+      // planner jobs: a kept last pose (keep_pose), a job frozen mid-play ("hold that")
+      for (const J of S.kf) {
+        if (J.term) continue;
+        if (J.phase === 'holding') {
+          if (J.holdAt == null) J.holdAt = t;
+          if (t - J.holdAt >= prSpan(J.holdS, false)) { kfEnd(J, 'end', 'pose hold elapsed'); gone.push('the kept pose'); }
+        } else if (J.phase === 'playing' && J.pl.st.frozen) {
+          if (J.frzAt == null) J.frzAt = t;
+          if (t - J.frzAt >= PR.FREEZE) { J.pl.st.frozen = false; J.frzAt = null; gone.push('the paused move'); }
+        } else J.frzAt = null;
+      }
+      // the engine's "freeze" (the root stopped mid-move): the same relax as "okay, you can move"
+      if (engineOn && engine && engine.E && engine.E.frozen) {
+        if (S.pr.efrz == null) S.pr.efrz = t;
+        if (t - S.pr.efrz >= PR.FREEZE) { S.pr.efrz = null; try { engine.release('all'); } catch (e) {} gone.push('the freeze'); }
+      } else S.pr.efrz = null;
+      if (gone.length) {
+        S.pr.n++;
+        S.log.push({t: +t.toFixed(2), revert: gone.slice(0, 24), why: 'pose hold elapsed'});
+        // the action log's "still holding it" ends here (app/actionlog.js: a release event lets every held pose go)
+        emit({kind: 'release', name: 'auto', src: 'auto', phase: 'end', args: {auto: true, parts: gone.slice(0, 24)},
+          did: 'let the held pose go on its own and went back to normal'});
+      }
+    }
+    // how long the COMMANDED motion on screen still runs (s): commanded gestures / expressions, held poses, a held look, planner
+    // jobs (once the whole plan is in), the engine's running move. known = false while something has no end yet (a plan still
+    // streaming, queued object work, a held engine posture). Reads state only (app/perform.js times its notes with it).
+    function cmdEta() {
+      const t = S.t; let s = 0, act = 0, known = true, actKnown = true, any = false;
+      // x = until it is all back at rest, a = until the commanded action itself is performed (a held pose: once it is in place)
+      const up = (x, a) => { any = true; if (!Number.isFinite(x)) known = false; else if (x > s) s = x; if (!Number.isFinite(a)) actKnown = false; else if (a > act) act = a; };
+      for (const G of S.gestures) {
+        if (G.src !== 'cmd' || G.t0 > t + 30) continue;
+        if (G.rel) { const x = G.rel.t0 + Math.max(0.15, G.release) - t; if (x > 0) up(x, 0); continue; }
+        const x = G.t0 + G.dur - t, held = !!(G.pr || G.isExpr || (G.g && G.g.hold) || !Number.isFinite(G.dur));
+        up(x, held ? Math.max(0, G.t0 + (+G.attack || 0) - t) : x);
+      }
+      for (const p in S.holds) { const h = S.holds[p]; if (h.out) up(h.out.t0 + h.out.ease - t, 0); else up(h.until + Math.max(0.3, h.ease) - t, Math.max(0, h.t0 + h.ease - t)); }
+      if (S.cmdLook) up(S.cmdLook.hold ? (S.cmdLook.prLim !== undefined ? S.cmdLook.prLim - t : S.pr.on ? prSpan(S.cmdLook.durS, false) : Infinity) : S.cmdLook.until - t, 0);
+      for (const J of S.kf) {
+        if (J.term) continue;
+        const st = J.pl.st;
+        if (J.phase === 'holding') up(S.pr.on ? prSpan(J.holdS, false) - (J.holdAt == null ? 0 : t - J.holdAt) : Infinity, 0);
+        else if (!st.complete || !Number.isFinite(st.tEnd) || st.frozen || J.doing) up(Infinity, Infinity);
+        else { const x = st.tEnd - st.tau + (J.phase === 'playing' ? 0 : KF.W_IN); up(x, x); }
+      }
+      if (engineOn && engine && engine.E) {
+        const E = engine.E, P = E.move;
+        if (P && !P.silent) { const x = Number.isFinite(P.dur) ? P.dur - (S.t - P.t0) : Infinity; up(P.holdEnd ? Infinity : x, x); }
+        if (E.chain || E.queue || E.oqueue || (E.jobs && E.jobs.length)) up(Infinity, Infinity);
+      }
+      return {s: any ? Math.max(0, +s.toFixed(3)) : 0, act: !any ? 0 : actKnown ? Math.max(0, +act.toFixed(3)) : null, known: any ? known : true, any};
+    }
     // "hold that / freeze / stay like that": the posture (head, body, paws, shoulders) and everything a gesture,
     // expression or hold is moving right now become held poses at their CURRENT values (no jump), until release.
     // Blinks, gaze, breathing, nostrils and ear twitches keep living; idle ears/tail/face keep living unless a gesture
@@ -1762,7 +1878,7 @@
         if (sel && sel !== 'all' && !sel.has(p)) continue;
         if (S.kf.length && S.kf.some(J => !J.term && J.wc && J.wc[p] > 0.5)) continue;   // a keyframe job pauses its own channels
         const SO = learned && S.shownOut && Number.isFinite(S.shownOut[p]) ? S.shownOut[p] : S.lastOut[p];
-        if (hold(p, SO, 0.12, durS === undefined, durS)) n++;
+        if (hold(p, SO, 0.12, durS === undefined, durS, true)) n++;
         if (S.handF[p]) { S.handF[p].x = S.lastOut[p]; S.handF[p].v = 0; }   // stop the arm's follow-through too
       }
       for (const G of S.gestures) if (!G.rel && G.src !== 'life' && (!sel || G.params.some(p => sel.has(p)))) G.rel = {t0: S.t, w: weightOf(G)};
@@ -1853,7 +1969,7 @@
           let target = cmd.target || 'user';
           if (cmd.screen_side === 'l' || cmd.screen_side === 'r') target = cmd.screen_side === 'l' ? 'screen_left' : 'screen_right';
           if (target === 'around') { lookAround(clamp(+cmd.repeat || 3, 2, 6), 'cmd'); return true; }
-          S.cmdLook = {target, hold: holdIt, until: S.t + (durS ?? 2.5)};
+          S.cmdLook = {target, hold: holdIt, until: S.t + (durS ?? 2.5), durS: durS ?? null};
           S.avert = null; S.around = null; S.focus = null;
           return true;
         }
@@ -1907,7 +2023,7 @@
     }
     S.cmdN = 0;
     function cmdDid(c) {
-      const hold = c.hold === true || c.hold === 'true' ? ' and holding it' : '';
+      const hold = c.hold === true || c.hold === 'true' ? (S.pr && S.pr.on ? ' and holding it for a little while (it goes back to normal on its own)' : ' and holding it') : '';
       switch (c.action) {
         case 'gesture': { const n = String(c.name || '').toLowerCase().replace(/[\s-]+/g, '_'); const G = S.gestures[S.gestures.length - 1]; return gestDid(G && G.src === 'cmd' ? G.name : n, G, 0) + (+c.repeat > 1 ? ` ${c.repeat} times` : '') + hold; }
         case 'pose': return 'moving into the pose it was asked for' + hold;
@@ -2289,6 +2405,7 @@
       if (!J) return null;
       return {id: J.id, description: J.description, phase: J.phase, interrupted: J.term === 'interrupted', reason: J.reason || undefined,
         poses: J.pl.P.length, planned_s: +kfPlanned(J).toFixed(2), played_s: +J.pl.st.tau.toFixed(2), complete: J.pl.st.complete,
+        end_s: J.pl.st.complete && Number.isFinite(J.pl.st.tEnd) ? +J.pl.st.tEnd.toFixed(2) : null,   // plan time when every dial is back at rest
         released: J.released, w: +J.w.toFixed(3), stalls: J.pl.st.stalls, dropped: J.dropped, unknown: J.unknown.slice(),
         steps: J.steps.slice(), doing: J.doing ? J.doing.d.verb : null, paw_events: J.events.slice(),
         ...(J.rig ? {space: 'rig', hz: J.hz, keep_pose: !!J.keepPose, channels: Object.keys(J.pl.cols),
@@ -2307,6 +2424,7 @@
         ext: 0, ride: {l: 0, r: 0}, base: {x: 0, y: 0, z: 0, yaw: 0}, seated: false,
         evI: 0, doing: null, doW: null, steps: [], events: []};   // next pose to fire, the running "do" step, its weight
       if (cmd.space === 'rig') { J.rig = true; J.hz = Number.isFinite(+cmd.hz) && +cmd.hz > 0 ? +cmd.hz : null; J.keepPose = cmd.keep_pose === true; }
+      J.holdS = Number.isFinite(+cmd.hold_s) && +cmd.hold_s > 0 ? +cmd.hold_s : null;   // how long he asked a kept pose to last
       J.restOf = c => c.charCodeAt(0) === 64 || KF_ROOTCOL.test(c) ? 0 : (Number.isFinite(J.rest[c]) ? J.rest[c] : 0);
       J.pl = kfPlayer(J);
       return J;
@@ -3515,6 +3633,7 @@
       const lpOn = learned || !!listener || !!programLayer;   // the listener hook (and the program layer) compose through the learned-reaction map
       const preG = lpOn ? {gaze_x: o.gaze_x, gaze_y: o.gaze_y, head_yaw: gz.head[0], head_pitch: -gz.head[1]} : null;
       S.gRec = lpOn ? [] : null;
+      poseRevertFrame();   // no commanded pose outlives its hold
       applyGestures(o);
       S.react = Object.assign({}, o);   // the live (unheld) values: release eases toward these
       applyHolds(o);
@@ -3609,6 +3728,9 @@
       setLearned(on) { learned = !!on; if (!learned && !listener && !programLayer) { S.lp = null; S.shownOut = null; } else if (!learned) S.shownOut = null; return learned; },
       // planner contract §3 / §5: streamed keyframe jobs, channel ownership, the listener hook (docs/LISTENER-INTERFACE.md)
       kfFeed, kfRelease, kfState, owned: ownedNow, LISTENER_GROUPS, SPEECH_GROUP, KF_ALIAS,
+      // pose revert (every commanded pose eases back to rest) + how long the commanded motion still runs
+      setPoseRevert(on) { S.pr.on = !!on; return S.pr.on; }, poseRevert: () => ({on: S.pr.on, reverts: S.pr.n, HOLD: PR.HOLD, FREEZE: PR.FREEZE, MAX: PR.MAX}),
+      eta: cmdEta, askedHoldS,
       setListener(fn) { listener = typeof fn === 'function' ? fn : null; if (!listener && !learned && !programLayer) S.lp = null; S.listenerErr = null; return !!listener; },
       // the program layer (app/behavior.js Behaviors installs / removes it as programs start and end)
       setProgramLayer(fn) { programLayer = typeof fn === 'function' ? fn : null; if (!programLayer && !learned && !listener) S.lp = null; S.programErr = null; return !!programLayer; },
@@ -3628,6 +3750,6 @@
       setProbe, probe, meta};
   }
 
-  return {createMotion, IDLE_AWAY_ONSET, IDLE_AWAY_RATE, IDLE_AWAY, RIG_PARAMS, SCHEMA_PARAMS, NEW_PARAMS, LIPSYNC: [...LIPSYNC], LEGACY: [...LEGACY], RANGE, DEFAULTS,
+  return {createMotion, askedHoldS, IDLE_AWAY_ONSET, IDLE_AWAY_RATE, IDLE_AWAY, RIG_PARAMS, SCHEMA_PARAMS, NEW_PARAMS, LIPSYNC: [...LIPSYNC], LEGACY: [...LEGACY], RANGE, DEFAULTS,
     GAZE_RX, GAZE_RY, TAN_HFOV2, TAN_VFOV2, mj, softSat, splitHead, KF_ALIAS, LISTENER_GROUPS, SPEECH_GROUP};
 });

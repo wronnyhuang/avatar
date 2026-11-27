@@ -57,7 +57,7 @@ function perfMuse() {
   X.T = makeMuse(21, {onAction: e => { X.ev.push(e); if (P) P.onAction(e); }});
   X.T.step(20);
   X.T.m.engine.kfHeld = X.T.m.engine.kfHeld || (() => {}); X.T.m.engine.kfEvent = X.T.m.engine.kfEvent || (() => ({ok: true}));
-  P = X.P = Perf.createPerformer({motion: () => X.T.m, sendCtl: m => X.ctl.push(JSON.parse(JSON.stringify(m))), character: () => 'muse',
+  P = X.P = Perf.createPerformer({moveSync: () => false /* the flow without move sync */, motion: () => X.T.m, sendCtl: m => X.ctl.push(JSON.parse(JSON.stringify(m))), character: () => 'muse',
     prompt: (t, opt) => { X.prompts.push({t, opt}); if (opt && opt.onAudio) opt.onAudio(); return {}; },
     userSpeaking: () => false, lastUserSpeech: () => -1e12, now: clock.now, timers: {set: clock.set, clear: clock.clear}});
   X.clock = clock;

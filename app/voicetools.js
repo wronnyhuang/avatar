@@ -207,7 +207,14 @@
       if (d.runLibrary) {
         let lr = null;
         try { lr = d.runLibrary(desc, move && typeof move === 'object' && move.name ? move : null, info) || null; } catch (e) { lr = null; }
-        if (lr && (lr.ran || lr.dup)) { log({vt: 'library', ran: lr.ran, dup: lr.dup, description: desc.slice(0, 120)}); return {ok: true, status: 'starting', already: lr.ran ? undefined : true, did: lr.did || (lr.ran ? 'doing it now' : 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)'), next: 'It starts right away: give him a brief natural cue now.'}; }
+        if (lr && (lr.ran || lr.dup)) {
+          log({vt: 'library', ran: lr.ran, dup: lr.dup, description: desc.slice(0, 120)});
+          // move sync: how long it really takes (motion.eta()), so its words can end with the motion
+          let takes = null;
+          try { const m = get('motion'), e = !d.moveSync || d.moveSync() !== false ? (m && typeof m.eta === 'function' ? m.eta() : null) : null; if (e && e.any && Number.isFinite(e.act) && e.act > 1.5) takes = Math.round(e.act * 10) / 10; } catch (e) { takes = null; }
+          return Object.assign({ok: true, status: 'starting', already: lr.ran ? undefined : true, did: lr.did || (lr.ran ? 'doing it now' : 'starting now — already begun from his own words as he said them (that IS his request: give him a brief natural cue, never say nothing new started)'),
+            next: 'It starts right away: give him a brief natural cue now.' + (takes ? ` It takes about ${takes} s: do not say it is done before then.` : '')}, takes ? {takes_s: takes} : {});
+        }
         if (lr && lr.reason) {
           // the voice model sometimes names a `move` the body-move library does not have (e.g. "wave", which is a gesture).
           // The description still says what he asked for: let the performer plan it instead of answering "I don't know the move".
