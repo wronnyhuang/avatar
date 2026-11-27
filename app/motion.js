@@ -1192,6 +1192,11 @@
     const KM = () => (LIBM() && S.midX ? S.midX / -0.45 : 1);
     const IN = x => (x < 0 ? Math.max(-1, x * KM()) : x);
     const CMD = g => LIBM() && (!g || ((g.src || 'cmd') === 'cmd' && g.via !== 'affect' && g.via !== 'ui'));   // not the affect layer's own gesture, not the page's greeting
+    // ---- moves2: round 3 of the commanded moves (a clear head shake, a shrug that reads on a body without shoulders).
+    // createMotion({moves2: false}) / ?moves2=0 = off; off with libMoves off.
+    let moves2On = opts.moves2;
+    if (moves2On === undefined) { try { moves2On = new URLSearchParams(globalThis.location.search).get('moves2') !== '0'; } catch (e) { moves2On = true; } }
+    const M2 = () => !!moves2On && cfg.moves2 !== false && LIBM();
     const GEST = {
       wave: {dur: g => 0.5 + (g.cycles || 4) * 0.4 + 0.2, attack: 0.38, release: 0.5, fn(u, g) {
         const s = g.side, e = smooth01((u - 0.25) / 0.3), w = Math.sin(2 * Math.PI * 2.5 * (u - 0.25));
@@ -1215,6 +1220,7 @@
       }},
       shake_head: {dur: g => 0.2 + 0.52 * (g.cycles || 3), attack: 0.12, release: 0.25, fn(u, g) {
         const c = u / 0.52, k = Math.pow(0.8, c), v = Math.sin(2 * Math.PI * c);
+        if (CMD(g) && M2()) return {add: {head_yaw: 0.32 * Math.pow(0.93, c) * v, head_roll: -0.03 * k * v, body_yaw: 0.12 * k * v, brow_knit: 0.15, smile: -0.15}};   // asked for, a clear no: the head turns well to each side, the body a little with it
         return {add: {head_yaw: 0.17 * k * v, head_roll: -0.03 * k * v, brow_knit: 0.15}};
       }},
       wink: {dur: 0.75, attack: 0.05, release: 0.15, fn(u, g) {
@@ -1253,6 +1259,11 @@
       }},
       shrug: {dur: g => (CMD(g) ? 2.1 : 1.7), attack: 0.25, release: 0.45, fn(u, g) {
         const p = CMD(g) ? pulse(u, 0, 0.3, 1.4, 1.8) : pulse(u, 0, 0.3, 1.0, 1.4);
+        if (CMD(g) && M2() && KM() > 1.2) {   // (short-armed bodies by their own hand map — the Muse family; Juno has shoulders that read and keeps the round-2 shrug): a shrug that reads without shoulders: the paws come UP beside the shoulders, palms open, and drop a little and lift again (two beats); the head sinks between them and tilts, the body lifts, the mouth pulls flat
+          const q = p * (1 - 0.3 * pulse(u, 0.7, 0.85, 0.9, 1.1));
+          return {set: Object.assign({shoulder_l: p, shoulder_r: p}, HP('l', 0.42, 0.3 + 0.38 * q, 0.55, 1, 1), HP('r', 0.42, 0.3 + 0.38 * q, 0.55, 1, 1)),
+            add: {head_roll: 0.16 * p, head_y: -0.04 * q, body_bounce: 0.3 * q, brow_l: 0.6 * p, brow_r: 0.5 * p, head_pitch: -0.04 * p, mouth_open: 0.05 * p, smile: -0.25 * p}};
+        }
         if (CMD(g)) {   // asked for, the whole shrug: paws out and up with the palms up, the body lifting into the shoulders, the head sinking and tilting
           return {set: Object.assign({shoulder_l: p, shoulder_r: p}, HP('l', 0.35, 0.30 + 0.15 * p, 0.5, 1, 1), HP('r', 0.35, 0.30 + 0.15 * p, 0.5, 1, 1)),
             add: {head_roll: 0.12 * p, head_y: -0.02 * p, body_bounce: 0.22 * p, brow_l: 0.6 * p, brow_r: 0.5 * p, head_pitch: -0.04 * p, mouth_open: 0.05 * p, smile: -0.1 * p}};

@@ -67,6 +67,7 @@
     tvKeepS: 240,             // devloop: a TV picture shown this recently keeps the TV in the board's framing
     idleHomeS: 40,            // at a station with nothing to do this long -> back home
     presentS: 3.0,            // presenting pose at the TV (open paw toward it)
+    presentReach: 0.62,       // how far the paw goes out toward the screen (was 0.22: a paw at the chest, no pointing arm to see); setConfig({presentReach: 0.22}) = the old pose
     eraseSpeed: 2.8,          // eraser speed over the board (H/s) (1.1 took ~20 s to wipe a lesson)
     eraseOverlap: 0.6,        // row spacing as a fraction of the eraser pad height (integ: 0.85 left bands of chalk between rows live)
     eraseOtherPaw: false,     // integ: the eraser in the paw that does not hold the chalk (off: that paw cannot reach the board's left half)
@@ -826,7 +827,7 @@
       return {g: 'steps', did: ['pointing out the screen', 'pointed out the screen'], build: () => {
         if (!T.req) { T.at = id; T.phase = 'presenting'; setWhere(); lookUserOn(); }
         const me = k.toWorld([0, 0.5, 0]), dir = nrm3(sub3(tgt, me)), side = k.toLocal(tgt)[0] < 0 ? 'l' : 'r';
-        const P = add3(me, mul3(dir, 0.22));
+        const P = add3(me, mul3(dir, +cfg.presentReach > 0 ? +cfg.presentReach : 0.22));
         return [k.pawPath(side, P, 0.6, {open: 0.95, turn: 0.6, name: 'open paw to the screen'}), k.dwellStep('present', cfg.presentS, () => { lookUser(); }), k.retractStep(side)];
       }};
     }
