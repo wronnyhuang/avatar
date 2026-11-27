@@ -41,7 +41,10 @@ def merge(a, b):
 
 
 def override_path(character):
-    return os.path.join(HERE, character, f"{character}.props.override.json")
+    """humans/<c>/<c>.props.override.json (a mesh character), else animals/<c>.props.override.json (a
+    character on the Muse skeleton with its own head: the worn props' fit, tools/wear_fit.py)."""
+    p = os.path.join(HERE, character, f"{character}.props.override.json")
+    return p if os.path.isfile(p) else os.path.join(ANIMALS, f"{character}.props.override.json")
 
 
 def props_for(character):

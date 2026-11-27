@@ -140,3 +140,13 @@ Page: a do_action naming a thing that the scene matcher does not fully read goes
   wave, raise, hide, drink, pour, balance, throw, juggle, use, kick, knock_over (new engine verbs are added to the
   extended list in app/rtc.py). `relation` enum: on|in|under|behind|next_to|in_front_of|left_of|right_of. The tools
   JSON is ~15.2 KB (size guard 15300 bytes).
+
+## 7. Worn props on every head (per-character wear fit)
+The shared scene's `afford.wear` offsets for the hat and the sunglasses were tuned on the Muse's head. Each mascot on the
+Muse skeleton has `renderer/animals/<name>.props.override.json` (hat + sunglasses: `afford.wear.offset` / `scale` /
+`carry`), written by `renderer/tools/wear_fit.py --write` from the head's own SDF: the Muse's fit read as rules (hat sized
+to the head's width and seated at her rise above the top of the head, thin tufts / twigs / bows ignored; lenses sized to
+the eye spacing, on the eye line, resting on the face). It is merged over the shared scene file by `app.load_char_files` /
+`char_scene` and `props_defs.load`; the worn size is `PROPS_WEARFIT` in `engine/props.glsl` (compiled only for a character
+with a scale other than 1). Re-run the tool after changing a mascot's head. Off: `AVATAR_WEARFIT=0`.
+`tests/wearfit_test.py`.

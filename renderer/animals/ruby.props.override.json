@@ -1,0 +1,43 @@
+{
+ "base": "muse",
+ "_doc": "worn props on THIS head, derived from its geometry by renderer/tools/wear_fit.py (re-run it after the head changes; never hand-edit). Deep-merged over the shared scene file at load time (renderer/humans/charfiles.py): afford.wear.offset = H, head frame; scale = size factor while worn; carry = head frame minus the page's head point (H)",
+ "character": "ruby",
+ "props": [
+  {
+   "id": "hat",
+   "afford": {
+    "wear": {
+     "offset": [
+      0.0,
+      0.376,
+      0.0024
+     ],
+     "scale": 0.8125,
+     "carry": [
+      0.0,
+      -0.1217,
+      -0.0261
+     ]
+    }
+   }
+  },
+  {
+   "id": "glasses",
+   "afford": {
+    "wear": {
+     "offset": [
+      0.0,
+      0.087,
+      0.2679
+     ],
+     "scale": 0.886,
+     "carry": [
+      0.0,
+      -0.1217,
+      -0.0261
+     ]
+    }
+   }
+  }
+ ]
+}

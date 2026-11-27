@@ -479,7 +479,19 @@ uniform vec2 uPrAR[16];     // articulation, rest
 #define PRART(k) uPrAR[k].x
 #define PRREST(k) uPrAR[k].y
 #define PRM(k) uPrM[k]
+#ifdef PROPS_WEARFIT
+uniform float uPrSz[16];    // the size now (PR_SIZE, x its worn fit while on the head)
+#define PRSZ(k) uPrSz[k]
 #else
+#define PRSZ(k) PR_SIZE[k]
+#endif
+#else
+#ifdef PROPS_WEARFIT
+float gPrSz[16];
+#define PRSZ(k) gPrSz[k]
+#else
+#define PRSZ(k) PR_SIZE[k]
+#endif
 #define PR_LOOP_N PROPS_N
 #define PRC(k) gPrC[k]
 #define PRART(k) gPrArt[k]
@@ -694,6 +706,9 @@ void propsInit(){
       c = mix(c, cH, w);
       R = prNlerp(R, RH, w);
     }
+#ifdef PROPS_WEARFIT
+    gPrSz[k] = PR_SIZE[k]*mix(1.0, PR_WS[k], wh);                 // fitted to this head as it goes on
+#endif
     gPrC[k] = c; gPrM[k] = transpose(R);
     gPrRest[k] = (1.0 - w)*(1.0 - smoothstep(0.004, 0.03, abs(offs.y)));
   }
@@ -712,7 +727,7 @@ int propsNearMask(vec3 p, float r){
   int msk = 0;
 #if PROPS_N > 0
   for(int k=0;k<PR_LOOP_N;k++)
-    if(length(p - PRC(k)) - prBnd(k)*PR_SIZE[k] <= r) msk |= 1 << k;
+    if(length(p - PRC(k)) - prBnd(k)*PRSZ(k) <= r) msk |= 1 << k;
 #endif
   return msk;
 }
@@ -724,7 +739,7 @@ int propsRayMask(vec3 ro, vec3 rd, float t1, float pad){
 #if PROPS_N > 0
   for(int k=0;k<PR_LOOP_N;k++){
     // the ray against the prop's own box (its unit frame, a conservative box + the pad)
-    float sz = PR_SIZE[k];
+    float sz = PRSZ(k);
     bool art = PRART(k) > 0.001;
     vec3 bc = art ? PR_BBC2[k] : PR_BBC[k], bh = art ? PR_BBH2[k] : PR_BBH[k];
     // perf: a sphere round the padded box first (most rays miss most props: a dot product, not a box test)
@@ -758,7 +773,7 @@ float propsDistB(vec3 p, float pad){
     mk ^= low;
     int k = int(log2(float(low)) + 0.5);
     vec3 v = p - PRC(k);
-    float s = PR_SIZE[k];
+    float s = PRSZ(k);
     float bnd = length(v) - prBnd(k)*s;
     if(bnd > pad){ d = min(d, bnd); continue; }      // bounding sphere: a far prop costs one length()
     vec3 q = PRM(k)*v/s;
@@ -825,7 +840,7 @@ vec2 propsOnSet(vec3 p){
   float sh = 1.0, ao = 1.0;
   for(int k=0;k<PR_LOOP_N;k++){
     vec3 oc = p - PRC(k);
-    float s = PR_SIZE[k];
+    float s = PRSZ(k);
     float R = prBnd(k)*s;
     float m;
     float o2 = dot(oc, oc);
@@ -1038,7 +1053,7 @@ void propsPaint(int k, vec3 q, float m, vec3 p, inout Surf s){
   // resting on its place: the contact shade under it (the set's baked AO cannot see a movable object)
   float rest = PRREST(k);
   if(rest > 0.0 && PR_FREE[k] == 0){
-    float lowY = (p.y - (PRC(k).y - 0.97*PR_EXT[k].y*PR_SIZE[k]))/PR_SIZE[k];
+    float lowY = (p.y - (PRC(k).y - 0.97*PR_EXT[k].y*PRSZ(k)))/PRSZ(k);
     float ao = mix(0.45, 1.0, smoothstep(0.0, 0.45, lowY))*mix(0.6, 1.0, smoothstep(-0.85, 0.1, n.y));
     s.occ *= mix(1.0, ao, rest);
   }

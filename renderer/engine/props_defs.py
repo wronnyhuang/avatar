@@ -131,6 +131,11 @@ def load(character):
     if character in MESH_CHARS and not os.environ.get("AVATAR_PROPS_JSON"):     # the mesh character's props file + override
         return _charfiles().props_for(character)
     pp = props_path(character)
+    if not os.environ.get("AVATAR_PROPS_JSON") and os.environ.get("AVATAR_WEARFIT") != "0" and os.path.exists(os.path.join(ROOT, "animals", f"{character}.props.override.json")):
+        import sys                      # the shared scene file + this character's own worn-prop fit
+        if ROOT not in sys.path:
+            sys.path.insert(0, ROOT)
+        return _charfiles().props_for(character)
     return json.load(open(pp)) if os.path.exists(pp) else None
 
 
@@ -205,6 +210,7 @@ def defines(character):
     cols = {k: [] for k in ("PR_PX", "PR_PHH", "PR_PS", "PR_KIND", "PR_GRIP", "PR_FREE", "PR_HOME", "PR_ROT", "PR_SIZE",
                             "PR_BND", "PR_COL", "PR_COL2", "PR_GA", "PR_GR", "PR_EXT", "PR_SUPR", "PR_ONFLOOR",
                             "PR_BBC", "PR_BBH", "PR_BBC2", "PR_BBH2", "PR_BND2", "PR_VAR")}
+    wscale = []       # size factor while worn (afford.wear.scale; 1 = as in the scene)
     kinds = set()
     for k, pr in enumerate(props):
         kind = pr["kind"]
@@ -238,6 +244,10 @@ def defines(character):
             bnd = (ext[0]**2 + ext[1]**2 + ext[2]**2)**0.5 + 0.05
         if gone:
             pk, ext, bnd, free, size = 0, (0.001, 0.001, 0.001), 0.001, 1, 0.001
+        ws = 1.0 if gone else float((((pr.get("afford") or {}).get("wear")) or {}).get("scale", 1.0))
+        wscale.append(min(max(ws, 0.2), 1.5))
+        if ws > 1.0:                    # bigger while worn: its bounds (unit frame x PR_SIZE) cover the worn size
+            bnd *= ws
         cols["PR_PX"].append(IDX[f"prop{k}_x"])
         cols["PR_PHH"].append(IDX.get(f"prop{k}_hh", -1))
         cols["PR_PS"].append(IDX.get(f"prop{k}_s", -1))
@@ -272,9 +282,12 @@ def defines(character):
     for st in cfg.get("floor_steps", [])[:1]:
         out += [f"#define PROPS_FLOOR_STEP {_lit(st['rect_scene'])}", f"#define PROPS_FLOOR_STEP_H {_lit(st['top_scene'])}"]
     tab = TABLES.setdefault(character, {})
+    if any(abs(w - 1.0) > 1e-6 for w in wscale):      # only a character with a fitted worn prop compiles this path
+        out.append("#define PROPS_WEARFIT 1")
+        cols["PR_WS"] = wscale
     for name, vals in cols.items():
         typ = "int" if name in ("PR_PX", "PR_PHH", "PR_PS", "PR_KIND", "PR_GRIP", "PR_FREE", "PR_SUPR", "PR_ONFLOOR", "PR_VAR") else \
-              ("float" if name in ("PR_SIZE", "PR_BND", "PR_BND2", "PR_GR") else "vec3")
+              ("float" if name in ("PR_SIZE", "PR_BND", "PR_BND2", "PR_GR", "PR_WS") else "vec3")
         out.append(_arr(name, typ, vals))
         tab[name] = (typ, vals)
     for kind in sorted(kinds):

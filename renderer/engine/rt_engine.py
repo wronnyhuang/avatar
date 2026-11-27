@@ -158,11 +158,16 @@ void main(){
 PROPS_SLOTS = 16       # the most prop slots a character may have (props_defs: props[:16]; props.glsl arrays, masks)
 PROPS_POSE_MAIN = """
 out vec4 fragPP;
+#ifdef PROPS_WEARFIT
+#define PP_SZ(k) gPrSz[k]
+#else
+#define PP_SZ(k) 0.0
+#endif
 void main(){
   setInit(); charInit();
   int k = int(gl_FragCoord.x), r = int(gl_FragCoord.y);
 #if PROPS_N > 0
-  if(k < PROPS_N){ fragPP = r == 0 ? vec4(gPrC[k], gPrArt[k]) : vec4(gPrM[k][r - 1], r == 1 ? gPrRest[k] : 0.0); return; }
+  if(k < PROPS_N){ fragPP = r == 0 ? vec4(gPrC[k], gPrArt[k]) : vec4(gPrM[k][r - 1], r == 1 ? gPrRest[k] : PP_SZ(k)); return; }
 #endif
   fragPP = vec4(0.0, -1e4, 0.0, 0.0);
 }
@@ -855,6 +860,7 @@ class RTEngine(render.Engine):
             for p in self.props_progs:
                 self._set_arr(p, "uPrC", "vec3", pc); self._set_arr(p, "uPrM", "mat3", pm)
                 self._set_arr(p, "uPrAR", "vec2", par)
+                self._set_arr(p, "uPrSz", "float", pp[2, :, 3])      # hatfit (PROPS_WEARFIT characters only)
         mark("prepass")
         self.set(self.p_pre, "uP", P); self.set(self.p_pre, "uTime", t)
         self.f_pre.use(); ctx.viewport = (0, 0, self.tw, self.th)

@@ -68,6 +68,32 @@ def _mesh_files(renderer_root: str, character: str) -> dict:
     return out
 
 
+def _wear_override(animals_dir: str, character: str, out: dict) -> dict:
+    """animals/<c>.props.override.json (the worn props' fit on THIS head, renderer/tools/wear_fit.py)
+    merged over the shared scene file: dicts deep, the props list by id.  AVATAR_WEARFIT=0 = the shared file as is."""
+    p = os.path.join(animals_dir, f"{character}.props.override.json")
+    if not isinstance(out.get("props"), dict) or os.environ.get("AVATAR_WEARFIT") == "0" or not os.path.isfile(p):
+        return out
+    try:
+        with open(p, encoding="utf-8") as f:
+            ov = json.load(f)
+    except (OSError, ValueError) as e:
+        print(f"config.props: {p} unreadable: {type(e).__name__}: {e}", flush=True)
+        return out
+
+    def mg(a, b):
+        if isinstance(a, dict) and isinstance(b, dict):
+            r = dict(a)
+            for k, v in b.items():
+                r[k] = mg(r[k], v) if k in r else v
+            return r
+        return b
+    props = dict(out["props"])
+    by = {x.get("id"): x for x in ov.get("props", []) if isinstance(x, dict)}
+    props["props"] = [mg(x, by[x["id"]]) if isinstance(x, dict) and x.get("id") in by else x for x in props.get("props", [])]
+    return dict(out, props=props)
+
+
 def char_scene(character: str) -> dict:
     if character in _SCENE_CACHE:
         return _SCENE_CACHE[character]
@@ -84,6 +110,7 @@ def char_scene(character: str) -> dict:
                     out[key] = scene_present(json.load(f))
             except (OSError, ValueError):
                 pass
+    out = _wear_override(base, character, out)
     _SCENE_CACHE[character] = out
     return out
 sys.path.insert(0, HERE)
@@ -223,7 +250,7 @@ def load_char_files(cfg: dict, character: str) -> dict:
                 pass
             except (OSError, ValueError) as e:
                 log(f"config.{kind}: {p} unreadable: {type(e).__name__}: {e}")
-        return out
+        return _wear_override(d, character, out)
     return {}
 # end of body / scene files
 

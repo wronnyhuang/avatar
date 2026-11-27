@@ -2878,7 +2878,10 @@
     // onto the head: worn (afford.wear) or balanced; one paw brings it there from above (or from the front for the face)
     function headSteps(p, wear) {
       const s = p.held === 'both' ? 'l' : p.held, out = [], off = () => wear ? wearOff(p) : balanceOff(p);
-      const spot = () => { const H = headPose(); return add3(H.pos, rotYv(off(), H.yaw)); };
+      // (afford.wear.carry = this character's head frame minus the page's head point — a head that is not
+      // the Muse's: the paw carries the thing to where it will sit)
+      const carry = wear && v3((AFF(p).wear || {}).carry) || null;
+      const spot = () => { const H = headPose(); return add3(H.pos, rotYv(carry ? add3(off(), carry) : off(), H.yaw)); };
       const front = Math.abs(off()[2]) > Math.abs(off()[1]);
       out.push(lookStep(null, false));
       out.push(pawPath(s, gripW(p, add3(spot(), front ? rotYv([0, 0.01, 0.1], rootNow().yaw) : [0, 0.09, 0.03])), 0.75, {turn: 0.2}));
@@ -2891,7 +2894,8 @@
     }
     function headOffSteps(p, side) {   // a one-paw worn / balanced thing back into a paw
       const s = side && !heldBy(side) ? side : !heldBy('r') ? 'r' : 'l', out = [];
-      const spot = () => { const H = headPose(); return add3(H.pos, rotYv(p.hoff || [0, 0, 0], H.yaw)); }, yawW = () => p.homeRot[1];
+      const carry = p.worn && v3((AFF(p).wear || {}).carry) || null;   // (as headSteps — the paw goes to where it sits)
+      const spot = () => { const H = headPose(); return add3(H.pos, rotYv(carry ? add3(p.hoff || [0, 0, 0], carry) : (p.hoff || [0, 0, 0]), H.yaw)); }, yawW = () => p.homeRot[1];
       out.push(pawPath(s, gripW(p, add3(spot(), [0, 0.05, 0.05]), yawW()), 0.6, {open: 0.8}));
       out.push(pawPath(s, gripW(p, spot(), yawW()), 0.3, {arc: 0}));
       out.push({name: 'take off', atomic: true, dur: 0.4, start() {
