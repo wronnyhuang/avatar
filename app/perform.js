@@ -58,6 +58,7 @@
   const CUE_SYNC_MAX_MS = 1500;    // a job whose cue HAS been asked waits this long (after ready) for the cue's first audio
   const LAT0_MS = 900;             // note -> first audio, the first estimate (real sessions: tool result -> speech p50 ~0.9 s)
   const LAT_MIN_MS = 300, LAT_MAX_MS = 1500;
+  const LATE_CUE_MS = 2500;        // a late cue only when the tool result's reply is this overdue (lateCue)
   const DONE_LEAD_PAD_MS = 0;      // the check-in leaves latency + this before the motion's end
   const PART_NOW = ' Check in with him and tell him honestly what did not work, in a few words of your own.';
   const PART_LATER = ' Tell him honestly what did not work, in a few words, when you next speak.';     // an engine run whose end event never came
@@ -319,7 +320,7 @@
         const spoke = J.marks.first_speech_ms != null;
         if (!spoke) {                                               // its reply to the call has not begun: the move waits for its first audio
           J.cue = 'the tool result'; J.cueAskedAt = J.t;
-          J.timers.cue = T.set(() => { const quiet = J.marks.first_speech_ms == null; release(J, 'cue timeout'); if (quiet && !J.closed && !userSpeaking()) { J.cue = 'note (late)'; askCue(J); } }, capMs);
+          J.timers.cue = T.set(() => { release(J, 'cue timeout'); lateCue(J); }, capMs);
           return;
         }
         if (J.cueAudioAt != null) { release(J, 'cue audio'); return; }   // the cue (asked at the first pose) is already being spoken
@@ -346,6 +347,19 @@
           {respond: true, maxWaitMs: CUE_STALE_MS, onAudio: () => release(J, 'cue audio')});
       } else askCue(J);
       J.timers.cue = T.set(() => release(J, 'cue timeout'), capMs);
+    }
+    // The move started at the cap without the reply to the tool result. That reply is nearly always still on its way
+    // (first audio 0.6-1.5 s after the call; a cached plan is ready ~50 ms after it), or it began just before the call.
+    // A cue note at the cap cut it off or restarted it, or asked for a second announcement two seconds into the motion.
+    // So the late cue is asked only when it has said nothing since the request and the reply is long overdue
+    // (LATE_CUE_MS after the call).
+    function lateCue(J) {
+      T.clear(J.timers.lcue);
+      if (J.closed || J.marks.first_speech_ms != null || userSpeaking() || avSpeaking()) return;
+      if (P.av.onset > Math.max(lastUserSpeech(), J.t - 3000)) return;      // it began its reply before the call arrived
+      const due = J.t + LATE_CUE_MS;
+      if (now() < due) { J.timers.lcue = T.set(() => lateCue(J), Math.max(30, Math.min(150, due - now()))); return; }
+      J.cue = 'note (late)'; askCue(J);
     }
     // the plan is arriving and its reply to the call is over: ask the cue NOW, so its audio lands about when the plan
     // is ready (the model needs ~1 s to start speaking). Its reply is still being spoken: look again when it ends (until ready).

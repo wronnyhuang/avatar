@@ -28,6 +28,11 @@ announcement; the cue is the announcement, and it is asked as early as it can be
 - if the reply to the call is still being spoken when the plan is ready, those words are the announcement: the move starts as
   they end (at most 700 ms after ready) and no second cue is asked;
 - if the reply has not begun (a plan from the cache), the move starts at the reply's first audio (at most 700 ms).
+  If the cap passes in silence the move starts and a late cue is asked only when the reply is long overdue (2.5 s after the
+  call, nothing said since his request). Live with Gemini the reply's first audio comes
+  0.6-1.5 s after the call and a cached plan is ready ~50 ms after it, so a cue asked at the cap (the first version) landed
+  on a reply that was on its way: 10 of about 40 cached-plan moves, the first words cut off and restarted ("One step—" ...
+  "Let's climb up high!") or a second announcement 1-3 s into the motion.
 A known move (library, clip, a matcher's) still plays at once.
 
 **Done.** The check-in note leaves one model latency before the motion ends, so its line is heard as the motion ends. The
