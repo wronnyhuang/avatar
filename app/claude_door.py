@@ -217,6 +217,7 @@ class ClaudeDoor:
         t0 = time.monotonic()
         ms = lambda: int((time.monotonic() - t0) * 1000)
         text, first, err, usage, cost = [], None, None, None, None
+        thinking_ms = None
         slot = None
         warm = False
         try:
@@ -255,7 +256,11 @@ class ClaudeDoor:
                 ty = d.get("type")
                 if ty == "stream_event":
                     e = d.get("event") or {}
-                    if e.get("type") == "content_block_delta":
+                    if e.get("type") == "content_block_start" and (e.get("content_block") or {}).get("type") in (
+                            "thinking", "redacted_thinking") and thinking_ms is None:
+                        thinking_ms = ms()          # a hidden thinking block opened (text comes late)
+                        yield {"thinking": True, "ms": thinking_ms}
+                    elif e.get("type") == "content_block_delta":
                         dl = e.get("delta") or {}
                         if dl.get("type") == "text_delta" and dl.get("text"):
                             if first is None:
@@ -285,7 +290,7 @@ class ClaudeDoor:
         full = "".join(text)
         yield {"done": True, "ok": err is None, "text": full, "ms_first": first if first is not None else -1,
                "ms_done": ms(), "error": err, "model": model, "tag": tag, "warm": warm,
-               "usage": usage, "cost_usd": cost}
+               "usage": usage, "cost_usd": cost, "ms_thinking": thinking_ms}
 
     async def complete(self, **kw):
         last = None

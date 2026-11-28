@@ -73,6 +73,7 @@ def install(door, cls_doors=None):
         made.append(d)
         return d
     mod.ClaudeDoor = ClaudeDoor
+    mod.make_door = ClaudeDoor                    # planner.door_for builds its private doors with make_door()
     sys.modules["claude_door"] = mod
     planner._DOORS.clear()
     return made
@@ -274,6 +275,14 @@ class Prewarm(unittest.TestCase):
         made = install(d)
         pl = planner.Planner({"model": "haiku55door", "fallback": None}, lambda m: None)
         self.assertEqual(len(pl.prewarm("muse")), 1)
+        self.assertEqual(made[0].prewarms[0], (HAIKU, len(pl.prompts["muse"]["text"]), 2, "low"))
+        # the muse has things around it -> one warm process for the prompt + objects appendix too
+        self.assertEqual(len(made[0].prewarms), 2)
+        self.assertGreater(made[0].prewarms[1][1], len(pl.prompts["muse"]["text"]))
+        self.assertEqual(made[0].prewarms[1][2], 1)
+        made[0].prewarms.clear()
+        pl.cfg["prewarm_things"] = False
+        pl.prewarm("muse")
         self.assertEqual(made[0].prewarms, [(HAIKU, len(pl.prompts["muse"]["text"]), 2, "low")])
         self.assertEqual(pl.prewarm("nobody"), [])
         pl2 = planner.Planner({"model": "gem35lite"}, lambda m: None)              # HTTP routes: nothing to warm

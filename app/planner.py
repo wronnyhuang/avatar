@@ -128,7 +128,20 @@ DEFAULTS = {"enabled": True, "model": "auto", "route": "auto", "effort": "auto",
             # AVATAR_PLANNER_PROMPT overrides). "check" = plan_issues() gates the plan cache (a plan that reads as
             # standing still is not written, and an old entry that does is not served);
             # false = the cache exactly as before (env AVATAR_PLANNER_CHECK=0).
-            "prompt_variant": "q1", "check": True}
+            "prompt_variant": "q1", "check": True,
+            # "no_think" = on the claude_door route the movement request carries NO_THINK_HINT (the user
+            # turn only: the cached system prompt, its sha and the plan cache keys do not change). Sonnet 5.5 opens a
+            # hidden adaptive-thinking block on ~1 in 4 whole-body requests (skip, hop, push-up, downward dog) whatever
+            # the CLI is told (MAX_THINKING_TOKENS=0, --effort low, CLAUDE_CODE_DISABLE_THINKING / _ADAPTIVE_THINKING,
+            # alwaysThinkingEnabled=false all measured 0 effect): 500-1500 hidden tokens = first pose 3.3-9.4 s instead
+            # of ~1.6 s. The hint removes it on ~9 of 10 such calls. false = the user turn as
+            # before (env AVATAR_PLANNER_NO_THINK=0).
+            "no_think": True,
+            # "fallback_on_thinking" = start the fallback the moment the claude_door primary opens a hidden
+            # thinking block (~0.8 s in; its text would come 3-9 s later) instead of at after_s; the primary keeps
+            # running and still wins if it streams a pose first. false = the fallback waits for after_s, as before.
+            "fallback_on_thinking": False, "hedge_after_s": None, "prewarm_things": True}
+NO_THINK_HINT = "Start writing it immediately: do not think or plan first."
 
 # exec_stream.cjs KF_ALIAS keys: the own-side controls the parser knows by default (the Muse's set)
 KF_CONTROLS = ([f"{own}_paw_{a}" for own in ("right", "left") for a in ("x", "y", "z", "open", "turn")]
@@ -637,6 +650,34 @@ def check_on(cfg) -> bool:
     if v is not None:
         return v.strip().lower() not in ("0", "false", "off", "no", "")
     return bool((cfg or {}).get("check", DEFAULTS["check"]))
+
+
+def no_think_mode(cfg) -> str:
+    """cfg "no_think" (env AVATAR_PLANNER_NO_THINK) -> "always" (true: every claude_door request carries
+    the hint) | "retry" (the request goes as before; the moment it opens a hidden thinking block a second request WITH
+    the hint starts beside it, first pose wins) | "off" (false)"""
+    v = os.environ.get("AVATAR_PLANNER_NO_THINK")
+    if v is None:
+        v = (cfg or {}).get("no_think", DEFAULTS["no_think"])
+    v = str(v).strip().lower()
+    if v == "retry":
+        return "retry"
+    return "off" if v in ("0", "false", "off", "no", "", "none") else "always"
+
+
+def no_think_on(cfg) -> bool:
+    """the hint on EVERY claude_door request (no_think_mode "always")"""
+    return no_think_mode(cfg) == "always"
+
+
+def no_think_user(user: str) -> str:
+    """the movement request with NO_THINK_HINT right after its answer instruction (measured placement)"""
+    anchor = "Answer with the JSON object."
+    if NO_THINK_HINT in user:
+        return user
+    if anchor in user:
+        return user.replace(anchor, anchor + " " + NO_THINK_HINT, 1)
+    return user.rstrip("\n") + "\n" + NO_THINK_HINT
 
 
 def state_note(traits: dict, state) -> str:
@@ -1446,8 +1487,13 @@ async def door_stream(spec: dict, system: str, user: str, deadline: float, info:
         async for ev in agen:
             if ev.get("delta"):
                 yield ev["delta"]
+            elif ev.get("thinking"):                # a hidden thinking block opened -> the text is late
+                info["thinking_ms"] = ev.get("ms")
+                cb = info.get("on_thinking")
+                if cb is not None:
+                    cb()
             elif ev.get("done"):
-                info["door"] = {k: ev.get(k) for k in ("ms_first", "ms_done", "warm", "cost_usd", "error")}
+                info["door"] = {k: ev.get(k) for k in ("ms_first", "ms_done", "warm", "cost_usd", "error", "ms_thinking")}
                 if ev.get("usage"):
                     info["usage"] = {"door": True, **{k: v for k, v in ev["usage"].items()
                                                        if isinstance(v, (int, float))}}
@@ -2284,10 +2330,19 @@ class Planner(_SemanticPlanner):
             return []
         out = []
         p, f = self._specs()
+        systems = [(P["text"], n)]
+        # a plan WITH things runs on the prompt + the objects appendix — another (model, system) pair,
+        # so it was a cold spawn every time; keep one warm process for it too (cfg "prewarm_things", default on)
+        if self.cfg.get("prewarm_things", True):
+            scfg = load_scene(character, self.scene_dir)
+            app = scene_appendix(scfg, self.appendix_path) if scfg is not None else ""
+            if app:
+                systems.append((P["text"].rstrip("\n") + "\n\n" + app + "\n", 1 if n else 0))
         for sp in (p, f):
             if sp and sp["route"] == "claude_door":
                 try:
-                    door_for(sp.get("effort")).prewarm(sp["model"], P["text"], n)
+                    for sysp, k in systems:          # the plain prompt first (the door's budget fills in order)
+                        door_for(sp.get("effort")).prewarm(sp["model"], sysp, k)
                     out.append(sp)
                 except Exception as e:  # noqa: BLE001
                     self.log(f"planner: door prewarm failed: {type(e).__name__}: {str(e)[:120]}")
@@ -2419,6 +2474,10 @@ class Planner(_SemanticPlanner):
         info = a.info
         stall_s = float(self.cfg.get("stall_s") or STALL_S)
         stall_m = float(self.cfg.get("stall_motion_s") or STALL_MOTION_S)
+        if a.spec.get("route") == "claude_door":
+            if a.role == "nothink" or no_think_on(self.cfg):
+                user = no_think_user(user)
+            info["on_thinking"] = lambda: q.put_nowait(("thinking", a, None))
         try:
             async for d in self.stream_fn(http, system, user, deadline, info):
                 a.text += d
@@ -2540,6 +2599,7 @@ class Planner(_SemanticPlanner):
         q: asyncio.Queue = asyncio.Queue()
         winner = None
         fb_started = False
+        nt_started = False                          # no_think "retry" request started
         own_http = None
         if http is None:
             import aiohttp
@@ -2574,11 +2634,18 @@ class Planner(_SemanticPlanner):
         try:
             primary = start(spec, "primary")
             fb_at = primary.t_start + fb["after_s"] if fb else None
+            # "hedge_after_s" = a second request to the SAME claude_door model when the primary has not
+            # sent a single character after that many s (a server-side first-token stall); first pose wins, as with the
+            # fallback. None / 0 = off (the default).
+            h_s = self.cfg.get("hedge_after_s") if model is None and spec.get("route") == "claude_door" else None
+            hedge_at = primary.t_start + float(h_s) if h_s else None
             while True:
                 now = time.monotonic()
                 wait = hard_end - now
                 if fb and not fb_started and winner is None:
                     wait = min(wait, fb_at - now)
+                if hedge_at is not None and winner is None:
+                    wait = min(wait, hedge_at - now)
                 ev = None
                 if wait > 0:
                     try:
@@ -2589,6 +2656,13 @@ class Planner(_SemanticPlanner):
                     ev = q.get_nowait()
                 if ev is None:
                     now = time.monotonic()
+                    if hedge_at is not None and now >= hedge_at - 1e-4:
+                        hedge_at = None
+                        if winner is None and not primary.text and not primary.ended:
+                            self.stats["hedge_started"] = self.stats.get("hedge_started", 0) + 1
+                            self.log(f"planner: hedge {spec['model']} — no text from the primary after {float(h_s):g} s")
+                            start(spec, "hedge")
+                        continue
                     if fb and not fb_started and winner is None and now >= fb_at - 1e-4:
                         fb_started = True
                         self.stats["fallback_started"] += 1
@@ -2602,6 +2676,24 @@ class Planner(_SemanticPlanner):
                         break
                     continue
                 kind, a, new = ev
+                if kind == "thinking":             # the primary opened a hidden thinking block
+                    a.info.pop("on_thinking", None)
+                    if (a.role == "primary" and winner is None and not a.ended and not nt_started
+                            and no_think_mode(self.cfg) == "retry"):
+                        nt_started = True
+                        self.stats["nothink_started"] = self.stats.get("nothink_started", 0) + 1
+                        self.log(f"planner: {spec['model']} is thinking ({a.info.get('thinking_ms')} ms) — "
+                                 f"a second request with the no-think hint")
+                        start(spec, "nothink")
+                        continue
+                    if (fb and not fb_started and winner is None and a.role == "primary" and not a.ended
+                            and self.cfg.get("fallback_on_thinking", DEFAULTS["fallback_on_thinking"])):
+                        fb_started = True
+                        self.stats["fallback_started"] += 1
+                        self.log(f"planner: fallback {fb['model']} ({fb['route']}) — {spec['model']} is thinking "
+                                 f"({a.info.get('thinking_ms')} ms)")
+                        start(fb, "fallback")
+                    continue
                 if kind == "poses":
                     if a.cancelled:
                         continue                   # a loser's batch queued before it was cancelled

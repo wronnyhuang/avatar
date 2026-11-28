@@ -1002,5 +1002,49 @@
   "character": "bonbon",
   "route": "planner",
   "note": "quality mascot spot-check (bonbon): planner only, prompt q1"
+ },
+ "Q1P_think": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   },
+   "prompt_variant": "q1",
+   "check": true,
+   "library": false,
+   "no_think": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "Q1P_planner_only with no_think=False (the claude_door user turn without the no-think hint)"
+ },
+ "Q1P_nothink": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   },
+   "prompt_variant": "q1",
+   "check": true,
+   "library": false,
+   "no_think": true
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "Q1P_planner_only with no_think=True (the claude_door user turn carries the no-think hint)"
+ },
+ "G1P_gem35lite_only": {
+  "planner": {
+   "model": "gem35lite",
+   "fallback": null,
+   "prompt_variant": "q1",
+   "check": true,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "the fallback model alone (gem35lite, q1 prompt, every row to the planner) - what a plan costs in quality when the backup wins the race"
  }
 }

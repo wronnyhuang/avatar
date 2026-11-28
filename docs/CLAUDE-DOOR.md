@@ -49,3 +49,16 @@ Sonnet p90 is a heavy tail (occasional multi-second server stalls); p50 ~1.0-1.2
 
 Tests: `python3 -m unittest tests/test_claude_door.py` (fake binary); live: `AVATAR_DOOR_LIVE=1`.
 Limits: subscription rate limits apply; no tools/streaming of tool calls; one request per process.
+
+## Hidden thinking on Sonnet 5.5
+Sonnet 5.5 opens a thinking block on ~1 in 4 planner requests (whole-body / mime moves: skip, hop, push-up, "pretend to
+swim", "draw a circle in the air") although the door runs it with `MAX_THINKING_TOKENS=0 --effort low`. Also measured with
+no effect: `CLAUDE_CODE_DISABLE_THINKING=1`, `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`, `--settings
+{"alwaysThinkingEnabled":false}`, CLI 2.1.319 / 2.1.330 / 2.1.332, the frozen vs the q1 planner prompt. The block costs
+500-1500 hidden output tokens: first text 3-9 s instead of ~0.9 s. Machine load is not it (TTFT ~0.9 s at load 15 and at 150).
+What works: one sentence in the user turn — planner.NO_THINK_HINT ("Start writing it immediately: do not think or plan
+first."), cfg `planner.no_think` — 1 thinking block in 74 planner calls (vs 22 of 73 without), first pose p50/p90
+1631/2234 ms vs 1836/6009 ms. `no_think: "retry"` sends the plain request and adds the hinted one only when the plain
+one opens a thinking block (plans that do not think are unchanged).
+The door now yields `{"thinking": True, "ms"}` when a thinking block opens (done event: `ms_thinking`); the planner can start
+its fallback at that moment (`planner.fallback_on_thinking`). Re-run: `tools/plan_latency_probe.py`.
