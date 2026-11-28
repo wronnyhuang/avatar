@@ -183,6 +183,11 @@
     const propDef = id => T.props && (T.props.props || []).find(p => p.id === id || p.kind === id) || null;
     const has = () => !!(T.board && K());
     const toolId = kind => { const d = propDef(kind); return d ? d.id : null; };
+    const boardTools = () => [toolId('chalk'), toolId('eraser')].filter(Boolean);
+    // handfree: a paw counts as busy for the board's plans only when it holds one of the board's tools (anything
+    // else is freed by the engine's paw claim first); the switch off = the old check (busy whatever it holds)
+    const othersHeld = sides => { const k = K(); return !!(k && k.E && k.E.handFree && k.heldBy && sides.some(s => { const q = k.heldBy(s); return q && !boardTools().includes(q.id); })); };
+    const pawBusy = s => { const k = K(), q = k && k.heldBy ? k.heldBy(s) : null; return !!q && (!(k.E && k.E.handFree) || boardTools().includes(q.id)); };
 
     // ------------------------------------------------------------------ jobs on the muse's queue
     function job(name, goals, why, onEnd) {
@@ -648,6 +653,9 @@
       // the eraser off the writing paw first (r2-erase: one in the OTHER paw stays there — it is the duster's paw)
       const er0 = toolId('eraser'), erBack = !opt.noChalk && er0 && held(er0) && (cfg.eraserPaw !== 'other' || held(er0) === cfg.side) ? putBackGoal(er0) : null;
       const goals = [];
+      // handfree: the board's work needs its paws (the chalk's, and the duster's with eraserPaw 'other'): anything
+      // else in them is put back / set down first by the engine (said in the log); the board's own tools stay in hand
+      if (!opt.noChalk && othersHeld(cfg.eraserPaw === 'other' ? ['l', 'r'] : [cfg.side])) goals.push({g: 'paws', paws: cfg.eraserPaw === 'other' ? 'both' : cfg.side, keep: boardTools(), why: 'the board'});
       if (erBack) goals.push(erBack);
       // the chalk first: straight to a stance on the board's station line that takes it off the tray with a lean AND writes
       // the board around it (no second step), a brisk grab; no such stance -> the planner's own fetch
@@ -658,7 +666,7 @@
         // r2-erase: then the duster with the other paw, one step along the tray (both are never in one reach): it is
         // in hand for any wipe this lesson needs (cfg.grabBoth: 'always' | 'used' = only when the board has chalk on it)
         const oth = cfg.side === 'l' ? 'r' : 'l', er1 = toolId('eraser'), used = !!((T.boardState && (T.boardState.items || []).length) || Object.keys(T.inked).length);
-        if (cfg.eraserPaw === 'other' && er1 && !held(er1) && K().byId(er1) && K().byId(er1).where === 'home' && !(K().heldBy && K().heldBy(oth)) && (cfg.grabBoth === 'always' || (cfg.grabBoth === 'used' && used))) {
+        if (cfg.eraserPaw === 'other' && er1 && !held(er1) && K().byId(er1) && K().byId(er1).where === 'home' && !pawBusy(oth) && (cfg.grabBoth === 'always' || (cfg.grabBoth === 'used' && used))) {
           const gs2 = grabStance(er1, oth, {writes: false, from: gs});
           if (gs2) goals.push({g: 'stand_at', pose: gs2, why: 'the board', speed: cfg.walkSpeed, tol: 0.02, ytol: 0.015, turnStep: cfg.turnStep, Ts: 0.25, blendYaw: true},
             {g: 'steps', id: er1, did: ['picking up the eraser', 'picked up the eraser'], build: () => grabSteps(er1, oth)});
@@ -1092,7 +1100,7 @@
       // r2-erase: the duster in the paw that does not write (cfg.eraserPaw 'other'): the chalk stays in its paw, no
       // trip to the tray; 'same' = the old way (the chalk goes back first)
       const s = cfg.eraserPaw === 'other' ? eraserSide() : (cfg.eraseOtherPaw && chHeld ? (chHeld === 'l' ? 'r' : 'l') : cfg.side);
-      const goals = [];
+      const goals = othersHeld([s]) ? [{g: 'paws', paws: s, keep: boardTools(), why: 'erasing the board'}] : [];
       if (ch && chHeld && s === chHeld) goals.push(putBackGoal(ch));
       const fetch = er && !held(er);
       let cur = {x: root().x, z: root().z, yaw: root().yaw};

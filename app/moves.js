@@ -483,6 +483,9 @@
       E.body = bodyModel(body);
       E.props = props && typeof props === 'object' && Array.isArray(props.props) ? props : null;
       E.endRevert = !(props && props.endstate === false);   // the end-of-move reverts (face him after standing up; put a taken-off thing back); scene config endstate:false = off
+      // a job that needs a particular paw (or both) frees it first — what that paw holds is put back /
+      // set down nearby, said in the log — unless it is the job's own tool; scene config handfree:false / ?handfree=0 = off
+      { let hf = !(props && props.handfree === false); try { if (new URLSearchParams(globalThis.location.search).get('handfree') === '0') hf = false; } catch (e) { /* node */ } if (E.handFreeOpt === false) hf = false; E.handFree = hf; }
       if (E.props && E.props.props.some(d => d && d.removed)) E.props = Object.assign({}, E.props, {props: E.props.props.filter(d => !(d && d.removed))});   // a prop flagged "removed" is out of the scene (the hub drops it too)
       E.places = E.props && Array.isArray(E.props.places) ? E.props.places.map(normPlace).filter(Boolean) : [];
       if (!E.places.some(p => p.id === 'floor')) E.places.push({id: 'floor', name: 'the floor', aliases: ['floor', 'ground'], center: [0, 0, 0.5], size: [3, 2], top_y: 0, spots: [[-0.28, 0, 0.55], [0.28, 0, 0.55], [0, 0, 0.62], [-0.5, 0, 0.45], [0.5, 0, 0.45]], floor: true});
@@ -4034,10 +4037,14 @@
           if (ch && dk && d2(W.P[ch.id].pos, W.P[dk.id].pos) < 0.9 && freePaws(W).length === 2) { const n0 = ops.length, r = moveFurn(ch, 'back'); if (r === true) A = withW(W, () => approachFor(p, W)); if (!A) ops.length = n0; }
         }
         if (!A) return fail(`the ${p.name} is out of my reach`); walkTo(A, why || 'the ' + p.name); return true; }
-      function pawsFree(n, keep) {
+      // handfree: need = paws that must be free (a job that claims THAT paw); keep = an id or a list of ids that stay
+      // held (the job's own tools) — the one place a job's claim on a paw is met
+      function pawsFree(n, keep, need) {
         if (W.activity) push({op: 'stop_typing', did: ['stopping typing', 'stopped typing']}, w => { w.typing = false; w.activity = false; });
-        for (let guard = 0; freePaws(W).length < n; guard++) {
-          const s = ['l', 'r'].find(x => W.held[x] && W.held[x] !== keep); if (!s || guard > 3) return false;
+        const keeps = Array.isArray(keep) ? keep : keep ? [keep] : [], kept = x => keeps.includes(W.held[x]);
+        const owe = () => (need || []).filter(x => W.held[x] && !kept(x));
+        for (let guard = 0; freePaws(W).length < n || owe().length; guard++) {
+          const s = owe()[0] || ['l', 'r'].find(x => W.held[x] && !kept(x)); if (!s || guard > 3) return false;
           const q = byId(W.held[s]);
           let done = false;
           if (q.homePlace && q.where !== 'home' && d2(q.home, [W.root.x, 0, W.root.z]) < (q.size < 0.12 ? 2.6 : 1.2) && !takenBy(W, q, q.home)) {   // its own spot nearby: put it back there (a small thing goes back to its own spot anywhere in the room — the chalk planned 'on the chalk tray' landed on the floor)
@@ -4490,6 +4497,20 @@
         if (ops.length === n0) push({op: 'noop', did: [`already standing by ${nm}`, `was already standing by ${nm}`]}, w => {});
         return true;
       }
+      /* handfree: a job that needs a particular paw — 'l' / 'r' / 'both' — frees it first: what that paw holds goes
+         back to its own spot nearby or down on the nearest surface (pawsFree, the planner's one put-down path), and the log says
+         why ("put the yellow ball back …, to free its paw for writing on the board"). The job's own tools (keep) stay in hand.
+         handfree off: the claim is not enforced (the old behaviour: the job works around what its paws hold). */
+      function claimPaws(paws, keep, why) {
+        if (!E.handFree || !paws) return true;
+        const need = paws === 'both' ? ['l', 'r'] : [paws].filter(x => x === 'l' || x === 'r'), keeps = (keep || []).filter(Boolean);
+        if (!need.some(x => W.held[x] && !keeps.includes(W.held[x]))) return true;
+        const n0 = ops.length, sv = JSON.stringify(W);
+        if (!pawsFree(0, keeps, need)) { ops.length = n0; Object.assign(W, JSON.parse(sv)); delete ops.failed; return false; }
+        const tail = ` first, to free its ${need.length === 2 ? 'paws' : sideWord(need[0]) + ' paw'}${why ? ' for ' + why : ''}`;
+        for (let i = n0; i < ops.length; i++) if (ops[i].op === 'place' && Array.isArray(ops[i].did)) { ops[i].did = ops[i].did.map(d => d + tail); ops[i].handFree = true; }
+        return true;
+      }
       for (const g of goals) {
         let r = true;
         const p = g.id ? byId(g.id) : null;
@@ -4558,6 +4579,7 @@
           // built from the live state when it runs (writing, erasing, presenting) — app/teach.js
           case 'stand_at': { const A = g.pose, tol = g.tol || 0.012; if (Math.hypot(W.root.x - A.x, W.root.z - A.z) < tol && Math.abs(wrap(W.root.yaw - A.yaw)) < (g.ytol || 0.01)) break; standing();
             push({op: 'walk_to', pose: {x: A.x, z: A.z, yaw: A.yaw}, sp: g.speed, Ts: g.Ts, keepFacing: g.keepFacing, blendYaw: g.blendYaw, turnStep: g.turnStep, did: g.did || [`walking over to ${g.why || 'there'}`, `walked over to ${g.why || 'there'}`], quiet: g.quiet}, w => { w.root = {x: A.x, z: A.z, yaw: A.yaw}; }); break; }
+          case 'paws': if (!claimPaws(g.paws, g.keep, g.why)) r = fail('my paws are full'); break;   // handfree: a job's claim on its paws ({g:'paws', paws:'l'|'r'|'both', keep:[tool ids], why})
           case 'steps': if (g.ran) break; push({op: 'steps', g, build: g.build, id: g.id, did: g.did || ['', '']}, w => { if (g.eff) g.eff(w); }); break;   // (a re-plan never repeats a chain that ran)
           case 'rel': r = rel(p, deT(g.T), g.vb); break;   // objects engine
           case 'head': r = headG(p, g.mode); break;

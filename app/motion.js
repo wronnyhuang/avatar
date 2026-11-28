@@ -373,6 +373,7 @@
       return ev;
     }
     const engine = MovesLib && MovesLib.createEngine ? MovesLib.createEngine({rnd, now: () => S.t, emit}) : null;
+    if (engine && engine.E && (opts.handFree === false || (opts.config || {}).handFree === false)) engine.E.handFreeOpt = false;   // createMotion({handFree: false}) / ?handfree=0 = a job does not free a claimed paw
     let engineOn = false;   // only a character with a body file (config.body: the muse) gets whole-body moves / props
     // affect: the feeling's sustained face + posture state (app/affect.js); nothing runs until a verdict arrives
     const AffLib = opts.affect || (typeof globalThis !== 'undefined' && globalThis.AvatarAffectLib) || null;
