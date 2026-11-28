@@ -13,7 +13,7 @@ const secs = (X, s) => { X.step(Math.round(s * 30)); X.runUntilIdle(); X.step(10
 
 for (const off of [false, true]) {
   const X = mk(off), tag = off ? 'switch off (endstate:false)' : 'default';
-  X.m.command({action: 'move', name: 'sit'}, {src: 'voice'}); X.runUntilIdle();
+  X.m.command(O('sit_in', 'chair'), {src: 'voice'});   /* the chair named (a bare 'sit' now sits on the spot) */ X.runUntilIdle();
   const seated = X.m.state().posture;
   const r = X.m.command({action: 'move', name: 'stand_up'}, {src: 'voice'}); X.runUntilIdle(); X.step(30);
   const s = st(X);
@@ -21,7 +21,7 @@ for (const off of [false, true]) {
   else check(`${tag}: the old end state (stays turned at the chair)`, s.posture === 'standing' && Math.abs(s.yaw) > 0.06, s);
 }
 {
-  const X = mk(); X.m.command({action: 'move', name: 'sit'}, {src: 'voice'}); X.runUntilIdle(); X.step(60);
+  const X = mk(); X.m.command(O('sit_in', 'chair'), {src: 'voice'});   /* the chair named (a bare 'sit' now sits on the spot) */ X.runUntilIdle(); X.step(60);
   check('seated stays seated and is not turned by the rule', X.m.state().posture === 'seated');
 }
 for (const off of [false, true]) {

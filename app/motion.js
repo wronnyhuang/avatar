@@ -1198,6 +1198,72 @@
     let moves2On = opts.moves2;
     if (moves2On === undefined) { try { moves2On = new URLSearchParams(globalThis.location.search).get('moves2') !== '0'; } catch (e) { moves2On = true; } }
     const M2 = () => !!moves2On && cfg.moves2 !== false && LIBM();
+    // ---- reach: ONE reach / midline / contact step that every paw target passes through (library gestures,
+    // planned keyframes, holds, programs: the composed frame, before the paw follow spring), from the body file's own
+    // measured hand map (S.reach, setProps). The renderer keeps each wrist on its own side (hand_map.min_x_scene), so a
+    // target past the body's midline is not reachable: both paws pile onto the midline and read as clasped / sunk into
+    // each other. The step:
+    //  - CONTACT: two paws that both come to the midline at about the same height / depth meet exactly there (same y, z,
+    //    x on the midline) — a clap / hands-together lands at the body's contact point, whatever numbers it was written in;
+    //  - CROSSING: a paw aimed past the midline is retargeted to the nearest read the body can make: a paw's height over
+    //    the other paw if that one is at the midline too (never level = a clasp); both crossing (cross arms) = forearms
+    //    STACKED high on the chest, one a paw's height above the other, the lower paw out and forward, fists, elbows lifted
+    //    out — never two paws clasped in the middle.
+    // Weights are smooth in the targets (no new pops; the follow spring smooths the rest). createMotion({reachFix: false}) /
+    // ?reachfix=0 / cfg.reachFix = false = off; nothing happens for a body without a hand map (the contract characters).
+    let reachOn = opts.reachFix;
+    if (reachOn === undefined) { try { reachOn = new URLSearchParams(globalThis.location.search).get('reachfix') !== '0'; } catch (e) { reachOn = true; } }
+    const RF0 = () => !!reachOn && cfg.reachFix !== false;
+    const RF = () => RF0() && !!S.reach;
+    function makeReach(body) {
+      const hm = body && body.hand_map, j = body && body.joints_scene;
+      if (!hm || !Array.isArray(hm.rest_wrist_scene) || !(+hm.min_x_scene >= 0)) return null;
+      const L = +hm.L_scene || 0.57, gi = +hm.gain_x_in || 1.05, gy = +hm.gain_y || 1.4, gz = +hm.gain_z || 0.8, rw = hm.rest_wrist_scene;
+      const midX = -(rw[0] - +hm.min_x_scene) / (gi * L);   // the hand_x that puts the wrist ON its wall (the shader's |x| >= min_x)
+      if (!(midX < -0.2 && midX > -1.2)) return null;
+      // the shoulder from the joints, when it is in the hand map's own frame (an arm's reach over the resting wrist; a mascot
+      // body file whose joints are its own shape's, bonbon, falls back to the shared rig's proportion)
+      const sj = j && Array.isArray(j.shoulder_r) ? +j.shoulder_r[1] : NaN, sy = sj - rw[1] > 0.3 * L && sj - rw[1] < 1.2 * L ? sj : rw[1] + 0.85 * L;
+      const palm = +hm.palm_above_wrist_scene || 0.09;
+      return {midX, chestY: (sy - 0.15 * L - rw[1]) / (gy * L),   // the wrist a little under the shoulders: "high on the chest"
+        gap: 2 * palm / (gy * L),                                   // one paw's height (palm over wrist, both ways): the stack step
+        tol: 0.12 * Math.abs(midX)};                               // "at the midline" band, in hand_x
+    }
+    function reachPass(o, pins) {
+      const R = S.reach, m = R.midX, H = s => ({x: o['hand_' + s + '_x'], y: o['hand_' + s + '_y'], z: o['hand_' + s + '_z']});
+      if (pins && (pins.hand_l_x || pins.hand_r_x)) return;   // an object action drives the paw exactly
+      const A = {l: H('l'), r: H('r')};
+      if (![A.l.x, A.l.y, A.l.z, A.r.x, A.r.y, A.r.z].every(Number.isFinite)) return;
+      const ex = {l: m - A.l.x, r: m - A.r.x};                       // > 0: past the midline
+      const cr = {l: smooth01((ex.l - 1.5 * R.tol) / R.tol), r: smooth01((ex.r - 1.5 * R.tol) / R.tol)};   // clearly crossing (a clap's "to the midline" numbers are not)
+      const near = s => smooth01((A[s].x - (m + 1.5 * R.tol)) / (-R.tol));   // AT the midline (or past it); a paw merely near it (laugh: paws by the mouth) is not a contact
+      const both = Math.min(cr.l, cr.r), dy = Math.abs(A.l.y - A.r.y), dz = Math.abs(A.l.z - A.r.z);
+      // both clearly past = a crossing (cross arms); paws that come TO the midline (not through it) at one height = paws together
+      const stack = both;
+      const cont = Math.min(near('l'), near('r')) * (1 - Math.max(cr.l, cr.r)) * smooth01((0.45 - dy) / 0.2) * smooth01((0.6 - dz) / 0.25);
+      if (cont > 0) {   // CONTACT: meet exactly at the body's contact point
+        const y = (A.l.y + A.r.y) / 2, z = (A.l.z + A.r.z) / 2;
+        for (const s of ['l', 'r']) { o['hand_' + s + '_x'] = lerp(A[s].x, Math.min(A[s].x, m), cont); o['hand_' + s + '_y'] = lerp(A[s].y, y, cont); o['hand_' + s + '_z'] = lerp(A[s].z, z, cont); }
+      }
+      if (stack > 0) {   // CROSSING with both arms: forearms stacked high on the chest, fists, elbows out
+        const hi = A.l.y >= A.r.y ? 'l' : 'r', lo = other(hi), yc = Math.max(R.chestY, (A.l.y + A.r.y) / 2), z0 = Math.max(0.45, (A.l.z + A.r.z) / 2);
+        // the upper forearm keeps aiming across (the renderer stops its wrist on the wall, the forearm still reads crossed); the
+        // lower one under it, its paw a little out and forward (two forearms, not two paws: the cross_arms pose the judge reads)
+        const T = {[hi]: [A[hi].x, yc + R.gap / 2, z0], [lo]: [m + 2.5 * R.tol, yc - R.gap / 2, z0 + 0.3]};
+        for (const s of ['l', 'r']) {
+          o['hand_' + s + '_x'] = lerp(o['hand_' + s + '_x'], T[s][0], stack); o['hand_' + s + '_y'] = lerp(o['hand_' + s + '_y'], T[s][1], stack);
+          o['hand_' + s + '_z'] = lerp(o['hand_' + s + '_z'], T[s][2], stack);
+          o['hand_' + s + '_open'] = lerp(o['hand_' + s + '_open'] ?? 0, 0, stack); o['shoulder_' + s] = Math.max(o['shoulder_' + s] || 0, 0.4 * stack);
+        }
+      }
+      for (const s of ['l', 'r']) {   // ONE paw past the midline (or what is left of it): its aim is kept (the renderer stops the
+        // wrist on the wall and the forearm still reads across; moving it in or forward read as a clasp: judge, dev-0023), but
+        // with the other paw at the midline too it is never level with it (that is a clasp) — it rides a paw's height over it
+        const w = cr[s] * (1 - stack) * (1 - cont); if (!(w > 0)) continue;
+        const q = other(s), yq = o['hand_' + q + '_y'], ys = o['hand_' + s + '_y'];
+        const nq = near(q) * w; if (nq > 0 && Math.abs(ys - yq) < R.gap) o['hand_' + s + '_y'] = lerp(ys, Math.max(ys, yq + R.gap), nq);
+      }
+    }
     const GEST = {
       wave: {dur: g => 0.5 + (g.cycles || 4) * 0.4 + 0.2, attack: 0.38, release: 0.5, fn(u, g) {
         const s = g.side, e = smooth01((u - 0.25) / 0.3), w = Math.sin(2 * Math.PI * 2.5 * (u - 0.25));
@@ -1249,7 +1315,9 @@
       }},
       tail_swish: {dur: 3.2, attack: 0.5, release: 0.6, fn(u) { return {set: {tail_wag: 0.55 * Math.sin(2 * Math.PI * 0.55 * u)}, add: {tail_curl: 0.2}}; }},
       clap: {dur: g => 0.5 + 0.42 * (g.cycles || 4), attack: 0.35, release: 0.45, fn(u) {
-        const k = u < 0.35 ? 0 : 0.5 + 0.5 * Math.cos(2 * Math.PI * 2.4 * (u - 0.35));
+        // the attack brings the paws to the OPEN pose the first beat starts from (it used to bring them
+        // together and then snap them half the way out in one frame at u = 0.35: the "pop"); ?reachfix=0 = the old attack
+        const k = u < 0.35 ? (RF0() ? 1 : 0) : 0.5 + 0.5 * Math.cos(2 * Math.PI * 2.4 * (u - 0.35));
         // the paws MEET at this body's midline and part by half the way out; in front of the chest
         const K = KM(), x = IN(-0.45) * (1 - (K > 1 ? 0.6 : 0.445) * k), up = K > 1 ? Math.min(1, K - 1) : 0;
         return {set: Object.assign(HP('l', x, 0.45 + 0.05 * up, 0.45 + 0.3 * up, 1, 0), HP('r', x, 0.45 + 0.05 * up, 0.45 + 0.3 * up, 1, 0)), add: {smile: 0.45, squint: 0.2, body_bounce: 0.05 * (1 - k)}};
@@ -3754,6 +3822,7 @@
       if (dbg && eng) { snapTo(dbg.postE, o); dbg.hasPostE = true; }
 
       // ---- arm follow-through (light 2nd order on the hand targets; gestures already ease)
+      if (RF()) reachPass(o, pins);   // every paw target through the body's reach / midline / contact step
       for (const p of RIG_PARAMS) if (p.startsWith('hand_') && !p.endsWith('_open') && !p.endsWith('_turn')) {
         const F = S.handF[p] || (S.handF[p] = new Spring(cfg.handFollowHz, 0.85, o[p]));
         const raw = o[p];
@@ -3771,6 +3840,7 @@
       if (cfg.legacyArms) legacy(o); else for (const p of LEGACY) o[p] = 0;
       // ---- streamed keyframe jobs over everything above (nothing changes unless one runs)
       kfFrame(o, dt);
+      if (RF() && S.kf.length) reachPass(o, pins);   // planned keyframes (drawn after the follow spring) through the same step
       if (eng && engine.postKf) engine.postKf(o, S.kf.length > 0);   // objects engine: the hands as drawn, held-prop offsets (§5)
       { const ownL = !!(S.cmdLook || (S.around && S.around.kind === 'cmd')); S.ownLook = lp(S.ownLook || 0, ownL ? 1 : 0, dt, ownL ? 0.035 : 0.25); }
       if (lpOn) learnedPass(dt, preG, {fl, ewStart, perkEnv, pk, greetEnv, flashEnv, curious, ep, ax: S.user.ax});
@@ -3817,6 +3887,7 @@
         // the hand_x that puts a paw on the body's midline, from the body file's own hand map (contract -0.45)
         { const hm = has && body.hand_map, rw = hm && hm.rest_wrist_scene, mx = Array.isArray(rw) ? -rw[0] / ((+hm.gain_x_in || 1.05) * (+hm.L_scene || 0.57)) : NaN;
           S.midX = Number.isFinite(mx) && mx < -0.2 && mx > -1 ? mx : null; }
+        S.reach = has ? makeReach(body) : null;   // the body's own reach data (reachPass)
         // the character's own chin (see makeChin). S.chinNone: its arm cannot reach its chin at all
         const cg = !S.face && Object.prototype.hasOwnProperty.call(CHIN_GEOM, S.charName) ? CHIN_GEOM[S.charName] : null;
         S.chin = makeChin(cg); S.chinNone = !!cg && !S.chin;

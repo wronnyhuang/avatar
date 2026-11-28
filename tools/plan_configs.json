@@ -1046,5 +1046,20 @@
   "character": "muse",
   "route": "planner",
   "note": "the fallback model alone (gem35lite, q1 prompt, every row to the planner) - what a plan costs in quality when the backup wins the race"
+ },
+ "Q2P_planner_only": {
+  "planner": {
+   "model": "sonnet55door_nt",
+   "fallback": {
+    "model": "gem35lite",
+    "after_s": 4.5
+   },
+   "prompt_variant": "q2",
+   "check": true,
+   "library": false
+  },
+  "character": "muse",
+  "route": "planner",
+  "note": "every row to the planner (page + hub library off), prompt q2 (q1 + staging for hidden limbs, multi-step and named parts)"
  }
 }

@@ -16,7 +16,7 @@ const base = rel => execFileSync('git', ['show', `${BASE}:${rel}`], {cwd: ROOT, 
 try { base('app/motion.js'); } catch (e) { console.log(`SKIP: no git checkout with ${BASE} (${String(e.message).split('\n')[0]})`); process.exit(0); }
 // the gaze split is a deliberate behaviour change of the rules path; this identity proof runs with its switch off
 // (?gazesplit=0, which the base build does not read) — so it also proves that gazesplit=0 IS the old motion, byte for byte.
-globalThis.location = {search: '?gazesplit=0'};
+globalThis.location = {search: '?gazesplit=0&sitnear=0'};   // sitnear off too (the unnamed-place sit rule)
 globalThis.AvatarMovesLib = loadSrc(cur('app/moves.js'));
 if (cur('app/moves.js') !== base('app/moves.js')) console.log('note: app/moves.js differs from base');
 const Mnew = loadSrc(cur('app/motion.js')), Mold = loadSrc(base('app/motion.js'));
@@ -31,7 +31,7 @@ const DT = 1 / 30, N = 75 * 30;
 function session(Lib, name) {
   const ev = [];
   // idle2 off = the base's idle schedule (the new look-away timing is on by default; the base lib ignores the option)
-  const m = Lib.createMotion({seed: 4555, character: name, poseRevert: false /* OFF = identical covers the pose-revert switch too (the base ignores it) */, handFree: false, idle2: false, libMoves: false, onAction: e => ev.push(JSON.stringify(Object.assign({}, e, {wall: undefined})))   /* wall = Date.now(): the only field that may differ */});
+  const m = Lib.createMotion({seed: 4555, character: name, poseRevert: false /* OFF = identical covers the pose-revert switch too (the base ignores it) */, handFree: false, idle2: false, libMoves: false, reachFix: false, onAction: e => ev.push(JSON.stringify(Object.assign({}, e, {wall: undefined})))   /* wall = Date.now(): the only field that may differ */});
   if (BODY[name]) m.setProps(JSON.parse(JSON.stringify(PROPS[name])), JSON.parse(JSON.stringify(BODY[name])), name); else m.setProps(null, null, name);
   const frames = [];
   const kfA = [{t: 0.2, right_paw_y: 0.5, right_paw_x: 0.2, head_yaw: 0.1}, {t: 0.7, right_paw_y: 0.9, right_paw_z: 0.2, smile: 0.4}, {t: 1.2, right_paw_y: 0.6, mouth_open: 0.3},

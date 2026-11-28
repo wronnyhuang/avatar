@@ -383,7 +383,57 @@ def render_q1(base: str) -> str:
                    for n, _ in ANCHORS)
 
 
-VARIANTS = {"muse": {"q1": render_q1}}
+# q2 = q1 + general STAGING for what the camera cannot see, measured on CPU renders of this body
+# (one held pose each, the eval's own camera):
+#   - the legs are short and under a body 3x their width: front-on, a foot moved forward/back (z), a knee lifted forward or
+#     a kneel hide behind the belly (a lifted knee is a small bump); a foot moved SIDEWAYS (x 0.15-0.18) with the hips down
+#     (root_y -0.2, squash 0.3) reads front-on (wide stance / splits); a foot out to the side + body_lean 1 + root_roll
+#     0.05 reads front-on (side kick);
+#   - root_yaw 0.25 is NOT a readable profile for this camera: it shows the back (the face is gone and the far leg is behind
+#     the body); root_yaw 0.12-0.15 (either way) is the three-quarter view that shows the face AND a forward knee / kick;
+#   - multi-step requests and named elements: the row failures ("wrong_or_missing_element", "legs_missing") are plans where one named part (the kneel, the tears wiped, the bow after the hops) never got a pose
+#     of its own.
+Q2_FEET_ANCHOR = "When the feet are the point of the request, make their motion as big as these legs allow (lifts of 0.1-0.15) so it reads on camera.\n"
+Q2_FEET_NEW = (
+    "  What the camera sees of the legs (checked on renders): the legs are short and sit UNDER a body three times their width. "
+    "Seen from the front, a foot moved forward or back (z), a knee lifted forward and a kneel are hidden behind the belly (a "
+    "lifted knee is only a small bump); a foot moved SIDEWAYS (x 0.15-0.18 out) shows clearly. So front-on, legs read only "
+    "sideways: a wide stance or the splits = both feet out to the sides (right_foot_x -0.18, left_foot_x 0.18) with the "
+    "hips down (root_y -0.2, squash 0.3); a side kick or standing on one foot = that foot out to its side and up (x 0.18, y "
+    "0.15) with body_lean 1 and root_roll 0.05 away from it. Anything the legs do forward or back - a kick forward, a high "
+    "knee, marching, a step or a strut, kneeling, a lunge - turn THREE-QUARTER first (root_yaw 0.12-0.15 or -0.12..-0.15, "
+    "not 0.25: at 0.25 the camera sees its back and the far leg disappears), do it, and turn back to the camera at the end.\n")
+Q2_PROFILE_OLD = (" - lying down, push-ups, sit-ups, a plank, crawling, a roll forward or back, a kick forward, running or walking "
+                  "on the spot - do in PROFILE: turn first (root_yaw 0.25 or -0.25), do it, and turn back to the camera at the end.")
+Q2_PROFILE_NEW = (" on the floor - lying down, push-ups, sit-ups, a plank, crawling, a roll forward or back - do in PROFILE: turn "
+                  "first (root_yaw 0.25 or -0.25), do it, and turn back to the camera at the end. Standing leg work goes "
+                  "three-quarter (FEET above).")
+Q2_GUIDE_ANCHOR = "- To hold a position (\"stand like X\")"
+Q2_GUIDE_NEW = (
+    "- Never let the limb that does the action be hidden. Before each key pose, ask whether the camera sees the moving paw or "
+    "foot: a paw behind the body or behind the head, or a leg moving forward/back under the body while facing the camera, is "
+    "invisible - restage it (turn three-quarter, move the limb out to the side, lift it, or lean the body away from it) "
+    "until it is seen. When the legs cannot show it (crouch, kneel, sitting back on the heels), let the rest of the body "
+    "carry it: the hips drop (root_y -0.15..-0.2, squash 0.3), the body bends, the paws go to the knees or the floor, the "
+    "head follows.\n"
+    "- Every part the request names gets its own pose. Count the parts first - each action of a sequence (\"X, then Y, "
+    "then Z\"), each body part, prop, direction, count and feeling it names - and give each one at least one key pose where "
+    "it is the main thing that changes, held 0.4 s or more, in the order said. Between two steps change the main controls "
+    "clearly (a different pose, not a nudge of the last one), so a viewer sees where one ends and the next begins. A named "
+    "detail (wipe the tears, both knees up, one foot, a bow at the end) is part of the request, not decoration: never drop it "
+    "for a generic version of the move.\n")
+
+
+def render_q2(base: str) -> str:
+    """q1 + the staging rules above (exact substitutions on the q1 text; q1 itself is unchanged)"""
+    t = render_q1(base)
+    t = _sub(t, Q2_FEET_ANCHOR, Q2_FEET_ANCHOR + Q2_FEET_NEW)
+    t = _sub(t, Q2_PROFILE_OLD, Q2_PROFILE_NEW)
+    t = _sub(t, Q2_GUIDE_ANCHOR, Q2_GUIDE_NEW + Q2_GUIDE_ANCHOR)
+    return t
+
+
+VARIANTS = {"muse": {"q1": render_q1, "q2": render_q2}}
 HAND_MAP_KEYS = ("rest_wrist_scene", "L_scene", "gain_x_out", "gain_x_in", "gain_y", "gain_z", "min_x_scene")
 
 

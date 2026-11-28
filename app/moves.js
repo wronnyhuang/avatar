@@ -452,6 +452,9 @@
   function createEngine(ctx) {
     const rnd = ctx.rnd || Math.random, now = ctx.now, emit = ctx.emit || (() => {});
     const U = (a, b) => a + (b - a) * rnd();
+    // createEngine({sitNear: false}) or ?sitnear=0 = the old routing (an unnamed "sit down" walked to the first chair)
+    let SITNEAR = ctx.sitNear;
+    if (SITNEAR === undefined) { try { SITNEAR = new URLSearchParams(globalThis.location.search).get('sitnear') !== '0'; } catch (e) { SITNEAR = true; } }
     const E = {
       body: bodyModel(null), props: null, places: [], reach: {l: null, r: null},
       cur: {x: 0, y: 0, z: 0, yaw: 0, pitch: 0, roll: 0, squash: 0, stand: 0},     // last root output (unwrapped)
@@ -483,6 +486,7 @@
       E.body = bodyModel(body);
       E.props = props && typeof props === 'object' && Array.isArray(props.props) ? props : null;
       E.endRevert = !(props && props.endstate === false);   // the end-of-move reverts (face him after standing up; put a taken-off thing back); scene config endstate:false = off
+      E.sitNear = SITNEAR && !(props && props.sitnear === false);   // an unnamed place = where it stands (see unnamedSeat); scene config sitnear:false = off
       // a job that needs a particular paw (or both) frees it first — what that paw holds is put back /
       // set down nearby, said in the log — unless it is the job's own tool; scene config handfree:false / ?handfree=0 = off
       { let hf = !(props && props.handfree === false); try { if (new URLSearchParams(globalThis.location.search).get('handfree') === '0') hf = false; } catch (e) { /* node */ } if (E.handFreeOpt === false) hf = false; E.handFree = hf; }
@@ -4182,6 +4186,8 @@
         if (W.sit === (c ? c.id : 'floor')) return true;
         standing();
         if (c) { const A = withW(W, () => chairApproach(c)); walkTo(A, 'the ' + c.name); }
+        // a floor sit is taken facing him (turned away, it turns on the spot first)
+        else if (E.sitNear && E.body.legs && Math.abs(wrap(W.root.yaw)) > 0.08) push({op: 'walk_to', pose: {x: W.root.x, z: W.root.z, yaw: 0}, did: ['turning to face him', 'turned to face him']}, w => { w.root = Object.assign({}, w.root, {yaw: 0}); });
         push({op: 'sit', id: c ? c.id : null, did: c ? [`sitting down on the ${c.name}${deskFor ? ' at the ' + deskFor.name : ''}`, `sat down on the ${c.name}${deskFor ? ' at the ' + deskFor.name : ''}`] : ['sitting down on the floor', 'sat down on the floor']},
           w => { w.sit = c ? c.id : 'floor'; if (c) { const A = withW(w, () => chairApproach(c)); w.root = {x: A.seat[0] + A.front[0] * 0.03, z: A.seat[2] + A.front[2] * 0.03, yaw: A.yaw}; w.sitY = A.seat[1] + E.body.legs.belowHip - E.body.legs.hipY; } else w.sitY = -(E.body.legs.hipY - E.body.legs.belowHip); });
         return true;
@@ -5178,7 +5184,7 @@
         }
         case 'slide': if (!p) p = pick(q => feat(q).laptop); if (!p) return {ok: false, reason: 'slide what?', ask: true}; goals.push({g: 'slide', id: p.id, dir: String(tg || cmd.dir || 'closer')}); break;
         case 'sit': case 'sit_at': {
-          const chair = p && feat(p).chair ? p : pick(q => feat(q).chair);
+          const chair = p && feat(p).chair ? p : !p && !desc && !tg && !cmd.place && V === 'sit' && E.sitNear ? null /* no seat named = where it stands */ : pick(q => feat(q).chair);
           let desk = null;
           if (V === 'sit_at' || (p && !feat(p).chair)) { const ref = p && !feat(p).chair ? p : null; desk = ref ? (feat(ref).desk ? ref : (() => { const pl = E.places.find(x => x.id === ref.place); return pl && byId(pl.prop || pl.on || ''); })()) : pick(q => feat(q).desk); if (ref && feat(ref).laptop && !desk) desk = pick(q => feat(q).desk); }
           if (tg && typeof tg === 'object') { const r5 = resolveObject(tg, 'at'); if (r5.p && feat(r5.p).desk) desk = r5.p; }
@@ -5311,6 +5317,11 @@
       if (E.move && E.move.opOf === J) stopMove(why);
       if (E.activity && J.ops.length === 0 && /type/.test(J.name)) stopActivity(null);
     }
+    // THE UNNAMED-PLACE RULE: a place-taking move whose place he did not name ("sit down", "have a seat") is
+    // taken where it stands, facing him (the quickest option; nothing turns its back on him to walk off); only a named place
+    // ("sit in the chair", "sit at the desk") goes there. Already seated: stays on that seat. (lie_down / crouch / roll_over
+    // already work on the spot.) E.sitNear off = the old pick (the first chair in the scene).
+    function unnamedSeat(a) { if (a && (a.object || a.place || a.target)) return null; return E.sitOn && E.sitOn !== 'floor' && byId(E.sitOn) ? E.sitOn : null; }
     const SEATED_OK = /^(turn_back|wiggle|sway|shimmy|bow|dance|stop|sit|get_up|stand|crouch)$/;
     function museCommand(cmd, src, id) {
       if (cmd.action === 'object') {
@@ -5347,7 +5358,7 @@
       if (name === 'lie_down' && !a.dir && !a.dead) a.dir = rnd() < 0.5 ? 'left' : 'right';   // one side for the preview, the plan and the result
       if (name === 'turn' && /^(around|back|away)$/.test(normDir(a.dir))) name = 'turn_away';
       if (name === 'sit' || (name === 'get_up' && E.sitOn) || name === 'stand') {
-        const goals = name === 'sit' ? [{g: 'sit', id: (a.object ? (resolveObject(a.object, 'sit').p || {}).id : null) || (E.P.find(q => feat(q).chair) || {}).id || null}] : [{g: 'stand'}];
+        const goals = name === 'sit' ? [{g: 'sit', id: (a.object ? (resolveObject(a.object, 'sit').p || {}).id : null) || (E.sitNear ? unnamedSeat(a) : (E.P.find(q => feat(q).chair) || {}).id) || null}] : [{g: 'stand'}];
         if (name === 'sit' && a.floor) goals[0].id = null;
         return enqueueJob('move', name, goals, a, src, id);
       }

@@ -602,7 +602,8 @@ CHECK_HARD = ("static",)                             # the issue that keeps a pl
 def plan_issues(poses) -> list[str]:
     """-> the names of what is wrong with a finished plan ([] = fine): 'static' (no control ever leaves rest by an amount
     that shows), 'short' (the last pose before CHECK_MIN_S), 'held_tiny' (a control reverses >= 3 times and never swings
-    by an amount that shows, while nothing else in the plan moves far either: a rhythm nobody can see).
+    by an amount that shows, while nothing else in the plan moves far either: a rhythm nobody can see), 'limb_hidden'
+    (a pose moves a foot forward/back or a paw behind the body where the camera cannot see it).
     Plans with scene steps (a `do` key / paw events) are never judged here: what they show is the engine's."""
     poses = [p for p in (poses or []) if isinstance(p, dict)]
     if not poses:
@@ -642,7 +643,40 @@ def plan_issues(poses) -> list[str]:
     rhythm = [w for w in swing.values() if w[2] >= 3]
     if rhythm and max(w[3] for w in rhythm) < 1.0 and best < 2.0:
         out.append("held_tiny")
+    if limb_hidden(poses):
+        out.append("limb_hidden")
     return out
+
+
+# a key pose whose MOVING limb the camera cannot see (measured on CPU renders of the Muse's body at the eval
+# camera): a foot moved forward/back (z) under the body while it faces the camera — or at
+# root_yaw ~0.25 and beyond, where the camera sees its back — is hidden; only the three-quarter band (0.08-0.2 turn) shows
+# it. A paw well behind the body (z <= -0.5) while it faces the camera is hidden too. Reported (asks the prompt's restaging
+# rule: turn three-quarter / out to the side / lift / lean), never a cache gate: a pose is never changed or delayed.
+HIDE_FOOT_Z, HIDE_PAW_Z = 0.08, -0.5
+SEEN_YAW = (0.08, 0.2)                               # |root_yaw| off the nearest whole turn that shows a forward leg
+TIPPED = 0.1                                         # |root_pitch| / |root_roll| off the nearest whole turn: lying / rolling
+
+
+def limb_hidden(poses) -> bool:
+    """True when some pose moves a foot forward/back or a paw behind the body where the camera cannot see it."""
+    cur: dict = {}
+    off = lambda v: abs(v - round(v))
+    for p in poses:
+        moved = {k for k, v in p.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
+        cur.update({k: p[k] for k in moved})
+        if off(cur.get("root_pitch", 0.0)) > TIPPED or off(cur.get("root_roll", 0.0)) > TIPPED:
+            continue
+        yaw = off(cur.get("root_yaw", 0.0))
+        seen = SEEN_YAW[0] <= yaw <= SEEN_YAW[1]
+        for side in ("right", "left"):
+            fz, fx = f"{side}_foot_z", f"{side}_foot_x"
+            if fz in moved and abs(cur[fz]) >= HIDE_FOOT_Z and abs(cur[fz]) > abs(cur.get(fx, 0.0)) and not seen:
+                return True
+            pz = f"{side}_paw_z"
+            if pz in moved and cur[pz] <= HIDE_PAW_Z and yaw < SEEN_YAW[0]:
+                return True
+    return False
 
 
 def check_on(cfg) -> bool:

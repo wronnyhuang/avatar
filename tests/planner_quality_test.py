@@ -125,6 +125,28 @@ class Check(unittest.TestCase):
         self.assertEqual(P([{"t": 0.3, "do": {"verb": "pick_up", "object": "ball"}}]), [])                 # scene steps: not judged
         self.assertEqual(P([{"t": 0.3, "right_grab": 1}, {"t": 1, "right_held_y": 0.1}]), [])
 
+    def test_limb_hidden(self):                                
+        P = planner.plan_issues
+        kick = {"right_foot_y": 0.15, "right_foot_z": 0.15}
+        hold = lambda **c: [{"t": 0.4, **c}, {"t": 2.4, **c}]
+        self.assertEqual(P(hold(**kick)), ["limb_hidden"])                               # front-on: behind the belly
+        self.assertEqual(P(hold(root_yaw=0.25, **kick)), ["limb_hidden"])                # 0.25 shows the back
+        self.assertEqual(P(hold(root_yaw=-0.15, **kick)), [])                            # three-quarter: seen
+        self.assertEqual(P(hold(right_foot_x=-0.18, left_foot_x=0.18, root_y=-0.2)), [])  # sideways: seen front-on
+        self.assertEqual(P(hold(right_paw_x=-0.5, right_paw_y=0.15, right_paw_z=-1)), ["limb_hidden"])
+        self.assertEqual(P(hold(root_pitch=0.25, **kick)), [])                           # lying: not judged
+        self.assertNotIn("limb_hidden", planner.CHECK_HARD)                              # reported, never a cache gate
+
+    def test_q2_variant(self):
+        q2 = planner.Planner(dict(CFG, prompt_variant="q2"), lambda m: None)
+        q1 = planner.Planner(CFG, lambda m: None)
+        self.assertEqual(q2.variant, "q2")
+        self.assertTrue(q2.prompts["muse"]["ok"])
+        t2, t1 = q2.prompts["muse"]["text"], q1.prompts["muse"]["text"]
+        self.assertIn("THREE-QUARTER", t2)
+        self.assertNotIn("THREE-QUARTER", t1)                                            # q1 is unchanged
+        self.assertTrue(t2.startswith(t1[:400]))
+
     def test_cache_gate(self):
         d = tempfile.mkdtemp(prefix="planq-cache-")
         try:
