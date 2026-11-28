@@ -71,7 +71,7 @@ check('result ok', page.intentToolResult(true), {ok: true, did: 'spinning three 
 D.intentRes = {ok: false, id: 5, reason: 'there is no red one here'};
 check('result refusal', page.intentToolResult(false), {ok: false, reason: 'there is no red one here'});
 D.intentRes = {dup: true, first: {ok: true, did: 'picking up the red ball'}};
-const DUP_NOTE = 'already under way — started from his own words as he asked (his request IS happening: say so naturally, never apologize or say it could not be done)';   // t4914 lookdup
+const DUP_NOTE = 'already under way — started from his own words as he asked (his request IS happening: say so naturally, never apologize or say it could not be done)';
 check('duplicate answers with the first', page.intentToolResult(false), {ok: true, already: true, did: 'picking up the red ball', note: DUP_NOTE});
 D.intentRes = null;
 check('fallback bool', page.intentToolResult(true), {ok: true});
@@ -125,7 +125,8 @@ check('model pull chair (no target) agrees = dup', IntentDedupe.seen(page.toolTo
 
 // the page's runCommand (verbatim from page.html) with a stub motion engine: the conflicting model call reaches
 // motion.command with replaces = the matcher job's id; an agreeing call never reaches it and answers with the first result
-const r0 = html.indexOf('function runCommand('), r1 = html.indexOf('// Until motion.js lands');
+const rg = html.indexOf('const STEP_GATED_SRC');   // the start gate's constants sit just above runCommand
+const r0 = rg >= 0 && rg < html.indexOf('function runCommand(') ? rg : html.indexOf('function runCommand('), r1 = html.indexOf('// Until motion.js lands');
 const sent = [];
 let clock = 0, nextId = 1;
 const D2 = {cmds: [], lastCmd: new Map(), motion: {command: (c) => { sent.push(c); return {ok: true, id: nextId++, did: 'doing ' + (c.name || c.verb)}; }}};

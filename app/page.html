@@ -954,7 +954,7 @@ function voiceLibrary(desc, move, info) {
   if (!cmds.length) return null;
   let ran = 0, dup = 0, reason = ''; const did = [];
   for (const c of cmds) {
-    const r = runCommand(c, 'voice', Object.assign({}, info || {}, {description: String(desc || '')}));   // + the request's words (a named duration)
+    const r = runCommand(c, 'voice', Object.assign({}, info || {}, {description: String(desc || '')}, intentAct() ? {stepGate: true} : {}));   // + the request's words (a named duration); the start gate
     if (r === false && D.intentRes && D.intentRes.dup) dup++;
     else if (r && (r === true || r.ok !== false)) { ran++; if (r.did) did.push(r.did); }
     else reason = (r && r.reason) || reason;
@@ -993,6 +993,10 @@ function vtRunCommand(cmd, info) {
   const r = runCommand(cmd, 'voice', info);
   return r === false && D.intentRes && D.intentRes.dup ? {dup: true, first: D.intentRes.first || null} : r;
 }
+function stepSyncOn() { return Q.get('stepsync') !== '0' && !(S.cfg && S.cfg.step_sync === false) && Q.get('movesync') !== '0' && !(S.cfg && S.cfg.move_sync === false); }
+// step sync: a body motion the matchers start from his words (move / object / gesture / pose) goes through the same start gate
+// as the voice model's planned and library moves (app/perform.js gate): it starts with the avatar's announcing voice
+const STEP_GATED_SRC = {matcher: 1, 'matcher-llm': 1, caption: 1}, STEP_GATED_ACT = {move: 1, object: 1, gesture: 1, pose: 1};
 function runCommand(cmd, source, info) {
   const t = performance.now();
   if (D.rdbg) D.rdbg.cmd(cmd, source, info);
@@ -1026,6 +1030,20 @@ function runCommand(cmd, source, info) {
     const hs = D.motion.askedHoldS(info && (info.text || info.description) || '');
     if (hs) cmd = {...cmd, duration_ms: Math.round(hs * 1000)};
   }
+  if (D.motion && D.motion.command && (STEP_GATED_SRC[source] || (info && info.stepGate)) && STEP_GATED_ACT[cmd.action] && !(info && info.stepGated) && D.perf && D.perf.gate && stepSyncOn()) {
+    const rec = window.IntentDedupe && IntentDedupe.last && !IntentDedupe.last.dup ? IntentDedupe.last.rec : null;
+    let res = null, ran = false;
+    const go = how => { ran = true; res = stepRun(cmd, source, asked, dsrc, t); D.cmds.push({step: how, source, action: cmd.action, name: cmd.name || cmd.verb || '', held_ms: Math.round(performance.now() - t)});
+      if (rec && res && typeof res === 'object') rec.res = res;
+      if (source !== 'caption' && res && typeof res === 'object' && res.ok) D.matcherRes = {res, t: performance.now(), action: cmd.action}; };
+    D.perf.gate(go, source + ' ' + cmd.action);
+    if (ran) return res;
+    if (D.alog) D.lastCmdRes = {ok: true, pending: true};
+    return {ok: true, pending: true, did: 'starting it as you speak'};
+  }
+  return stepRun(cmd, source, asked, dsrc, t);
+}
+function stepRun(cmd, source, asked, dsrc, t) {
   if (D.motion && D.motion.command) {
     let ok = false, res = null;
     // r2-objvoice: the user's object request -> the lesson's chalk / eraser go back on the tray first (queued before it)
@@ -2317,6 +2335,8 @@ D.perf = window.AvatarPerform ? AvatarPerform.createPerformer({
   planner: () => D.planMode, semState: () => semStateNow(),
   // move sync (app/perform.js): the motion starts with the words that announce it, the "done" line lands at its end; ?movesync=0 = off
   moveSync: () => Q.get('movesync') !== '0' && !(S.cfg && S.cfg.move_sync === false),
+  // step sync: every commanded motion starts with the avatar's announcing voice (perform.gate; ?stepsync=0 = off, ?stepmax=ms = the bound)
+  stepSync: () => stepSyncOn(), stepMaxMs: () => (Q.get('stepmax') != null && Q.get('stepmax') !== '' ? +Q.get('stepmax') : NaN),
   avatarSpeaking: () => !!(D.play && D.play.avatarVoice && D.play.avatarVoice().voiced),
   log: rec => { D.cmds.push(rec); if (D.cmds.length > 300) D.cmds.splice(0, 100); },
 }) : null;

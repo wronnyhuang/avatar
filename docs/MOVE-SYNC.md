@@ -71,3 +71,42 @@ a note is modelled (latency drawn from the real tool-result -> first-audio distr
 The third column depends on the voice model keeping its first words to an acknowledgement, as the new tool result asks; that
 is not measurable offline. If it keeps announcing in its first words, the middle column holds: the announcement still leads
 the motion by the planner's latency, which only a faster plan or holding its first words would change.
+
+## Step sync — ONE start gate for every commanded motion
+**The general cause.** A commanded motion started on its OWN clock (the moment the matcher read his words, the library
+answered, or the plan was ready) while its announcement starts on the VOICE MODEL's clock (its first audio, 1.5–3 s after
+his last word on Gemini Live). Nothing joined the two clocks except a per-route patch for planned moves (the cue note), so
+known moves led their words by ~1.5 s and fresh plans got a second (and third) line asked at the motion's start.
+
+**The mechanism** (`app/perform.js` `gate()`; one rule, every source): a commanded body motion starts at the avatar's first
+voice after his last words — at once when that voice has already begun (it is speaking, or spoke since he stopped), at the
+voice onset otherwise, and at most `STEP_MAX_MS` (1500 ms, `?stepmax=ms`; live: 900 ms let 4 of 12 known moves start before the words) after it could start; while he is still speaking
+the bound counts from his end (a matcher that fires mid-sentence). Nothing waits on it but the motion: tool results and
+replies are untouched. Users of the gate:
+- the hub matcher / LLM matcher / caption matcher (`page.html` `runCommand`, actions move / object / gesture / pose);
+- the voice model's direct library run (`voiceLibrary`, engine characters) — its tool result says "starting it as you speak";
+- the performer's library answers (`runLibrary`) and planned / cached keyframe jobs (`onReady`: replaces the cue logic).
+For a planned move the first line IS the announcement (the tool result now asks it to say what it is about to do; Gemini
+announced anyway), the thinking gesture fills the planner wait from the call on, and the move starts at ready with no second
+cue — two lines per move: the announcement and the done line (unchanged).
+Not gated: `object` steps through `perform.engineCall` (their tool result must report the real outcome synchronously),
+expressions / looks / releases, page UI commands.
+
+**Switch:** `?stepsync=0` or hub config `step_sync: false` (also off whenever move sync is off). Without the page getter
+(`d.stepSync`) the performer behaves exactly as before (all existing tests unchanged). Test: `node tests/step_sync_test.cjs`.
+At a step-gated kf start the silent "playing now" / duration notes add "You already announced it: say nothing now." (live:
+without it Gemini still volunteered a "Here it goes!" at the motion's start in 6 of 8 fresh plans).
+
+**Live result** (Gemini Live, Muse, a private instance with the stub renderer, synthesised spoken commands),
+median / p90 ms after his speech ends:
+
+| | previous build | `?stepsync=0` (same hour) | `?movesync=0` | step sync (1500 ms) |
+|---|---|---|---|---|
+| known moves: \|motion start − first words\| | 1388 / 2189 (n=32) | 1542 / 7539 (n=15) | 1217 / 1631 (n=6) | **235 / 508** (n=21) |
+| known moves: first words | 2091 / 2787 | 2438 / 8385 | 1906 / 2256 | 1995 / 2522 |
+| known moves: motion (main stroke) starts | 743 / 888 | 987 / 1768 | 632 / 818 | 1763 / 2356 |
+| known moves: body first reacts (stall gesture) | = motion start | = motion start | = motion start | 1119 / 1271 |
+| planned, fresh: lines per move | 3 / 3 | 3 / 4 | 3 / 4 | **2 / 2** (n=8; 7 of 8 two) |
+| planned, fresh: first words | 2080 / 2572 | 2043 / 2413 | 1793 / 2198 | 1790 / 2171 |
+| planned, fresh: \|done line − motion end\| | 103 / 554 | 105 / 521 | 984 / 4350 | 288 / 2294 |
+A 900 ms bound gave 435 / 1169 (4 of 12 known moves started at the bound, before the words).
