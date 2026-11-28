@@ -1170,11 +1170,17 @@
    "ur": 1,
    "yer": 1,
    "a": 1,
-   "one": 1,
-   "both": 1,
+   "one": "one",
+   "both": "both",
    "those": 1,
    "these": 1,
-   "her": 1
+   "her": 1,
+   "an": "one",
+   "either": "one",
+   "single": "one",
+   "other": "other",
+   "yourother": "other",
+   "theother": "other"
   },
   "paw": {
    "paw": 1,
@@ -10139,5 +10145,9 @@
    "on",
    "at"
   ]
+ },
+ "one_side": {
+  "_doc": "a paired part (paw/eye/ear/brow) named ONE-sided ('one', 'an', 'either', 'single') moves one side: a named side wins, else the rule's own one-sided default, else 'l' (the character's own right, as wave/raise_paw/wink); 'other' = the opposite of that default; plural / 'both' = both sides. false = off.",
+  "on": true
  }
 }

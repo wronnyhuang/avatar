@@ -81,7 +81,7 @@ check('fallback bool false', page.intentToolResult(false), {ok: false});
 S.cfg = {character: 'muse', props: scene};
 check('muse page matcher', [page.intentAct(), !!page.intentOpts().scene], [true, true]);
 S.cfg = {character: 'fox'};
-check('fox page matcher', page.intentOpts(), {act: false, scene: null});
+check('fox page matcher', page.intentOpts(), {act: false, scene: null, oneSide: true});
 
 // dedupe: the matcher's command and the model's tool call for the same request = one action; a new utterance passes
 IntentDedupe.reset();

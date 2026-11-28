@@ -128,10 +128,27 @@
     return true;
   }
 
+  /* the side/quantity resolver for every paired part (paw / eye / ear / brow) of every rule: 'one', 'an',
+     'either', 'single' = ONE side (the rule's own one-sided default, else 'l' = the character's own
+     right, as wave / raise_paw / wink); 'other' = the opposite of that default; plural / 'both' = both (null here).
+     A named side always wins (handled by the caller). R.d.one_side.on === false or create(.., {oneSide: false}) = off. */
+  function oneSide(R, rule, caps) {
+    if (!rule.pside || R.oneSideOff || (R.d.one_side && R.d.one_side.on === false)) return null;
+    const def = rule.side === 'l' || rule.side === 'r' ? rule.side : 'l';
+    const poss = caps.poss;
+    if (poss === 'other') return def === 'l' ? 'r' : 'l';
+    if (poss === 'both') return null;
+    if (poss === 'one') return def;   // a bare singular ('put your paw down') keeps the rule's own default
+    return null;
+  }
+
   function build(R, rule, caps, mods) {
     const c = clone(rule.c);
     let side;
+    // ONE side of a paired part ('close one eye', 'lift an eyebrow', 'wiggle your ear', 'your other hand')
+    const q = oneSide(R, rule, caps);
     if (has(caps, 'side')) side = caps.side;
+    else if (q) side = q;
     else if (rule.pside && ['paw', 'ear', 'eye', 'brow'].some((k) => caps[k] === 2)) side = 'both';
     else side = has(rule, 'side') ? rule.side : null;
     let lr = caps.lr || caps.dir || null;
@@ -891,6 +908,8 @@
   function create(rulesData, opts) {
     opts = opts || {};
     const R = compile(rulesData);
+    if (opts.oneSide === false) R.oneSideOff = true;
+    if (!autoR) autoR = R;   // IntentDedupe resolves a tool command's body parts through the same rules
     const self = {R, last: null};
     // whole-body intent: opts.act === false -> the base matcher exactly; opts.scene = config.props (or a list) adds prop nouns
     if (rulesData.act && opts.act !== false) {
@@ -1078,9 +1097,34 @@
     for (const [pre, part] of PART_PREFIX) if (param.startsWith(pre)) return part;
     return param;
   }
-  let defaultR = null;
+  let defaultR = null, autoR = null, BODY_KEYS = true;   // BODY_KEYS false = the old name/side keys (?dupparts=0)
+  const OWN_SIDE = {right: 'l', left: 'r', own_right: 'l', own_left: 'r', both: 'both'};
+  /* the body parts a gesture / pose NAME moves, whoever named it. The matcher's rules know their own names
+     (R.nameParts); the voice model names the same act its own way ('shake' / 'shake_head', 'tongue_out' /
+     'stick_tongue_out', 'point' / 'point_user', 'brow_raise' / 'brows_up'). An unknown name resolves through the rule names
+     that contain all its words, then through the body-part words in it — so every tool kind dedupes on the body parts
+     it drives, not on the spelling of its name. */
+  const NP_CACHE = new WeakMap();
+  const npTok = (w) => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w);
+  function namePartsOf(R, name) {
+    if (has(R.nameParts, name)) return R.nameParts[name];
+    let cache = NP_CACHE.get(R);
+    if (!cache) { cache = {}; NP_CACHE.set(R, cache); }
+    if (has(cache, name)) return cache[name];
+    const toks = name.toLowerCase().split(/[_\s-]+/).filter(Boolean).map(npTok);
+    const out = new Set();
+    if (toks.length) for (const k of Object.keys(R.nameParts)) {
+      const kt = new Set(k.split('_').map(npTok));
+      if (toks.every((t) => kt.has(t))) for (const p of R.nameParts[k]) out.add(p);
+    }
+    if (!out.size) for (const t of toks) if (has(PART_WORD, t)) out.add(PART_WORD[t]);
+    return (cache[name] = Array.from(out));
+  }
+  const PART_WORD = {head: 'head', eye: 'eyes', eyelid: 'eyes', lid: 'eyes', wink: 'eyes', blink: 'eyes', ear: 'ear_$',
+    hand: 'hand_$', paw: 'hand_$', arm: 'hand_$', tongue: 'tongue', mouth: 'mouth', brow: 'brows', eyebrow: 'brows',
+    tail: 'tail', shoulder: 'shoulders', nose: 'nose', cheek: 'cheeks', body: 'body'};
   function cmdKeys(cmd, R) {
-    R = R || defaultR || {nameParts: {}};
+    R = R || defaultR || (BODY_KEYS ? autoR : null) || {nameParts: {}};
     const a = cmd.action;
     if (a === 'release') {
       const ps = cmd.parts;
@@ -1100,10 +1144,17 @@
     if (!parts || !parts.length) {
       const ps = new Set();
       for (const k of Object.keys(cmd.targets || {})) ps.add(partOf(k));
-      if (!ps.size && has(R.nameParts, cmd.name)) {
+      if (!ps.size && !BODY_KEYS && has(R.nameParts, cmd.name)) {
         const side = cmd.side;
         const sides = (side === 'both' || side === undefined || side === null) ? ['l', 'r'] : [side];
         for (const p of R.nameParts[cmd.name]) for (const pp of (p.includes('$') ? sides.map((s) => p.split('$').join(s)) : [p])) ps.add(pp);
+      }
+      if (!ps.size && BODY_KEYS && cmd.name) {
+        // the voice tools name the side in words ('right' = the character's own right = rig 'l', the same
+        // convention as cmd.own) where the matcher writes rig suffixes — one body part, one key, whoever sent it
+        const side = has(OWN_SIDE, cmd.side) ? OWN_SIDE[cmd.side] : cmd.side;
+        const sides = (side === 'l' || side === 'r') ? [side] : ['l', 'r'];
+        for (const p of namePartsOf(R, String(cmd.name))) for (const pp of (p.includes('$') ? sides.map((s) => p.split('$').join(s)) : [p])) ps.add(pp);
       }
       parts = ps.size ? Array.from(ps).sort() : [String(cmd.name || a)];
     }
@@ -1273,6 +1324,7 @@
 
   IntentDedupe.agree = actAgree;
   IntentDedupe.setScene = setScene;
+  IntentDedupe.setBodyKeys = (on) => { BODY_KEYS = on !== false; };
   const Intent = {create, normalize, tokenize: (R, t) => tokenize(R, t), canon, cmdKeys, partOf, MOVE_FAM, OBJ_FAM,
     setDefaultRules(data) { defaultR = compile(data); }, STABLE_MS};
   if (typeof module !== 'undefined' && module.exports) module.exports = {Intent, IntentDedupe};

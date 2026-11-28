@@ -927,7 +927,7 @@ function intentAct() {
   return f === '1' || (f !== '0' && (ch === 'muse' || !!(S.cfg && S.cfg.props)));
 }
 function intentCharKey() { return ((S.cfg && S.cfg.character) || sel) + '|' + (intentAct() ? 1 : 0) + '|' + (S.cfg && S.cfg.props ? 1 : 0); }
-function intentOpts() { return {act: intentAct(), scene: intentAct() && S.cfg && S.cfg.props ? S.cfg.props : null}; }
+function intentOpts() { return {act: intentAct(), scene: intentAct() && S.cfg && S.cfg.props ? S.cfg.props : null, oneSide: Q.get('oneside') !== '0'}; }   // ?oneside=0 = the old sides
 // intent end
 // echo guard for the matchers: drop a hit whose words the avatar itself said in the last 20 s (its own voice leaking
 // into the mic and being heard as a command: "turn around and see if your dog is asleep")
@@ -1987,6 +1987,7 @@ function applyConfig(c) {
   // motion: the character's body + scene for the move engine (absent = the older characters: engine off)
   if (D.motion && D.motion.setProps && 'character' in c) { try { D.motion.setProps(c.props || null, c.body || null, c.character); D.propsFor = c.character; } catch (e) { console.warn('setProps', e); } }
   if ('character' in c) teachConfig(c);                                                    // teach
+  if (window.IntentDedupe && IntentDedupe.setBodyKeys) IntentDedupe.setBodyKeys(Q.get('dupparts') !== '0');   // dedupe on body parts, whoever named them
   if ('character' in c && window.IntentDedupe && IntentDedupe.setScene) { try { IntentDedupe.setScene(c.props || null); } catch (e) {} }   // B5: names → the scene's ids
   if (c.delay_ms && S.base === null) S.D = c.delay_ms / 1000;
   if (c.width && c.height && (cv.width !== c.width || cv.height !== c.height)) { cv.width = c.width; cv.height = c.height; }

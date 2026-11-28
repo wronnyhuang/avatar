@@ -227,12 +227,32 @@ def _scaled(R: Rules, k: str) -> bool:
     return True
 
 
+def _one_side(R: Rules, rule: dict, caps: dict):
+    """the side/quantity resolver (identical to app/intent.js oneSide): 'one' / 'an' / 'either' / 'single'
+    = ONE side (the rule's one-sided default, else 'l' = the character's own right); 'other' = the opposite;
+    plural / 'both' = None. rules one_side.on false or AVATAR_INTENT_ONESIDE=0 = off."""
+    if not rule.get("pside") or os.environ.get("AVATAR_INTENT_ONESIDE") == "0" or (R.d.get("one_side") or {}).get("on") is False:
+        return None
+    d = rule.get("side") if rule.get("side") in ("l", "r") else "l"
+    poss = caps.get("poss")
+    if poss == "other":
+        return "r" if d == "l" else "l"
+    if poss == "both":
+        return None
+    if poss == "one":  # a bare singular ("put your paw down") keeps the rule's own default
+        return d
+    return None
+
+
 def build(R: Rules, rule: dict, caps: dict, mods: dict) -> dict | None:
     c = copy.deepcopy(rule["c"])
     # side
     side = None
+    q = _one_side(R, rule, caps)  # ONE side of a paired part
     if "side" in caps:
         side = caps["side"]
+    elif q:
+        side = q
     elif rule.get("pside") and any(caps.get(k) == 2 for k in ("paw", "ear", "eye", "brow")):
         side = "both"
     else:
